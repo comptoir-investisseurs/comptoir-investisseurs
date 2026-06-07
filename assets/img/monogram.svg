@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Monogramme La Financière de Rochechouart">
+  <defs>
+    <radialGradient id="halo" cx="0.5" cy="0.42" r="0.6">
+      <stop offset="0" stop-color="#F6E6B8"/><stop offset="0.7" stop-color="#EBD49A"/><stop offset="1" stop-color="#EBD49A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="32" cy="30" r="24" fill="url(#halo)"/>
+  <text x="32" y="41" text-anchor="middle" font-family="Cormorant Garamond, Georgia, 'Times New Roman', serif" font-size="30" font-weight="600" letter-spacing="-1" fill="#001B00">FR</text>
+</svg>

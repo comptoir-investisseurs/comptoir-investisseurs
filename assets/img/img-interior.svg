@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Intérieur feutré et lumineux">
+  <defs>
+    <linearGradient id="iwall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#EAE2D2"/><stop offset="1" stop-color="#D6C9AF"/>
+    </linearGradient>
+    <linearGradient id="ilight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBF1D6"/><stop offset="1" stop-color="#E7CF9C"/>
+    </linearGradient>
+    <radialGradient id="iglow" cx="0.62" cy="0.32" r="0.6">
+      <stop offset="0" stop-color="#FFF6E0" stop-opacity="0.85"/><stop offset="1" stop-color="#FFF6E0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#iwall)"/>
+  <!-- floor -->
+  <rect x="0" y="440" width="800" height="160" fill="#A98A5E"/>
+  <rect x="0" y="440" width="800" height="160" fill="#3a2c18" opacity="0.18"/>
+  <!-- tall window with warm light -->
+  <g transform="translate(430,70)">
+    <rect x="-14" y="-14" width="328" height="380" fill="#C9B991"/>
+    <rect width="300" height="352" fill="url(#ilight)"/>
+    <line x1="150" y1="0" x2="150" y2="352" stroke="#C9B991" stroke-width="12"/>
+    <line x1="0" y1="176" x2="300" y2="176" stroke="#C9B991" stroke-width="12"/>
+    <rect x="-26" y="352" width="352" height="16" fill="#BBA87F"/>
+  </g>
+  <rect width="800" height="600" fill="url(#iglow)"/>
+  <!-- armchair silhouette -->
+  <g transform="translate(120,330)" fill="#33402F">
+    <rect x="0" y="40" width="150" height="120" rx="18"/>
+    <rect x="-14" y="0" width="40" height="150" rx="16"/>
+    <rect x="124" y="0" width="40" height="150" rx="16"/>
+    <rect x="10" y="-30" width="130" height="70" rx="22"/>
+    <rect x="10" y="158" width="22" height="44"/><rect x="118" y="158" width="22" height="44"/>
+  </g>
+  <!-- side table + accent -->
+  <g transform="translate(300,420)" fill="#5b4327"><rect x="0" y="0" width="64" height="8" rx="3"/><rect x="6" y="8" width="8" height="60"/><rect x="50" y="8" width="8" height="60"/></g>
+  <circle cx="324" cy="408" r="13" fill="#2f6b3a"/>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Triangle de sécurité de l'assurance-vie luxembourgeoise">
+  <defs>
+    <linearGradient id="lbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#04240E"/><stop offset="1" stop-color="#001B00"/>
+    </linearGradient>
+    <linearGradient id="lgold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E6C988"/><stop offset="1" stop-color="#A9853f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#lbg)"/>
+  <g stroke="#C9A86A" stroke-opacity="0.10" stroke-width="1">
+    <circle cx="400" cy="300" r="220" fill="none"/><circle cx="400" cy="300" r="160" fill="none"/>
+  </g>
+  <!-- security triangle -->
+  <polygon points="400,150 560,420 240,420" fill="none" stroke="url(#lgold)" stroke-width="3"/>
+  <g fill="#F0DCAE">
+    <circle cx="400" cy="150" r="9"/><circle cx="560" cy="420" r="9"/><circle cx="240" cy="420" r="9"/>
+  </g>
+  <text x="400" y="132" text-anchor="middle" font-family="Jost, Helvetica, Arial, sans-serif" font-size="20" letter-spacing="3" fill="#E6C988">ASSUREUR</text>
+  <text x="585" y="455" text-anchor="middle" font-family="Jost, Helvetica, Arial, sans-serif" font-size="20" letter-spacing="3" fill="#E6C988">SOUSCRIPTEUR</text>
+  <text x="215" y="455" text-anchor="middle" font-family="Jost, Helvetica, Arial, sans-serif" font-size="20" letter-spacing="3" fill="#E6C988">BANQUE</text>
+  <text x="400" y="312" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="44" fill="#F4ECD6">Triangle</text>
+  <text x="400" y="352" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="30" fill="#C9A86A" letter-spacing="2">de sécurité</text>
+</svg>

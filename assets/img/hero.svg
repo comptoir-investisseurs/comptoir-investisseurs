@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Palais classique parisien aux teintes d'automne">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8FA9BE"/>
+      <stop offset="0.45" stop-color="#B7C2C4"/>
+      <stop offset="0.8" stop-color="#E7D9BD"/>
+      <stop offset="1" stop-color="#F1E6CE"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.7" cy="0.18" r="0.5">
+      <stop offset="0" stop-color="#FBF3DC" stop-opacity="0.9"/>
+      <stop offset="0.5" stop-color="#F3E4C2" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#F3E4C2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D9CDB4"/>
+      <stop offset="1" stop-color="#C2B292"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#565C57"/>
+      <stop offset="1" stop-color="#3C413D"/>
+    </linearGradient>
+    <linearGradient id="vignette" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#001B00" stop-opacity="0.18"/>
+      <stop offset="0.35" stop-color="#001B00" stop-opacity="0"/>
+      <stop offset="0.85" stop-color="#001B00" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0b2410" stop-opacity="0.28"/>
+    </linearGradient>
+
+    <!-- Window tile for the facade -->
+    <pattern id="windows" width="92" height="150" patternUnits="userSpaceOnUse">
+      <rect x="22" y="14" width="48" height="104" rx="3" fill="#7E7158"/>
+      <rect x="26" y="18" width="40" height="96" rx="2" fill="#3A3A36"/>
+      <rect x="26" y="18" width="40" height="96" rx="2" fill="#5A6168" opacity="0.45"/>
+      <line x1="46" y1="18" x2="46" y2="114" stroke="#2c2c29" stroke-width="1.4"/>
+      <line x1="26" y1="64" x2="66" y2="64" stroke="#2c2c29" stroke-width="1.4"/>
+      <rect x="18" y="120" width="56" height="6" rx="2" fill="#B6A684"/>
+      <rect x="24" y="8" width="44" height="6" rx="2" fill="#Cabc9b"/>
+    </pattern>
+
+    <!-- Dormer tile for the mansard roof -->
+    <pattern id="dormers" width="150" height="120" patternUnits="userSpaceOnUse">
+      <rect x="58" y="34" width="34" height="48" rx="2" fill="#2F3330"/>
+      <rect x="58" y="34" width="34" height="48" rx="2" fill="#6c7884" opacity="0.5"/>
+      <path d="M54 34 L75 16 L96 34 Z" fill="#777E78"/>
+    </pattern>
+
+    <clipPath id="facadeClip"><rect x="150" y="430" width="1300" height="300"/></clipPath>
+    <clipPath id="roofClip"><path d="M150 430 L230 360 L1370 360 L1450 430 Z"/></clipPath>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect width="1600" height="900" fill="url(#sun)"/>
+
+  <!-- Distant tree line -->
+  <path d="M0 470 Q120 410 240 460 Q360 420 470 465 L470 560 L0 560 Z" fill="#9AA886" opacity="0.55"/>
+  <path d="M1130 468 Q1260 415 1380 462 Q1500 420 1600 470 L1600 560 L1130 560 Z" fill="#9AA886" opacity="0.55"/>
+
+  <!-- Building body -->
+  <rect x="150" y="430" width="1300" height="300" fill="url(#stone)"/>
+  <!-- Cornice lines -->
+  <rect x="150" y="430" width="1300" height="10" fill="#B7A684"/>
+  <rect x="150" y="560" width="1300" height="5" fill="#B09F7d" opacity="0.7"/>
+  <!-- Ground floor arcade shading -->
+  <rect x="150" y="690" width="1300" height="40" fill="#A8967328" />
+  <!-- Windows -->
+  <g clip-path="url(#facadeClip)"><rect x="150" y="445" width="1300" height="285" fill="url(#windows)"/></g>
+
+  <!-- Central pediment -->
+  <rect x="720" y="392" width="160" height="42" fill="#D2C6AD"/>
+  <path d="M712 392 L800 352 L888 392 Z" fill="#CDBFA6"/>
+  <path d="M712 392 L800 352 L888 392 Z" fill="none" stroke="#B0A07E" stroke-width="3"/>
+
+  <!-- Mansard roof -->
+  <path d="M150 430 L230 360 L1370 360 L1450 430 Z" fill="url(#roof)"/>
+  <g clip-path="url(#roofClip)"><rect x="150" y="356" width="1300" height="80" fill="url(#dormers)"/></g>
+  <rect x="150" y="356" width="1300" height="6" fill="#2b302c"/>
+  <!-- Chimneys -->
+  <g fill="#8A8378">
+    <rect x="360" y="338" width="40" height="26"/><rect x="700" y="334" width="46" height="30"/>
+    <rect x="980" y="338" width="40" height="26"/><rect x="1180" y="336" width="44" height="28"/>
+  </g>
+
+  <!-- Balustrade with statue silhouettes along the cornice -->
+  <g fill="#C7B997">
+    <rect x="150" y="418" width="1300" height="14"/>
+    <g>
+      <rect x="180" y="404" width="9" height="16"/><rect x="220" y="404" width="9" height="16"/>
+      <rect x="260" y="404" width="9" height="16"/><rect x="300" y="404" width="9" height="16"/>
+      <rect x="340" y="404" width="9" height="16"/><rect x="380" y="404" width="9" height="16"/>
+      <rect x="420" y="404" width="9" height="16"/><rect x="460" y="404" width="9" height="16"/>
+      <rect x="500" y="404" width="9" height="16"/><rect x="540" y="404" width="9" height="16"/>
+      <rect x="580" y="404" width="9" height="16"/><rect x="620" y="404" width="9" height="16"/>
+      <rect x="940" y="404" width="9" height="16"/><rect x="980" y="404" width="9" height="16"/>
+      <rect x="1020" y="404" width="9" height="16"/><rect x="1060" y="404" width="9" height="16"/>
+      <rect x="1100" y="404" width="9" height="16"/><rect x="1140" y="404" width="9" height="16"/>
+      <rect x="1180" y="404" width="9" height="16"/><rect x="1220" y="404" width="9" height="16"/>
+      <rect x="1260" y="404" width="9" height="16"/><rect x="1300" y="404" width="9" height="16"/>
+      <rect x="1340" y="404" width="9" height="16"/><rect x="1380" y="404" width="9" height="16"/>
+    </g>
+    <g opacity="0.92">
+      <path d="M700 384 q6 -18 14 0 q4 14 -7 34 l-14 0 q-9 -20 7 -34Z"/>
+      <path d="M840 384 q6 -18 14 0 q4 14 -7 34 l-14 0 q-9 -20 7 -34Z"/>
+    </g>
+  </g>
+
+  <!-- Foreground autumn foliage -->
+  <g>
+    <path d="M-40 900 L-40 560 Q120 470 230 540 Q360 480 430 600 Q480 700 360 760 Q420 860 250 900 Z" fill="#7E5A24"/>
+    <path d="M-40 900 L-40 600 Q90 520 220 580 Q330 540 380 660 Q300 740 360 900 Z" fill="#A87B30"/>
+    <path d="M-40 900 L-40 660 Q120 600 250 680 Q200 800 300 900 Z" fill="#C79A41"/>
+    <path d="M-40 900 L-40 740 Q140 690 230 800 Q180 870 240 900 Z" fill="#5E6B33"/>
+  </g>
+  <g>
+    <path d="M1640 900 L1640 560 Q1480 470 1370 540 Q1240 480 1170 600 Q1120 700 1240 760 Q1180 860 1350 900 Z" fill="#7E5A24"/>
+    <path d="M1640 900 L1640 600 Q1510 520 1380 580 Q1270 540 1220 660 Q1300 740 1240 900 Z" fill="#A87B30"/>
+    <path d="M1640 900 L1640 660 Q1500 600 1350 680 Q1400 800 1300 900 Z" fill="#C79A41"/>
+    <path d="M1640 900 L1640 740 Q1460 690 1370 800 Q1420 870 1360 900 Z" fill="#5E6B33"/>
+  </g>
+
+  <!-- Vignette -->
+  <rect width="1600" height="900" fill="url(#vignette)"/>
+</svg>
