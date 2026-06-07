@@ -203,7 +203,8 @@ p{ margin:0 0 1.1em; }
   letter-spacing:.14em; text-transform:uppercase; color:var(--gold);
 }
 .link-arrow svg{ transition:transform .4s var(--ease); }
-.link-arrow:hover svg{ transform:translateX(6px); }
+.link-arrow:hover svg,
+.tile:hover .link-arrow svg{ transform:translateX(6px); }
 
 /* =========================================================================
    Hero (home)
@@ -342,6 +343,13 @@ p{ margin:0 0 1.1em; }
 }
 .checklist--light li::before{ background:rgba(201,168,106,.2); }
 .checklist--light li::after{ border-color:var(--gold-light); }
+
+/* Tag pills */
+.tags{ display:flex; flex-wrap:wrap; gap:12px; }
+.tag{ padding:9px 20px; border:1px solid var(--line); border-radius:40px; font-size:.84rem; letter-spacing:.04em; color:var(--green); background:#fff; transition:border-color .3s var(--ease), color .3s var(--ease); }
+.tag:hover{ border-color:var(--gold); color:var(--gold); }
+.band-cream .tag,.band-sand .tag{ background:var(--parchment); }
+.tags--light .tag{ border-color:rgba(201,168,106,.4); color:var(--cream); background:transparent; }
 
 /* Quote */
 .quote{ max-width:880px; margin-inline:auto; text-align:center; }

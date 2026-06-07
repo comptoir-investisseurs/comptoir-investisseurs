@@ -264,7 +264,8 @@ def tiles(items, dark_first=False):
         inner = '%s<h3>%s</h3><p>%s</p>' % (icon(ic), html.escape(title), text)
         delay = (i % 3) + 1
         if href:
-            inner += '<a class="link-arrow" href="%s">En savoir plus %s</a>' % (href, arrow())
+            # whole card is the link; visual cue is a <span> (never nest <a> in <a>)
+            inner += '<span class="link-arrow">En savoir plus %s</span>' % arrow()
             cards.append('<a class="tile%s" href="%s" data-reveal data-delay="%d">%s</a>'
                          % (dark, href, delay, inner))
         else:
@@ -470,25 +471,90 @@ def build_nos_solutions():
 
 # ---- Besoins ----
 def build_epargner():
+    def lis(items): return "".join("<li>%s</li>" % x for x in items)
     body = page_hero("Épargner & Investir",
-        "Mettre votre capital au travail avec méthode : une allocation diversifiée, maîtrisée et alignée sur votre horizon de placement.",
+        "Investir ne consiste pas seulement à placer un capital, mais à construire une stratégie cohérente au service de vos objectifs de vie et de votre vision de long terme.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("Épargner & Investir",None)])
-    body += intro("Construire", "Une allocation pensée pour durer",
-        "Investir n’est pas spéculer. Nous bâtissons une allocation cohérente, diversifiée par classes d’actifs, zones géographiques et styles de gestion.",
-        ["De l’épargne de précaution aux actifs de long terme, chaque poche répond à un objectif précis et à un horizon défini.",
-         "Nous privilégions des supports lisibles et liquides, complétés — lorsque votre profil le permet — par des actifs privés sélectionnés."],
-        "assets/img/img-markets.svg","Allocation d’actifs", link=("Découvrir nos placements financiers","placements-financiers.html"))
-    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Nos convictions</p><h2 class="title-lg">Quatre principes directeurs</h2><hr class="rule"></div>'
-        '<div class="grid grid-4" style="margin-top:50px">' + "".join(
-        '<div class="card" data-reveal data-delay="%d">%s<h3>%s</h3><p>%s</p></div>' % ((i%3)+1, icon(ic,"tile__ico"), t, d)
-        for i,(ic,t,d) in enumerate([
-            ("compass","Horizon","Le temps est votre meilleur allié : nous calibrons le risque sur votre horizon réel."),
-            ("puzzle","Diversification","Répartir pour réduire le risque sans diluer la performance."),
-            ("lock","Discipline","Une stratégie tenue dans la durée, à l’abri des emballements de marché."),
-            ("chart","Transparence","Des frais clairs et un reporting régulier, sans rétrocession cachée."),
-        ])) + '</div>', cls="section band-cream")
-    body += cta_band("Construisons votre allocation","Faisons le point sur vos objectifs d’épargne et d’investissement lors d’un premier rendez-vous confidentiel.")
-    page("epargner-investir.html","Épargner & Investir","Construire une allocation diversifiée et maîtrisée pour faire fructifier votre capital sur le long terme.", body)
+
+    # — Philosophie
+    body += intro("Notre approche", "Investir, c’est d’abord une stratégie",
+        "Développer votre patrimoine, générer des revenus, préparer votre retraite, diversifier, optimiser votre fiscalité ou structurer un capital après une phase de création de richesse : chaque investissement doit répondre à une logique précise.",
+        ["Dans un environnement de plus en plus complexe, investir efficacement exige une approche structurée, indépendante et personnalisée. L’enjeu n’est pas seulement la performance, mais l’organisation intelligente de votre capital — selon votre horizon, votre profil de risque, vos besoins de liquidité et vos priorités.",
+         "Nous intervenons sur l’ensemble des leviers pertinents : placements financiers, immobilier, private equity, trésorerie, structuration patrimoniale et diversification internationale."],
+        "assets/img/img-markets.svg", "Stratégie d’investissement")
+
+    # — Objectif (citation)
+    body += section('<div class="quote" data-reveal><p>« Transformer votre capacité d’investissement en stratégie de création, de protection et de valorisation durable de votre patrimoine. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+
+    # — Étape 01 : Stratégie
+    p1 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 01 — Stratégie</p>'
+          '<h2 class="title-lg">Définir votre stratégie d’investissement</h2><hr class="rule">'
+          '<p class="lede">La réussite d’un investissement repose moins sur un produit que sur la stratégie qui le structure. Tout commence par une vision claire de vos objectifs, formalisée par un audit patrimonial approfondi.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>L’audit patrimonial éclaire</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Vos objectifs de rendement","Votre horizon d’investissement","Votre tolérance au risque","Vos besoins de disponibilité","Votre fiscalité actuelle et future"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Votre niveau de diversification","Vos risques de concentration","La cohérence patrimoine privé / professionnel","Vos projets personnels et familiaux","Votre sensibilité aux cycles de marché"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:64px" data-reveal>Cinq fonctions patrimoniales</p>'
+          '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("lock","Capital de sécurité","Protection, liquidité et stabilité."),
+              ("coins","Capital de rendement","Génération de revenus potentiels."),
+              ("growth","Capital de croissance","Valorisation sur le long terme."),
+              ("puzzle","Capital de diversification","Immobilier, non coté, international, actifs réels."),
+              ("concierge","Capital de transmission","Structuration familiale et successorale."),
+          ]) + '</div>')
+    body += section(p1)
+
+    # — Étape 02 : Sélection (fond crème, avec photo)
+    p2 = feature_row("assets/img/paris-colonnade.jpg", "Sélection des opportunités",
+        "Étape 02 — Sélection", "Sélectionner les meilleures opportunités",
+        ["L’enjeu n’est pas de multiplier les placements, mais d’identifier les opportunités les plus cohérentes et les mieux structurées selon votre profil.",
+         "Notre architecture est ouverte : nous ne sommes liés à aucune banque, aucun broker, aucune société de gestion ou promoteur. Nous sélectionnons librement les meilleures solutions du marché, selon vos seuls intérêts."],
+        rev=True)
+    p2 += ('<p class="eyebrow" style="margin-top:72px" data-reveal>Les grandes familles d’investissement</p>'
+           '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("chart","Placements financiers","Assurance-vie, comptes-titres, PEA, obligations, ETF, gestion sous mandat.","placements-financiers.html"),
+              ("doc","Produits structurés","Solutions calibrées selon des scénarios de marché et un niveau de risque défini.","placements-financiers.html#structures"),
+              ("building","Immobilier","SCPI, club deals, immobilier direct et opérations patrimoniales.","placements-immobiliers.html"),
+              ("puzzle","Non coté & Private Equity","Fonds, co-investissements, dette privée et actifs réels.","private-equity.html"),
+              ("treasury","Trésorerie & taux","Comptes à terme, allocation obligataire et solutions de capitalisation.","tresorerie-entreprise.html"),
+              ("globe","Solutions internationales","Contrats luxembourgeois, holdings et structuration dédiée.","structuration-juridique.html"),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:64px" data-reveal>Une grille d’analyse institutionnelle</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Qualité intrinsèque de l’actif","Rendement potentiel ajusté du risque","Structure juridique","Fiscalité","Liquidité"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Gouvernance","Risque de contrepartie","Frais réels","Horizon d’investissement","Corrélation avec le patrimoine"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:56px" data-reveal>Plusieurs moteurs de performance</p>'
+          '<div class="tags" style="margin-top:16px" data-reveal>' + "".join('<span class="tag">%s</span>' % t for t in ["Croissance","Rendement","Protection","Décorrélation","Liquidité","Transmission"]) + '</div>')
+    body += section(p2, cls="section band-cream")
+
+    # — Étape 03 : Pilotage
+    p3 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 03 — Pilotage</p>'
+          '<h2 class="title-lg">Piloter et faire évoluer dans le temps</h2><hr class="rule">'
+          '<p class="lede">Investir ne s’arrête pas à l’allocation initiale. Le principal risque n’est pas un mauvais choix de départ, mais l’absence de suivi : un patrimoine non piloté devient déséquilibré, surconcentré ou fiscalement inefficace.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>Une gouvernance patrimoniale active</p>'
+          '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("chart","Suivi de performance","Vision consolidée de vos actifs financiers, immobiliers, non cotés et structures."),
+              ("compass","Arbitrages stratégiques","Réallocation selon les cycles, l’évolution des marchés et les changements de vie."),
+              ("scale","Optimisation fiscale continue","Adaptation des flux, des enveloppes et des stratégies de capitalisation."),
+              ("shield","Gestion du risque","Surveillance des concentrations sectorielles, géographiques et de contrepartie."),
+              ("puzzle","Structuration évolutive","Mise à jour des holdings, SCI, gouvernance et stratégies successorales."),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:64px" data-reveal>À chaque étape de vie, des ajustements</p>'
+          '<div class="grid grid-2" style="margin-top:24px">' + "".join(
+              '<div class="card" data-reveal data-delay="%d"><h3>%s</h3><p>%s</p></div>' % ((i % 2) + 1, t, d)
+              for i, (t, d) in enumerate([
+                  ("Entrepreneur en croissance","Capitalisation, diversification progressive et protection du capital."),
+                  ("Dirigeant post-cession","Restructurer une liquidité importante dans une logique de sécurisation et d’allocation globale."),
+                  ("Famille patrimoniale","Gouvernance, transmission et organisation intergénérationnelle."),
+                  ("Investisseur en phase de retraite","Renforcer les revenus, la stabilité et la protection."),
+              ])) + '</div>')
+    body += section(p3)
+
+    # — Citation de clôture
+    body += section('<div class="quote" data-reveal><p>« Investir avec succès, c’est autant savoir construire que savoir piloter dans le temps. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+
+    body += cta_band("Construisons votre stratégie d’investissement","Faisons le point sur vos objectifs, votre horizon et votre profil de risque lors d’un premier rendez-vous confidentiel.")
+    page("epargner-investir.html","Épargner & Investir","Définir, sélectionner et piloter une stratégie d’investissement patrimoniale : audit, architecture ouverte et gouvernance dans la durée.", body)
 
 def build_fiscalite():
     body = page_hero("Optimiser votre fiscalité",
