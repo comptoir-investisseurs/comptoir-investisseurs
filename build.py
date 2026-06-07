@@ -344,24 +344,6 @@ def build_home():
   </div>
 </section>
 
-<section class="section">
-  <div class="container split split--reverse">
-    <div data-reveal>
-      <p class="eyebrow">L’assurance-vie au cœur du patrimoine</p>
-      <h2 class="title-lg">L’assurance-vie luxembourgeoise, un cadre d’exception</h2>
-      <hr class="rule">
-      <p>L’assurance-vie constitue un mode de détention privilégié de vos actifs. Le contrat luxembourgeois y ajoute une protection juridique reconnue — le « triangle de sécurité » — et une grande souplesse d’investissement, du fonds en euros aux fonds dédiés (FID, FAS).</p>
-      <ul class="checklist">
-        <li>Protection renforcée des avoirs (super-privilège du souscripteur)</li>
-        <li>Neutralité fiscale : la fiscalité de votre pays de résidence s’applique</li>
-        <li>Accès à une multitude de supports et de devises</li>
-      </ul>
-      <a class="link-arrow" href="placements-financiers.html" style="margin-top:26px">Explorer l’assurance-vie luxembourgeoise __ARROW__</a>
-    </div>
-    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/img-luxembourg.svg" alt="Triangle de sécurité luxembourgeois"></div></div>
-  </div>
-</section>
-
 <section class="section band-sand">
   <div class="container">
     <div class="center" style="max-width:680px;margin-inline:auto" data-reveal>
