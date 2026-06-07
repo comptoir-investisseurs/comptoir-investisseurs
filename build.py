@@ -16,8 +16,12 @@ ADDRESS = "58 rue de Monceau, 75008 Paris"
 
 # Swap these for your own assets, then re-run `python3 build.py`.
 # (e.g. LOGO_MARK = "assets/img/logo.png", HERO_IMG = "assets/img/hero.jpg")
-LOGO_MARK = "assets/img/monogram.svg"   # small mark next to the wordmark + favicon
-HERO_IMG  = "assets/img/hero.svg"       # full-width homepage background photo
+LOGO_MARK  = "assets/img/monogram.svg"  # small mark next to the wordmark + favicon
+HERO_IMG   = "assets/img/hero.svg"      # full-width homepage background photo
+# Set to a file path (e.g. "assets/img/logo.png") to use the full wordmark
+# logo image in the header/footer INSTEAD of the monogram + typeset name.
+# A monochrome logo is auto-inverted to read on dark backgrounds.
+BRAND_LOGO = None
 
 # --------------------------------------------------------------------------
 # Navigation model  (label, href, [children])
@@ -81,6 +85,10 @@ def arrow():
 # Header / footer / contact band
 # --------------------------------------------------------------------------
 def render_brand(cls="brand"):
+    if BRAND_LOGO:
+        return ('<a class="%s brand--img" href="index.html" aria-label="%s — accueil">'
+                '<img class="brand__logo" src="%s" alt="%s"></a>'
+                % (cls, BRAND, BRAND_LOGO, html.escape(BRAND)))
     return (
       '<a class="%s" href="index.html" aria-label="%s — accueil">'
         '<img class="brand__mark" src="%s" alt="" width="42" height="42">'
