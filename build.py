@@ -16,12 +16,11 @@ ADDRESS = "58 rue de Monceau, 75008 Paris"
 
 # Swap these for your own assets, then re-run `python3 build.py`.
 # (e.g. LOGO_MARK = "assets/img/logo.png", HERO_IMG = "assets/img/hero.jpg")
-LOGO_MARK  = "assets/img/monogram.svg"  # small mark next to the wordmark + favicon
-HERO_IMG   = "assets/img/hero.svg"      # full-width homepage background photo
-# Set to a file path (e.g. "assets/img/logo.png") to use the full wordmark
-# logo image in the header/footer INSTEAD of the monogram + typeset name.
-# A monochrome logo is auto-inverted to read on dark backgrounds.
-BRAND_LOGO = None
+LOGO_MARK  = "assets/img/monogram.svg"  # favicon
+HERO_IMG   = "assets/img/hero.jpg"       # full-width homepage background photo
+# Full wordmark logo (dark version for light backgrounds + cream version for dark).
+BRAND_LOGO       = "assets/img/logo.png"
+BRAND_LOGO_LIGHT = "assets/img/logo-light.png"
 
 # --------------------------------------------------------------------------
 # Navigation model  (label, href, [children])
@@ -84,11 +83,16 @@ def arrow():
 # --------------------------------------------------------------------------
 # Header / footer / contact band
 # --------------------------------------------------------------------------
-def render_brand(cls="brand"):
+def render_brand(cls="brand", mode="header"):
     if BRAND_LOGO:
-        return ('<a class="%s brand--img" href="index.html" aria-label="%s — accueil">'
-                '<img class="brand__logo" src="%s" alt="%s"></a>'
-                % (cls, BRAND, BRAND_LOGO, html.escape(BRAND)))
+        if mode == "footer":
+            imgs = '<img class="brand__logo" src="%s" alt="%s">' % (BRAND_LOGO_LIGHT, html.escape(BRAND))
+        else:
+            imgs = ('<img class="brand__logo brand__logo--dark" src="%s" alt="%s">'
+                    '<img class="brand__logo brand__logo--light" src="%s" alt="" aria-hidden="true">'
+                    % (BRAND_LOGO, html.escape(BRAND), BRAND_LOGO_LIGHT))
+        return ('<a class="%s brand--img" href="index.html" aria-label="%s — accueil">%s</a>'
+                % (cls, html.escape(BRAND), imgs))
     return (
       '<a class="%s" href="index.html" aria-label="%s — accueil">'
         '<img class="brand__mark" src="%s" alt="" width="42" height="42">'
@@ -151,7 +155,7 @@ def render_footer():
         '<div class="container">'
           '<div class="footer-grid">'
             '<div>'
-              + render_brand() +
+              + render_brand("brand", mode="footer") +
               '<p style="max-width:34ch;font-size:.95rem;margin-top:6px">Gestion privée et placement de trésorerie. '
               'Entre exigence et transparence, nous construisons des solutions patrimoniales sur-mesure.</p>'
             '</div>'
@@ -311,7 +315,7 @@ def build_home():
       <p>Notre approche conjugue la rigueur d’une grande institution et la disponibilité d’un cabinet à taille humaine. Architecture ouverte, sélection rigoureuse des supports et alignement total avec vos intérêts : nous concevons chaque stratégie sur-mesure, avec une seule ambition — la préservation et la croissance maîtrisée de votre capital.</p>
       <a class="link-arrow" href="vos-besoins.html">Découvrir notre accompagnement __ARROW__</a>
     </div>
-    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/img-colonnade.svg" alt="Architecture classique"></div></div>
+    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/paris-courtyard.jpg" alt="Cour d’honneur du Palais-Royal, Paris"></div></div>
   </div>
 </section>
 
@@ -494,7 +498,7 @@ def build_fiscalite():
         "L’optimisation fiscale n’a de sens qu’au service d’une stratégie patrimoniale globale. Nous l’abordons avec prudence et rigueur juridique.",
         ["Enveloppes de capitalisation, démembrement de propriété, holding patrimoniale, déficits fonciers : chaque levier est étudié au regard de votre situation.",
          "Nous travaillons en lien étroit avec vos conseils — avocats et experts-comptables — pour garantir la solidité de chaque montage."],
-        "assets/img/img-texture.svg","Optimisation fiscale", rev=True, link=("Voir la structuration juridique et fiscale","structuration-juridique.html"))
+        "assets/img/mansion.jpg","Optimisation fiscale", rev=True, link=("Voir la structuration juridique et fiscale","structuration-juridique.html"))
     body += section('<div data-reveal><p class="eyebrow">Leviers</p><h2 class="title-lg">Des dispositifs éprouvés</h2><hr class="rule"></div>'
         '<div class="grid grid-3" style="margin-top:40px">' + tiles([
             ("shield","Assurance-vie","Capitalisation et transmission dans un cadre fiscal privilégié, en France comme au Luxembourg.","placements-financiers.html"),
@@ -512,7 +516,7 @@ def build_ceder():
         "La valeur d’une cession se prépare des années à l’avance. L’enjeu : transformer un actif professionnel en patrimoine privé optimisé.",
         ["Apport-cession (article 150-0 B ter), pacte Dutreil, donation avant cession : nous mobilisons les dispositifs adaptés à votre projet.",
          "Une fois l’opération réalisée, nous réinvestissons le produit de la vente dans une allocation pérenne et fiscalement efficiente."],
-        "assets/img/img-colonnade.svg","Transmission d’entreprise", link=("Découvrir le réinvestissement en private equity","private-equity.html"))
+        "assets/img/paris-colonnade.jpg","Transmission d’entreprise", link=("Découvrir le réinvestissement en private equity","private-equity.html"))
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Les étapes clés</p><h2 class="title-lg">De la préparation au réemploi</h2><hr class="rule"></div>'
         '<ul class="checklist" style="max-width:760px;margin:40px auto 0">' + "".join("<li>%s</li>" % c for c in [
             "Audit de votre situation et valorisation de l’entreprise",
@@ -532,7 +536,7 @@ def build_retraite():
         "La baisse de revenus au passage à la retraite se prépare. Nous construisons une stratégie combinant capitalisation, immobilier et rentes.",
         ["PER, assurance-vie, immobilier locatif ou SCPI : nous arbitrons entre disponibilité, fiscalité et niveau de revenu cible.",
          "L’objectif : un capital qui travaille pendant la phase d’épargne, puis se transforme en revenus réguliers et maîtrisés."],
-        "assets/img/img-interior.svg","Préparation de la retraite", rev=True, link=("Voir nos placements financiers","placements-financiers.html"))
+        "assets/img/retraite.jpg","Préparation de la retraite", rev=True, link=("Voir nos placements financiers","placements-financiers.html"))
     body += section('<div class="grid grid-3" style="margin-top:0">' + tiles([
             ("retire","Plan d’Épargne Retraite","Déduire vos versements de votre revenu imposable tout en préparant l’avenir.","epargner-investir.html"),
             ("shield","Assurance-vie","Une enveloppe souple pour capitaliser puis générer des rachats programmés.","placements-financiers.html"),
@@ -549,7 +553,7 @@ def build_expatriation():
         "Changer de pays de résidence modifie en profondeur la fiscalité applicable à vos revenus, vos plus-values et votre succession.",
         ["L’assurance-vie de droit luxembourgeois s’impose souvent comme la solution de référence : portable, multidevise et neutre fiscalement.",
          "Nous coordonnons votre stratégie avec vos conseils locaux pour assurer sa conformité dans chaque juridiction concernée."],
-        "assets/img/img-luxembourg.svg","Expatriation et mobilité internationale", link=("Découvrir l’assurance-vie luxembourgeoise","placements-financiers.html"))
+        "assets/img/serenite.jpg","Expatriation et mobilité internationale", link=("Découvrir l’assurance-vie luxembourgeoise","placements-financiers.html"))
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Points de vigilance</p><h2 class="title-lg">Les sujets à anticiper</h2><hr class="rule"></div>'
         '<div class="grid grid-3" style="margin-top:50px">' + tiles([
             ("globe","Résidence fiscale","Déterminer et sécuriser votre lieu d’imposition selon les conventions fiscales."),
@@ -642,7 +646,7 @@ def build_private_equity():
         "Le non coté offre un potentiel de performance et une décorrélation précieuse, en contrepartie d’une immobilisation du capital sur plusieurs années.",
         ["Capital-investissement, dette privée, infrastructures, actifs réels : nous sélectionnons des fonds de premier rang et des opérations en club deal.",
          "L’accès au non coté requiert un horizon long et une bonne compréhension du risque de liquidité : nous le calibrons strictement à votre profil."],
-        "assets/img/img-colonnade.svg","Capital-investissement")
+        "assets/img/paris-colonnade.jpg","Capital-investissement")
     body += section('<div class="grid grid-3" style="margin-top:0">' + tiles([
             ("puzzle","Private Equity","Participer au développement et à la transmission d’entreprises non cotées."),
             ("doc","Dette privée","Des revenus réguliers issus du financement direct des entreprises."),
@@ -660,7 +664,7 @@ def build_immobilier():
         "L’immobilier apporte stabilité, revenus réguliers et protection contre l’inflation. Nous en sélectionnons les véhicules les plus qualitatifs.",
         ["SCPI de rendement, OPCI, club deals, immobilier en démembrement ou nue-propriété : à chaque objectif sa structure.",
          "Nous étudions le couple rendement / fiscalité de chaque solution et son intégration dans votre allocation globale."],
-        "assets/img/img-realestate.svg","Immobilier patrimonial", rev=True)
+        "assets/img/paris-courtyard.jpg","Immobilier patrimonial parisien", rev=True)
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Nos véhicules</p><h2 class="title-lg">Plusieurs voies vers la pierre</h2><hr class="rule"></div>'
         '<div class="grid grid-3" style="margin-top:50px">' + tiles([
             ("building","SCPI & OPCI","Des revenus immobiliers mutualisés et diversifiés, accessibles dès quelques milliers d’euros."),
@@ -678,7 +682,7 @@ def build_structuration():
         "La performance d’un patrimoine tient autant à la qualité des actifs qu’à la manière dont ils sont détenus et transmis.",
         ["Holding patrimoniale, société civile, démembrement de propriété, donation-partage, pacte Dutreil : nous orchestrons les outils juridiques adaptés.",
          "Nous travaillons main dans la main avec vos notaires, avocats et experts-comptables pour sécuriser chaque opération."],
-        "assets/img/img-colonnade.svg","Ingénierie patrimoniale")
+        "assets/img/mansion.jpg","Ingénierie patrimoniale")
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Nos leviers</p><h2 class="title-lg">Une boîte à outils complète</h2><hr class="rule"></div>'
         '<div class="grid grid-4" style="margin-top:50px">' + tiles([
             ("scale","Holding patrimoniale","Centraliser et optimiser la détention de vos participations."),
@@ -697,7 +701,7 @@ def build_family_office():
         "Le Family Office coordonne, en toute indépendance, l’ensemble des dimensions de votre patrimoine : financière, immobilière, juridique, fiscale et familiale.",
         ["Consolidation et reporting global, gouvernance familiale, sélection et supervision de vos partenaires, accompagnement des nouvelles générations.",
          "Une relation de long terme, fondée sur la confiance, la discrétion absolue et l’alignement total de nos intérêts avec les vôtres."],
-        "assets/img/img-interior.svg","Family Office", rev=True)
+        "assets/img/paris-courtyard.jpg","Family Office", rev=True)
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Nos missions</p><h2 class="title-lg">Une vision à 360°</h2><hr class="rule"></div>'
         '<div class="grid grid-4" style="margin-top:50px">' + tiles([
             ("chart","Consolidation","Une vision unifiée et claire de l’ensemble de vos actifs."),

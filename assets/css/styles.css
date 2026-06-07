@@ -89,13 +89,15 @@ p{ margin:0 0 1.1em; }
 .brand__text{ display:flex; flex-direction:column; line-height:1; }
 .brand__text b{ font-family:var(--serif); font-weight:600; font-size:1.18rem; letter-spacing:.01em; }
 .brand__text span{ font-family:var(--serif); font-weight:600; font-size:1.18rem; letter-spacing:.01em; }
-/* Full wordmark logo image (optional, via BRAND_LOGO) */
+/* Full wordmark logo image (via BRAND_LOGO): dark version on light header,
+   cream version on the transparent over-hero header and in the footer. */
 .brand--img{ gap:0; }
-.brand__logo{ height:46px; width:auto; display:block; transition:filter .45s var(--ease); }
-.site-header.is-solid .brand__logo{ height:40px; }
-/* monochrome logo inverted to read white on the transparent (over-hero) header */
-.site-header:not(.is-solid) .brand__logo{ filter:brightness(0) invert(1) drop-shadow(0 1px 6px rgba(0,0,0,.25)); }
-.site-footer .brand__logo{ height:52px; filter:brightness(0) invert(1) opacity(.92); }
+.brand__logo{ height:42px; width:auto; display:block; transition:height .45s var(--ease); }
+.site-header.is-solid .brand__logo{ height:36px; }
+.brand__logo--light{ display:none; }
+.site-header:not(.is-solid) .brand__logo--dark{ display:none; }
+.site-header:not(.is-solid) .brand__logo--light{ display:block; filter:drop-shadow(0 1px 8px rgba(0,0,0,.25)); }
+.site-footer .brand__logo{ height:46px; }
 
 /* color adapts to header theme */
 .site-header .brand{ color:#fff; }

@@ -45,21 +45,30 @@ python3 build.py
 > Vous pouvez aussi éditer directement les fichiers `.html` ; pensez alors à reporter
 > les changements communs (menu, pied de page) sur chaque page.
 
-## Remplacer le logo et la photo d'accueil
+## Images
 
-Le logo et le hero sont des **illustrations SVG** intégrées (aucune dépendance externe,
-le réseau de l'environnement de build étant restreint). Pour utiliser vos propres fichiers :
+Le site mêle des **photographies** (identité réelle de la maison) et quelques
+**graphiques SVG** conceptuels (qui sont des schémas, pas de fausses photos).
 
-1. Déposez vos images dans `assets/img/` (ex. `logo.png`, `hero.jpg`).
-2. En haut de `build.py`, ajustez :
-   ```python
-   LOGO_MARK = "assets/img/logo.png"   # marque à côté du nom + favicon
-   HERO_IMG  = "assets/img/hero.jpg"   # photo plein écran de la page d'accueil
-   ```
-3. Relancez `python3 build.py`.
+Photographies (`assets/img/`) :
 
-La mise en page du hero (recadrage `object-fit: cover`, panneau, voile) est prévue pour
-une photo paysage haute résolution comme celle du Palais-Royal.
+| Fichier | Utilisation |
+|---|---|
+| `logo.png` / `logo-light.png` | Logo — version foncée (en-tête clair) / version crème (sur photo & pied de page), générée automatiquement |
+| `hero.jpg` | Photo plein écran de la page d'accueil (Palais-Royal) |
+| `paris-courtyard.jpg` | Accueil, immobilier, Family Office |
+| `paris-colonnade.jpg` | Cession / transmission, Private Equity |
+| `mansion.jpg` | Optimisation fiscale, structuration |
+| `retraite.jpg` | Préparer votre retraite |
+| `serenite.jpg` | S'expatrier à l'étranger |
+
+Graphiques conservés : `img-markets.svg` (marchés), `img-luxembourg.svg`
+(triangle de sécurité), `img-texture.svg` (texture de fond), `monogram.svg` (favicon).
+
+Pour remplacer une image, déposez le fichier dans `assets/img/` (même nom) puis
+relancez `python3 build.py`. Le logo et le hero sont aussi paramétrables via les
+constantes `BRAND_LOGO`, `BRAND_LOGO_LIGHT` et `HERO_IMG` en haut de `build.py`.
+Pensez à optimiser les photos pour le web (largeur ~1100–1920 px, JPEG qualité ~80).
 
 ## Personnaliser le design
 
