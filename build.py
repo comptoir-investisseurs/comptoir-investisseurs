@@ -841,22 +841,95 @@ def build_retraite():
     page("preparer-retraite.html","Préparer votre retraite","Construire votre stratégie retraite, constituer et diversifier vos revenus futurs, sécuriser votre patrimoine, votre fiscalité et votre transmission.", body)
 
 def build_expatriation():
+    def lis(items): return "".join("<li>%s</li>" % x for x in items)
+    def tagrow(items, light=False):
+        cls = "tags tags--light" if light else "tags"
+        return '<div class="%s" style="margin-top:16px" data-reveal>%s</div>' % (cls, "".join('<span class="tag">%s</span>' % t for t in items))
     body = page_hero("S’expatrier à l’étranger",
-        "Mobilité internationale rime avec complexité patrimoniale et fiscale. Nous sécurisons et adaptons votre patrimoine à votre nouvelle résidence.",
+        "S’expatrier, ce n’est pas seulement changer de lieu de résidence : c’est une décision de vie qui impacte votre fiscalité, votre patrimoine, vos investissements, votre entreprise, votre retraite et votre transmission.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("S’expatrier à l’étranger",None)])
-    body += intro("Accompagner","Votre patrimoine au-delà des frontières",
-        "Changer de pays de résidence modifie en profondeur la fiscalité applicable à vos revenus, vos plus-values et votre succession.",
-        ["L’assurance-vie de droit luxembourgeois s’impose souvent comme la solution de référence : portable, multidevise et neutre fiscalement.",
-         "Nous coordonnons votre stratégie avec vos conseils locaux pour assurer sa conformité dans chaque juridiction concernée."],
-        "assets/img/serenite.jpg","Expatriation et mobilité internationale", link=("Découvrir l’assurance-vie luxembourgeoise","placements-financiers.html"))
-    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Points de vigilance</p><h2 class="title-lg">Les sujets à anticiper</h2><hr class="rule"></div>'
-        '<div class="grid grid-3" style="margin-top:50px">' + tiles([
-            ("globe","Résidence fiscale","Déterminer et sécuriser votre lieu d’imposition selon les conventions fiscales."),
-            ("shield","Portabilité des contrats","Privilégier des enveloppes reconnues et transférables d’un pays à l’autre."),
-            ("scale","Exit tax & succession","Anticiper la fiscalité de sortie et les règles successorales internationales."),
-        ]) + '</div>', cls="section band-cream")
-    body += cta_band("Préparez votre expatriation","Un projet de mobilité internationale ? Anticipons ensemble ses conséquences patrimoniales.")
-    page("expatriation.html","S’expatrier à l’étranger","Sécuriser et adapter votre patrimoine à votre mobilité internationale, en lien avec vos conseils locaux.", body)
+
+    # — Philosophie
+    body += intro("Notre approche", "Faire de votre mobilité une opportunité stratégique",
+        "Mal préparée, une expatriation entraîne double imposition, erreurs déclaratives, désorganisation patrimoniale ou perte d’optimisation. Bien anticipée, elle devient une opportunité.",
+        ["Réorganiser son patrimoine, adapter sa fiscalité, internationaliser ses investissements et préserver durablement ses intérêts personnels, familiaux et économiques : tels sont les bénéfices d’une mobilité maîtrisée.",
+         "Notre rôle : une stratégie globale couvrant l’avant, le pendant et l’après — préparation juridique et fiscale, structuration patrimoniale, coordination internationale et protection de long terme."],
+        "assets/img/serenite.jpg", "Expatriation et mobilité internationale", rev=True)
+
+    # — Objectif (citation)
+    body += section('<div class="quote" data-reveal><p>« Transformer votre expatriation en projet de mobilité patrimoniale maîtrisé, sécurisé et optimisé. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+
+    # — Étape 01 : Préparer le départ
+    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 — Départ</p>'
+          '<h2 class="title-lg">Préparer votre départ : fiscalité, résidence et structuration</h2><hr class="rule">'
+          '<p class="lede">Une expatriation réussie se prépare bien avant le départ. Le changement de résidence fiscale implique une reconfiguration potentiellement majeure de votre situation personnelle, professionnelle et patrimoniale.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>Un audit global de votre situation</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Résidence fiscale actuelle","Situation familiale","Patrimoine financier et immobilier","Sociétés, holdings ou activité","Revenus et flux internationaux"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Enjeux successoraux","Objectifs de mobilité","Pays de destination","Horizon de résidence","Obligations déclaratives"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:56px" data-reveal>Sécuriser le changement de résidence fiscale</p>'
+          '<p class="muted" style="margin-top:12px;max-width:74ch" data-reveal>La résidence fiscale ne dépend pas d’une adresse, mais de critères complexes — foyer, centre des intérêts économiques, durée de présence, activité, conventions bilatérales.</p>')
+    p1 += tagrow(["Sortie du cadre fiscal initial","Cohérence avec la juridiction d’accueil","Documentation de résidence","Organisation des flux","Conformité déclarative"])
+    p1 += ('<p class="eyebrow" style="margin-top:56px" data-reveal>Pour dirigeants, entrepreneurs et actionnaires</p>'
+           '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("scale","Exit tax potentielle","Anticiper la fiscalité de sortie sur vos participations.","optimiser-fiscalite.html"),
+              ("treasury","Structuration de participations","Réorganisation de holdings et gouvernance internationale.","structuration-juridique.html"),
+              ("growth","Préparation de cession","Coordonner expatriation et opération de cession à venir.","ceder-transmettre.html"),
+              ("puzzle","Réallocation patrimoniale","Arbitrages et réallocation d’actifs avant le départ."),
+              ("building","Structuration immobilière","Adapter la détention de vos biens à votre mobilité."),
+              ("shield","Protection familiale","Sécuriser le conjoint et les proches dès la préparation."),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:56px" data-reveal>Des aspects souvent sous-estimés</p>')
+    p1 += tagrow(["Protection sociale","Assurance santé","Régime de retraite","Scolarité familiale","Gouvernance d’actifs à distance","Risques réglementaires"])
+    body += section(p1)
+
+    # — Étape 02 : Organiser à l'international (fond crème, photo Luxembourg)
+    p2 = feature_row("assets/img/img-luxembourg.svg", "Architecture patrimoniale internationale",
+        "Étape 02 — International", "Organiser votre patrimoine et vos investissements",
+        ["Une expatriation implique une réorganisation profonde du patrimoine pour l’adapter à votre juridiction d’accueil, à vos obligations réglementaires et à vos objectifs de long terme.",
+         "L’enjeu : transformer un patrimoine structuré selon le pays d’origine en une architecture internationale cohérente — efficace fiscalement, conforme, protégée et flexible. Le contrat luxembourgeois y joue souvent un rôle de référence."],
+        rev=True)
+    p2 += ('<p class="eyebrow" style="margin-top:72px" data-reveal>Cartographier puis arbitrer vos actifs</p>'
+           '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+           '<ul class="checklist">' + lis(["Immobilier domestique et international","Portefeuilles financiers","Assurance-vie et capitalisation","Sociétés, holdings ou participations"]) + '</ul>'
+           '<ul class="checklist">' + lis(["Trésorerie et revenus internationaux","Structures familiales","Obligations déclaratives multi-juridictions","Devises et liquidité"]) + '</ul></div>'
+           '<p class="eyebrow" style="margin-top:56px" data-reveal>Nos piliers de structuration</p>'
+           '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("globe","Investissements financiers","Enveloppes et contrats internationaux, architecture ouverte et fiscalité transfrontalière.","placements-financiers.html"),
+              ("building","Immobilier international","Conservation, arbitrage, détention directe ou sociétaire et fiscalité locale.","placements-immobiliers.html"),
+              ("treasury","Holdings & structures sociétaires","Gouvernance, centralisation et coordination des flux.","structuration-juridique.html"),
+              ("coins","Trésorerie internationale","Organisation des liquidités, devises, sécurité et allocation.","tresorerie-entreprise.html"),
+              ("compass","Diversification géographique","Répartition entre juridictions, zones monétaires et classes d’actifs."),
+              ("concierge","Family Office international","Coordination globale pour familles et entrepreneurs multi-pays.","family-office.html"),
+          ]) + '</div>'
+           '<p class="eyebrow" style="margin-top:56px" data-reveal>Anticiper les mobilités futures</p>')
+    p2 += tagrow(["Retour éventuel","Multi-résidence","Cession future","Transmission internationale","Gouvernance transfrontalière"])
+    body += section(p2, cls="section band-cream")
+
+    # — Étape 03 : Sécuriser la mobilité long terme
+    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 — Long terme</p>'
+          '<h2 class="title-lg">Sécuriser votre mobilité : retraite, transmission et gouvernance</h2><hr class="rule">'
+          '<p class="lede">Une fois le départ organisé et le patrimoine adapté, l’enjeu devient la continuité : protéger durablement votre situation et maintenir une cohérence patrimoniale dans un environnement transfrontalier.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>Projeter votre situation dans le temps</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Durée probable d’expatriation","Retour éventuel ou installation durable","Évolution familiale et scolarité","Retraite future","Revenus de long terme"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Patrimoine transfrontalier","Transmission internationale","Gouvernance multi-juridictionnelle","Protection des proches","Liquidité internationale"]) + '</ul></div>'
+          '<div class="grid grid-2" style="margin-top:44px">'
+          '<div class="card" data-reveal><div class="card__num">Retraite internationale</div><h3>Coordonner vos droits par-delà les frontières</h3>'
+          '<p>Cotisations, régimes obligatoires, coordination entre pays, fiscalité future des pensions et couverture santé : nous combinons maintien des droits existants, capitalisation internationale et diversification géographique des revenus.</p></div>'
+          '<div class="card" data-reveal data-delay="1"><div class="card__num">Transmission internationale</div><h3>Éviter la désorganisation successorale</h3>'
+          '<p>Les règles civiles et fiscales diffèrent selon les juridictions : nous structurons la succession transfrontalière, coordonnons les droits nationaux, protégeons le conjoint et les héritiers et choisissons les véhicules adaptés.</p></div>'
+          '</div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>Une gouvernance internationale</p>'
+          '<p class="muted" style="margin-top:12px;max-width:74ch" data-reveal>Pour les familles multi-résidentes, entrepreneurs internationaux, holdings et family offices transfrontaliers : une architecture qui assure coordination juridique, cohérence fiscale, pilotage global et continuité intergénérationnelle.</p>')
+    p3 += tagrow(["Changement futur de juridiction","Retour au pays d’origine","Double nationalité patrimoniale","Réorganisation post-cession","Gouvernance à distance"])
+    body += section(p3)
+
+    # — Citation de clôture
+    body += section('<div class="quote" data-reveal><p>« Faire de votre expatriation une plateforme patrimoniale internationale, capable d’accompagner votre vie personnelle, familiale et économique à travers le temps. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+
+    body += cta_band("Préparez votre expatriation","Un projet de mobilité internationale ? Anticipons ensemble ses conséquences fiscales, patrimoniales et successorales, en coordination avec vos conseils locaux.")
+    page("expatriation.html","S’expatrier à l’étranger","Préparer votre départ (résidence, fiscalité), organiser votre patrimoine à l’international et sécuriser votre mobilité long terme : retraite, transmission et gouvernance.", body)
 
 
 # ---- Solutions ----
