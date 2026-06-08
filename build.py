@@ -539,22 +539,98 @@ def build_epargner():
     page("epargner-investir.html","Épargner & Investir","Définir, sélectionner et piloter une stratégie d’investissement patrimoniale : audit, architecture ouverte et gouvernance dans la durée.", body)
 
 def build_fiscalite():
+    def lis(items): return "".join("<li>%s</li>" % x for x in items)
+    def tagrow(items, light=False):
+        cls = "tags tags--light" if light else "tags"
+        return '<div class="%s" style="margin-top:16px" data-reveal>%s</div>' % (cls, "".join('<span class="tag">%s</span>' % t for t in items))
     body = page_hero("Optimiser votre fiscalité",
-        "Réduire durablement la pression fiscale sur vos revenus, votre patrimoine et vos plus-values — toujours dans un cadre sécurisé et documenté.",
+        "Optimiser sa fiscalité ne consiste pas à réduire l’impôt à court terme, mais à structurer intelligemment son patrimoine, ses revenus et ses flux pour améliorer durablement leur efficacité économique.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("Optimiser votre fiscalité",None)])
-    body += intro("Maîtriser","La fiscalité comme variable de pilotage",
-        "L’optimisation fiscale n’a de sens qu’au service d’une stratégie patrimoniale globale. Nous l’abordons avec prudence et rigueur juridique.",
-        ["Enveloppes de capitalisation, démembrement de propriété, holding patrimoniale, déficits fonciers : chaque levier est étudié au regard de votre situation.",
-         "Nous travaillons en lien étroit avec vos conseils — avocats et experts-comptables — pour garantir la solidité de chaque montage."],
-        "assets/img/mansion.jpg","Optimisation fiscale", rev=True, link=("Voir la structuration juridique et fiscale","structuration-juridique.html"))
-    body += section('<div data-reveal><p class="eyebrow">Leviers</p><h2 class="title-lg">Des dispositifs éprouvés</h2><hr class="rule"></div>'
-        '<div class="grid grid-3" style="margin-top:40px">' + tiles([
-            ("shield","Assurance-vie","Capitalisation et transmission dans un cadre fiscal privilégié, en France comme au Luxembourg.","placements-financiers.html"),
-            ("building","Immobilier & déficit foncier","Réduire votre base imposable tout en constituant un patrimoine tangible.","placements-immobiliers.html"),
-            ("scale","Holding & démembrement","Structurer la détention de vos actifs pour optimiser revenus et transmission.","structuration-juridique.html"),
-        ]) + '</div>')
-    body += cta_band("Allégeons votre fiscalité","Un audit fiscal et patrimonial révèle souvent des marges d’optimisation insoupçonnées. Parlons-en.")
-    page("optimiser-fiscalite.html","Optimiser votre fiscalité","Réduire la pression fiscale sur vos revenus, votre patrimoine et vos plus-values dans un cadre sécurisé.", body)
+
+    # — Philosophie
+    body += intro("Notre approche", "La fiscalité, un levier plutôt qu’une contrainte",
+        "La performance d’une stratégie patrimoniale ne se mesure pas en rendement brut, mais en création de valeur nette après fiscalité.",
+        ["La fiscalité influence directement la rentabilité réelle de vos placements, la croissance de votre patrimoine, la structuration de vos revenus, vos décisions d’investissement et votre transmission.",
+         "Dans un environnement réglementaire complexe et évolutif, nous construisons une stratégie cohérente, durable et conforme — qu’il s’agisse d’un particulier, d’un dirigeant, d’un investisseur immobilier, d’une profession libérale ou d’une famille entrepreneuriale."],
+        "assets/img/mansion.jpg", "Optimisation fiscale du patrimoine", rev=True)
+
+    # — Objectif (citation)
+    body += section('<div class="quote" data-reveal><p>« Transformer la fiscalité d’une contrainte subie en un levier stratégique au service de la protection, de la croissance et de la transmission de votre patrimoine. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+
+    # — Étape 01 : Flux
+    p1 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 01 — Flux</p>'
+          '<h2 class="title-lg">Structurer vos revenus, investissements et flux</h2><hr class="rule">'
+          '<p class="lede">Tout commence par une organisation intelligente de vos flux. Chaque euro perçu, investi, distribué, cédé ou transmis peut être traité différemment selon sa nature, sa temporalité et sa structure de détention.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>Cartographier votre écosystème économique</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Revenus professionnels & rémunération","Dividendes","Revenus fonciers","Produits financiers & plus-values"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Trésorerie d’entreprise","Flux entre structures","Arbitrages patrimoniaux","Risques de surimposition"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:56px" data-reveal>Mieux organiser, plutôt que « payer moins »</p>')
+    p1 += tagrow(["Le moment de perception","La forme des revenus","Le véhicule de réception","Fiscalité immédiate ou différée","Consommation ou capitalisation"])
+    p1 += ('<p class="eyebrow" style="margin-top:56px" data-reveal>Les principaux leviers d’action</p>'
+           '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("scale","Arbitrage rémunération / dividendes","Trouver l’équilibre le plus efficient entre les deux pour le dirigeant."),
+              ("treasury","Capitalisation via holding","Conserver et réinvestir la valeur au sein de structures dédiées."),
+              ("growth","Réinvestir plutôt que distribuer","Privilégier la création de valeur de long terme au flux immédiat."),
+              ("building","Revenus immobiliers","Optimiser la détention et la fiscalité de vos actifs immobiliers."),
+              ("chart","Gestion des plus-values","Piloter la temporalité des cessions et des arbitrages."),
+              ("puzzle","Flux privé / professionnel","Organiser la circulation du capital entre vos patrimoines."),
+          ]) + '</div>'
+          '<p class="muted" style="margin-top:32px;max-width:70ch" data-reveal>Nous articulons ainsi fiscalité personnelle, sociétale, immobilière et financière dans une même architecture, où chaque décision s’inscrit dans une logique globale de performance nette.</p>')
+    body += section(p1)
+
+    # — Étape 02 : Structures (fond crème, avec photo)
+    p2 = feature_row("assets/img/paris-colonnade.jpg", "Enveloppes et structures patrimoniales",
+        "Étape 02 — Structures", "Choisir les meilleures enveloppes et structures",
+        ["L’efficience fiscale dépend autant des revenus que du cadre dans lequel ils sont détenus : à rendement identique, deux investissements peuvent produire des résultats très différents selon leur mode de détention.",
+         "Nous raisonnons en architectes patrimoniaux — sélectionner et combiner sur mesure les véhicules les plus adaptés à vos objectifs et à votre horizon, sans dépendance à une enveloppe unique."],
+        rev=True)
+    p2 += ('<p class="eyebrow" style="margin-top:72px" data-reveal>Les principales enveloppes et structures</p>'
+           '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("shield","Assurance-vie","Capitalisation, diversification et transmission, dans une logique long terme.","placements-financiers.html"),
+              ("chart","PEA / PEA-PME","Cadre dédié à certaines stratégies actions à vocation patrimoniale."),
+              ("coins","Contrat de capitalisation","Détention patrimoniale, sociétaire ou successorale."),
+              ("globe","Contrat luxembourgeois","Sécurité renforcée, architecture ouverte et ingénierie avancée.","placements-financiers.html"),
+              ("building","SCI","Structuration immobilière, gouvernance familiale et transmission.","structuration-juridique.html"),
+              ("treasury","Holding patrimoniale","Centralisation des participations, capitalisation et remontée de flux.","structuration-juridique.html"),
+              ("puzzle","Société civile patrimoniale","Détention, organisation et pilotage multi-actifs."),
+              ("scale","Démembrement de propriété","Optimisation et transmission via usufruit / nue-propriété.","structuration-juridique.html"),
+              ("compass","Détention directe ou indirecte","Arbitrage entre simplicité, fiscalité, financement et gouvernance."),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:64px" data-reveal>Chaque structure a ses conséquences</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Fiscalité des revenus","Fiscalité des plus-values","Fiscalité successorale","Liquidité","Coûts de fonctionnement"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Souplesse de gestion","Niveau de protection","Gouvernance","Capacité de restructuration","Évolutivité dans le temps"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:56px" data-reveal>Cas d’usage</p>')
+    p2 += tagrow(["Immobilier via SCI","Capitalisation via assurance-vie","Réserves via holding","Transmission via démembrement","International via Luxembourg"])
+    body += section(p2, cls="section band-cream")
+
+    # — Étape 03 : Long terme
+    p3 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 03 — Long terme</p>'
+          '<h2 class="title-lg">Anticiper transmission, cession et gouvernance</h2><hr class="rule">'
+          '<p class="lede">Les décisions les plus structurantes concernent les grandes étapes de vie. Un patrimoine performant peut perdre une part de sa valeur faute d’anticipation lors de sa transmission, de sa cession ou de sa réorganisation.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>Les moments clés à anticiper</p>')
+    p3 += tagrow(["Cession d’entreprise","Transmission familiale","Donation","Liquidité exceptionnelle","Réorganisation","Retraite","Internationalisation","Évolution familiale"])
+    p3 += ('<div class="grid grid-2" style="margin-top:44px">'
+           '<div class="card" data-reveal><div class="card__num">Dirigeants</div><h3>Préparer la cession</h3>'
+           '<p>L’entreprise représente souvent la majeure partie du patrimoine : sa cession se prépare en amont — structuration de détention, organisation des flux, réallocation du capital, protection post-liquidité et gouvernance. Sans anticipation, la fiscalité de cession devient subie plutôt que pilotée.</p></div>'
+           '<div class="card" data-reveal data-delay="1"><div class="card__num">Familles</div><h3>Organiser la transmission</h3>'
+           '<p>Transmettre sans fragiliser : donation simple ou graduelle, donation-partage, démembrement, holdings ou SCI, clauses statutaires, protection du conjoint et préparation des héritiers — en articulant fiscalité, droit civil et gouvernance.</p></div>'
+           '</div>'
+           '<p class="eyebrow" style="margin-top:60px" data-reveal>Une gouvernance qui traverse les générations</p>'
+           '<p class="muted" style="margin-top:12px;max-width:70ch" data-reveal>Sans gouvernance, le patrimoine s’expose à la dilution, aux conflits successoraux, à la perte de contrôle et à la fragmentation. Nous bâtissons une architecture capable de traverser les cycles économiques et les évolutions réglementaires.</p>')
+    p3 += tagrow(["Création","Développement","Sécurisation","Liquidité","Transmission"])
+    p3 += ('<p class="eyebrow" style="margin-top:56px" data-reveal>Une coordination d’experts</p>'
+           '<p class="muted" style="margin-top:12px;max-width:70ch" data-reveal>Notre indépendance nous permet de coordonner l’ensemble des expertises nécessaires.</p>')
+    p3 += tagrow(["Fiscalistes","Notaires","Avocats","Experts-comptables","Ingénierie patrimoniale","Allocation d’actifs"])
+    p3 += '<p style="margin-top:28px" data-reveal><a class="link-arrow" href="structuration-juridique.html">Découvrir la structuration juridique et fiscale %s</a></p>' % arrow()
+    body += section(p3)
+
+    # — Citation de clôture
+    body += section('<div class="quote" data-reveal><p>« Faire de la fiscalité long terme un outil de pilotage stratégique, plutôt qu’une contrainte tardivement subie. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+
+    body += cta_band("Optimisons votre fiscalité","Un audit fiscal et patrimonial révèle souvent des marges d’optimisation insoupçonnées. Étudions votre situation en toute confidentialité.")
+    page("optimiser-fiscalite.html","Optimiser votre fiscalité","Structurer vos revenus et vos flux, choisir les bonnes enveloppes et structures, et anticiper transmission et cession : une stratégie fiscale globale et durable.", body)
 
 def build_ceder():
     body = page_hero("Céder ou transmettre votre entreprise",
