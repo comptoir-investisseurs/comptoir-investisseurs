@@ -633,24 +633,117 @@ def build_fiscalite():
     page("optimiser-fiscalite.html","Optimiser votre fiscalité","Structurer vos revenus et vos flux, choisir les bonnes enveloppes et structures, et anticiper transmission et cession : une stratégie fiscale globale et durable.", body)
 
 def build_ceder():
+    def lis(items): return "".join("<li>%s</li>" % x for x in items)
+    def tagrow(items, light=False):
+        cls = "tags tags--light" if light else "tags"
+        return '<div class="%s" style="margin-top:16px" data-reveal>%s</div>' % (cls, "".join('<span class="tag">%s</span>' % t for t in items))
     body = page_hero("Céder ou transmettre votre entreprise",
-        "La cession ou la transmission de votre société est un moment décisif. Nous l’anticipons à vos côtés pour en préserver la valeur.",
+        "La cession ou la transmission d’une entreprise constitue l’un des moments les plus stratégiques dans la vie d’un dirigeant — bien plus qu’une simple transaction.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("Céder ou transmettre votre entreprise",None)])
-    body += intro("Anticiper","Préparer l’avant et l’après-cession",
-        "La valeur d’une cession se prépare des années à l’avance. L’enjeu : transformer un actif professionnel en patrimoine privé optimisé.",
-        ["Apport-cession (article 150-0 B ter), pacte Dutreil, donation avant cession : nous mobilisons les dispositifs adaptés à votre projet.",
-         "Une fois l’opération réalisée, nous réinvestissons le produit de la vente dans une allocation pérenne et fiscalement efficiente."],
-        "assets/img/paris-colonnade.jpg","Transmission d’entreprise", link=("Découvrir le réinvestissement en private equity","private-equity.html"))
-    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Les étapes clés</p><h2 class="title-lg">De la préparation au réemploi</h2><hr class="rule"></div>'
-        '<ul class="checklist" style="max-width:760px;margin:40px auto 0">' + "".join("<li>%s</li>" % c for c in [
-            "Audit de votre situation et valorisation de l’entreprise",
-            "Structuration en amont (holding, Dutreil, apport-cession)",
-            "Coordination avec vos conseils M&amp;A, avocats et notaires",
-            "Réemploi du produit de cession dans une allocation diversifiée",
-            "Stratégie de transmission aux générations suivantes",
-        ]) + '</ul>', cls="section band-cream")
-    body += cta_band("Préparons votre cession","Plus une cession est anticipée, plus elle est optimisée. Rencontrons-nous en toute confidentialité.")
-    page("ceder-transmettre.html","Céder ou transmettre votre entreprise","Anticiper et structurer la cession ou la transmission de votre société pour préserver sa valeur.", body)
+
+    # — Philosophie
+    body += intro("Notre approche", "Bien plus qu’une simple transaction",
+        "Céder ou transmettre son entreprise implique d’anticiper simultanément des enjeux financiers, fiscaux, juridiques, patrimoniaux, familiaux et humains.",
+        ["La qualité de la préparation détermine directement la valorisation, la fiscalité, la protection du dirigeant, l’organisation du capital futur et la pérennité du projet.",
+         "Notre rôle : construire une stratégie globale — préparation en amont, structuration, optimisation, sécurisation post-opération et organisation patrimoniale de long terme."],
+        "assets/img/paris-colonnade.jpg", "Cession et transmission d’entreprise")
+
+    # — Objectif (citation)
+    body += section('<div class="quote" data-reveal><p>« Transformer une opération de cession ou de transmission en stratégie de valorisation, de protection et de continuité patrimoniale. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+
+    # — Étape 01 : Préparer
+    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 — Préparer</p>'
+          '<h2 class="title-lg">Préparer, structurer et optimiser l’opération</h2><hr class="rule">'
+          '<p class="lede">La réussite dépend avant tout de la préparation en amont. L’objectif n’est pas de céder une société, mais de maximiser la valeur nette créée, d’optimiser la structuration juridique et fiscale et de protéger le dirigeant et sa famille.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>Un audit stratégique approfondi</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Structure de détention actuelle","Valorisation et attractivité de l’entreprise","Situation patrimoniale du dirigeant","Fiscalité potentielle de l’opération","Objectifs de liquidité"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Enjeux familiaux","Horizon de sortie","Gouvernance","Continuité souhaitée","Risque de concentration patrimoniale"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>Nos axes d’intervention</p>'
+          '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("chart","Préparation de la valorisation","Lisibilité capitalistique, organisation financière, séparation d’actifs et préparation de la négociation."),
+              ("scale","Structuration juridique préalable","Holdings, réorganisation capitalistique, gouvernance, pactes et sécurisation des actifs.","structuration-juridique.html"),
+              ("doc","Ingénierie fiscale avancée","Structurer l’opération pour améliorer son efficience, avec les outils adaptés à votre situation."),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>Les dispositifs analysés</p>'
+          '<div class="grid grid-2" style="margin-top:24px">' + tiles([
+              ("treasury","Apport-cession (150-0 B ter)","Apport préalable des titres à une holding avant cession, pour organiser la réallocation et le réinvestissement du capital.","private-equity.html"),
+              ("shield","Pacte Dutreil","Outil central de la transmission familiale : continuité entrepreneuriale et gouvernance, sous conditions adaptées.","structuration-juridique.html"),
+              ("coins","Donation avant cession","Anticipation patrimoniale et familiale, selon les situations."),
+              ("compass","Réorganisation pré-liquidité","Sécurisation du patrimoine privé et préparation de la diversification."),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>Les scénarios étudiés</p>')
+    p1 += tagrow(["Vente industrielle","Transmission familiale","LBO / MBO / MBI","OBO patrimonial","Cession progressive","Réorganisation de groupe"])
+    p1 += '<p class="muted" style="margin-top:32px;max-width:72ch" data-reveal>Nous coordonnons l’ensemble des expertises nécessaires : ingénierie patrimoniale, fiscalité, avocats, notaires, M&amp;A, gouvernance et stratégie d’allocation future.</p>'
+    body += section(p1)
+
+    # — Étape 02 : Après-cession (fond crème, avec visuel marchés)
+    p2 = feature_row("assets/img/img-markets.svg", "Sécurisation du capital post-cession",
+        "Étape 02 — Après-cession", "Sécuriser le capital post-opération",
+        ["La réussite ne se mesure pas qu’à l’opération, mais à la façon dont le capital est ensuite structuré, sécurisé et piloté. La cession fait passer d’un patrimoine concentré et illiquide à une liquidité importante à réorganiser.",
+         "L’enjeu : transformer une liquidité exceptionnelle en patrimoine structuré de long terme."],
+        rev=True)
+    p2 += ('<p class="eyebrow" style="margin-top:72px" data-reveal>Segmenter le capital</p>'
+           '<div class="grid grid-4" style="margin-top:24px">' + tiles([
+              ("lock","Capital de sécurité","Protection, stabilité, disponibilité et niveau de vie préservé."),
+              ("puzzle","Capital de diversification","Réduction du risque de concentration par allocation multi-actifs."),
+              ("growth","Capital de croissance","Réinvestissements stratégiques : private equity, immobilier, finance."),
+              ("concierge","Capital patrimonial","Transmission, structuration familiale et protection intergénérationnelle."),
+          ]) + '</div>'
+           '<p class="eyebrow" style="margin-top:60px" data-reveal>Nos axes de travail</p>'
+           '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("shield","Sécurisation patrimoniale","Protection du patrimoine privé, séparation des risques, holdings, SCI et véhicules dédiés."),
+              ("chart","Réallocation financière","Une allocation cohérente entre sécurité, rendement, diversification, liquidité et fiscalité."),
+              ("scale","Optimisation post-liquidité","Structuration des flux, capitalisation, réinvestissement et stratégie long terme."),
+              ("coins","Organisation du revenu futur","Transformer un patrimoine entrepreneurial en revenus complémentaires ou capitalisation."),
+              ("treasury","Holding patrimoniale","Centraliser, réinvestir, gérer la trésorerie et préparer la succession."),
+              ("compass","Gouvernance familiale","Préparation de la transmission et continuité patrimoniale."),
+          ]) + '</div>'
+           '<p class="eyebrow" style="margin-top:60px" data-reveal>Les classes d’actifs mobilisables</p>')
+    p2 += tagrow(["Trésorerie sécurisée","Contrats de capitalisation","Contrats luxembourgeois","Immobilier","Private equity","Produits structurés","Allocation obligataire"])
+    p2 += ('<p class="eyebrow" style="margin-top:60px" data-reveal>Des enjeux souvent sous-estimés</p>'
+           '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+           '<ul class="checklist">' + lis(["Risque psychologique post-cession","Sur-exposition à de nouveaux projets","Inflation et pouvoir d’achat","Fiscalité future"]) + '</ul>'
+           '<ul class="checklist">' + lis(["Protection familiale","Liquidité réelle","Temporalité des réinvestissements","Discipline d’une direction financière"]) + '</ul></div>'
+           '<p class="muted" style="margin-top:32px;max-width:72ch" data-reveal>Il ne s’agit pas seulement de conserver le capital, mais de le repositionner intelligemment selon une nouvelle logique de cycle patrimonial.</p>')
+    p2 += tagrow(["Sécuriser","Diversifier","Structurer","Générer","Transmettre"])
+    body += section(p2, cls="section band-cream")
+
+    # — Étape 03 : Continuité
+    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 — Continuité</p>'
+          '<h2 class="title-lg">Assurer la continuité familiale, entrepreneuriale et patrimoniale</h2><hr class="rule">'
+          '<p class="lede">Céder ou transmettre, ce n’est pas seulement transférer un capital : c’est préserver une continuité — pour que la valeur créée soit transmise, mais aussi protégée, organisée et durablement maîtrisée.</p></div>'
+          '<div class="grid grid-3" style="margin-top:44px">' + tiles([
+              ("concierge","Continuité familiale","Maintenir l’entreprise ou le patrimoine structurés au sein de la famille."),
+              ("building","Continuité entrepreneuriale","Assurer la pérennité d’un projet, d’une gouvernance et d’une vision."),
+              ("shield","Continuité patrimoniale","Protéger, organiser et maîtriser durablement la valeur créée."),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>Analyser l’environnement global</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Structure familiale","Présence de repreneurs (ou non)","Volonté de conservation ou de cession","Protection du conjoint","Équilibre entre héritiers"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Gouvernance future","Besoins de liquidité familiale","Vision entrepreneuriale","Pérennité des structures","Préparation des héritiers"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>Les outils de transmission familiale</p>'
+          '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("shield","Pacte Dutreil","Organiser la continuité capitalistique et familiale de l’entreprise.","structuration-juridique.html"),
+              ("coins","Donation-partage","Répartition anticipée et organisée du patrimoine."),
+              ("scale","Démembrement de propriété","Transmettre progressivement tout en conservant contrôle et revenus.","structuration-juridique.html"),
+              ("treasury","Holdings familiales","Centraliser le contrôle et structurer le pouvoir entre générations."),
+              ("doc","Clauses statutaires & pactes","Organiser les droits, la gouvernance et la stabilité future."),
+              ("concierge","Family Office","Coordination globale lorsque la transmission n’est pas familiale.","family-office.html"),
+          ]) + '</div>'
+          '<div class="card" style="margin-top:40px" data-reveal><div class="card__num">Un équilibre subtil</div>'
+          '<h3>Équité patrimoniale n’est pas équité familiale</h3>'
+          '<p>Tous les héritiers n’ont pas la même implication entrepreneuriale, les mêmes compétences ni les mêmes attentes. Une transmission réussie intègre cette réalité avec finesse, en distinguant la valeur transmise et le rôle de chacun.</p></div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>La gouvernance, clé de la pérennité</p>')
+    p3 += tagrow(["Gouvernance de holdings","Conseil de famille","Préparation des générations","Formation des héritiers","Organisation du pouvoir","Protection des actifs stratégiques","Préservation de l’unité"])
+    p3 += '<p class="muted" style="margin-top:32px;max-width:72ch" data-reveal>Lorsque la transmission familiale n’est pas privilégiée, la continuité prend d’autres formes : reprise par le management, repreneur externe, Family Office ou organisation d’un capital familial post-cession.</p>'
+    body += section(p3)
+
+    # — Citation de clôture
+    body += section('<div class="quote" data-reveal><p>« Faire en sorte que la réussite entrepreneuriale ne s’arrête pas à la transaction, mais se prolonge en héritage organisé, protégé et pérennisé à travers les générations. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+
+    body += cta_band("Préparons votre cession ou transmission","Plus une opération est anticipée, plus elle est optimisée. Rencontrons-nous en toute confidentialité pour en poser les fondations.")
+    page("ceder-transmettre.html","Céder ou transmettre votre entreprise","Préparer et structurer l’opération, sécuriser le capital post-cession et assurer la continuité familiale, entrepreneuriale et patrimoniale.", body)
 
 def build_retraite():
     body = page_hero("Préparer votre retraite",
