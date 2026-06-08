@@ -283,6 +283,46 @@ def faq(items):
           '</div>' % (html.escape(q), a))
     return '<div class="accordion">%s</div>' % "".join(rows)
 
+# Reusable detail sub-page builder (used by Nos solutions sub-pages) ----------
+def _lis(items): return "".join("<li>%s</li>" % x for x in items)
+def render_block(b):
+    kind = b[0]
+    if kind == "checklist":
+        _, eb, items = b
+        n = (len(items) + 1) // 2
+        return ('<p class="eyebrow" style="margin-top:48px" data-reveal>%s</p>'
+                '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+                '<ul class="checklist">%s</ul><ul class="checklist">%s</ul></div>'
+                % (eb, _lis(items[:n]), _lis(items[n:])))
+    if kind == "cards":
+        _, eb, items = b
+        g = "grid-4" if len(items) == 4 else "grid-3"
+        return ('<p class="eyebrow" style="margin-top:48px" data-reveal>%s</p>'
+                '<div class="grid %s" style="margin-top:24px">%s</div>' % (eb, g, tiles(items)))
+    if kind == "tags":
+        _, eb, items = b
+        return ('<p class="eyebrow" style="margin-top:48px" data-reveal>%s</p>'
+                '<div class="tags" style="margin-top:16px" data-reveal>%s</div>'
+                % (eb, "".join('<span class="tag">%s</span>' % t for t in items)))
+    if kind == "text":
+        _, eb, paras = b
+        return ('<p class="eyebrow" style="margin-top:48px" data-reveal>%s</p>' % eb) + "".join(
+            '<p class="muted" style="max-width:74ch" data-reveal>%s</p>' % p for p in paras)
+    return ""
+def sub_page(slug, title, subtitle, lede, img, alt, paras, atouts, mid, related, seo, parent, quote=None):
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"), parent, (title,None)]
+    body = page_hero(title, lede, crumbs)
+    body += section(feature_row(img, alt, "En bref", subtitle, paras, rev=True, checklist=atouts))
+    if mid:
+        body += section("".join(render_block(b) for b in mid), cls="section band-cream")
+    if quote:
+        body += section('<div class="quote" data-reveal><p>« %s »</p><cite>La Financière de Rochechouart</cite></div>' % quote, cls="section--tight band-dark")
+    rl = "".join('<a class="link-arrow" href="%s" style="margin:0 28px 12px 0">%s %s</a>' % (h, t, arrow()) for t, h in related)
+    body += section('<p class="eyebrow" data-reveal>À explorer aussi</p>'
+                    '<div style="margin-top:18px;display:flex;flex-wrap:wrap" data-reveal>%s</div>' % rl, cls="section--tight")
+    body += cta_band()
+    page(slug, title, seo, body)
+
 # ==========================================================================
 # PAGES
 # ==========================================================================
@@ -1201,23 +1241,189 @@ def build_fin_pages():
         "Produits structurés sur-mesure : architecture ouverte, mise en concurrence des salles de marché et ingénierie rendement / protection.",
         quote="Nous intervenons comme architectes de solutions, et non comme distributeurs standardisés.")
 
+TRESO_SOLUTIONS = [
+    ("compass","Audit & structuration","Analyser, segmenter et bâtir votre politique de trésorerie.","treso-audit.html"),
+    ("clock","Comptes à terme & court terme","Sécuriser et rémunérer vos excédents, avec visibilité.","comptes-a-terme.html"),
+    ("coins","Capitalisation personnes morales","Capitaliser via une holding ou société, sur le moyen/long terme.","capitalisation-personne-morale.html"),
+    ("globe","Contrats luxembourgeois dédiés","Gestion institutionnelle et sécurité renforcée des réserves.","luxembourgeois-tresorerie.html"),
+    ("chart","Allocation obligataire & taux","Une réserve de rendement structurée et pilotée.","obligataire-taux.html"),
+    ("doc","Produits structurés de trésorerie","Rendement calibré, en architecture ouverte.","structures-tresorerie.html"),
+    ("scale","Mandats de gestion","Une direction financière externalisée pour vos liquidités.","mandats-tresorerie.html"),
+    ("treasury","Holdings & réserves stratégiques","Structurer et gouverner les capitaux du groupe.","holdings-reserves.html"),
+]
+
 def build_tresorerie():
     body = page_hero("Trésorerie d’entreprise",
-        "Votre société dispose d’une trésorerie excédentaire ? Nous la dynamisons avec un couple rendement / liquidité maîtrisé, sans la figer.",
+        "La trésorerie ne se limite plus à conserver des liquidités : elle devient un véritable levier de performance, de sécurisation et d’optimisation financière.",
         [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),("Trésorerie d’entreprise",None)])
     body += intro("Dynamiser","Faire travailler votre trésorerie excédentaire",
-        "Laisser dormir une trésorerie importante, c’est en éroder la valeur avec l’inflation. La placer sans méthode, c’est exposer la société à un risque mal calibré.",
-        ["Nous segmentons votre trésorerie par horizon — quotidienne, à court terme, stable — et associons à chaque poche une solution adaptée.",
-         "Comptes à terme, fonds monétaires, produits structurés à capital protégé, contrat de capitalisation : la liquidité reste pilotée selon vos besoins d’exploitation."],
+        "Excédents, réserves stratégiques, holdings patrimoniales ou besoins de diversification : chaque situation appelle une approche structurée, en toute indépendance.",
+        ["Nous accompagnons entreprises, dirigeants et holdings avec une sélection rigoureuse des meilleures solutions : placements court terme, capitalisation, contrats luxembourgeois, produits de taux, produits structurés et mandats de gestion.",
+         "Chaque poche de trésorerie est segmentée par horizon, puis associée à la solution la plus adaptée — sécurité, rendement et disponibilité maîtrisés."],
         "assets/img/img-markets.svg","Trésorerie d’entreprise", rev=True)
-    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Notre approche</p><h2 class="title-lg">Une trésorerie segmentée par horizon</h2><hr class="rule"></div>'
-        '<div class="grid grid-3" style="margin-top:50px">' + tiles([
-            ("clock","Liquidité immédiate","Sécurité et disponibilité totale pour vos besoins d’exploitation courants."),
-            ("treasury","Court / moyen terme","Comptes à terme et fonds monétaires pour la trésorerie peu mobilisée."),
-            ("growth","Trésorerie stable","Contrat de capitalisation et structurés pour la part durablement excédentaire."),
-        ]) + '</div>', cls="section band-cream")
-    body += cta_band("Optimisons la trésorerie de votre société","Un diagnostic de trésorerie révèle le potentiel de rendement dormant. Échangeons à ce sujet.")
-    page("tresorerie-entreprise.html","Trésorerie d’entreprise","Dynamiser la trésorerie excédentaire de votre société avec un couple rendement / liquidité maîtrisé.", body)
+    body += section('<div class="quote" data-reveal><p>« Transformer votre trésorerie en un outil stratégique au service de la solidité financière et du développement de votre entreprise. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
+        '<p class="eyebrow">Nos solutions de trésorerie</p><h2 class="title-lg">De l’audit à la structuration patrimoniale</h2><hr class="rule">'
+        '<p class="lede">Huit expertises complémentaires, articulées au sein d’une politique de trésorerie cohérente.</p></div>'
+        '<div class="grid grid-3" style="margin-top:54px">' + tiles(TRESO_SOLUTIONS) + '</div>', cls="section band-cream")
+    body += cta_band("Optimisons la trésorerie de votre société","Un diagnostic de trésorerie révèle souvent un potentiel de rendement dormant. Échangeons à ce sujet en toute confidentialité.")
+    page("tresorerie-entreprise.html","Trésorerie d’entreprise","Audit, comptes à terme, capitalisation, contrats luxembourgeois, obligataire, produits structurés, mandats de gestion et structuration de holdings.", body)
+
+def build_tresorerie_pages():
+    parent = ("Trésorerie d’entreprise","tresorerie-entreprise.html")
+
+    sub_page("treso-audit.html","Audit & structuration de trésorerie","De la trésorerie comptable à la trésorerie pilotée",
+        "La première étape : analyser votre situation financière, votre organisation capitalistique et vos objectifs, avant toute mise en place de solutions.",
+        "assets/img/img-markets.svg","Audit de trésorerie",
+        ["Nous transformons une vision purement comptable de la trésorerie en une approche stratégique, structurée et pilotée.",
+         "Cet audit est le socle de toute stratégie performante : passer d’une trésorerie passive à une trésorerie optimisée et intégrée à la stratégie financière de l’entreprise."],
+        ["Cartographie des flux et du BFR","Segmentation en poches stratégiques","Une politique de trésorerie sur-mesure"],
+        [("checklist","Les dimensions analysées",
+            ["Structure des flux (saisonnalité, cycles, BFR)","Répartition des liquidités","Horizon de placement réel","Contraintes juridiques et fiscales (IS, holding, SCI)","Sensibilité au risque","Risque de contrepartie bancaire","Concentration des dépôts","Rendement réel après fiscalité"]),
+         ("cards","Segmenter la trésorerie en poches",[
+            ("clock","Trésorerie opérationnelle","Sécurité maximale et disponibilité immédiate."),
+            ("lock","Réserve de sécurité","Stabilité, rendement prudent et flexibilité."),
+            ("growth","Trésorerie excédentaire","Optimisation du rendement sur un horizon identifié."),
+            ("treasury","Réserves stratégiques","Capitalisation long terme, croissance, transmission."),
+         ]),
+         ("checklist","Votre politique de trésorerie définit",
+            ["Les niveaux de liquidité à conserver","Les horizons de placement par poche","Les seuils de sécurité et de diversification","Les supports financiers adaptés","Les scénarios de stress ou besoins exceptionnels","Les arbitrages sécurité / rendement / disponibilité"]),
+        ],
+        [("Comptes à terme","comptes-a-terme.html"),("Holdings & réserves stratégiques","holdings-reserves.html"),("Mandats de gestion","mandats-tresorerie.html")],
+        "Audit et structuration de trésorerie : cartographie des flux, segmentation en poches et politique de trésorerie sur-mesure.", parent)
+
+    sub_page("comptes-a-terme.html","Comptes à terme & placements court terme","Le premier niveau d’optimisation",
+        "Sécuriser les capitaux disponibles tout en améliorant leur rendement par rapport à une trésorerie dormante laissée sur des comptes courants.",
+        "assets/img/img-markets.svg","Comptes à terme",
+        ["Les comptes à terme (CAT) placent des fonds sur une durée définie, à un taux fixé dès l’origine : une lisibilité parfaite sur le rendement, les échéances et la disponibilité future.",
+         "Idéal pour valoriser des excédents temporaires sans compromettre la sécurité du capital ni la visibilité d’exploitation."],
+        ["Taux garanti et visibilité totale","Disponibilité calibrée sur vos besoins","Mise en concurrence multi-établissements"],
+        [("cards","Plusieurs approches",[
+            ("clock","CAT classiques","Sécurité et taux garantis sur une période définie."),
+            ("chart","CAT échelonnés","Plusieurs maturités pour lisser disponibilité et rendement."),
+            ("treasury","Dépôts à préavis / monétaire","Souplesse renforcée et disponibilité partielle."),
+            ("puzzle","Fonds monétaires institutionnels","Diversification et rendement prudent."),
+         ]),
+         ("text","La stratégie de « laddering »",
+            ["Répartir les capitaux sur plusieurs horizons (trésorerie en échelle) permet d’éviter l’immobilisation excessive tout en maximisant le rendement moyen : une poche mobilisable, une réserve court terme et une poche optimisée sur des échéances plus longues."]),
+         ("checklist","Nos critères de sélection",
+            ["Rémunération brute et nette","Solidité de l’établissement dépositaire","Conditions de sortie anticipée","Risque de concentration bancaire","Disponibilité réelle des capitaux","Fiscalité applicable à la structure"]),
+        ],
+        [("Audit & structuration","treso-audit.html"),("Allocation obligataire & taux","obligataire-taux.html"),("Capitalisation personnes morales","capitalisation-personne-morale.html")],
+        "Comptes à terme et placements court terme : sécurité, visibilité et rendement optimisé avec une stratégie de laddering.", parent)
+
+    sub_page("capitalisation-personne-morale.html","Contrats de capitalisation (personnes morales)","Un outil d’ingénierie de bilan",
+        "Valoriser une trésorerie excédentaire dans une logique de moyen ou long terme, au-delà des solutions purement bancaires de court terme.",
+        "assets/img/mansion.jpg","Contrat de capitalisation pour personne morale",
+        ["Adapté aux entreprises, holdings patrimoniales et sociétés civiles — notamment soumises à l’IS —, il inscrit la trésorerie dans une stratégie de capitalisation structurée.",
+         "Accès à une architecture étendue : fonds en euros (selon disponibilité), supports obligataires, fonds diversifiés, unités de compte, ETF, produits structurés ou gestion sous mandat."],
+        ["Détention par une société ou une holding","Allocation sur-mesure selon horizon et risque","Un outil de gestion de réserves piloté"],
+        [("checklist","Construire l’allocation selon",
+            ["L’horizon réel de disponibilité","L’objectif de rendement","La tolérance au risque","Les besoins futurs de distribution ou d’investissement","La sensibilité à la volatilité","Les contraintes comptables et fiscales"]),
+         ("text","Notre accompagnement",
+            ["Analyse de l’éligibilité de la structure, sélection de l’assureur ou de la plateforme, construction de l’allocation, arbitrage entre rendement, liquidité et stabilité bilancielle, et intégration patrimoniale dans la stratégie du dirigeant ou de la holding."]),
+         ("checklist","Des critères déterminants",
+            ["Traitement fiscal et comptable","Volatilité potentielle du bilan","Qualité des supports disponibles","Risque de contrepartie","Liquidité du contrat","Cohérence distribution / transmission"]),
+        ],
+        [("Contrats de capitalisation (particuliers)","contrat-capitalisation.html"),("Holdings & réserves stratégiques","holdings-reserves.html"),("Contrats luxembourgeois dédiés","luxembourgeois-tresorerie.html")],
+        "Contrat de capitalisation pour personnes morales : un outil d’ingénierie de bilan pour valoriser la trésorerie d’une holding ou société.", parent)
+
+    sub_page("luxembourgeois-tresorerie.html","Contrats luxembourgeois dédiés","La gestion institutionnelle de vos capitaux",
+        "Une plateforme d’architecture financière internationale pour holdings et sociétés disposant de réserves importantes.",
+        "assets/img/img-luxembourg.svg","Contrat luxembourgeois de trésorerie",
+        ["Au-delà du rendement : protection bilancielle, diversification des contreparties et sécurisation juridique grâce au Triangle de Sécurité luxembourgeois.",
+         "Pour les structures ayant dépassé les logiques bancaires traditionnelles et recherchant une solution plus sophistiquée qu’un compte à terme ou un contrat domestique."],
+        ["Triangle de sécurité et contrôle du Commissariat aux Assurances","Architecture financière étendue (FID, FAS, structurés…)","Gestion institutionnelle de capitaux importants"],
+        [("cards","Une ingénierie étendue",[
+            ("chart","Fonds internes dédiés (FID)","Gestion personnalisée des réserves."),
+            ("puzzle","Fonds d’assurance spécialisés (FAS)","Sur-mesure selon le montant investi."),
+            ("compass","Gestion sous mandat internationale","Banques privées et gérants spécialisés."),
+            ("globe","Multidevises & private assets","Diversification internationale avancée."),
+         ]),
+         ("checklist","Notre intervention",
+            ["Analyse de la structure juridique et fiscale","Sélection de la compagnie luxembourgeoise","Choix de la banque dépositaire","Structuration du véhicule financier","Définition des mandats ou allocations dédiés","Intégration dans la stratégie globale"]),
+        ],
+        [("Contrats luxembourgeois (particuliers)","contrat-luxembourgeois.html"),("Produits structurés de trésorerie","structures-tresorerie.html"),("Accès à notre Family Office","family-office.html")],
+        "Contrat luxembourgeois dédié à la trésorerie : sécurité institutionnelle, FID/FAS et gestion de capitaux importants.", parent,
+        quote="Transformer une trésorerie significative en réserve stratégique sécurisée, diversifiée et intégrée à une vision de long terme.")
+
+    sub_page("obligataire-taux.html","Allocation obligataire & produits de taux","Une réserve de rendement stratégique",
+        "Rechercher un rendement supérieur au monétaire tout en conservant visibilité, hiérarchisation du risque et gestion des échéances.",
+        "assets/img/img-markets.svg","Allocation obligataire",
+        ["Transformer une trésorerie excédentaire en portefeuille de rendement structuré, cohérent avec vos besoins de liquidité, votre tolérance au risque et vos contraintes bilancielles.",
+         "La performance obligataire ne dépend pas du seul coupon : elle exige une analyse rigoureuse du crédit, de la duration et de la courbe des taux."],
+        ["Univers large : souverain, IG, fonds datés, monétaire amélioré","Segmentation par horizon (court / moyen / long)","Architecture ouverte : direct, fonds ou solutions institutionnelles"],
+        [("tags","Un univers de taux complet",
+            ["Obligations souveraines","Investment grade","Fonds obligataires datés","Taux fixe ou variable","Monétaire amélioré","Crédit court terme","Subordonnées / hybrides","ETF obligataires","Multi-devises"]),
+         ("checklist","Les facteurs analysés",
+            ["Duration / sensibilité aux taux","Risque de crédit (notation, spread)","Courbe des taux","Liquidité secondaire","Rendement actuariel réel","Risque de réinvestissement","Risque de change","Fiscalité et traitement comptable"]),
+         ("text","Le « ladder » obligataire",
+            ["Répartir les maturités permet de lisser le risque de taux, de sécuriser des échéances progressives et d’optimiser le rendement moyen — un outil aussi tactique selon l’évolution des politiques monétaires."]),
+        ],
+        [("Comptes à terme","comptes-a-terme.html"),("Produits structurés de trésorerie","structures-tresorerie.html"),("Mandats de gestion","mandats-tresorerie.html")],
+        "Allocation obligataire et produits de taux : une réserve de rendement structurée et pilotée pour la trésorerie d’entreprise.", parent)
+
+    sub_page("structures-tresorerie.html","Produits structurés de trésorerie","Le rendement calibré sur-mesure",
+        "Optimiser le rendement de capitaux disponibles avec un niveau de risque défini en amont, sans basculer dans une gestion actions classique.",
+        "assets/img/img-markets.svg","Produits structurés de trésorerie",
+        ["Combiner obligations, options et mécanismes de protection pour créer un profil rendement / risque ciblé selon un scénario de marché.",
+         "Architecture totalement ouverte : aucune salle de marché imposée, une mise en concurrence institutionnelle des émetteurs."],
+        ["Rendement conditionnel ou capital partiellement protégé","Sélection libre des meilleures salles de marché","Une lecture institutionnelle des risques"],
+        [("tags","Les salles que nous mettons en concurrence",
+            ["Société Générale","BNP Paribas","Natixis","Morgan Stanley","Goldman Sachs","Citi","UBS","Barclays","Vontobel","BBVA"]),
+         ("cards","Formats adaptés à la trésorerie",[
+            ("chart","Phoenix / Autocall défensifs","Coupons conditionnels et rappel anticipé."),
+            ("shield","Capital partiellement protégé","Rendement avec sécurisation à échéance."),
+            ("doc","Indices larges ou décrémentés","Optimisation technique du pricing."),
+            ("compass","Portage sur sous-jacents robustes","Solutions multi-barrières sur-mesure."),
+         ]),
+         ("checklist","Les risques que nous analysons",
+            ["Risque de marché","Risque de crédit émetteur","Risque de liquidité","Gap risk","Risque de rappel anticipé","Corrélation des sous-jacents","Volatilité implicite","Sensibilité aux taux"]),
+        ],
+        [("Produits structurés (placements)","produits-structures.html"),("Allocation obligataire & taux","obligataire-taux.html"),("Contrats luxembourgeois dédiés","luxembourgeois-tresorerie.html")],
+        "Produits structurés de trésorerie : rendement calibré, architecture ouverte et mise en concurrence institutionnelle des salles de marché.", parent,
+        quote="Transformer une trésorerie importante en une poche de rendement pilotée, indépendante et stratégiquement calibrée.")
+
+    sub_page("mandats-tresorerie.html","Mandats de gestion de trésorerie","Une direction financière externalisée",
+        "Déléguer le pilotage de vos liquidités à des professionnels spécialisés, dans une stratégie formalisée et alignée sur vos contraintes.",
+        "assets/img/paris-courtyard.jpg","Mandat de gestion de trésorerie",
+        ["Transformer la trésorerie en une poche financière activement gérée, avec une logique comparable à celle d’une gestion institutionnelle.",
+         "Tout part d’un cahier des charges rigoureux, puis d’une allocation dynamique pilotée selon des objectifs précis."],
+        ["Réactivité : duration, courbe, sécurisation tactique","Architecture ouverte : gérants sélectionnés librement","Reporting et gouvernance dédiés"],
+        [("checklist","Le cahier des charges",
+            ["Niveau de liquidité minimale à préserver","Horizon de placement par segment","Objectif de rendement cible","Tolérance à la volatilité","Contraintes bilancielles et comptables","Sensibilité au risque de crédit","Gouvernance et reporting souhaités"]),
+         ("cards","Plusieurs profils de gestion",[
+            ("lock","Prudent","Sécurité, liquidité et préservation du capital."),
+            ("scale","Rendement","Optimisation modérée via taux, crédit ou produits calibrés."),
+            ("puzzle","Diversifié","Multi-supports : obligataire, structuré, international."),
+            ("compass","Sur-mesure","Politique dédiée aux réserves stratégiques importantes."),
+         ]),
+         ("tags","Déployable via",
+            ["Comptes-titres personnes morales","Contrats de capitalisation","Contrats luxembourgeois","Fonds dédiés","Solutions multi-dépositaires"]),
+        ],
+        [("Mandats de gestion (placements)","mandats-gestion.html"),("Comptes à terme","comptes-a-terme.html"),("Allocation obligataire & taux","obligataire-taux.html")],
+        "Mandats de gestion de trésorerie : une direction financière externalisée, réactive et indépendante pour vos liquidités.", parent)
+
+    sub_page("holdings-reserves.html","Structuration de holdings & réserves stratégiques","La holding, centre de gouvernance financière",
+        "Organiser globalement — juridiquement, financièrement et patrimonialement — les capitaux de l’entreprise ou du groupe : protection, rendement, transmission.",
+        "assets/img/mansion.jpg","Structuration de holdings et réserves",
+        ["Au-delà du placement d’excédents : centraliser les réserves, organiser les flux, piloter les investissements et préparer les grandes étapes de développement ou de transmission.",
+         "Une approche de chef d’entreprise patrimonial, où la trésorerie devient un actif structuré et orienté vers des objectifs supérieurs : croissance, stabilité, protection et transmission."],
+        ["Centralisation et sécurisation des réserves","Optimisation de la remontée de dividendes","Préparation de croissance externe et de transmission"],
+        [("cards","Segmenter les capitaux par fonction",[
+            ("clock","Réserves d’exploitation","Sécurité et disponibilité immédiate."),
+            ("growth","Réserves de développement","Acquisitions, investissements, croissance."),
+            ("treasury","Réserves patrimoniales","Capitalisation et diversification."),
+            ("concierge","Réserves de transmission","Organisation familiale ou successorale."),
+         ]),
+         ("checklist","Les dimensions intégrées",
+            ["Organisation juridique et capitalistique","Fiscalité IS / intégration / remontée de flux","Répartition liquidité / capitalisation / diversification","Choix des enveloppes financières","Sécurisation des réserves stratégiques","Gouvernance de long terme"]),
+         ("tags","Les briques mobilisées",
+            ["Capitalisation personnes morales","Contrats luxembourgeois","Allocation obligataire","Produits structurés","Holdings animatrices ou passives","Sociétés civiles patrimoniales"]),
+        ],
+        [("Structuration juridique et fiscale","structuration-juridique.html"),("Capitalisation personnes morales","capitalisation-personne-morale.html"),("Céder ou transmettre","ceder-transmettre.html")],
+        "Structuration patrimoniale de holdings et réserves stratégiques : centraliser, sécuriser et organiser les capitaux du groupe.", parent,
+        quote="Transformer une entreprise ou une holding en véritable outil de capitalisation stratégique.")
 
 def build_private_equity():
     body = page_hero("Solutions non cotées & Private Equity",
@@ -1370,7 +1576,7 @@ def main():
     build_home()
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
-    build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_private_equity()
+    build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages(); build_private_equity()
     build_immobilier(); build_structuration(); build_family_office()
     build_contact(); build_mentions()
     print("Done.")
