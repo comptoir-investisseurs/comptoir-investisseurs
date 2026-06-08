@@ -746,21 +746,99 @@ def build_ceder():
     page("ceder-transmettre.html","Céder ou transmettre votre entreprise","Préparer et structurer l’opération, sécuriser le capital post-cession et assurer la continuité familiale, entrepreneuriale et patrimoniale.", body)
 
 def build_retraite():
+    def lis(items): return "".join("<li>%s</li>" % x for x in items)
+    def tagrow(items, light=False):
+        cls = "tags tags--light" if light else "tags"
+        return '<div class="%s" style="margin-top:16px" data-reveal>%s</div>' % (cls, "".join('<span class="tag">%s</span>' % t for t in items))
     body = page_hero("Préparer votre retraite",
-        "Constituer, le plus tôt possible, des revenus complémentaires pérennes et un capital disponible le moment venu.",
+        "Préparer sa retraite, ce n’est pas seulement anticiper la fin de son activité, mais organiser une nouvelle phase de vie où revenus, patrimoine, fiscalité et liberté financière se pensent avec précision.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("Préparer votre retraite",None)])
-    body += intro("Anticiper","Des revenus complémentaires sereins",
-        "La baisse de revenus au passage à la retraite se prépare. Nous construisons une stratégie combinant capitalisation, immobilier et rentes.",
-        ["PER, assurance-vie, immobilier locatif ou SCPI : nous arbitrons entre disponibilité, fiscalité et niveau de revenu cible.",
-         "L’objectif : un capital qui travaille pendant la phase d’épargne, puis se transforme en revenus réguliers et maîtrisés."],
-        "assets/img/retraite.jpg","Préparation de la retraite", rev=True, link=("Voir nos placements financiers","placements-financiers.html"))
-    body += section('<div class="grid grid-3" style="margin-top:0">' + tiles([
-            ("retire","Plan d’Épargne Retraite","Déduire vos versements de votre revenu imposable tout en préparant l’avenir.","epargner-investir.html"),
-            ("shield","Assurance-vie","Une enveloppe souple pour capitaliser puis générer des rachats programmés.","placements-financiers.html"),
-            ("building","Immobilier de rendement","SCPI et immobilier locatif pour des revenus complémentaires tangibles.","placements-immobiliers.html"),
-        ]) + '</div>')
-    body += cta_band("Préparons votre retraite","Quel niveau de revenu visez-vous ? Établissons ensemble la trajectoire pour y parvenir.")
-    page("preparer-retraite.html","Préparer votre retraite","Constituer des revenus complémentaires et un capital disponible grâce à une stratégie sur-mesure.", body)
+
+    # — Philosophie
+    body += intro("Notre approche", "La retraite, un véritable projet patrimonial",
+        "L’enjeu n’est plus de « cesser de travailler », mais de préserver votre niveau de vie, sécuriser vos revenus futurs, valoriser votre capital et organiser sereinement votre transmission.",
+        ["Évolution des régimes obligatoires, incertitudes économiques, allongement de l’espérance de vie : chaque situation appelle une stratégie spécifique — dirigeant, profession libérale, salarié, investisseur, entrepreneur ou famille patrimoniale.",
+         "Notre rôle : construire une stratégie retraite globale, intégrant anticipation financière, optimisation fiscale, diversification patrimoniale, organisation des revenus futurs et sécurisation de long terme."],
+        "assets/img/retraite.jpg", "Préparation de la retraite", rev=True)
+
+    # — Objectif (citation)
+    body += section('<div class="quote" data-reveal><p>« Transformer la préparation de votre retraite en stratégie de liberté financière durable, structurée autour de vos projets de vie. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+
+    # — Étape 01 : Construire la stratégie
+    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 — Stratégie</p>'
+          '<h2 class="title-lg">Construire votre stratégie et anticiper vos besoins</h2><hr class="rule">'
+          '<p class="lede">La retraite ne doit pas être subie comme une baisse de revenus, mais préparée comme une transition patrimoniale structurée — où la logique d’accumulation cède progressivement la place à la sécurisation, aux revenus et à la transmission.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>Un audit complet de votre situation</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Droits retraite obligatoires et complémentaires","Revenus actuels et futurs","Patrimoine financier, immobilier, professionnel","Niveau de vie cible","Charges prévisibles"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Projets personnels (voyages, résidence, transmission)","Horizon de départ","Fiscalité future","Situation familiale","Écart revenus prévisibles / niveau de vie souhaité"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:56px" data-reveal>Les questions qui guident la feuille de route</p>')
+    p1 += tagrow(["Quel revenu sécuriser ?","Quel capital constituer ?","Sécurité ou rendement ?","Immobilier, finance ou entreprise ?","Quelle fiscalité future ?","Quelle transmission ?"])
+    p1 += ('<p class="eyebrow" style="margin-top:56px" data-reveal>Les piliers de votre stratégie retraite</p>'
+           '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("shield","Revenus garantis ou prévisibles","Régimes obligatoires, complémentaires et pensions existantes."),
+              ("coins","Revenus patrimoniaux complémentaires","Immobilier, assurance-vie, placements financiers, dividendes."),
+              ("lock","Capital de sécurité","Réserves de précaution, liquidité et protection du niveau de vie."),
+              ("growth","Capital de croissance / préservation","Maintien de la valorisation patrimoniale sur le long terme."),
+              ("concierge","Transmission","Préservation du patrimoine familial et organisation successorale."),
+              ("compass","Temporalité du départ","Départ progressif, cessation complète ou revenus partiels."),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:56px" data-reveal>Des paramètres souvent sous-estimés</p>')
+    p1 += tagrow(["Inflation long terme","Besoins de santé","Dépendance potentielle","Fiscalité des sorties","Liquidité","Protection du conjoint"])
+    body += section(p1)
+
+    # — Étape 02 : Constituer les revenus (fond crème, photo)
+    p2 = feature_row("assets/img/img-markets.svg", "Architecture des revenus futurs",
+        "Étape 02 — Revenus", "Constituer, diversifier et optimiser vos revenus",
+        ["Une stratégie performante ne repose pas sur une seule source de revenus, mais sur un écosystème patrimonial capable de générer, sécuriser et optimiser des ressources complémentaires.",
+         "Dans la majorité des cas, les régimes obligatoires ne suffisent pas : il s’agit de transformer votre capacité actuelle de création de richesse en revenus futurs durables, diversifiés et fiscalement cohérents."],
+        rev=True)
+    p2 += ('<p class="eyebrow" style="margin-top:72px" data-reveal>Les grandes sources de revenus retraite</p>'
+           '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("retire","Plan d’Épargne Retraite (PER)","Préparer la retraite dans un cadre fiscal dédié, en capitalisation long terme.","epargner-investir.html"),
+              ("shield","Assurance-vie & capitalisation","Souplesse, diversification, capitalisation et transmission.","placements-financiers.html"),
+              ("building","Immobilier patrimonial","SCPI, immobilier locatif et club deals pour des revenus tangibles.","placements-immobiliers.html"),
+              ("chart","Portefeuilles financiers","Dividendes, obligations, allocation de rendement ou capitalisation.","placements-financiers.html"),
+              ("treasury","Trésorerie & produits de taux","Sécurisation progressive et revenus adaptés à chaque phase de vie.","tresorerie-entreprise.html"),
+              ("puzzle","Patrimoine entrepreneurial","Pour les dirigeants : revenus structurés post-cession ou via holding.","ceder-transmettre.html"),
+          ]) + '</div>'
+           '<p class="eyebrow" style="margin-top:60px" data-reveal>Une logique de « strates de revenus »</p>')
+    p2 += tagrow(["Base sécurisée","Compléments patrimoniaux","Réserves stratégiques","Flexibilité long terme"])
+    p2 += ('<p class="eyebrow" style="margin-top:56px" data-reveal>Les arbitrages fondamentaux</p>'
+           '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+           '<ul class="checklist">' + lis(["Revenus immédiats ou capitalisation","Sécurité ou rendement"]) + '</ul>'
+           '<ul class="checklist">' + lis(["Liquidité ou performance","Fiscalité actuelle ou future"]) + '</ul></div>'
+           '<p class="muted" style="margin-top:32px;max-width:72ch" data-reveal>La stratégie s’adapte à mesure que la retraite approche : accumulation, consolidation, sécurisation, puis distribution.</p>')
+    body += section(p2, cls="section band-cream")
+
+    # — Étape 03 : Sécuriser
+    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 — Sécuriser</p>'
+          '<h2 class="title-lg">Sécuriser votre patrimoine, votre fiscalité et votre transmission</h2><hr class="rule">'
+          '<p class="lede">À l’approche de la retraite, la logique patrimoniale évolue : il ne s’agit plus seulement de développer, mais de sécuriser, préserver et transmettre. C’est le passage d’une stratégie d’accumulation à une stratégie de consolidation.</p></div>'
+          '<p class="eyebrow" style="margin-top:48px" data-reveal>Une réévaluation complète</p>'
+          '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+          '<ul class="checklist">' + lis(["Patrimoine constitué","Sources de revenus retraite","Besoins de liquidité","Fiscalité future","Protection du conjoint"]) + '</ul>'
+          '<ul class="checklist">' + lis(["Transmission familiale","Risques de marché","Exposition entrepreneuriale résiduelle","Organisation successorale","Concentration excessive"]) + '</ul></div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>Nos piliers de sécurisation</p>'
+          '<div class="grid grid-3" style="margin-top:24px">' + tiles([
+              ("shield","Protection du capital","Réduction progressive des expositions, diversification et sécurisation des réserves."),
+              ("scale","Structuration fiscale post-activité","Organisation des flux, optimisation des sorties et choix des enveloppes.","optimiser-fiscalite.html"),
+              ("treasury","Gouvernance patrimoniale","SCI, holdings, sociétés civiles et organisation du contrôle.","structuration-juridique.html"),
+              ("concierge","Protection familiale","Conjoint, héritiers, dépendance et équilibre de la transmission."),
+              ("doc","Préparation successorale","Donation, démembrement, assurance-vie et gouvernance intergénérationnelle."),
+              ("compass","Continuité dans le temps","Une cohérence patrimoniale maintenue face aux aléas et aux cycles."),
+          ]) + '</div>'
+          '<p class="eyebrow" style="margin-top:60px" data-reveal>La fiscalité, préserver l’efficacité nette dans le temps</p>')
+    p3 += tagrow(["Fiscalité des revenus retraite","Rachats et sorties","Fiscalité immobilière","Plus-values","Transmission","Patrimoine privé / sociétaire"])
+    p3 += ('<p class="eyebrow" style="margin-top:56px" data-reveal>Une logique de cycle patrimonial</p>')
+    p3 += tagrow(["Préserver","Structurer","Protéger","Optimiser","Transmettre"])
+    body += section(p3)
+
+    # — Citation de clôture
+    body += section('<div class="quote" data-reveal><p>« Faire de votre patrimoine retraite un instrument de revenus, mais aussi de protection, de liberté et de continuité familiale. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+
+    body += cta_band("Préparons votre retraite","Quel niveau de vie visez-vous ? Établissons ensemble une trajectoire chiffrée et pilotable pour l’atteindre sereinement.")
+    page("preparer-retraite.html","Préparer votre retraite","Construire votre stratégie retraite, constituer et diversifier vos revenus futurs, sécuriser votre patrimoine, votre fiscalité et votre transmission.", body)
 
 def build_expatriation():
     body = page_hero("S’expatrier à l’étranger",
