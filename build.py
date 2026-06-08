@@ -368,7 +368,7 @@ def build_home():
         ("chart","Placements financiers","Allocation d’actifs, assurance-vie luxembourgeoise et comptes-titres en architecture ouverte.","placements-financiers.html"),
         ("treasury","Trésorerie d’entreprise","Optimisation et dynamisation de la trésorerie excédentaire de votre société.","tresorerie-entreprise.html"),
         ("puzzle","Non coté & Private Equity","Accès sélectif au capital-investissement et aux actifs privés.","private-equity.html"),
-        ("doc","Produits structurés sur-mesure","Des solutions de rendement et de protection conçues selon vos contraintes.","placements-financiers.html#structures"),
+        ("doc","Produits structurés sur-mesure","Des solutions de rendement et de protection conçues selon vos contraintes.","produits-structures.html"),
         ("building","Placements immobiliers","SCPI, club deals et immobilier patrimonial soigneusement sélectionnés.","placements-immobiliers.html"),
         ("concierge","Family Office","Une coordination globale de vos intérêts patrimoniaux et familiaux.","family-office.html"),
     ]))
@@ -495,7 +495,7 @@ def build_epargner():
     p2 += ('<p class="eyebrow" style="margin-top:72px" data-reveal>Les grandes familles d’investissement</p>'
            '<div class="grid grid-3" style="margin-top:24px">' + tiles([
               ("chart","Placements financiers","Assurance-vie, comptes-titres, PEA, obligations, ETF, gestion sous mandat.","placements-financiers.html"),
-              ("doc","Produits structurés","Solutions calibrées selon des scénarios de marché et un niveau de risque défini.","placements-financiers.html#structures"),
+              ("doc","Produits structurés","Solutions calibrées selon des scénarios de marché et un niveau de risque défini.","produits-structures.html"),
               ("building","Immobilier","SCPI, club deals, immobilier direct et opérations patrimoniales.","placements-immobiliers.html"),
               ("puzzle","Non coté & Private Equity","Fonds, co-investissements, dette privée et actifs réels.","private-equity.html"),
               ("treasury","Trésorerie & taux","Comptes à terme, allocation obligataire et solutions de capitalisation.","tresorerie-entreprise.html"),
@@ -933,47 +933,41 @@ def build_expatriation():
 
 
 # ---- Solutions ----
+FIN_SOLUTIONS = [
+    ("shield","Contrats d’assurance-vie","Développer, organiser et transmettre votre capital, dans un cadre fiscal attractif.","assurance-vie.html"),
+    ("coins","Contrats de capitalisation","Structurer et transmettre un capital — y compris du vivant ou via une société.","contrat-capitalisation.html"),
+    ("globe","Contrats luxembourgeois","Une plateforme patrimoniale internationale, sécurité et souplesse maximales.","contrat-luxembourgeois.html"),
+    ("retire","Solutions retraite","Construire des revenus complémentaires futurs (PER et au-delà).","solutions-retraite.html"),
+    ("chart","Comptes-titres","Accéder à l’ensemble des marchés financiers, sans frontière.","comptes-titres.html"),
+    ("growth","PEA","Investir en actions européennes dans un cadre fiscal avantageux.","pea.html"),
+    ("puzzle","PEA-PME / ETI","Financer les PME et ETI à fort potentiel, fiscalité du PEA.","pea-pme.html"),
+    ("compass","Mandats de gestion","Déléguer la gestion à des professionnels, selon vos objectifs.","mandats-gestion.html"),
+    ("doc","Produits structurés","Une ingénierie sur-mesure rendement / protection, en architecture ouverte.","produits-structures.html"),
+]
+
 def build_placements_financiers():
     body = page_hero("Placements financiers",
-        "Une allocation d’actifs sur-mesure, déployée en architecture ouverte à travers les enveloppes les plus performantes — au premier rang desquelles l’assurance-vie luxembourgeoise.",
+        "Une gamme complète de solutions conçues pour structurer, valoriser et transmettre votre patrimoine selon vos objectifs personnels, familiaux ou professionnels.",
         [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),("Placements financiers",None)])
     body += intro("Architecture ouverte","Le meilleur de chaque univers d’investissement",
-        "Nous ne commercialisons aucun produit maison. Notre indépendance nous permet de sélectionner, sans biais, les supports les mieux adaptés à votre profil.",
-        ["Fonds en euros, OPCVM, ETF, titres vifs, fonds dédiés, produits structurés ou actifs privés : chaque brique est choisie pour sa contribution à l’ensemble.",
-         "L’allocation est pilotée dans la durée, avec des arbitrages réguliers et un reporting transparent."],
+        "Nous ne commercialisons aucun produit maison. Notre indépendance nous permet de sélectionner, sans biais, les supports et enveloppes les mieux adaptés à votre profil.",
+        ["Préparer la retraite, optimiser votre fiscalité, dynamiser votre épargne ou sécuriser votre capital : à chaque objectif, une combinaison de solutions sur-mesure.",
+         "Chaque brique est choisie pour sa contribution à l’ensemble, puis pilotée dans la durée avec des arbitrages réguliers et un reporting transparent."],
         "assets/img/img-markets.svg","Marchés financiers")
-    # Assurance-vie luxembourgeoise — feature rows like the attachment
-    body += section(
-        '<div class="center" style="max-width:760px;margin-inline:auto" data-reveal>'
-        '<p class="eyebrow">L’assurance-vie au cœur du patrimoine</p>'
-        '<h2 class="title-lg">L’assurance-vie de droit luxembourgeois</h2><hr class="rule">'
-        '<p class="lede">Un cadre d’investissement souple et complet, doublé d’une protection juridique parmi les plus solides d’Europe.</p></div>',
-        cls="section band-cream") 
-    body += section(
-        feature_row("assets/img/img-luxembourg.svg","Triangle de sécurité","Une sécurité d’exception",
-            "Une enveloppe souple et complète",
-            ["Le contrat luxembourgeois bénéficie du « triangle de sécurité » : vos avoirs sont déposés auprès d’une banque dépositaire indépendante, sous le contrôle du Commissariat aux Assurances.",
-             "Le souscripteur jouit du « super-privilège » : créancier de premier rang sur ses actifs en cas de défaillance de l’assureur."],
-            checklist=["Super-privilège du souscripteur","Ségrégation des actifs","Multidevises et portabilité internationale"]) +
-        '<div style="height:clamp(48px,7vw,96px)"></div>' +
-        feature_row("assets/img/img-texture.svg","Souplesse & fiscalité","Un cadre fiscal neutre et avantageux",
-            "Une fiscalité respectée, où que vous résidiez",
-            ["Le Luxembourg applique la neutralité fiscale : c’est la fiscalité de votre pays de résidence qui s’applique. Le contrat est particulièrement adapté aux résidents français comme aux expatriés.",
-             "L’accès aux fonds internes dédiés (FID) et aux fonds d’assurance spécialisés (FAS) autorise une gestion véritablement sur-mesure, du profil prudent au profil dynamique."],
-            rev=True,
-            checklist=["Neutralité fiscale luxembourgeoise","Fonds dédiés (FID) et spécialisés (FAS)","Transmission optimisée hors succession"]),
-        cls="section")
-    # Produits structurés sur-mesure
-    body += '<section class="section band-dark" id="structures"><div class="container">'
-    body += ('<div class="split"><div data-reveal><p class="eyebrow eyebrow--light">Produits structurés sur-mesure</p>'
-        '<h2 class="title-lg">Des solutions de rendement et de protection, conçues pour vous</h2><hr class="rule">'
-        '<p class="lede" style="color:rgba(246,242,233,.85)">Le produit structuré associe un sous-jacent (indice, action, panier) à une formule définie à l’avance : il permet de viser un rendement cible tout en intégrant un mécanisme de protection du capital.</p>'
-        '<ul class="checklist checklist--light" style="margin-top:24px">'
-        '<li>Barrières de protection adaptées à votre tolérance au risque</li>'
-        '<li>Maturité, sous-jacent et coupon définis sur-mesure</li>'
-        '<li>Émissions dédiées négociées auprès de banques de premier plan</li>'
-        '</ul></div>'
-        '<div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/img-markets.svg" alt="Produits structurés"></div></div></div>')
+    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
+        '<p class="eyebrow">Nos solutions financières</p><h2 class="title-lg">Neuf enveloppes, une stratégie cohérente</h2><hr class="rule">'
+        '<p class="lede">Découvrez chaque solution en détail — nous les articulons ensuite au sein d’une allocation globale.</p></div>'
+        '<div class="grid grid-3" style="margin-top:54px">' + tiles(FIN_SOLUTIONS) + '</div>', cls="section band-cream")
+    # Flagship dark callout
+    body += '<section class="section band-dark"><div class="container">'
+    body += ('<div class="split"><div data-reveal><p class="eyebrow eyebrow--light">À la une</p>'
+        '<h2 class="title-lg">Assurance-vie luxembourgeoise & produits structurés sur-mesure</h2><hr class="rule">'
+        '<p class="lede" style="color:rgba(246,242,233,.85)">Nos deux expertises phares : la sécurité d’exception du contrat luxembourgeois et l’ingénierie des produits structurés, sélectionnés en architecture ouverte auprès des plus grandes salles de marché.</p>'
+        '<div class="hero__actions" style="margin-top:26px">'
+        '<a class="btn btn--light" href="contrat-luxembourgeois.html">Le contrat luxembourgeois %s</a>'
+        '<a class="btn btn--ghost-light" href="produits-structures.html">Les produits structurés</a>'
+        '</div></div>'
+        '<div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/img-luxembourg.svg" alt="Triangle de sécurité luxembourgeois"></div></div></div>' % arrow())
     body += '</div></section>'
     # FAQ
     body += section('<div class="center" style="max-width:640px;margin-inline:auto" data-reveal><p class="eyebrow">Questions fréquentes</p><h2 class="title-lg">Vos placements financiers</h2><hr class="rule"></div>'
@@ -986,7 +980,226 @@ def build_placements_financiers():
              "<p>Pas systématiquement. Certains offrent une garantie totale, d’autres une protection conditionnelle (barrière). Le niveau de protection se définit avec vous, en contrepartie du rendement visé. Tout investissement comporte un risque de perte en capital.</p>"),
         ]) + '</div>')
     body += cta_band("Construisons votre allocation financière","Assurance-vie luxembourgeoise, produits structurés ou actifs privés : étudions la combinaison la plus pertinente pour vous.")
-    page("placements-financiers.html","Placements financiers","Assurance-vie de droit luxembourgeois, produits structurés sur-mesure et allocation d’actifs en architecture ouverte.", body)
+    page("placements-financiers.html","Placements financiers","Assurance-vie, capitalisation, contrats luxembourgeois, retraite, comptes-titres, PEA, PEA-PME, mandats de gestion et produits structurés — en architecture ouverte.", body)
+
+def build_fin_pages():
+    """Detailed sub-pages for each financial solution."""
+    def lis(items): return "".join("<li>%s</li>" % x for x in items)
+    def half(items):
+        n = (len(items) + 1) // 2
+        return items[:n], items[n:]
+    def block(b):
+        kind = b[0]
+        if kind == "checklist":
+            _, eb, items = b; a, c = half(items)
+            return ('<p class="eyebrow" style="margin-top:48px" data-reveal>%s</p>'
+                    '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
+                    '<ul class="checklist">%s</ul><ul class="checklist">%s</ul></div>' % (eb, lis(a), lis(c)))
+        if kind == "cards":
+            _, eb, items = b
+            g = "grid-4" if len(items) == 4 else "grid-3"
+            return ('<p class="eyebrow" style="margin-top:48px" data-reveal>%s</p>'
+                    '<div class="grid %s" style="margin-top:24px">%s</div>' % (eb, g, tiles(items)))
+        if kind == "tags":
+            _, eb, items = b
+            return ('<p class="eyebrow" style="margin-top:48px" data-reveal>%s</p>'
+                    '<div class="tags" style="margin-top:16px" data-reveal>%s</div>'
+                    % (eb, "".join('<span class="tag">%s</span>' % t for t in items)))
+        if kind == "text":
+            _, eb, paras = b
+            return ('<p class="eyebrow" style="margin-top:48px" data-reveal>%s</p>' % eb) + "".join(
+                '<p class="muted" style="max-width:74ch" data-reveal>%s</p>' % p for p in paras)
+        return ""
+    def fin_page(slug, title, subtitle, lede, img, alt, paras, atouts, mid, related, seo, quote=None):
+        crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+                  ("Placements financiers","placements-financiers.html"),(title,None)]
+        body = page_hero(title, lede, crumbs)
+        body += section(feature_row(img, alt, "En bref", subtitle, paras, rev=True, checklist=atouts))
+        if mid:
+            body += section("".join(block(b) for b in mid), cls="section band-cream")
+        if quote:
+            body += section('<div class="quote" data-reveal><p>« %s »</p><cite>La Financière de Rochechouart</cite></div>' % quote, cls="section--tight band-dark")
+        rl = "".join('<a class="link-arrow" href="%s" style="margin:0 28px 12px 0">%s %s</a>' % (h, t, arrow()) for t, h in related)
+        body += section('<p class="eyebrow" data-reveal>À explorer aussi</p>'
+                        '<div style="margin-top:18px;display:flex;flex-wrap:wrap" data-reveal>%s</div>' % rl, cls="section--tight")
+        body += cta_band()
+        page(slug, title, seo, body)
+
+    # 1 — Assurance-vie
+    fin_page("assurance-vie.html","Contrats d’assurance-vie","Un couteau suisse patrimonial",
+        "L’un des outils les plus complets pour développer, organiser et transmettre votre capital, dans un cadre fiscal attractif et avec une grande souplesse d’utilisation.",
+        "assets/img/img-markets.svg","Assurance-vie",
+        ["Investissez sur différents supports — du fonds en euros sécurisé aux unités de compte plus dynamiques — pour adapter la stratégie à votre profil de risque, votre horizon et vos objectifs.",
+         "Constituer une épargne, préparer la retraite, financer un projet, générer des revenus ou anticiper la transmission : un même contrat, plusieurs objectifs de vie."],
+        ["Allocation personnalisée : prudence, équilibre ou performance","Évolutive dans le temps selon les marchés et vos besoins","Disponibilité : rachats partiels ou totaux possibles"],
+        [("cards","Quatre usages clés",[
+            ("coins","Épargne progressive","Constituer un capital à votre rythme."),
+            ("chart","Revenus complémentaires","Programmer des rachats réguliers."),
+            ("retire","Préparer la retraite","Anticiper une baisse de revenus future."),
+            ("concierge","Transmettre","Organiser la transmission de votre capital."),
+         ]),
+         ("checklist","La clause bénéficiaire, clé de la transmission",
+            ["Désignation libre des bénéficiaires","Cadre de transmission souvent avantageux","Capital disponible pendant toute la vie du contrat","Rédaction et ajustements sur-mesure"]),
+         ("checklist","Notre accompagnement",
+            ["Analyse de votre situation et de vos objectifs","Sélection des contrats et supports adaptés","Rédaction ou ajustement de la clause bénéficiaire","Suivi et arbitrages au fil du temps"]),
+        ],
+        [("Le contrat luxembourgeois","contrat-luxembourgeois.html"),("Solutions retraite","solutions-retraite.html"),("Optimiser votre fiscalité","optimiser-fiscalite.html")],
+        "Le contrat d’assurance-vie : épargne, revenus, retraite et transmission dans un cadre fiscal attractif et une grande souplesse.")
+
+    # 2 — Capitalisation
+    fin_page("contrat-capitalisation.html","Contrats de capitalisation","Un outil de structuration avancée",
+        "Structurer, valoriser et transmettre un capital sur le long terme — un complément à l’assurance-vie, aux spécificités juridiques puissantes.",
+        "assets/img/mansion.jpg","Contrat de capitalisation",
+        ["Comme l’assurance-vie, il donne accès à une large gamme de supports : fonds en euros, unités de compte, OPCVM, ETF, obligations, actions ou supports diversifiés.",
+         "Mais il s’en distingue par sa portabilité patrimoniale, qui en fait un outil de gestion avancée et de transmission anticipée."],
+        ["Transmission ou donation du vivant (démembrement possible)","Détention par une société patrimoniale ou une holding","Ne se dénoue pas au décès : continuité patrimoniale"],
+        [("cards","Particulièrement adapté à",[
+            ("concierge","Transmission anticipée","Donation en pleine propriété ou en démembrement."),
+            ("treasury","Gestion sociétaire","Trésorerie excédentaire d’une société ou holding."),
+            ("lock","Conservation de capital","Un cadre juridique souple et durable."),
+            ("scale","Stratégies civiles & fiscales","S’intègre dans des montages sur-mesure."),
+         ]),
+         ("text","Une fiscalité proche de l’assurance-vie",
+            ["La fiscalité des rachats porte principalement sur les gains réalisés, avec des possibilités d’optimisation selon la durée de détention et la situation du titulaire.",
+             "En cas de succession, le contrat intègre l’actif successoral et peut être conservé par les héritiers — une continuité utile à certaines stratégies de réorganisation."]),
+        ],
+        [("Contrats d’assurance-vie","assurance-vie.html"),("Structuration juridique","structuration-juridique.html"),("Trésorerie d’entreprise","tresorerie-entreprise.html")],
+        "Le contrat de capitalisation : transmission du vivant, détention sociétaire et continuité patrimoniale, en complément de l’assurance-vie.")
+
+    # 3 — Luxembourgeois
+    fin_page("contrat-luxembourgeois.html","Contrats luxembourgeois","Une plateforme patrimoniale internationale",
+        "Une solution haut de gamme : cadre juridique renforcé, grande souplesse financière et diversification internationale avancée.",
+        "assets/img/img-luxembourg.svg","Contrat luxembourgeois",
+        ["Pour les particuliers fortunés, les expatriés, les dirigeants et les familles souhaitant structurer durablement leur capital.",
+         "Sa force : la sécurité exceptionnelle du cadre réglementaire luxembourgeois, parmi les plus protecteurs d’Europe."],
+        ["Triangle de sécurité : actifs ségrégués, contrôle du Commissariat aux Assurances","Super-privilège : le souscripteur, créancier prioritaire","Liberté d’investissement supérieure aux contrats traditionnels"],
+        [("cards","Une ingénierie financière sophistiquée",[
+            ("chart","Fonds internes dédiés (FID)","Une gestion personnalisée et confidentielle."),
+            ("puzzle","Fonds d’assurance spécialisés (FAS)","Sur-mesure selon le montant investi."),
+            ("compass","Gestion sous mandat internationale","En lien avec banques privées et family offices."),
+            ("treasury","Univers d’actifs étendu","Devises multiples, private equity, obligations, structurés."),
+         ]),
+         ("checklist","Mobilité internationale & transmission",
+            ["Portabilité patrimoniale pour les expatriés","Adaptation aux environnements fiscaux selon la résidence","Clause bénéficiaire structurée et gestion transfrontalière","Approche civile, fiscale et familiale sur-mesure"]),
+         ("text","Notre accompagnement",
+            ["Nous sélectionnons les solutions luxembourgeoises adaptées à votre niveau patrimonial, votre résidence fiscale et vos exigences de sécurité — architecture du contrat, partenaires, supports et intégration dans votre stratégie globale."]),
+        ],
+        [("Produits structurés","produits-structures.html"),("S’expatrier à l’étranger","expatriation.html"),("Accès à notre Family Office","family-office.html")],
+        "Le contrat d’assurance-vie luxembourgeois : triangle de sécurité, super-privilège, FID/FAS et portabilité internationale.",
+        quote="Bien plus qu’un contrat d’assurance-vie : une véritable plateforme patrimoniale internationale.")
+
+    # 4 — Solutions retraite
+    fin_page("solutions-retraite.html","Solutions retraite","Des revenus complémentaires futurs",
+        "Construire progressivement des revenus complémentaires adaptés à votre futur niveau de vie, au-delà de la seule pension obligatoire.",
+        "assets/img/retraite.jpg","Solutions retraite",
+        ["L’objectif : transformer votre capacité d’épargne actuelle en ressources futures, pour maintenir votre confort de vie et votre indépendance financière.",
+         "Chaque stratégie est pensée selon votre situation professionnelle, votre fiscalité, votre horizon de départ et votre patrimoine existant."],
+        ["PER : cadre fiscal attractif, déduction possible des versements","Gestion pilotée ou libre, sortie en capital ou en rente","Adapté aux salariés, indépendants, professions libérales et dirigeants"],
+        [("cards","Diversifier les sources de revenus futurs",[
+            ("shield","Assurance-vie & capitalisation","Souplesse et capitalisation de long terme."),
+            ("building","Immobilier & revenus fonciers","Des revenus tangibles et réguliers."),
+            ("treasury","Sociétés patrimoniales","Articuler rémunération, fiscalité et patrimoine."),
+            ("chart","Portefeuilles de rendement","Dividendes, coupons et allocation dédiée."),
+         ]),
+         ("text","Notre accompagnement",
+            ["Estimation de vos revenus à la retraite, évaluation des besoins, identification des écarts potentiels, sélection des solutions et mise en place d’une stratégie évolutive — intégrant les dimensions fiscales, successorales et patrimoniales."]),
+        ],
+        [("Préparer votre retraite","preparer-retraite.html"),("Contrats d’assurance-vie","assurance-vie.html"),("Placements immobiliers","placements-immobiliers.html")],
+        "Solutions retraite : PER et stratégies complémentaires pour constituer des revenus futurs dans un cadre fiscal optimisé.")
+
+    # 5 — Comptes-titres
+    fin_page("comptes-titres.html","Comptes-titres","La liberté patrimoniale",
+        "Accéder à l’ensemble des marchés financiers, sans contrainte géographique ni sectorielle, pour piloter un portefeuille totalement personnalisé.",
+        "assets/img/img-markets.svg","Compte-titres",
+        ["Le compte-titres ordinaire (CTO) offre une grande souplesse et un accès très large : actions françaises et internationales, obligations, ETF, OPCVM, produits structurés, titres non cotés.",
+         "Idéal pour accéder aux marchés hors Europe, investir sur des thématiques précises ou bénéficier d’une flexibilité totale dans vos arbitrages."],
+        ["Accès élargi à toutes les classes d’actifs","Gestion active : achats, ventes et arbitrages en continu","Complément naturel de l’assurance-vie, du PEA ou de la capitalisation"],
+        [("tags","Accéder à tous les marchés et thématiques",
+            ["Actions FR & internationales","Obligations","ETF & trackers","OPCVM","Produits structurés","Technologie","Santé","Énergie","Intelligence artificielle","Infrastructures"]),
+         ("text","Notre accompagnement",
+            ["Nous construisons un portefeuille cohérent : allocation stratégique, sélection des supports, suivi régulier et ajustements selon l’évolution des marchés et de vos objectifs.",
+             "Sa fiscalité, sans avantage propre à d’autres enveloppes, reste compatible avec des stratégies d’optimisation selon votre situation et la durée de détention."]),
+        ],
+        [("PEA","pea.html"),("Produits structurés","produits-structures.html"),("Mandats de gestion","mandats-gestion.html")],
+        "Le compte-titres (CTO) : accès illimité aux marchés mondiaux et gestion active d’un portefeuille sur-mesure.")
+
+    # 6 — PEA
+    fin_page("pea.html","PEA — Plan d’Épargne en Actions","Performance et fiscalité",
+        "Investir sur les marchés actions européens dans un cadre fiscal particulièrement attractif, pensé pour le long terme.",
+        "assets/img/paris-courtyard.jpg","PEA",
+        ["Construire progressivement un portefeuille orienté croissance : entreprises européennes cotées, fonds éligibles, ETF, OPCVM ou stratégies sectorielles.",
+         "Une enveloppe idéale pour capitaliser dans la durée tout en maîtrisant votre cadre fiscal."],
+        ["Fiscalité avantageuse après une certaine durée de détention","Souplesse : titres en direct, gestion pilotée, ETF, secteurs","Un moteur de performance, complément des enveloppes défensives"],
+        [("tags","Une discipline patrimoniale",
+            ["Horizon long","Exposition aux entreprises","Constitution progressive","Réinvestissement des gains"]),
+         ("text","Notre accompagnement",
+            ["Nous définissons une stratégie adaptée à votre profil de risque et à votre horizon, sélectionnons les supports pertinents et ajustons le portefeuille au fil des évolutions de marché."]),
+        ],
+        [("PEA-PME / ETI","pea-pme.html"),("Comptes-titres","comptes-titres.html"),("Épargner & Investir","epargner-investir.html")],
+        "Le PEA : investir en actions européennes sur le long terme avec une fiscalité avantageuse.")
+
+    # 7 — PEA-PME
+    fin_page("pea-pme.html","PEA-PME / ETI","Financer la croissance",
+        "Orienter votre épargne vers les PME et ETI européennes à fort potentiel, dans le cadre fiscal avantageux du PEA.",
+        "assets/img/paris-colonnade.jpg","PEA-PME / ETI",
+        ["Diversifier au-delà des grandes capitalisations en accédant à des entreprises plus agiles, innovantes et exposées à de fortes opportunités de développement.",
+         "Une poche de diversification offensive, à fort potentiel mais plus volatile, qui exige une sélection rigoureuse et un horizon long."],
+        ["Exposition à un segment de marché dynamique","Actions de PME/ETI cotées ou fonds spécialisés (FCPI, FIP)","Fiscalité attractive à long terme (sous conditions)"],
+        [("cards","Plusieurs approches",[
+            ("chart","Investissement direct","Sélection d’actions de PME et ETI cotées."),
+            ("puzzle","Gestion collective","Fonds spécialisés et véhicules éligibles."),
+            ("compass","Allocation spécialisée","Une poche calibrée selon votre profil."),
+         ]),
+         ("text","Au-delà du rendement",
+            ["Investir via un PEA-PME, c’est aussi participer au financement de l’économie réelle européenne : innovation, entrepreneuriat et entreprises créatrices de valeur."]),
+        ],
+        [("PEA","pea.html"),("Private Equity","private-equity.html"),("Épargner & Investir","epargner-investir.html")],
+        "Le PEA-PME / ETI : financer les PME et ETI à fort potentiel avec la fiscalité avantageuse du PEA.")
+
+    # 8 — Mandats de gestion
+    fin_page("mandats-gestion.html","Mandats de gestion","La gestion déléguée",
+        "Déléguer la gestion de votre capital à des professionnels expérimentés, tout en conservant une stratégie alignée sur vos objectifs.",
+        "assets/img/paris-courtyard.jpg","Mandat de gestion",
+        ["Bénéficier d’une gestion structurée et réactive, sans suivre quotidiennement les marchés ni arbitrer vous-même vos investissements.",
+         "Tout part d’un cadre précis : objectifs, horizon, sensibilité au risque, besoins de liquidité et contraintes fiscales."],
+        ["Réactivité : arbitrages et réallocations en continu","Accès à des expertises et classes d’actifs spécialisées","Applicable sur assurance-vie, luxembourgeois, comptes-titres, capitalisation"],
+        [("cards","Plusieurs profils de gestion",[
+            ("lock","Prudente","Priorité à la préservation du capital."),
+            ("scale","Équilibrée","Un compromis entre sécurité et performance."),
+            ("growth","Dynamique","Orientation croissance, exposition actions plus forte."),
+            ("compass","Sur-mesure","Allocation personnalisée et classes d’actifs avancées."),
+         ]),
+         ("text","Notre accompagnement",
+            ["Nous sélectionnons avec rigueur les sociétés de gestion et banques privées selon leur philosophie, leur historique et leur maîtrise du risque, puis assurons un suivi régulier de la cohérence avec vos objectifs."]),
+        ],
+        [("Comptes-titres","comptes-titres.html"),("Contrats luxembourgeois","contrat-luxembourgeois.html"),("Produits structurés","produits-structures.html")],
+        "Les mandats de gestion : déléguer le pilotage de vos actifs à des professionnels, selon un cadre aligné sur vos objectifs.")
+
+    # 9 — Produits structurés
+    fin_page("produits-structures.html","Produits structurés","Une ingénierie sur-mesure",
+        "Des instruments de haute ingénierie financière, conçus pour un objectif patrimonial précis et un scénario de marché identifié.",
+        "assets/img/img-markets.svg","Produits structurés",
+        ["Ils combinent plusieurs briques — obligations, dérivés, options, mécanismes de protection — pour aller au-delà d’un investissement traditionnel et viser la performance dans différents contextes de marché.",
+         "Selon leur construction : génération de revenus conditionnels, protection partielle ou totale du capital à échéance, ou optimisation du couple rendement / risque."],
+        ["Architecture totalement ouverte et indépendante","Aucune salle de marché ni plateforme imposée","Mise en concurrence des émetteurs sur chaque opération"],
+        [("tags","Les salles de marché que nous mettons en concurrence",
+            ["Société Générale","BNP Paribas","Natixis","Morgan Stanley","Goldman Sachs","Citi","UBS","Barclays","Vontobel","BBVA"]),
+         ("checklist","Nous comparons les émetteurs sur",
+            ["Niveau de coupon / rendement","Distance à la barrière de protection","Qualité de crédit de l’émetteur","Conditions de remboursement anticipé (autocall)","Univers sous-jacent (indices, actions, paniers)","Liquidité secondaire et valorisation","Profondeur des mécanismes de protection","Documentation EMTN / Prospectus"]),
+         ("cards","Les formats les plus utilisés",[
+            ("chart","Autocall / Phoenix","Coupons conditionnels et remboursement anticipé."),
+            ("doc","Athena","Mécanisme de mémoire de coupons."),
+            ("scale","Reverse Convertible","Rendement et exposition maîtrisée au sous-jacent."),
+            ("shield","Capital protégé","Participation à la hausse avec sécurisation à échéance."),
+            ("puzzle","Indices décrémentés","Optimisation technique du pricing."),
+            ("compass","Sur-mesure","Structures dédiées selon votre cahier des charges."),
+         ]),
+         ("tags","Une analyse institutionnelle",
+            ["Corrélation des sous-jacents","Volatilité implicite & skew","Gap risk","Risque de call prématuré","Exposition dividendes","Fiscalité de l’enveloppe","Sensibilité aux taux"]),
+        ],
+        [("Contrats luxembourgeois","contrat-luxembourgeois.html"),("Comptes-titres","comptes-titres.html"),("Trésorerie d’entreprise","tresorerie-entreprise.html")],
+        "Produits structurés sur-mesure : architecture ouverte, mise en concurrence des salles de marché et ingénierie rendement / protection.",
+        quote="Nous intervenons comme architectes de solutions, et non comme distributeurs standardisés.")
 
 def build_tresorerie():
     body = page_hero("Trésorerie d’entreprise",
@@ -1157,7 +1370,7 @@ def main():
     build_home()
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
-    build_placements_financiers(); build_tresorerie(); build_private_equity()
+    build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_private_equity()
     build_immobilier(); build_structuration(); build_family_office()
     build_contact(); build_mentions()
     print("Done.")
