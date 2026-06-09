@@ -503,7 +503,7 @@ def build_epargner():
         "Développer votre patrimoine, générer des revenus, préparer votre retraite, diversifier, optimiser votre fiscalité ou structurer un capital après une phase de création de richesse : chaque investissement doit répondre à une logique précise.",
         ["Dans un environnement de plus en plus complexe, investir efficacement exige une approche structurée, indépendante et personnalisée. L’enjeu n’est pas seulement la performance, mais l’organisation intelligente de votre capital — selon votre horizon, votre profil de risque, vos besoins de liquidité et vos priorités.",
          "Nous intervenons sur l’ensemble des leviers pertinents : placements financiers, immobilier, private equity, trésorerie, structuration patrimoniale et diversification internationale."],
-        "assets/img/img-markets.svg", "Stratégie d’investissement")
+        "assets/img/paris-courtyard.jpg", "Stratégie d’investissement")
 
     # — Objectif (citation)
     body += section('<div class="quote" data-reveal><p>« Transformer votre capacité d’investissement en stratégie de création, de protection et de valorisation durable de votre patrimoine. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
@@ -718,7 +718,7 @@ def build_ceder():
     body += section(p1)
 
     # — Étape 02 : Après-cession (fond crème, avec visuel marchés)
-    p2 = feature_row("assets/img/img-markets.svg", "Sécurisation du capital post-cession",
+    p2 = feature_row("assets/img/serenite.jpg", "Sécurisation du capital post-cession",
         "Étape 02 — Après-cession", "Sécuriser le capital post-opération",
         ["La réussite ne se mesure pas qu’à l’opération, mais à la façon dont le capital est ensuite structuré, sécurisé et piloté. La cession fait passer d’un patrimoine concentré et illiquide à une liquidité importante à réorganiser.",
          "L’enjeu : transformer une liquidité exceptionnelle en patrimoine structuré de long terme."],
@@ -828,7 +828,7 @@ def build_retraite():
     body += section(p1)
 
     # — Étape 02 : Constituer les revenus (fond crème, photo)
-    p2 = feature_row("assets/img/img-markets.svg", "Architecture des revenus futurs",
+    p2 = feature_row("assets/img/mansion.jpg", "Architecture des revenus futurs",
         "Étape 02 — Revenus", "Constituer, diversifier et optimiser vos revenus",
         ["Une stratégie performante ne repose pas sur une seule source de revenus, mais sur un écosystème patrimonial capable de générer, sécuriser et optimiser des ressources complémentaires.",
          "Dans la majorité des cas, les régimes obligatoires ne suffisent pas : il s’agit de transformer votre capacité actuelle de création de richesse en revenus futurs durables, diversifiés et fiscalement cohérents."],
@@ -993,7 +993,7 @@ def build_placements_financiers():
         "Nous ne commercialisons aucun produit maison. Notre indépendance nous permet de sélectionner, sans biais, les supports et enveloppes les mieux adaptés à votre profil.",
         ["Préparer la retraite, optimiser votre fiscalité, dynamiser votre épargne ou sécuriser votre capital : à chaque objectif, une combinaison de solutions sur-mesure.",
          "Chaque brique est choisie pour sa contribution à l’ensemble, puis pilotée dans la durée avec des arbitrages réguliers et un reporting transparent."],
-        "assets/img/img-markets.svg","Marchés financiers")
+        "assets/img/paris-courtyard.jpg","Marchés financiers")
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
         '<p class="eyebrow">Nos solutions financières</p><h2 class="title-lg">Neuf enveloppes, une stratégie cohérente</h2><hr class="rule">'
         '<p class="lede">Découvrez chaque solution en détail — nous les articulons ensuite au sein d’une allocation globale.</p></div>'
@@ -1068,7 +1068,7 @@ def build_fin_pages():
     # 1 — Assurance-vie
     fin_page("assurance-vie.html","Contrats d’assurance-vie","Un couteau suisse patrimonial",
         "L’un des outils les plus complets pour développer, organiser et transmettre votre capital, dans un cadre fiscal attractif et avec une grande souplesse d’utilisation.",
-        "assets/img/img-markets.svg","Assurance-vie",
+        "assets/img/mansion.jpg","Assurance-vie",
         ["Investissez sur différents supports — du fonds en euros sécurisé aux unités de compte plus dynamiques — pour adapter la stratégie à votre profil de risque, votre horizon et vos objectifs.",
          "Constituer une épargne, préparer la retraite, financer un projet, générer des revenus ou anticiper la transmission : un même contrat, plusieurs objectifs de vie."],
         ["Allocation personnalisée : prudence, équilibre ou performance","Évolutive dans le temps selon les marchés et vos besoins","Disponibilité : rachats partiels ou totaux possibles"],
@@ -1150,7 +1150,7 @@ def build_fin_pages():
     # 5 — Comptes-titres
     fin_page("comptes-titres.html","Comptes-titres","La liberté patrimoniale",
         "Accéder à l’ensemble des marchés financiers, sans contrainte géographique ni sectorielle, pour piloter un portefeuille totalement personnalisé.",
-        "assets/img/img-markets.svg","Compte-titres",
+        "assets/img/paris-colonnade.jpg","Compte-titres",
         ["Le compte-titres ordinaire (CTO) offre une grande souplesse et un accès très large : actions françaises et internationales, obligations, ETF, OPCVM, produits structurés, titres non cotés.",
          "Idéal pour accéder aux marchés hors Europe, investir sur des thématiques précises ou bénéficier d’une flexibilité totale dans vos arbitrages."],
         ["Accès élargi à toutes les classes d’actifs","Gestion active : achats, ventes et arbitrages en continu","Complément naturel de l’assurance-vie, du PEA ou de la capitalisation"],
@@ -1218,7 +1218,7 @@ def build_fin_pages():
     # 9 — Produits structurés
     fin_page("produits-structures.html","Produits structurés","Une ingénierie sur-mesure",
         "Des instruments de haute ingénierie financière, conçus pour un objectif patrimonial précis et un scénario de marché identifié.",
-        "assets/img/img-markets.svg","Produits structurés",
+        "assets/img/paris-courtyard.jpg","Produits structurés",
         ["Ils combinent plusieurs briques — obligations, dérivés, options, mécanismes de protection — pour aller au-delà d’un investissement traditionnel et viser la performance dans différents contextes de marché.",
          "Selon leur construction : génération de revenus conditionnels, protection partielle ou totale du capital à échéance, ou optimisation du couple rendement / risque."],
         ["Architecture totalement ouverte et indépendante","Aucune salle de marché ni plateforme imposée","Mise en concurrence des émetteurs sur chaque opération"],
@@ -1260,7 +1260,7 @@ def build_tresorerie():
         "Excédents, réserves stratégiques, holdings patrimoniales ou besoins de diversification : chaque situation appelle une approche structurée, en toute indépendance.",
         ["Nous accompagnons entreprises, dirigeants et holdings avec une sélection rigoureuse des meilleures solutions : placements court terme, capitalisation, contrats luxembourgeois, produits de taux, produits structurés et mandats de gestion.",
          "Chaque poche de trésorerie est segmentée par horizon, puis associée à la solution la plus adaptée — sécurité, rendement et disponibilité maîtrisés."],
-        "assets/img/img-markets.svg","Trésorerie d’entreprise", rev=True)
+        "assets/img/paris-courtyard.jpg","Trésorerie d’entreprise", rev=True)
     body += section('<div class="quote" data-reveal><p>« Transformer votre trésorerie en un outil stratégique au service de la solidité financière et du développement de votre entreprise. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
         '<p class="eyebrow">Nos solutions de trésorerie</p><h2 class="title-lg">De l’audit à la structuration patrimoniale</h2><hr class="rule">'
@@ -1274,7 +1274,7 @@ def build_tresorerie_pages():
 
     sub_page("treso-audit.html","Audit & structuration de trésorerie","De la trésorerie comptable à la trésorerie pilotée",
         "La première étape : analyser votre situation financière, votre organisation capitalistique et vos objectifs, avant toute mise en place de solutions.",
-        "assets/img/img-markets.svg","Audit de trésorerie",
+        "assets/img/mansion.jpg","Audit de trésorerie",
         ["Nous transformons une vision purement comptable de la trésorerie en une approche stratégique, structurée et pilotée.",
          "Cet audit est le socle de toute stratégie performante : passer d’une trésorerie passive à une trésorerie optimisée et intégrée à la stratégie financière de l’entreprise."],
         ["Cartographie des flux et du BFR","Segmentation en poches stratégiques","Une politique de trésorerie sur-mesure"],
@@ -1294,7 +1294,7 @@ def build_tresorerie_pages():
 
     sub_page("comptes-a-terme.html","Comptes à terme & placements court terme","Le premier niveau d’optimisation",
         "Sécuriser les capitaux disponibles tout en améliorant leur rendement par rapport à une trésorerie dormante laissée sur des comptes courants.",
-        "assets/img/img-markets.svg","Comptes à terme",
+        "assets/img/paris-colonnade.jpg","Comptes à terme",
         ["Les comptes à terme (CAT) placent des fonds sur une durée définie, à un taux fixé dès l’origine : une lisibilité parfaite sur le rendement, les échéances et la disponibilité future.",
          "Idéal pour valoriser des excédents temporaires sans compromettre la sécurité du capital ni la visibilité d’exploitation."],
         ["Taux garanti et visibilité totale","Disponibilité calibrée sur vos besoins","Mise en concurrence multi-établissements"],
@@ -1349,7 +1349,7 @@ def build_tresorerie_pages():
 
     sub_page("obligataire-taux.html","Allocation obligataire & produits de taux","Une réserve de rendement stratégique",
         "Rechercher un rendement supérieur au monétaire tout en conservant visibilité, hiérarchisation du risque et gestion des échéances.",
-        "assets/img/img-markets.svg","Allocation obligataire",
+        "assets/img/paris-courtyard.jpg","Allocation obligataire",
         ["Transformer une trésorerie excédentaire en portefeuille de rendement structuré, cohérent avec vos besoins de liquidité, votre tolérance au risque et vos contraintes bilancielles.",
          "La performance obligataire ne dépend pas du seul coupon : elle exige une analyse rigoureuse du crédit, de la duration et de la courbe des taux."],
         ["Univers large : souverain, IG, fonds datés, monétaire amélioré","Segmentation par horizon (court / moyen / long)","Architecture ouverte : direct, fonds ou solutions institutionnelles"],
@@ -1365,7 +1365,7 @@ def build_tresorerie_pages():
 
     sub_page("structures-tresorerie.html","Produits structurés de trésorerie","Le rendement calibré sur-mesure",
         "Optimiser le rendement de capitaux disponibles avec un niveau de risque défini en amont, sans basculer dans une gestion actions classique.",
-        "assets/img/img-markets.svg","Produits structurés de trésorerie",
+        "assets/img/mansion.jpg","Produits structurés de trésorerie",
         ["Combiner obligations, options et mécanismes de protection pour créer un profil rendement / risque ciblé selon un scénario de marché.",
          "Architecture totalement ouverte : aucune salle de marché imposée, une mise en concurrence institutionnelle des émetteurs."],
         ["Rendement conditionnel ou capital partiellement protégé","Sélection libre des meilleures salles de marché","Une lecture institutionnelle des risques"],
@@ -1425,23 +1425,91 @@ def build_tresorerie_pages():
         "Structuration patrimoniale de holdings et réserves stratégiques : centraliser, sécuriser et organiser les capitaux du groupe.", parent,
         quote="Transformer une entreprise ou une holding en véritable outil de capitalisation stratégique.")
 
+PE_SOLUTIONS = [
+    ("puzzle","Fonds de Private Equity","Accéder, via des équipes spécialisées, aux entreprises non cotées à fort potentiel.","fonds-private-equity.html"),
+    ("compass","Club deals & co-investissements","Des opérations ciblées à forte conviction, aux côtés de professionnels.","club-deals-coinvestissement.html"),
+    ("building","Dette privée, infra & actifs réels","Rendement, visibilité et exposition directe à l’économie réelle.","dette-privee-actifs-reels.html"),
+]
+
 def build_private_equity():
     body = page_hero("Solutions non cotées & Private Equity",
-        "Accédez, de façon sélective, à la performance et à la décorrélation des actifs privés — longtemps réservés aux investisseurs institutionnels.",
+        "Accéder à une dimension patrimoniale complémentaire des marchés cotés, en finançant directement ou indirectement des entreprises non cotées, des projets de croissance et des opérations de transmission.",
         [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),("Solutions non cotées & Private Equity",None)])
-    body += intro("Diversifier","La valeur se crée aussi hors des marchés cotés",
-        "Le non coté offre un potentiel de performance et une décorrélation précieuse, en contrepartie d’une immobilisation du capital sur plusieurs années.",
-        ["Capital-investissement, dette privée, infrastructures, actifs réels : nous sélectionnons des fonds de premier rang et des opérations en club deal.",
-         "L’accès au non coté requiert un horizon long et une bonne compréhension du risque de liquidité : nous le calibrons strictement à votre profil."],
-        "assets/img/paris-colonnade.jpg","Capital-investissement")
-    body += section('<div class="grid grid-3" style="margin-top:0">' + tiles([
-            ("puzzle","Private Equity","Participer au développement et à la transmission d’entreprises non cotées."),
-            ("doc","Dette privée","Des revenus réguliers issus du financement direct des entreprises."),
-            ("building","Actifs réels","Infrastructures et immobilier de rendement à forte visibilité."),
-        ]) + '</div>')
-    body += section('<div class="quote" data-reveal><p>« Le non coté n’est pas une mode : c’est une classe d’actifs structurante, à intégrer avec discernement et sur le long terme. »</p><cite>Notre approche du private equity</cite></div>', cls="section band-dark")
-    body += cta_band("Accédez au private equity","Le non coté s’adresse à des investisseurs avertis. Vérifions ensemble sa pertinence dans votre allocation.")
-    page("private-equity.html","Solutions non cotées & Private Equity","Accéder de façon sélective au capital-investissement, à la dette privée et aux actifs réels.", body)
+    body += intro("Notre approche","La valeur se crée aussi hors des marchés cotés",
+        "Longtemps réservé aux institutionnels et aux grandes fortunes, le non coté est devenu un levier majeur de diversification : performance de long terme, décorrélation partielle et exposition à l’économie réelle.",
+        ["Capital-développement, capital-transmission, dette privée, club deals, co-investissements ou fonds spécialisés : une large palette, chacune répondant à des objectifs distincts.",
+         "Notre sélection est indépendante et rigoureuse : qualité des équipes de gestion, structure des opérations, gouvernance, maîtrise du risque et cohérence avec votre stratégie patrimoniale."],
+        "assets/img/paris-colonnade.jpg","Capital-investissement", rev=True)
+    body += section('<div class="quote" data-reveal><p>« Intégrer le non coté comme une véritable classe d’actifs stratégique, au service d’une gestion de patrimoine sophistiquée, diversifiée et orientée vers le long terme. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
+        '<p class="eyebrow">Nos solutions non cotées</p><h2 class="title-lg">Trois grandes familles d’investissement privé</h2><hr class="rule">'
+        '<p class="lede">Des fonds diversifiés aux opérations directes les plus sélectives, jusqu’aux actifs réels.</p></div>'
+        '<div class="grid grid-3" style="margin-top:54px">' + tiles(PE_SOLUTIONS) + '</div>', cls="section band-cream")
+    body += cta_band("Accédez au private equity","Le non coté s’adresse à des investisseurs avertis. Vérifions ensemble sa pertinence et son dosage dans votre allocation.")
+    page("private-equity.html","Solutions non cotées & Private Equity","Fonds de private equity, club deals et co-investissements, dette privée, infrastructures et actifs réels — en architecture ouverte.", body)
+
+def build_private_equity_pages():
+    parent = ("Solutions non cotées & Private Equity","private-equity.html")
+
+    sub_page("fonds-private-equity.html","Fonds de Private Equity & Capital-Investissement","Le socle du non coté",
+        "Accéder, via des équipes de gestion spécialisées, à des entreprises non cotées sélectionnées pour leur potentiel de croissance et de création de valeur.",
+        "assets/img/mansion.jpg","Fonds de private equity",
+        ["Il ne s’agit pas seulement d’investir dans des sociétés privées, mais de participer à des stratégies professionnelles de développement d’entreprise, avec un pilotage actif des participations.",
+         "Bien sélectionnés, ces fonds sont des briques de diversification sophistiquée : exposition à la croissance privée, création de valeur entrepreneuriale et décorrélation partielle des marchés cotés."],
+        ["Diversification sur plusieurs participations","Gestion institutionnelle et accès privilégié","Exposition à l’économie réelle"],
+        [("cards","Les segments du private equity",[
+            ("growth","Venture Capital","Entreprises innovantes en lancement ou hypercroissance."),
+            ("chart","Growth Capital","Accélérer la croissance d’entreprises déjà établies."),
+            ("scale","Buyout / LBO","Acquisition ou transmission d’entreprises matures."),
+            ("compass","Fonds secondaires","Portefeuilles constitués : durée et diversification optimisées."),
+         ]),
+         ("checklist","Comment nous sélectionnons les maisons de gestion",
+            ["Historique de performance (track record)","Qualité de l’équipe de gestion","Discipline d’investissement","Gouvernance et alignement d’intérêts","Structure de frais","Stratégie sectorielle et géographique","Qualité du sourcing","Maîtrise du risque et des cycles"]),
+         ("tags","Des spécificités techniques à intégrer",
+            ["Horizon long (7 à 10 ans +)","Illiquidité relative","Appels de capitaux progressifs","Distribution différée","Valorisation non quotidienne"]),
+        ],
+        [("Club deals & co-investissements","club-deals-coinvestissement.html"),("Dette privée & actifs réels","dette-privee-actifs-reels.html"),("Épargner & Investir","epargner-investir.html")],
+        "Fonds de private equity et capital-investissement : venture, growth, buyout/LBO et secondaires, sélectionnés en architecture ouverte.", parent)
+
+    sub_page("club-deals-coinvestissement.html","Club Deals, Co-investissements & Opportunités directes","La dimension la plus sélective",
+        "Accéder à des opportunités ciblées, souvent aux côtés d’investisseurs professionnels, de family offices ou d’équipes de management, avec une participation plus directe à la création de valeur.",
+        "assets/img/paris-colonnade.jpg","Club deals et co-investissements",
+        ["Plutôt qu’un fonds diversifié, on sélectionne des dossiers précis — entreprise, acquisition, transmission, infrastructure — selon des critères rigoureux et un cahier des charges patrimonial défini.",
+         "L’objectif : des opérations à forte conviction, avec une meilleure visibilité sur l’actif, la stratégie de développement et les leviers de création de valeur."],
+        ["Sélection ciblée à forte conviction","Visibilité renforcée sur l’actif sous-jacent","Réduction potentielle de certaines couches de frais"],
+        [("cards","Les formes d’investissement direct",[
+            ("compass","Club Deals","Participation collective autour d’un même actif, pilotée par un sponsor."),
+            ("puzzle","Co-investissements","Aux côtés d’un fonds, sur une opération identifiée."),
+            ("building","Participation directe","Entrée directe au capital d’une entreprise privée."),
+            ("scale","Transactions opportunistes","Carve-out, consolidation, situations spéciales."),
+         ]),
+         ("checklist","Notre analyse institutionnelle de chaque opération",
+            ["Qualité du sponsor ou opérateur","Gouvernance et structure juridique","Pactes d’actionnaires","Alignement d’intérêts","Dette éventuelle et effet de levier","Business model et risques sectoriels","Valorisation d’entrée","Mécanismes de liquidité"]),
+         ("tags","La stratégie de sortie, élément central",
+            ["Revente industrielle","LBO secondaire","IPO potentielle","Refinancement","Liquidation stratégique"]),
+        ],
+        [("Fonds de Private Equity","fonds-private-equity.html"),("Dette privée & actifs réels","dette-privee-actifs-reels.html"),("Céder ou transmettre","ceder-transmettre.html")],
+        "Club deals, co-investissements et opérations directes : la dimension la plus sélective et sophistiquée du private equity.", parent,
+        quote="Nous ne distribuons pas des opérations standardisées : nous sélectionnons les meilleures opportunités selon leur qualité intrinsèque et leur pertinence patrimoniale.")
+
+    sub_page("dette-privee-actifs-reels.html","Dette privée, infrastructures & actifs réels","Rendement et économie réelle",
+        "Une composante essentielle du non coté pour les investisseurs recherchant diversification, rendement potentiel et exposition à l’économie productive.",
+        "assets/img/paris-courtyard.jpg","Dette privée et actifs réels",
+        ["Là où le capital-investissement repose sur la valorisation du capital, ces stratégies sont davantage orientées vers le rendement, la visibilité contractuelle ou la stabilité relative.",
+         "Financement d’entreprises, projets d’infrastructure, immobilier spécialisé, énergie ou logistique : un accès à des flux économiques réels, dans une logique de long terme."],
+        ["Revenus potentiellement réguliers","Priorité contractuelle sur le capital (dette)","Décorrélation partielle des marchés cotés"],
+        [("cards","Trois grandes familles",[
+            ("treasury","Dette privée","Senior, unitranche, mezzanine, asset-backed, situations spéciales."),
+            ("building","Infrastructures","Énergie, transport, data centers, utilities, infrastructures sociales."),
+            ("globe","Actifs réels","Immobilier spécialisé, logistique, santé, foncier, renouvelables."),
+         ]),
+         ("checklist","Notre méthodologie de sélection",
+            ["Qualité du gérant ou sponsor","Solidité juridique de la structure","Profil rendement / risque","Liquidité et sensibilité macroéconomique","Levier financier","Diversification sectorielle","Gouvernance et structure de frais","Robustesse des flux économiques"]),
+         ("tags","Pourquoi intégrer cette classe d’actifs",
+            ["Diversification avancée","Décorrélation partielle","Économie réelle","Rendement ou stabilité","Structuration long terme","Complémentarité au PE"]),
+        ],
+        [("Fonds de Private Equity","fonds-private-equity.html"),("Club deals & co-investissements","club-deals-coinvestissement.html"),("Placements immobiliers","placements-immobiliers.html")],
+        "Dette privée, infrastructures et actifs réels : rendement, visibilité contractuelle et exposition à l’économie réelle, en complément du private equity.", parent)
 
 def build_immobilier():
     body = page_hero("Placements immobiliers",
@@ -1576,7 +1644,8 @@ def main():
     build_home()
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
-    build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages(); build_private_equity()
+    build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
+    build_private_equity(); build_private_equity_pages()
     build_immobilier(); build_structuration(); build_family_office()
     build_contact(); build_mentions()
     print("Done.")
