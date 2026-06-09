@@ -1511,23 +1511,101 @@ def build_private_equity_pages():
         [("Fonds de Private Equity","fonds-private-equity.html"),("Club deals & co-investissements","club-deals-coinvestissement.html"),("Placements immobiliers","placements-immobiliers.html")],
         "Dette privée, infrastructures et actifs réels : rendement, visibilité contractuelle et exposition à l’économie réelle, en complément du private equity.", parent)
 
+IMMO_SOLUTIONS = [
+    ("building","SCPI & immobilier géré","Un patrimoine immobilier diversifié, en gestion totalement déléguée.","scpi-immobilier-gere.html"),
+    ("compass","Club deals & opérations privées","Des opérations ciblées, aux côtés d’opérateurs spécialisés.","club-deals-immobiliers.html"),
+    ("doc","Immobilier en direct clés en main","Détenir des actifs sur-mesure, de A à Z, sans la complexité.","immobilier-direct.html"),
+]
+
 def build_immobilier():
-    body = page_hero("Placements immobiliers",
-        "Constituez ou diversifiez un patrimoine immobilier tangible, sans les contraintes de la gestion en direct.",
+    body = page_hero("Solutions de placements immobiliers",
+        "L’immobilier demeure l’un des piliers majeurs de la construction patrimoniale : valorisation du capital, revenus potentiels, diversification et structuration de long terme.",
         [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),("Placements immobiliers",None)])
-    body += intro("Investir dans la pierre","L’immobilier, socle d’un patrimoine équilibré",
-        "L’immobilier apporte stabilité, revenus réguliers et protection contre l’inflation. Nous en sélectionnons les véhicules les plus qualitatifs.",
-        ["SCPI de rendement, OPCI, club deals, immobilier en démembrement ou nue-propriété : à chaque objectif sa structure.",
-         "Nous étudions le couple rendement / fiscalité de chaque solution et son intégration dans votre allocation globale."],
-        "assets/img/paris-courtyard.jpg","Immobilier patrimonial parisien", rev=True)
-    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Nos véhicules</p><h2 class="title-lg">Plusieurs voies vers la pierre</h2><hr class="rule"></div>'
-        '<div class="grid grid-3" style="margin-top:50px">' + tiles([
-            ("building","SCPI & OPCI","Des revenus immobiliers mutualisés et diversifiés, accessibles dès quelques milliers d’euros."),
-            ("lock","Nue-propriété","Acquérir avec décote et préparer un revenu futur, dans un cadre fiscal optimisé."),
-            ("scale","Club deals","Des opérations immobilières sélectionnées, réservées à un cercle d’investisseurs."),
-        ]) + '</div>', cls="section band-cream")
-    body += cta_band("Diversifiez dans l’immobilier","Quel rôle l’immobilier doit-il jouer dans votre patrimoine ? Construisons une stratégie adaptée.")
-    page("placements-immobiliers.html","Placements immobiliers","SCPI, OPCI, nue-propriété et club deals : un patrimoine immobilier tangible et rigoureusement sélectionné.", body)
+    body += intro("Notre approche","Une classe d’actifs stratégique",
+        "L’univers immobilier va bien au-delà de l’acquisition classique : SCPI, club deals, opérations privées, immobilier professionnel ou investissement en direct clés en main.",
+        ["Notre approche est en architecture ouverte et totalement indépendante : nous sélectionnons les meilleures solutions selon la qualité des actifs, le rendement potentiel, l’emplacement, la structure juridique et la solidité des opérateurs.",
+         "Recherche de rendement, patrimoine tangible, préparation de la retraite, diversification ou transmission : à chaque objectif, sa solution immobilière."],
+        "assets/img/mansion.jpg","Patrimoine immobilier", rev=True)
+    body += section('<div class="quote" data-reveal><p>« Intégrer l’immobilier comme une véritable classe d’actifs stratégique, capable d’allier performance, résilience, diversification et structuration patrimoniale sur-mesure. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
+        '<p class="eyebrow">Nos solutions immobilières</p><h2 class="title-lg">Trois voies vers la pierre</h2><hr class="rule">'
+        '<p class="lede">Du collectif piloté aux opérations les plus ciblées, jusqu’à la détention en direct.</p></div>'
+        '<div class="grid grid-3" style="margin-top:54px">' + tiles(IMMO_SOLUTIONS) + '</div>', cls="section band-cream")
+    body += cta_band("Diversifiez dans l’immobilier","Quel rôle l’immobilier doit-il jouer dans votre patrimoine ? Construisons une stratégie adaptée à vos objectifs.")
+    page("placements-immobiliers.html","Placements immobiliers","SCPI et immobilier géré, club deals immobiliers et opérations privées, investissement en direct clés en main — en architecture ouverte.", body)
+
+def build_immobilier_pages():
+    parent = ("Placements immobiliers","placements-immobiliers.html")
+
+    sub_page("scpi-immobilier-gere.html","SCPI & immobilier géré","L’immobilier piloté, sans contrainte de gestion",
+        "L’un des moyens les plus accessibles et structurés d’intégrer l’immobilier, sans supporter les contraintes de gestion, d’acquisition ou d’administration locative.",
+        "assets/img/paris-courtyard.jpg","SCPI et immobilier géré",
+        ["Investir indirectement dans un portefeuille diversifié — bureaux, commerces, logistique, santé, résidentiel spécialisé, hôtellerie ou actifs paneuropéens — avec mutualisation des risques et gestion professionnelle.",
+         "Transformer l’immobilier en actif patrimonial piloté : revenus complémentaires potentiels, diversification, préparation de la retraite ou structuration de long terme."],
+        ["Gestion totalement déléguée","Mutualisation des risques et diversification","Accès à l’immobilier professionnel"],
+        [("cards","Plusieurs types de SCPI",[
+            ("coins","SCPI de rendement","Orientées vers la distribution potentielle de revenus."),
+            ("growth","SCPI de valorisation","Tournées vers la revalorisation du capital."),
+            ("globe","SCPI européennes","Diversification géographique renforcée."),
+            ("building","SCPI thématiques","Santé, logistique, éducation et secteurs spécialisés."),
+         ]),
+         ("cards","L’immobilier géré",[
+            ("concierge","Résidences services","Une exploitation déléguée et des baux structurés."),
+            ("puzzle","Logements étudiants","Une demande structurelle et résiliente."),
+            ("shield","Senior living & santé","Des actifs portés par la démographie."),
+            ("building","Logistique & spécialisés","Des secteurs au cœur de l’économie réelle."),
+         ]),
+         ("checklist","Notre grille d’analyse",
+            ["Qualité du patrimoine et localisation","Taux d’occupation financier","Diversification locative","Stratégie de la société de gestion","Niveau d’endettement","Liquidité et frais","Résilience sectorielle","Cohérence avec vos objectifs"]),
+         ("tags","Plusieurs modes de détention",
+            ["Acquisition en direct","Assurance-vie","Contrat luxembourgeois","Démembrement","Société patrimoniale","Financement à crédit"]),
+         ("text","Points de vigilance",
+            ["Comme tout investissement immobilier : évolution des marchés, sensibilité aux taux, fiscalité, liquidité du marché secondaire et robustesse des locataires restent des paramètres essentiels."]),
+        ],
+        [("Immobilier en direct clés en main","immobilier-direct.html"),("Club deals immobiliers","club-deals-immobiliers.html"),("Préparer votre retraite","preparer-retraite.html")],
+        "SCPI et immobilier géré : un patrimoine immobilier diversifié et piloté, en gestion déléguée et architecture ouverte.", parent)
+
+    sub_page("club-deals-immobiliers.html","Club Deals immobiliers & opérations privées","L’immobilier sélectif et sur-mesure",
+        "Accéder à des opportunités spécifiques, rigoureusement sélectionnées, aux côtés d’opérateurs spécialisés — dans une logique de création de valeur directe.",
+        "assets/img/paris-colonnade.jpg","Club deals immobiliers",
+        ["Plutôt que des solutions mutualisées, on investit dans des actifs ou opérations identifiés : acquisition patrimoniale, restructuration, promotion, marchand de biens, hôtellerie, logistique, résidentiel premium ou stratégies opportunistes.",
+         "Des projets à thèse d’investissement précise, avec une meilleure visibilité sur l’actif, sa stratégie de valorisation, son horizon de sortie et ses leviers de création de valeur."],
+        ["Sélection ciblée à forte conviction","Exposition directe à des actifs identifiés","Structuration patrimoniale personnalisée"],
+        [("cards","Les formes de club deals",[
+            ("building","Acquisition groupée","Un actif unique réuni autour de plusieurs investisseurs."),
+            ("compass","Opération de transformation","Restructuration et repositionnement d’un actif."),
+            ("doc","Financement de promotion","Participation à un projet de développement."),
+            ("puzzle","Co-investissement","Sur une stratégie de rendement ou de revalorisation."),
+         ]),
+         ("checklist","Notre analyse de chaque opération",
+            ["Qualité de l’emplacement","Solidité de l’opérateur","Structure juridique","Business plan et financement","Structure de dette et levier","Coûts de travaux","Stratégie de sortie","Alignement d’intérêts"]),
+         ("tags","Des points déterminants",
+            ["Niveau de levier","Calendrier d’exécution","Risques administratifs / urbanistiques","Scénario de valorisation","Profondeur du marché secondaire","Résistance aux cycles"]),
+         ("text","Pour quels investisseurs ?",
+            ["Pour ceux qui recherchent une allocation immobilière plus active et sélective, en acceptant un niveau d’analyse supérieur — avec une discipline de diversification face au risque de concentration sur un seul actif."]),
+        ],
+        [("SCPI & immobilier géré","scpi-immobilier-gere.html"),("Immobilier en direct clés en main","immobilier-direct.html"),("Club deals & co-investissements (PE)","club-deals-coinvestissement.html")],
+        "Club deals immobiliers et opérations privées : des opérations ciblées et sophistiquées, sélectionnées avec exigence.", parent,
+        quote="Nous ne distribuons pas d’opérations standardisées : nous sélectionnons les meilleures opportunités selon leur qualité intrinsèque et leur cohérence patrimoniale.")
+
+    sub_page("immobilier-direct.html","Investissements immobiliers en direct, clés en main","Votre patrimoine immobilier, de A à Z",
+        "Détenir directement des actifs sélectionnés sur-mesure, avec un accompagnement global — du sourcing à la gestion — sans la complexité technique et administrative.",
+        "assets/img/hero.jpg","Immobilier en direct clés en main",
+        ["Contrairement aux véhicules collectifs, le direct permet une personnalisation totale : type de bien, localisation, rendement, fiscalité, horizon de détention, transmission ou financement.",
+         "L’objectif n’est pas « d’acheter un bien », mais de structurer une stratégie immobilière cohérente, alignée sur votre situation et votre vision de long terme."],
+        ["Maîtrise patrimoniale complète","Effet de levier via le crédit","Personnalisation et contrôle stratégique"],
+        [("tags","Des stratégies variées",
+            ["Résidentiel patrimonial","Locatif traditionnel","Location meublée","Immeubles de rapport","Coliving","Déficit foncier","Nue-propriété","Marchand de biens patrimonial"]),
+         ("checklist","Nous intervenons sur toute la chaîne",
+            ["Définition de la stratégie immobilière","Sourcing d’opportunités ciblées","Audit économique et patrimonial","Structuration juridique et fiscale","Optimisation du financement","Coordination acquisition / notaire / banque","Travaux et valorisation","Mise en location et gestion déléguée"]),
+         ("checklist","Chaque projet analysé selon",
+            ["Emplacement et tension locative","Qualité intrinsèque du bien","Prix d’acquisition","Potentiel de valorisation","Rendement net","Fiscalité et coût global","Financement et travaux","Profondeur du marché et risque local"]),
+         ("text","L’intérêt d’une approche clés en main",
+            ["Transformer un investissement potentiellement complexe en stratégie structurée, pilotée et optimisée — en évitant la sélection émotionnelle, le mauvais pricing, la sous-estimation des coûts ou une fiscalité mal calibrée."]),
+        ],
+        [("SCPI & immobilier géré","scpi-immobilier-gere.html"),("Club deals immobiliers","club-deals-immobiliers.html"),("Optimiser votre fiscalité","optimiser-fiscalite.html")],
+        "Investissement immobilier en direct clés en main : sourcing, structuration, financement, valorisation et gestion d’actifs sur-mesure.", parent,
+        quote="Professionnaliser l’investissement immobilier privé : de l’opportunité émotionnelle à la stratégie pilotée.")
 
 def build_structuration():
     body = page_hero("Structuration juridique et fiscale",
@@ -1646,7 +1724,8 @@ def main():
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
     build_private_equity(); build_private_equity_pages()
-    build_immobilier(); build_structuration(); build_family_office()
+    build_immobilier(); build_immobilier_pages()
+    build_structuration(); build_family_office()
     build_contact(); build_mentions()
     print("Done.")
 
