@@ -1721,24 +1721,124 @@ def build_structuration_pages():
         quote="Transformer un événement de liquidité en plateforme patrimoniale durable.")
 
 
+FO_SOLUTIONS = [
+    ("compass","Pilotage patrimonial global","La tour de contrôle de l’ensemble de votre patrimoine.","pilotage-patrimonial-global.html"),
+    ("scale","Ingénierie patrimoniale avancée","Structurer le patrimoine dans toutes ses dimensions.","ingenierie-patrimoniale.html"),
+    ("chart","Allocation & architecture ouverte","Sélectionner librement les meilleures solutions du marché.","allocation-architecture-ouverte.html"),
+    ("concierge","Gouvernance familiale & transmission","Préserver l’unité et organiser la continuité générationnelle.","gouvernance-familiale.html"),
+]
+
 def build_family_office():
     body = page_hero("Accès à notre Family Office",
-        "Pour les patrimoines les plus complexes, une coordination globale, confidentielle et indépendante de l’ensemble de vos intérêts.",
+        "Pour les dirigeants, familles patrimoniales, entrepreneurs et investisseurs recherchant bien plus qu’un conseil financier : une vision stratégique globale, indépendante et durable de leur patrimoine.",
         [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),("Accès à notre Family Office",None)])
-    body += intro("Orchestrer","Un chef d’orchestre pour votre patrimoine",
-        "Le Family Office coordonne, en toute indépendance, l’ensemble des dimensions de votre patrimoine : financière, immobilière, juridique, fiscale et familiale.",
-        ["Consolidation et reporting global, gouvernance familiale, sélection et supervision de vos partenaires, accompagnement des nouvelles générations.",
-         "Une relation de long terme, fondée sur la confiance, la discrétion absolue et l’alignement total de nos intérêts avec les vôtres."],
+    body += intro("Notre approche","L’architecte central de votre patrimoine",
+        "Là où les enjeux deviennent complexes — juridique, financier, immobilier, private equity, fiscalité, transmission, gouvernance —, la véritable valeur réside dans la coordination, la cohérence et le pilotage global.",
+        ["Nous ne nous limitons pas à la sélection de produits : nous construisons une gouvernance patrimoniale complète, pensée pour protéger, développer, structurer et transmettre votre patrimoine dans la durée.",
+         "Totalement indépendants, nous travaillons en architecture ouverte, sans solutions captives, afin de sélectionner librement les meilleures expertises et partenaires selon vos objectifs exclusifs."],
         "assets/img/paris-courtyard.jpg","Family Office", rev=True)
-    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Nos missions</p><h2 class="title-lg">Une vision à 360°</h2><hr class="rule"></div>'
-        '<div class="grid grid-4" style="margin-top:50px">' + tiles([
-            ("chart","Consolidation","Une vision unifiée et claire de l’ensemble de vos actifs."),
-            ("concierge","Coordination","La supervision de tous vos conseils et partenaires."),
-            ("retire","Gouvernance familiale","Préparer et accompagner la transmission entre générations."),
-            ("lock","Confidentialité","Une discrétion absolue à chaque étape de la relation."),
-        ]) + '</div>', cls="section band-cream")
-    body += cta_band("Découvrez notre Family Office","L’accès à notre Family Office est réservé à un cercle restreint. Rencontrons-nous pour en évaluer la pertinence.")
-    page("family-office.html","Accès à notre Family Office","Une coordination globale, confidentielle et indépendante de l’ensemble de vos intérêts patrimoniaux.", body)
+    body += section('<div class="quote" data-reveal><p>« Agir comme l’architecte central de votre patrimoine — protéger, développer, structurer et transmettre dans la durée. »</p><cite>Notre rôle</cite></div>', cls="section--tight band-dark")
+    body += section('<div class="center" style="max-width:700px;margin-inline:auto" data-reveal>'
+        '<p class="eyebrow">Notre approche</p><h2 class="title-lg">Quatre piliers, une gouvernance complète</h2><hr class="rule">'
+        '<div class="tags" style="justify-content:center;margin-top:8px">'
+        '<span class="tag">Vision stratégique</span><span class="tag">Ingénierie patrimoniale</span>'
+        '<span class="tag">Sélection indépendante</span><span class="tag">Accompagnement long terme</span></div></div>'
+        '<div class="grid grid-4" style="margin-top:48px">' + tiles(FO_SOLUTIONS) + '</div>', cls="section band-cream")
+    body += cta_band("Découvrez notre Family Office","L’accès à notre Family Office est réservé à un cercle restreint. Rencontrons-nous pour en évaluer la pertinence, en toute confidentialité.")
+    page("family-office.html","Accès à notre Family Office","Pilotage patrimonial global, ingénierie avancée, allocation en architecture ouverte et gouvernance familiale — l’architecte central de votre patrimoine.", body)
+
+def build_family_office_pages():
+    parent = ("Accès à notre Family Office","family-office.html")
+
+    sub_page("pilotage-patrimonial-global.html","Pilotage patrimonial global & stratégie sur-mesure","La tour de contrôle de votre patrimoine",
+        "Orchestrer l’ensemble de votre patrimoine comme un écosystème cohérent, structuré et piloté selon une vision de long terme.",
+        "assets/img/mansion.jpg","Pilotage patrimonial global",
+        ["Entreprises, holdings, immobilier, portefeuilles, trésorerie, private equity, enjeux successoraux, structures internationales : sans coordination, ces composantes évoluent de façon fragmentée — inefficiences, sur-risques, incohérences fiscales.",
+         "Nous devenons votre tour de contrôle patrimoniale : agréger, structurer, analyser et piloter l’ensemble de vos enjeux dans une logique consolidée."],
+        ["Une vision consolidée de tout votre patrimoine","Du fragmenté à une gouvernance structurée","Chef d’orchestre de tous vos conseils"],
+        [("checklist","Une cartographie patrimoniale exhaustive",
+            ["Patrimoine privé","Patrimoine professionnel","Structures de détention","Immobilier","Actifs financiers et liquidités","Engagements","Gouvernance familiale","Fiscalité et enjeux successoraux"]),
+         ("cards","Une stratégie sur-mesure, multi-dimensions",[
+            ("shield","Protection & croissance","Sécuriser le capital tout en le faisant fructifier."),
+            ("puzzle","Diversification","Réduire les risques de concentration."),
+            ("scale","Structuration & fiscalité","Organiser la détention et les flux."),
+            ("concierge","Liquidité & transmission","Anticiper les grandes étapes de vie."),
+         ]),
+         ("tags","Concrètement, nous coordonnons",
+            ["Patrimoine entrepreneurial & privé","Trésorerie & capitalisation","Immobilier, finance & non coté","Cession & transmission","Holdings & réserves","Allocations selon les cycles de vie"]),
+         ("text","Chef d’orchestre de vos experts",
+            ["Experts-comptables, notaires, avocats, fiscalistes, banques privées, sociétés de gestion, assureurs : la performance patrimoniale ne dépend pas seulement de la qualité individuelle des experts, mais de la cohérence stratégique de leurs interventions — que nous coordonnons."]),
+        ],
+        [("Ingénierie patrimoniale avancée","ingenierie-patrimoniale.html"),("Allocation & architecture ouverte","allocation-architecture-ouverte.html"),("Gouvernance familiale","gouvernance-familiale.html")],
+        "Pilotage patrimonial global : une tour de contrôle qui agrège, structure et pilote l’ensemble de vos actifs et enjeux.", parent)
+
+    sub_page("ingenierie-patrimoniale.html","Ingénierie patrimoniale, fiscale & juridique avancée","Le cœur technique du Family Office",
+        "Structurer le patrimoine dans toutes ses dimensions — juridiques, fiscales, civiles, entrepreneuriales et successorales.",
+        "assets/img/paris-colonnade.jpg","Ingénierie patrimoniale avancée",
+        ["La question n’est plus de choisir des investissements, mais d’organiser comment le patrimoine est détenu, piloté, protégé, transmis et optimisé dans le temps.",
+         "Sans ingénierie globale, même un patrimoine important souffre d’inefficience : fiscalité mal calibrée, structures inadaptées, dilution ou gouvernance fragile."],
+        ["Chaque outil, une brique d’une stratégie globale","Coordination notaires, fiscalistes, avocats, experts-comptables","Une cohérence parfaite entre chaque décision"],
+        [("cards","Plusieurs niveaux d’expertise",[
+            ("scale","Structuration juridique","Organiser la détention des actifs."),
+            ("doc","Organisation fiscale globale","Une efficience des flux dans la durée."),
+            ("shield","Protection civile & familiale","Sécuriser les proches et le cadre civil."),
+            ("treasury","Liquidité exceptionnelle","Gérer les grands événements patrimoniaux."),
+         ]),
+         ("tags","Les structures analysées ou créées",
+            ["SCI","Holdings patrimoniales","Sociétés civiles","Démembrement","Pactes d’associés","Clauses statutaires","Enveloppes de capitalisation","Structures internationales"]),
+         ("checklist","L’ingénierie fiscale, au-delà de l’impôt immédiat",
+            ["Arbitrage revenu / capitalisation","Dividendes / rémunération","Fiscalité immobilière","Structuration des plus-values","Préparation de cession","Réinvestissement","Enveloppes adaptées","Sphères privée / professionnelle"]),
+         ("tags","Les enjeux civils & familiaux",
+            ["Régimes matrimoniaux","Protection du conjoint","Équilibre entre héritiers","Gouvernance familiale","Contrôle capitalistique","Unité patrimoniale"]),
+        ],
+        [("Organisation patrimoniale","organisation-patrimoniale.html"),("Structuration du dirigeant","structuration-dirigeant.html"),("Transmission & gouvernance","transmission-gouvernance.html")],
+        "Ingénierie patrimoniale, fiscale et juridique avancée : transformer un ensemble d’actifs en une architecture cohérente et durable.", parent)
+
+    sub_page("allocation-architecture-ouverte.html","Allocation, sélection d’investissements & architecture ouverte","Un comité d’investissement à vos côtés",
+        "Concevoir une architecture d’investissement sur-mesure, totalement indépendante, intégrant l’ensemble des classes d’actifs pertinentes.",
+        "assets/img/hero.jpg","Allocation et architecture ouverte",
+        ["Une gestion sophistiquée ne repose pas sur une accumulation d’opportunités, mais sur une construction méthodique d’allocations cohérentes, adaptées à votre horizon, votre profil de risque et votre stratégie.",
+         "Architecture ouverte : aucun établissement captif, aucune banque ou société de gestion imposée — nous sélectionnons librement les meilleures solutions du marché, dans votre seul intérêt."],
+        ["Un sélectionneur institutionnel indépendant","Mise en concurrence des meilleures expertises","Une allocation pilotée dans le temps"],
+        [("cards","Toutes les classes d’actifs",[
+            ("chart","Gestion financière","Actions, obligations, ETF, fonds spécialisés."),
+            ("shield","Assurance-vie & luxembourgeois","Capitalisation et sécurité renforcée."),
+            ("doc","Produits structurés multi-salles","Rendement / protection en architecture ouverte."),
+            ("puzzle","Private equity & non coté","Capital-investissement et dette privée."),
+            ("building","Immobilier","SCPI, club deals et direct."),
+            ("treasury","Actifs réels & international","Diversification et solutions sur-mesure."),
+         ]),
+         ("checklist","Notre méthodologie d’analyse",
+            ["Allocation stratégique long terme","Allocation tactique selon les cycles","Sélection des meilleurs partenaires","Analyse des frais et structures","Risque de contrepartie","Corrélation entre actifs","Efficience fiscale","Robustesse juridique"]),
+         ("tags","Une allocation articulée autour de",
+            ["Protection","Performance","Diversification","Décorrélation","Liquidité","Transmission","Fiscalité","Gouvernance"]),
+        ],
+        [("Produits structurés","produits-structures.html"),("Fonds de Private Equity","fonds-private-equity.html"),("Placements financiers","placements-financiers.html")],
+        "Allocation et architecture ouverte : un comité d’investissement indépendant qui sélectionne et pilote les meilleures solutions du marché.", parent,
+        quote="Agir comme un sélectionneur institutionnel, avec l’exigence d’un comité d’investissement patrimonial.")
+
+    sub_page("gouvernance-familiale.html","Gouvernance familiale, transmission & accompagnement intergénérationnel","Faire traverser les générations à votre patrimoine",
+        "Au-delà de la performance, organiser une gouvernance capable de préserver l’unité familiale, la stabilité stratégique et la continuité générationnelle.",
+        "assets/img/retraite.jpg","Gouvernance familiale et intergénérationnelle",
+        ["Sans gouvernance claire, les patrimoines importants deviennent vulnérables : dilution, conflits successoraux, déséquilibres entre héritiers, perte de contrôle ou fragmentation stratégique.",
+         "Notre rôle : transformer le patrimoine familial en un projet structuré, capable de traverser les générations."],
+        ["Protéger l’unité familiale","Organiser le contrôle et les responsabilités","Préparer les générations futures"],
+        [("checklist","Analyser les équilibres familiaux",
+            ["Composition familiale","Structure des actifs","Patrimoine entrepreneurial","Répartition du contrôle","Héritiers impliqués ou non","Protection du conjoint","Préparation de succession","Continuité ou liquidité"]),
+         ("cards","Les leviers de gouvernance",[
+            ("concierge","Pactes & chartes familiales","Encadrer la vision et les règles communes."),
+            ("treasury","Gouvernance de holdings","Organiser le pouvoir et les flux."),
+            ("scale","Démembrement & donation-partage","Transmettre en préservant l’équilibre."),
+            ("compass","Transmission progressive","Préparer la relève dans la durée."),
+         ]),
+         ("tags","Transmettre bien plus que des actifs",
+            ["Une vision patrimoniale","Une gouvernance","Des responsabilités","Une culture de gestion","Une continuité stratégique"]),
+         ("text","L’accompagnement intergénérationnel",
+            ["Sensibilisation financière, préparation des repreneurs, organisation des pouvoirs, coordination familiale et préservation de l’unité — une dimension particulièrement critique dans les familles entrepreneuriales."]),
+        ],
+        [("Transmission & gouvernance","transmission-gouvernance.html"),("Céder ou transmettre","ceder-transmettre.html"),("Pilotage patrimonial global","pilotage-patrimonial-global.html")],
+        "Gouvernance familiale, transmission et accompagnement intergénérationnel : faire du patrimoine un projet qui traverse les générations.", parent,
+        quote="Garant de la continuité patrimoniale : que la richesse créée aujourd’hui demeure structurée, protégée et utile demain.")
 
 
 def build_contact():
@@ -1820,7 +1920,7 @@ def main():
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
     build_private_equity(); build_private_equity_pages()
     build_immobilier(); build_immobilier_pages()
-    build_structuration(); build_structuration_pages(); build_family_office()
+    build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
     build_contact(); build_mentions()
     print("Done.")
 
