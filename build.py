@@ -1607,24 +1607,119 @@ def build_immobilier_pages():
         "Investissement immobilier en direct clés en main : sourcing, structuration, financement, valorisation et gestion d’actifs sur-mesure.", parent,
         quote="Professionnaliser l’investissement immobilier privé : de l’opportunité émotionnelle à la stratégie pilotée.")
 
+STRUCT_SOLUTIONS = [
+    ("scale","Organisation & structures de détention","SCI, holding, société civile, démembrement : détenir intelligemment.","organisation-patrimoniale.html"),
+    ("doc","Optimisation fiscale & flux","Structurer revenus, arbitrages et capitalisation pour le rendement net.","optimisation-fiscale-flux.html"),
+    ("concierge","Transmission & gouvernance","Protéger la famille et organiser la continuité du patrimoine.","transmission-gouvernance.html"),
+    ("treasury","Structuration du dirigeant & cession","Articuler patrimoine professionnel et privé, préparer la liquidité.","structuration-dirigeant.html"),
+]
+
 def build_structuration():
     body = page_hero("Structuration juridique et fiscale",
-        "L’ingénierie patrimoniale au service de vos objectifs : détenir, protéger et transmettre vos actifs dans le cadre le plus efficient.",
+        "Au-delà du choix des placements, la manière dont les actifs sont détenus, organisés, financés et transmis détermine l’efficacité patrimoniale, la protection familiale et la pérennité du patrimoine.",
         [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),("Structuration juridique et fiscale",None)])
-    body += intro("Structurer","La bonne enveloppe pour le bon actif",
-        "La performance d’un patrimoine tient autant à la qualité des actifs qu’à la manière dont ils sont détenus et transmis.",
-        ["Holding patrimoniale, société civile, démembrement de propriété, donation-partage, pacte Dutreil : nous orchestrons les outils juridiques adaptés.",
-         "Nous travaillons main dans la main avec vos notaires, avocats et experts-comptables pour sécuriser chaque opération."],
-        "assets/img/mansion.jpg","Ingénierie patrimoniale")
-    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal><p class="eyebrow">Nos leviers</p><h2 class="title-lg">Une boîte à outils complète</h2><hr class="rule"></div>'
-        '<div class="grid grid-4" style="margin-top:50px">' + tiles([
-            ("scale","Holding patrimoniale","Centraliser et optimiser la détention de vos participations."),
-            ("doc","Démembrement","Dissocier usufruit et nue-propriété pour transmettre à moindre coût."),
-            ("shield","Donations & pactes","Anticiper la transmission tout en conservant le pilotage."),
-            ("globe","Dimension internationale","Coordonner les régimes lorsque votre patrimoine dépasse les frontières."),
-        ]) + '</div>', cls="section band-cream")
-    body += cta_band("Structurons votre patrimoine","Un bilan juridique et fiscal révèle souvent des optimisations majeures. Étudions votre situation.")
-    page("structuration-juridique.html","Structuration juridique et fiscale","Holdings, démembrement, donations et pactes Dutreil : l’ingénierie patrimoniale au service de vos objectifs.", body)
+    body += intro("Notre approche","Une architecture patrimoniale cohérente",
+        "Une stratégie performante ne repose pas seulement sur le rendement : elle exige une architecture intégrant droit civil, fiscalité, gouvernance, protection et transmission.",
+        ["Chef d’entreprise, investisseur, famille patrimoniale, profession libérale ou détenteur d’actifs : une structuration adaptée transforme un patrimoine « détenu » en patrimoine « piloté ».",
+         "Notre approche est globale, indépendante et sur-mesure — en lien étroit avec vos notaires, avocats et experts-comptables, dans le strict respect du cadre réglementaire."],
+        "assets/img/paris-colonnade.jpg","Ingénierie patrimoniale", rev=True)
+    body += section('<div class="quote" data-reveal><p>« Transformer un patrimoine “détenu” en patrimoine “piloté” : créer une cohérence durable entre performance, sécurité, flexibilité et transmission. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
+    body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
+        '<p class="eyebrow">Nos expertises</p><h2 class="title-lg">Quatre piliers d’ingénierie patrimoniale</h2><hr class="rule">'
+        '<p class="lede">De la détention des actifs à la structuration du dirigeant, une vision d’ensemble.</p></div>'
+        '<div class="grid grid-4" style="margin-top:54px">' + tiles(STRUCT_SOLUTIONS) + '</div>', cls="section band-cream")
+    body += cta_band("Structurons votre patrimoine","Un bilan juridique et fiscal révèle souvent des optimisations majeures. Étudions votre situation en toute confidentialité.")
+    page("structuration-juridique.html","Structuration juridique et fiscale","Organisation et structures de détention, optimisation fiscale et des flux, transmission et gouvernance, structuration du dirigeant et de la cession.", body)
+
+def build_structuration_pages():
+    parent = ("Structuration juridique et fiscale","structuration-juridique.html")
+
+    sub_page("organisation-patrimoniale.html","Organisation patrimoniale & structures de détention","Comment détenir intelligemment ses actifs",
+        "Avant de sélectionner des investissements, déterminer comment les actifs seront détenus et articulés — pour optimiser leur efficacité juridique, fiscale et successorale.",
+        "assets/img/mansion.jpg","Organisation patrimoniale",
+        ["La question centrale n’est pas seulement « dans quoi investir », mais « comment détenir intelligemment ses actifs » : le mode de détention influence la fiscalité, la gouvernance, la protection, la transmission et le financement.",
+         "Dès que le patrimoine se développe, se diversifie ou intègre des enjeux familiaux ou entrepreneuriaux, une structuration plus élaborée devient souvent nécessaire."],
+        ["Une architecture cohérente entre vos sphères patrimoniales","Des outils juridiques adaptés à votre profil","Du patrimoine « détenu » au patrimoine « piloté »"],
+        [("cards","Les principales structures",[
+            ("building","SCI","Détenir, organiser et transmettre des actifs immobiliers."),
+            ("treasury","Holding patrimoniale","Centraliser participations, dividendes et réserves."),
+            ("puzzle","Société civile patrimoniale","Centraliser des actifs variés dans une logique de gouvernance."),
+            ("scale","Démembrement de propriété","Séparer usufruit et nue-propriété pour transmettre."),
+         ]),
+         ("checklist","Les implications de chaque structure",
+            ["Fiscalité (IR, IS, plus-values, revenus)","Gouvernance","Protection du dirigeant et des associés","Transmission","Liquidité","Financement","Coûts administratifs","Souplesse de réorganisation"]),
+         ("tags","Des dimensions déterminantes",
+            ["Protection du conjoint et des héritiers","Patrimoine privé vs risque professionnel","Préparation de cession","Centralisation des réserves","Gouvernance familiale","Maîtrise du contrôle"]),
+        ],
+        [("Optimisation fiscale & flux","optimisation-fiscale-flux.html"),("Transmission & gouvernance","transmission-gouvernance.html"),("Structuration du dirigeant","structuration-dirigeant.html")],
+        "Organisation patrimoniale et structures de détention : SCI, holding, société civile, démembrement et structuration multi-entités.", parent)
+
+    sub_page("optimisation-fiscale-flux.html","Optimisation fiscale & stratégie des flux","Maximiser la valeur nette, pas seulement réduire l’impôt",
+        "Construire une stratégie globale qui améliore durablement l’efficience économique du patrimoine, dans le respect du cadre légal et réglementaire.",
+        "assets/img/paris-courtyard.jpg","Optimisation fiscale et flux",
+        ["L’enjeu n’est pas seulement de « réduire l’impôt », mais de structurer intelligemment les flux, les revenus, les arbitrages et les véhicules de détention pour optimiser le rendement net et la conservation de valeur.",
+         "La création de valeur patrimoniale dépend souvent davantage de la capacité à structurer les flux que du rendement brut lui-même."],
+        ["Distinguer consommation, revenu et capitalisation","Cohérence rendement brut / rendement net","Conformité et robustesse juridique"],
+        [("checklist","Nos axes de travail",
+            ["Structuration des revenus (rémunération / dividendes)","Fiscalité des placements et enveloppes adaptées","Gestion et temporalité des plus-values","Flux entre sociétés et patrimoine privé","Optimisation immobilière (revenus, financement)","Allocation : rendement brut vs net après fiscalité"]),
+         ("cards","Des leviers selon vos objectifs",[
+            ("treasury","Capitaliser plutôt que distribuer","Privilégier la création de valeur de long terme."),
+            ("scale","Arbitrer rémunération / dividendes","Trouver l’équilibre le plus efficient."),
+            ("puzzle","Structurer via holding ou société civile","Organiser la détention et les flux."),
+            ("compass","Segmenter privé et professionnel","Clarifier et sécuriser chaque sphère."),
+         ]),
+         ("tags","Une vision transversale",
+            ["Court terme vs long terme","Revenus vs capital","Personnel vs sociétal","France et international","Liquidité / optimisation / gouvernance"]),
+        ],
+        [("Optimiser votre fiscalité","optimiser-fiscalite.html"),("Organisation patrimoniale","organisation-patrimoniale.html"),("Holdings & réserves stratégiques","holdings-reserves.html")],
+        "Optimisation fiscale et stratégie des flux : structurer revenus, plus-values et capitalisation pour maximiser la valeur nette dans la durée.", parent)
+
+    sub_page("transmission-gouvernance.html","Transmission, protection familiale & gouvernance","D’une succession subie à une transmission organisée",
+        "Organiser, protéger et pérenniser le patrimoine familial dans le temps, en anticipant les enjeux civils, fiscaux, humains et entrepreneuriaux.",
+        "assets/img/retraite.jpg","Transmission et gouvernance familiale",
+        ["Sans structuration, un patrimoine s’expose à des risques majeurs : conflits familiaux, dilution, fiscalité subie, déséquilibres successoraux ou fragilisation du conjoint survivant.",
+         "L’objectif est double : préserver les intérêts de la famille et assurer la continuité du patrimoine dans des conditions maîtrisées et alignées sur vos volontés."],
+        ["Protéger le conjoint et les héritiers","Préserver la cohérence patrimoniale","Anticiper plutôt que subir"],
+        [("checklist","Une analyse globale de votre situation",
+            ["Composition du patrimoine","Structure familiale","Régime matrimonial","Héritiers multiples","Patrimoine professionnel","Volontés de répartition","Protection du conjoint","Gouvernance future"]),
+         ("cards","Les principaux leviers",[
+            ("coins","Donation simple ou graduelle","Transmettre par anticipation, lisser certains effets."),
+            ("scale","Donation-partage","Répartir et limiter les risques de contestation."),
+            ("doc","Démembrement de propriété","Transmettre en conservant revenus et contrôle."),
+            ("concierge","Clauses & pactes familiaux","Encadrer pouvoirs, cessions et continuité."),
+            ("shield","Assurance-vie & clause bénéficiaire","Une transmission financière souple et ciblée."),
+            ("compass","Régime matrimonial","Protéger le conjoint et sécuriser le cadre civil."),
+         ]),
+         ("tags","La gouvernance patrimoniale",
+            ["Organiser le contrôle","Protéger la vision familiale","Continuité de gestion","Éviter la dilution stratégique","Stabilité intergénérationnelle"]),
+        ],
+        [("Céder ou transmettre","ceder-transmettre.html"),("Organisation patrimoniale","organisation-patrimoniale.html"),("Accès à notre Family Office","family-office.html")],
+        "Transmission, protection familiale et gouvernance patrimoniale : donations, démembrement, pactes familiaux et assurance-vie.", parent,
+        quote="Transformer le patrimoine en héritage organisé plutôt qu’en succession subie.")
+
+    sub_page("structuration-dirigeant.html","Structuration du dirigeant, cession & ingénierie long terme","Articuler patrimoine professionnel et privé",
+        "Le patrimoine du dirigeant, souvent concentré autour de l’entreprise, exige une véritable ingénierie stratégique — pas une simple logique d’investissement.",
+        "assets/img/serenite.jpg","Structuration patrimoniale du dirigeant",
+        ["Titres, dividendes, trésorerie, immobilier d’exploitation, garanties personnelles : cette concentration crée autant d’opportunités considérables que de vulnérabilités majeures.",
+         "Organiser la création de valeur entrepreneuriale pour la sécuriser, l’optimiser et, le moment venu, la transformer efficacement en patrimoine durable."],
+        ["Protéger le patrimoine privé du risque professionnel","La holding, passerelle entre activité et patrimoine","Transformer la liquidité en plateforme patrimoniale"],
+        [("checklist","Les enjeux que nous adressons",
+            ["Protection du patrimoine privé","Optimisation de la rémunération et des flux","Structuration de holdings","Organisation de la capitalisation","Préparation de cession ou transmission","Réduction du risque de concentration","Sécurisation post-liquidité"]),
+         ("cards","La préparation de cession",[
+            ("compass","Audit patrimonial pré-cession","Cartographier la situation et les objectifs."),
+            ("scale","Structuration juridique adaptée","Holdings, apport-cession, gouvernance."),
+            ("treasury","Optimisation des flux de cession","Préparer les véhicules de réinvestissement."),
+            ("puzzle","Diversification post-cession","Réallouer et sécuriser le capital après liquidité."),
+         ]),
+         ("tags","Des problématiques avancées",
+            ["Management packages","OBO / LBO patrimonial","Family office structuré","Contrats luxembourgeois","Private equity","Gouvernance intergénérationnelle"]),
+         ("text","Le cycle patrimonial du dirigeant",
+            ["Création, croissance, sécurisation, liquidité, transmission : convertir la réussite entrepreneuriale en patrimoine organisé, résilient et transmissible."]),
+        ],
+        [("Céder ou transmettre","ceder-transmettre.html"),("Holdings & réserves stratégiques","holdings-reserves.html"),("Accès à notre Family Office","family-office.html")],
+        "Structuration du dirigeant, cession et ingénierie patrimoniale long terme : holding, préparation de cession et sécurisation post-liquidité.", parent,
+        quote="Transformer un événement de liquidité en plateforme patrimoniale durable.")
+
 
 def build_family_office():
     body = page_hero("Accès à notre Family Office",
@@ -1725,7 +1820,7 @@ def main():
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
     build_private_equity(); build_private_equity_pages()
     build_immobilier(); build_immobilier_pages()
-    build_structuration(); build_family_office()
+    build_structuration(); build_structuration_pages(); build_family_office()
     build_contact(); build_mentions()
     print("Done.")
 
