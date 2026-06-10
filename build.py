@@ -1607,6 +1607,186 @@ def build_immobilier_pages():
         "Investissement immobilier en direct clés en main : sourcing, structuration, financement, valorisation et gestion d’actifs sur-mesure.", parent,
         quote="Professionnaliser l’investissement immobilier privé : de l’opportunité émotionnelle à la stratégie pilotée.")
 
+# Notre sélection de SCPI / partenaires (nom, gestionnaire, année, perf 2025 %)
+SCPI_SELECTION = [
+    ("Corum Eurion","Corum",2020,8.29),("Transitions Europe","Arkéa REIM",2022,7.60),
+    ("Corum Origin","Corum",2012,7.22),("Iroko Zen","Iroko",2020,7.14),
+    ("Remake Live","Remake Asset Management",2022,7.05),("Osmo Énergie","Mata Capital IM",2024,7.00),
+    ("Epsicap Nano","Epsicap REIM",2021,6.91),("Corum XL","Corum",2017,6.48),
+    ("Cœur de Régions","Sogenial Immobilier",2018,5.80),("Épargne Pierre","Atland Voisin",2013,5.72),
+    ("Vendôme Régions","Norma Capital",2015,5.72),("Néo","Novaxia Investissement",2018,5.50),
+    ("Altixia Cadence XII","Altixia REIM",2019,5.15),("Immorente","Sofidy",1988,5.00),
+    ("Cristal Rente","Inter Gestion",2011,5.00),("Accimmo Pierre","BNP Paribas REIM",1989,4.77),
+    ("Perial O2","Perial AM",2009,4.65),("Kyaneos Pierre","Kyaneos AM",2018,4.35),
+    ("Pierval Santé","Euryale AM",2014,4.06),("Primovie","Praemia REIM France",2012,4.04),
+    ("GMA Essentialis","Greenman Arth",2022,4.00),("Crédit Mutuel Pierre 1","La Française REM",1973,-1.28),
+]
+
+def build_scpi_page():
+    def lis(items): return "".join("<li>%s</li>" % x for x in items)
+    def head(eyebrow, title, lede=None, center=True):
+        c = ' center' if center else ''
+        st = ' style="max-width:720px;margin-inline:auto"' if center else ' style="max-width:800px"'
+        h = ('<div class="%s"%s data-reveal><p class="eyebrow">%s</p><h2 class="title-lg">%s</h2><hr class="rule">'
+             % (c.strip(), st, eyebrow, title))
+        if lede: h += '<p class="lede">%s</p>' % lede
+        return h + '</div>'
+    def cards(items, g="grid-3"):
+        return '<div class="grid %s" style="margin-top:40px">%s</div>' % (g, tiles(items))
+    def stat(num, lbl):
+        return ('<div data-reveal><div class="stat__num" style="color:#fff">%s</div>'
+                '<div class="stat__lbl" style="color:rgba(246,242,233,.7)">%s</div></div>' % (num, lbl))
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Placements immobiliers","placements-immobiliers.html"),("SCPI & immobilier géré",None)]
+    body = page_hero("SCPI & immobilier géré",
+        "Rendement moyen de 4,72 % en 2024, diversification immobilière sans gestion locative, plusieurs modes d’acquisition aux profils fiscaux distincts : la SCPI reste un pilier des stratégies patrimoniales.",
+        crumbs)
+
+    # En bref
+    body += section(feature_row("assets/img/paris-courtyard.jpg","SCPI et immobilier géré","En bref",
+        "L’immobilier piloté, sans contrainte de gestion",
+        ["Investir en SCPI, c’est accéder à un véhicule de gestion collective agréé par l’AMF, qui détient de l’immobilier professionnel sans que vous en assuriez la gestion.",
+         "Le choix du mode d’acquisition — comptant, crédit, démembrement ou assurance-vie — pèse autant sur la rentabilité nette que le choix de la SCPI elle-même."],
+        rev=True, checklist=["Ticket d’entrée de quelques centaines d’euros","Gestion totalement déléguée","Diversification sur des centaines de baux"]))
+
+    # L'essentiel à retenir
+    body += section(head("Synthèse","L’essentiel à retenir", center=False) +
+        '<div class="grid grid-2" style="margin-top:24px;gap:8px 48px" data-reveal>'
+        '<ul class="checklist">' + lis([
+            "Le mode d’acquisition pèse autant que le choix de la SCPI : de 2,4 % net au comptant à un TRI &gt; 4 % en nue-propriété",
+            "La TMI oriente l’enveloppe : au-delà de 30 %, démembrement, assurance-vie et SCPI européennes deviennent des leviers majeurs",
+            "Le TRI sur 10-15 ans est plus fiable que le taux de distribution annuel",
+        ]) + '</ul>'
+        '<ul class="checklist">' + lis([
+            "Loi de finances 2026 : exonération d’IR sur les plus-values ramenée à 17 ans",
+            "La liquidité limitée impose un horizon de 8 à 10 ans minimum",
+            "Une allocation calibrée sur la part du patrimoine non nécessaire à court terme",
+        ]) + '</ul></div>', cls="section band-cream")
+
+    # Fonctionnement
+    body += section(head("Fonctionnement","Le cycle d’investissement", center=False) +
+        cards([
+            ("doc","1 · Souscription","Auprès de la société de gestion, d’un conseiller, d’une plateforme ou d’une banque."),
+            ("building","2 · Déploiement","Acquisition d’immobilier tertiaire : bureaux, commerces, logistique, santé."),
+            ("coins","3 · Distribution","Loyers redistribués, généralement chaque trimestre, nets de frais."),
+            ("chart","4 · Reporting","Reporting trimestriel et rapport annuel audité."),
+        ], "grid-4") +
+        '<div class="grid grid-2" style="margin-top:48px;gap:30px 48px" data-reveal>'
+        '<div><p class="eyebrow">Deux catégories de frais</p><ul class="checklist" style="margin-top:14px">'
+        + lis(["Frais de souscription : 0 à 12 % du montant investi","Frais de gestion : 8 à 12 % des loyers bruts"]) +
+        '</ul><p class="muted" style="margin-top:14px">Les SCPI « sans frais d’entrée » appliquent des frais de gestion majorés : comparez la performance nette à 8-10 ans.</p></div>'
+        '<div><p class="eyebrow">Capital, liquidité, jouissance</p><ul class="checklist" style="margin-top:14px">'
+        + lis(["Capital variable : souscription / retrait à la valeur de part","Capital fixe : marché secondaire par confrontation des ordres","Délai de jouissance de 3 à 6 mois avant les premiers revenus"]) +
+        '</ul></div></div>')
+
+    # Types de SCPI
+    body += section(head("Typologies","Les types de SCPI",
+        "Chaque famille répond à un objectif et à un profil d’investisseur distincts.") +
+        cards([
+            ("coins","SCPI de rendement","Immobilier tertiaire diversifié, revenus réguliers (TD 4-6 %)."),
+            ("scale","SCPI fiscales","Déficit foncier, Denormandie, Malraux : réduction d’impôt (TMI élevée)."),
+            ("growth","SCPI de plus-value","Rénovation et repositionnement d’actifs, horizon 10 ans +."),
+            ("globe","SCPI européennes","Diversification hors France et fiscalité allégée."),
+            ("leaf","SCPI ISR & thématiques","Critères ESG, santé, logistique : performance responsable."),
+            ("building","SCPI diversifiées","Plusieurs secteurs et zones pour lisser les cycles."),
+        ]), cls="section band-cream")
+
+    # Pourquoi
+    body += section(head("Intérêt patrimonial","Pourquoi intégrer des SCPI ?", center=False) +
+        '<div class="grid grid-2" style="margin-top:24px;gap:8px 48px" data-reveal>'
+        '<ul class="checklist">' + lis(["Exposition à l’immobilier professionnel sans gestion locative","Risque mutualisé sur des centaines de locataires","Accessibilité dès quelques centaines d’euros"]) + '</ul>'
+        '<ul class="checklist">' + lis(["Versement programmé pour lisser le point d’entrée","Effet de levier du crédit (intérêts déductibles au réel)","Corrélation modérée aux marchés actions"]) + '</ul></div>')
+    body += ('<section class="section--tight band-dark"><div class="container"><div class="stats">'
+        + stat("4,72 %","Distribution moyenne 2024") + stat("≈ 4,5 %","Performance annuelle sur 10 ans")
+        + stat("1,5 %","Livret A (fév. 2026)") + stat("≈ 2,5 %","Fonds euros (2024)")
+        + '</div></div></section>')
+    body += section(head("Cas d’usage","Des stratégies concrètes", center=False) +
+        cards([
+            ("coins","Complément de revenu","100 000 € au comptant ≈ 4 500 € bruts / an, versés trimestriellement."),
+            ("retire","Constitution de patrimoine","Nue-propriété sur 15 ans : zéro fiscalité en phase d’accumulation."),
+            ("concierge","Transmission","Donation de la nue-propriété aux enfants, usufruit (revenus) conservé."),
+            ("treasury","Trésorerie d’entreprise","Usufruit temporaire via SCI à l’IS (15 %), avec amortissement."),
+        ], "grid-4"))
+
+    # Modes d'acquisition + fiscalité comparée
+    body += section(head("Modes de détention","Acquisition & fiscalité comparée",
+        "Comptant, crédit, démembrement ou assurance-vie : un même véhicule, des rentabilités nettes très différentes.") +
+        cards([
+            ("doc","Au comptant","Simple, mais le moins optimisé : revenus fonciers au barème IR + 17,2 % PS."),
+            ("growth","À crédit","Effet de levier et intérêts déductibles au régime réel."),
+            ("scale","Nue-propriété temporaire","Décote de 15 à 40 %, aucune fiscalité pendant le démembrement, hors IFI."),
+            ("shield","Assurance-vie","Revenus capitalisés, fiscalité au rachat et cadre successoral favorable."),
+        ], "grid-4") +
+        '<div class="table-wrap" style="margin-top:48px" data-reveal><table class="ptable">'
+        '<thead><tr><th>Mode de détention</th><th>Imposition des revenus</th><th>Prélèvements sociaux</th><th>IFI</th><th>Avantage clé</th></tr></thead>'
+        '<tbody>'
+        '<tr><td>Comptant</td><td>Barème IR (11-45 %)</td><td>17,2 %</td><td>Oui</td><td>Simplicité</td></tr>'
+        '<tr><td>Crédit</td><td>Barème IR (intérêts déductibles)</td><td>17,2 %</td><td>Oui (dette déductible)</td><td>Effet de levier + déduction</td></tr>'
+        '<tr><td>Nue-propriété temporaire</td><td>Aucune (pas de revenus)</td><td>Aucun</td><td>Non</td><td>Zéro fiscalité + décote</td></tr>'
+        '<tr><td>Assurance-vie</td><td>PFU 30 % / 24,7 % (après 8 ans)</td><td>17,2 % (au rachat)</td><td>Oui</td><td>Capitalisation + succession</td></tr>'
+        '<tr><td>SCPI européenne</td><td>Crédit d’impôt / taux effectif</td><td>17,2 % (part FR)</td><td>Oui</td><td>Fiscalité allégée</td></tr>'
+        '</tbody></table></div>'
+        '<p class="muted" style="margin-top:16px;max-width:80ch" data-reveal>Plus-values de cession : régime des particuliers (19 % IR + 17,2 % PS), exonération d’IR à 17 ans depuis la loi de finances 2026, exonération de PS à 30 ans.</p>')
+
+    # Risques
+    body += section(head("Vigilance","Risques & points de vigilance", center=False) +
+        '<div class="grid grid-2" style="margin-top:24px;gap:8px 48px" data-reveal>'
+        '<ul class="checklist">' + lis(["Capital non garanti (corrections de 10-20 % sur certains bureaux en 2023-2024)","Liquidité limitée : files d’attente possibles en décollecte","Parts soumises à l’IFI pour leur valeur immobilière"]) + '</ul>'
+        '<ul class="checklist">' + lis(["Frais d’entrée élevés, amortis sur la durée","Revenus non garantis (vacance, renégociation de baux)","Le report à nouveau (RAN) amortit, mais ne garantit pas"]) + '</ul></div>', cls="section band-cream")
+
+    # Sélectionner
+    body += section(head("Méthode","Comment sélectionner une SCPI ?", center=False) +
+        cards([
+            ("chart","Taux de distribution (TD)","Le rendement courant d’une année — à ne pas lire seul."),
+            ("growth","TRI 5-10-15 ans","Intègre revenus et évolution du prix : l’indicateur clé."),
+            ("building","Taux d’occupation (TOF)","Qualité locative ; les mieux gérées affichent 95-100 %."),
+            ("shield","Report à nouveau (RAN)","Réserve, en jours de distribution, pour amortir les baisses."),
+            ("scale","Valeur de reconstitution","Décote = potentiel ; surcote = vigilance."),
+            ("lock","Capitalisation & ancienneté","&gt; 1 Md€ et 15 ans d’historique : profil plus résilient."),
+        ]))
+
+    # Nos partenaires / sélection
+    funds = sorted(SCPI_SELECTION, key=lambda x: x[3], reverse=True)
+    managers = []
+    for _, m, _, _ in funds:
+        if m not in managers: managers.append(m)
+    cards_html = ""
+    for name, mgr, year, perf in funds:
+        neg = " neg" if perf < 0 else ""
+        pv = ("%.2f" % perf).rstrip("0").rstrip(".").replace(".", ",")
+        cards_html += ('<div class="fund-card" data-reveal><span class="since">Depuis %d</span>'
+                       '<div class="perf%s">%s %%<small> · 2025</small></div>'
+                       '<h4>%s</h4><div class="mgr">%s</div></div>'
+                       % (year, neg, pv, html.escape(name), html.escape(mgr)))
+    mgr_tags = '<div class="tags" style="justify-content:center;margin-top:8px" data-reveal>' + "".join('<span class="tag">%s</span>' % html.escape(m) for m in managers) + '</div>'
+    body += section(
+        head("Notre sélection 2026","Nos principales SCPI partenaires",
+             "En architecture ouverte, nous passons au crible performance, résilience et gouvernance pour ne retenir que les véhicules les plus pertinents.")
+        + mgr_tags
+        + '<div class="grid grid-4" style="margin-top:40px">' + cards_html + '</div>'
+        + '<p class="muted center" style="margin:28px auto 0;max-width:80ch" data-reveal>Performances 2025 (taux de distribution) communiquées par les sociétés de gestion. Les performances passées ne préjugent pas des performances futures ; tout investissement comporte un risque de perte en capital et de liquidité.</p>')
+
+    # FAQ
+    body += section(head("Questions fréquentes","Vos questions sur les SCPI") +
+        '<div style="max-width:880px;margin:40px auto 0" data-reveal>' + faq([
+            ("Quel montant minimum pour investir en SCPI ?",
+             "<p>Le minimum correspond au prix d’une part — parfois quelques centaines d’euros. Pour une diversification pertinente sur 2 à 3 SCPI complémentaires, un budget de 5 000 à 10 000 € permet une allocation équilibrée.</p>"),
+            ("Quel rendement attendre en 2026 ?",
+             "<p>Le taux de distribution moyen s’est établi à 4,72 % en 2024 ; les SCPI les plus performantes dépassent 6-7 %, avec un profil de risque plus marqué. Le TRI sur 10 ans reste l’indicateur le plus robuste.</p>"),
+            ("Les revenus de SCPI sont-ils imposables ?",
+             "<p>Oui, selon le mode de détention. En direct : revenus fonciers (barème IR + 17,2 % PS). En assurance-vie : capitalisation sans imposition immédiate, fiscalité au rachat. En nue-propriété temporaire : aucun revenu, donc aucune imposition pendant le démembrement.</p>"),
+            ("Peut-on revendre facilement ses parts ?",
+             "<p>La revente est possible mais soumise à des délais variables (compensation des retraits en capital variable, marché secondaire en capital fixe). L’horizon recommandé est de 8 à 10 ans : la SCPI n’est pas adaptée à un besoin de liquidité court terme.</p>"),
+            ("SCPI française ou européenne ?",
+             "<p>Cela dépend surtout de votre TMI. Au-delà de 30 %, les SCPI européennes offrent un avantage fiscal via les conventions bilatérales (imposition effective parfois &lt; 20 % contre 47,2 % en foncier français), en plus d’une diversification géographique.</p>"),
+            ("Investir à crédit est-il pertinent en 2026 ?",
+             "<p>Oui, tant que le différentiel entre le TD (4,5 à 6 %) et le coût du crédit (3,5 à 4 %) reste positif. Les intérêts sont déductibles des revenus fonciers ; un horizon de 15 ans minimum est recommandé.</p>"),
+        ]) + '</div>')
+
+    body += cta_band("Construisons votre allocation SCPI","Sélection de véhicules, mode de détention et optimisation fiscale : définissons ensemble la stratégie la plus adaptée à votre situation.")
+    page("scpi-immobilier-gere.html","SCPI & immobilier géré",
+         "SCPI et immobilier géré : fonctionnement, types, fiscalité comparée selon le mode de détention, critères de sélection et notre sélection de SCPI partenaires 2026.", body)
+
 STRUCT_SOLUTIONS = [
     ("scale","Organisation & structures de détention","SCI, holding, société civile, démembrement : détenir intelligemment.","organisation-patrimoniale.html"),
     ("doc","Optimisation fiscale & flux","Structurer revenus, arbitrages et capitalisation pour le rendement net.","optimisation-fiscale-flux.html"),
@@ -1919,7 +2099,7 @@ def main():
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
     build_private_equity(); build_private_equity_pages()
-    build_immobilier(); build_immobilier_pages()
+    build_immobilier(); build_immobilier_pages(); build_scpi_page()
     build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
     build_contact(); build_mentions()
     print("Done.")
