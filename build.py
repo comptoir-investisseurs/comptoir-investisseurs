@@ -2469,6 +2469,202 @@ def build_capitalisation_page():
     page("contrat-capitalisation.html","Contrat de capitalisation",
          "Contrat de capitalisation : fonctionnement, fiscalité des rachats (comme l’assurance-vie), transmission par donation et démembrement, détention par les personnes morales.", body)
 
+def build_assurance_vie_page():
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Placements financiers","placements-financiers.html"),("Contrats d’assurance-vie",None)]
+    body = page_hero("Contrats d’assurance-vie",
+        "Pilier central du patrimoine en France, l’assurance-vie réunit capitalisation, transmission et liquidité dans une seule enveloppe — un avantage renforcé en 2026.",
+        crumbs)
+
+    body += section(feature_row("assets/img/serenite.jpg","Assurance-vie","En bref",
+        "Trois fonctions patrimoniales en une enveloppe",
+        ["Capitalisation sans frottement fiscal, transmission avantageuse et liquidité permanente : l’assurance-vie cumule des atouts qu’aucune autre enveloppe ne réunit.",
+         "En 2026, ses prélèvements sociaux restent à 17,2 % (contre 18,6 % sur le CTO et le PER), consolidant son avantage structurel."],
+        rev=True, checklist=["Capitalisation sans imposition tant qu’il n’y a pas de rachat","Abattement de 152 500 € par bénéficiaire (avant 70 ans)","Liquidité totale et aucun plafond de versement"]))
+
+    body += section(sec_head("Synthèse","L’essentiel à retenir", center=False) +
+        '<div class="grid grid-2" style="margin-top:24px;gap:8px 48px" data-reveal>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Trois fonctions : capitalisation, transmission et disponibilité",
+            "PS maintenus à 17,2 % en 2026 (vs 18,6 % CTO / PER)",
+            "Antériorité fiscale de 8 ans : ouvrir tôt, même avec un petit versement",
+        ]) + '</ul>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Supports variés : fonds euros, UC, ETF, SCPI, private equity, structurés",
+            "Transmission hors succession (152 500 € par bénéficiaire avant 70 ans)",
+            "Un pilier d’allocation, à articuler avec PER, PEA et immobilier",
+        ]) + '</ul></div>', cls="section band-cream")
+
+    body += blocks_section("Fonctionnement","Une enveloppe capitalisante multisupport",
+        [("text","Le principe",
+            ["L’assurance-vie n’est pas une assurance décès : c’est un produit d’épargne. Les gains restent dans l’enveloppe sans imposition tant qu’aucun rachat n’est effectué — la croissance se fait en capitalisation, sans l’érosion fiscale annuelle d’un compte-titres.",
+             "Aucun plafond de versement ; la détention de plusieurs contrats est autorisée et même recommandée."]),
+         ("cards","Disponibilité & souplesse",[
+            ("coins","Versements libres","Initial, complémentaires ou programmés, sans plafond."),
+            ("compass","Rachats à tout moment","Partiels ou total ; seule la fiscalité varie avec l’ancienneté."),
+            ("scale","Avance sur contrat","Des liquidités sans désinvestir ni déclencher l’impôt."),
+            ("shield","Garantie FGAP","70 000 € par assureur : d’où l’intérêt de la multi-détention."),
+         ]),
+         ("text","Transfert (loi PACTE)",
+            ["Depuis la loi PACTE, un contrat peut être transféré vers un contrat plus compétitif du même assureur en conservant l’antériorité fiscale ; changer d’assureur impose en revanche un rachat."])])
+
+    body += blocks_section("Fiscalité 2026","La fiscalité des rachats",
+        [("text","Seuls les gains sont imposés",
+            ["La fiscalité dépend de la date des versements et de l’ancienneté du contrat. Après 8 ans, le taux d’IR tombe à 7,5 % (primes ≤ 150 000 €) et un abattement annuel s’applique (4 600 € / 9 200 €)."])]
+        )
+    body += section('<div class="table-wrap" data-reveal style="margin-top:-8px"><table class="ptable">'
+        '<thead><tr><th>Ancienneté</th><th>Impôt sur le revenu</th><th>Prélèvements sociaux</th><th>Total</th><th>Abattement annuel</th></tr></thead><tbody>'
+        + "".join('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % r for r in [
+            ("Moins de 8 ans","12,8 %","17,2 %","30 %","Aucun"),
+            ("8 ans + (primes ≤ 150 000 €)","7,5 %","17,2 %","24,7 %","4 600 € / 9 200 €"),
+            ("8 ans + (primes > 150 000 €)","12,8 %","17,2 %","30 %","4 600 € / 9 200 €"),
+        ]) + '</tbody></table></div>'
+        '<p class="muted" style="margin-top:16px;max-width:80ch" data-reveal>Avantage 2026 : les PS de l’assurance-vie restent à 17,2 % alors qu’ils passent à 18,6 % sur le CTO et le PER — un différentiel structurel pour les patrimoines importants. La sortie en rente viagère et l’IFI (pour les UC immobilières) obéissent à des règles spécifiques.</p>',
+        cls="section")
+
+    body += blocks_section("Supports","L’univers d’investissement",
+        [("cards","Du plus sûr au plus dynamique",[
+            ("shield","Fonds en euros","Capital garanti et effet cliquet ; rendement modéré."),
+            ("chart","Unités de compte","OPCVM, actions, obligations : performance contre risque."),
+            ("globe","ETF & trackers","Réplication d’indices à frais réduits (0,1-0,3 %)."),
+            ("building","SCPI / OPCI","Exposition immobilière et revenus locatifs (IFI)."),
+            ("puzzle","Private equity (FCPR)","Non coté, horizon long, potentiel élevé."),
+            ("doc","Produits structurés","Couple rendement / protection calibré sur-mesure."),
+         ]),
+         ("text","Modes de gestion & frais",
+            ["Gestion libre, pilotée ou sous mandat selon votre profil. Les frais (entrée, gestion du contrat, arbitrage, frais des supports) sont le principal levier de rendement net : viser 0 % d’entrée, ~0,5 % de gestion UC et des ETF à 0,2 % constitue le socle d’un contrat efficient."])],
+        cls="section band-cream")
+
+    body += blocks_section("Transmission","Transmettre grâce à l’assurance-vie",
+        [("cards","Un régime dérogatoire",[
+            ("concierge","Avant 70 ans","152 500 € par bénéficiaire, puis 20 % jusqu’à 852 500 €, 31,25 % au-delà."),
+            ("coins","Après 70 ans","Abattement global de 30 500 € ; les gains restent exonérés."),
+            ("scale","Clause bénéficiaire","Désignation libre ; rédaction sur-mesure pour les cas complexes."),
+            ("compass","Démembrement","Usufruit au conjoint, nue-propriété aux enfants : optimisation avancée."),
+         ]),
+         ("text","Multi-contrats par objectif",
+            ["Affecter chaque contrat à un objectif (capitalisation dynamique, transmission sécurisée, revenus complémentaires) et diversifier les assureurs au-delà du seuil FGAP de 70 000 €. Attention aux primes manifestement exagérées (art. L132-13)."])])
+
+    body += blocks_section("Arbitrage","Française ou luxembourgeoise ?",
+        [("text","Deux modèles complémentaires",
+            ["L’assurance-vie française reste pertinente pour la majorité (accessible dès 100 €, large choix, garantie FGAP). Au-delà de ~250 000 € d’encours, la version luxembourgeoise mérite une analyse : triangle de sécurité, super-privilège, univers élargi (fonds dédiés, private equity, multi-devises) et portabilité internationale."])])
+    body += section('<p data-reveal><a class="link-arrow" href="contrat-luxembourgeois.html">Découvrir le contrat luxembourgeois %s</a></p>' % arrow(), cls="section--tight")
+
+    body += section(sec_head("Comparatif","Assurance-vie, PER, PEA & CTO en 2026", "Chaque enveloppe répond à un objectif ; depuis 2026, la hausse des PS crée un différentiel inédit.", center=True) +
+        '<div class="table-wrap" style="margin-top:40px" data-reveal><table class="ptable">'
+        '<thead><tr><th>Critère</th><th>Assurance-vie</th><th>PER</th><th>PEA</th><th>CTO</th></tr></thead><tbody>'
+        + "".join('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % r for r in [
+            ("Plafond de versement","Aucun","Déduction plafonnée","150 000 €","Aucun"),
+            ("Prélèvements sociaux","17,2 %","18,6 %","17,2 %","18,6 %"),
+            ("IR sur les gains","7,5 % après 8 ans","Barème à la sortie","0 % après 5 ans","12,8 % (PFU)"),
+            ("Avantage à l’entrée","Non","Oui (déduction)","Non","Non"),
+            ("Liquidité","Totale","Bloqué (sauf cas)","Totale après 5 ans","Totale"),
+            ("Transmission","152 500 € / bénéf.","Succession (sauf assurantiel)","Succession","Succession"),
+        ]) + '</tbody></table></div>')
+
+    body += section(faq_block("Questions fréquentes","Vos questions sur l’assurance-vie", [
+        ("Quel est le plafond de l’assurance-vie ?",
+         "<p>Aucun plafond légal de versement. Les montants cités (150 000 €, 152 500 €) sont des seuils fiscaux : le premier conditionne le taux réduit après 8 ans, le second l’abattement par bénéficiaire au décès.</p>"),
+        ("L’argent est-il bloqué ?",
+         "<p>Non : rachats partiels ou total à tout moment. La fiscalité est simplement plus douce après 8 ans. L’avance sur contrat permet d’obtenir des liquidités sans déclencher d’impôt.</p>"),
+        ("Quelle fiscalité après 8 ans ?",
+         "<p>7,5 % d’IR (primes ≤ 150 000 €) + 17,2 % de PS, soit 24,7 %, avec un abattement annuel de 4 600 € (seul) ou 9 200 € (couple) sur les gains retirés.</p>"),
+        ("Peut-on avoir plusieurs contrats ?",
+         "<p>Oui, sans limite — c’est recommandé pour diversifier les assureurs (garantie FGAP de 70 000 €), segmenter les objectifs et adapter chaque clause bénéficiaire.</p>"),
+        ("Assurance-vie ou PER ?",
+         "<p>L’assurance-vie offre liquidité et PS à 17,2 % ; le PER, une déduction à l’entrée mais un blocage jusqu’à la retraite. Les deux se combinent selon votre TMI et vos objectifs.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« La seule enveloppe à combiner capitalisation sans frottement, transmission hors succession et prélèvements sociaux à 17,2 % en 2026. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Les supports en unités de compte comportent un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
+    body += cta_band("Optimisons votre assurance-vie","Choix du contrat, allocation des supports, clause bénéficiaire et articulation avec vos autres enveloppes : construisons une stratégie cohérente.")
+    page("assurance-vie.html","Contrats d’assurance-vie",
+         "Assurance-vie en 2026 : fonctionnement, fiscalité des rachats, supports (fonds euros, UC, ETF, SCPI, PE, structurés), transmission et comparatif des enveloppes.", body)
+
+def build_pe_detail_page():
+    parent = ("Solutions non cotées & Private Equity","private-equity.html")
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"), parent,
+              ("Fonds de Private Equity",None)]
+    body = page_hero("Fonds de Private Equity & Capital-Investissement",
+        "Investir dans le private equity, c’est miser sur l’économie réelle, loin de la volatilité des marchés cotés — un potentiel de performance élevé en contrepartie d’un horizon long et d’une liquidité réduite.",
+        crumbs)
+
+    body += section(feature_row("assets/img/mansion.jpg","Fonds de private equity","En bref",
+        "Le socle du non coté",
+        ["Le private equity finance des entreprises non cotées via des fonds spécialisés : après 3 à 10 ans de détention et de création de valeur, les participations sont cédées avec une plus-value potentielle.",
+         "À la différence des marchés cotés, la gestion est active : les équipes interviennent directement sur la stratégie et les opérations des sociétés."],
+        rev=True, checklist=["Exposition à l’économie réelle, peu corrélée aux marchés cotés","Potentiel de performance historiquement à deux chiffres","Horizon long (7-10 ans) et liquidité réduite"]))
+
+    body += blocks_section("Fonctionnement","Comment fonctionne un fonds de private equity ?",
+        [("cards","Le cycle d’investissement",[
+            ("treasury","1 · Levée de fonds","Les capitaux sont réunis auprès des investisseurs (LPs)."),
+            ("compass","2 · Sélection & due diligence","Analyse des finances, de la gouvernance et du potentiel."),
+            ("growth","3 · Détention & création de valeur","Amélioration opérationnelle, build-up, croissance."),
+            ("chart","4 · Sortie","Cession industrielle, LBO secondaire ou introduction en bourse."),
+         ]),
+         ("text","LPs & GPs",
+            ["Les Limited Partners (LPs) apportent les capitaux (institutionnels, family offices, particuliers) ; les General Partners (GPs) gèrent le fonds. La rémunération des GPs combine des frais de gestion (~1,5-2 %) et un carried interest (souvent 20 % au-delà d’un seuil de performance), alignant leurs intérêts sur ceux des investisseurs."])])
+
+    body += blocks_section("Stratégies","Les grandes stratégies d’investissement",
+        [("cards","Du capital-risque au retournement",[
+            ("growth","Venture Capital","Start-ups innovantes à fort potentiel (risque élevé)."),
+            ("chart","Growth Equity","Accélérer des entreprises établies (risque modéré)."),
+            ("scale","LBO / Buy-out","Rachat avec effet de levier (risque modéré à élevé)."),
+            ("compass","Capital-retournement","Redresser des entreprises en difficulté (risque très élevé)."),
+            ("puzzle","Fonds secondaires","Racheter des parts de fonds existants (meilleure visibilité)."),
+            ("building","Infrastructure / Immobilier","Actifs tangibles à cash-flows réguliers."),
+         ])], cls="section band-cream")
+
+    body += section(sec_head("Performance","Comment mesurer la performance ?", "Des indicateurs adaptés à un actif long terme et illiquide.", center=True) +
+        '<div class="grid grid-3" style="margin-top:40px">' + tiles([
+            ("chart","TRI","La rentabilité annualisée, intégrant le calendrier des flux."),
+            ("growth","TVPI","La valeur totale créée par euro investi (distribué + valorisation)."),
+            ("compass","Effet « vintage »","L’année de lancement du fonds influence fortement le résultat."),
+        ]) + '</div>'
+        '<p class="muted center" style="margin:24px auto 0;max-width:80ch" data-reveal>Sur longue période, les indices de capital-investissement ont historiquement surperformé les grands indices actions, nets de frais. Ces données sont indicatives, varient selon les millésimes, stratégies et régions, et ne préjugent pas des performances futures.</p>')
+
+    body += blocks_section("Accès","Avantages, limites et voies d’accès",
+        [("checklist","Les atouts",
+            ["Diversification peu corrélée aux marchés cotés","Exposition à l’économie réelle et à la croissance privée","Gestion active et création de valeur"]),
+         ("checklist","Les contraintes",
+            ["Illiquidité : capitaux immobilisés 7 à 10 ans","Risque de perte en capital","Frais (gestion + carried interest)","Appels de fonds échelonnés à anticiper"]),
+         ("cards","Les voies d’accès",[
+            ("puzzle","FCPR","Accessibles dès quelques milliers d’euros, exonération des plus-values après 5 ans (conditions)."),
+            ("doc","FPCI","Pour investisseurs avertis, tickets plus élevés (souvent ≥ 100 000 €)."),
+            ("scale","FCPI / FIP","Réduction d’impôt à l’entrée, sur des PME éligibles."),
+            ("shield","UC en assurance-vie / PER","Intégrer le non coté dans un cadre fiscal avantageux."),
+         ]),
+         ("text","Allocation recommandée",
+            ["Le private equity se conçoit comme une poche de diversification : une allocation de l’ordre de 5 à 20 % du patrimoine selon le profil, un horizon d’au moins 7 à 10 ans et une diversification par millésime, secteur et géographie."])],
+        cls="section band-cream")
+
+    body += blocks_section("Tendances","Le marché en 2026",
+        [("tags","Dynamiques de marché",
+            ["Spécialisation sectorielle (tech, santé, énergie)","Intégration des critères ESG","Démocratisation (loi PACTE, loi Industrie Verte, ELTIF)","Essor du marché secondaire","Dette privée & infrastructures"]),
+         ("text","La démocratisation, avec discernement",
+            ["L’accès s’ouvre aux particuliers via l’assurance-vie et des véhicules réglementés. Cette ouverture impose de la prudence : l’illiquidité et le risque de perte en capital exigent une sélection rigoureuse et un accompagnement."])])
+
+    body += blocks_section("Méthode","Investir étape par étape",
+        [("checklist","Notre démarche",
+            ["Comprendre précisément le véhicule et sa stratégie","Vérifier l’adéquation à votre profil et votre horizon","Choisir la bonne enveloppe (FCPR, FPCI, assurance-vie, PER)","Diversifier (millésimes, secteurs, géographies)","Sélectionner les meilleures maisons de gestion (track record, frais, alignement)","Suivre l’investissement dans la durée"])])
+
+    body += section(faq_block("Questions fréquentes","Vos questions sur le private equity", [
+        ("Qu’est-ce que le private equity ?",
+         "<p>L’investissement dans des entreprises non cotées : on apporte des capitaux pour financer leur développement, puis on cède les participations après 3 à 10 ans avec une plus-value potentielle.</p>"),
+        ("Comment y investir ?",
+         "<p>Via des fonds réglementés (FCPR, FCPI, FIP, FPCI) supervisés par l’AMF, ou en unités de compte au sein d’une assurance-vie ou d’un PER. Nous sélectionnons les fonds adaptés à votre profil.</p>"),
+        ("Qu’est-ce qu’un fonds de fonds ?",
+         "<p>Un fonds qui investit dans plusieurs fonds de private equity, offrant une diversification immédiate par gestionnaire, stratégie, secteur et géographie.</p>"),
+        ("Quelle part de mon patrimoine y consacrer ?",
+         "<p>En général une poche de diversification (souvent 5 à 20 % selon le profil), avec un horizon long et la capacité à supporter l’illiquidité.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« Une classe d’actifs structurante, à intégrer avec discernement et sur le long terme : la patience est l’une des clés de la réussite en private equity. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Le private equity comporte un risque de perte en capital et un risque de liquidité (capitaux immobilisés plusieurs années). Les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
+    body += cta_band("Accédez au private equity","Sélection des fonds, calibrage de l’allocation et choix de l’enveloppe : construisons votre exposition au non coté, en architecture ouverte.")
+    page("fonds-private-equity.html","Fonds de Private Equity & Capital-Investissement",
+         "Private equity : fonctionnement (LPs/GPs, cycle), stratégies (venture, growth, LBO, retournement, secondaires), performance (TRI/TVPI), accès (FCPR/FPCI) et tendances 2026.", body)
+
 STRUCT_SOLUTIONS = [
     ("scale","Organisation & structures de détention","SCI, holding, société civile, démembrement : détenir intelligemment.","organisation-patrimoniale.html"),
     ("doc","Optimisation fiscale & flux","Structurer revenus, arbitrages et capitalisation pour le rendement net.","optimisation-fiscale-flux.html"),
@@ -2780,8 +2976,8 @@ def main():
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
-    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page(); build_comptes_titres_page(); build_pea_page(); build_per_page(); build_capitalisation_page()
-    build_private_equity(); build_private_equity_pages()
+    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page(); build_comptes_titres_page(); build_pea_page(); build_per_page(); build_capitalisation_page(); build_assurance_vie_page()
+    build_private_equity(); build_private_equity_pages(); build_pe_detail_page()
     build_immobilier(); build_immobilier_pages(); build_scpi_page()
     build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
     build_contact(); build_mentions()
