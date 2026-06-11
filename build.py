@@ -1963,6 +1963,128 @@ def build_structures_tresorerie_page():
     page("structures-tresorerie.html","Produits structurés de trésorerie",
          "Produits structurés de trésorerie : paramètres, objectifs, risques, enveloppes pour personnes morales et mise en concurrence des salles de marché.", body)
 
+# Compagnies d'assurance luxembourgeoises partenaires (architecture ouverte)
+LUX_INSURERS = ["Lombard International","Wealins","Bâloise Vie Luxembourg","Generali Luxembourg",
+                "Allianz Luxembourg","Swiss Life Luxembourg","Cardif Lux Vie","AXA Wealth Europe",
+                "Vitis Life","La Mondiale Europartner"]
+
+def build_luxembourgeois_page():
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Placements financiers","placements-financiers.html"),("Contrats luxembourgeois",None)]
+    body = page_hero("Contrats d’assurance-vie luxembourgeois",
+        "Haut de gamme et neutre fiscalement, l’assurance-vie luxembourgeoise renforce la valorisation et la protection du patrimoine des épargnants exigeants.",
+        crumbs)
+
+    body += section(feature_row("assets/img/img-luxembourg.svg","Triangle de sécurité luxembourgeois","En bref",
+        "Une plateforme patrimoniale internationale",
+        ["Pour un résident français, le contrat luxembourgeois conjugue les avantages fiscaux et successoraux de l’assurance-vie française avec une sécurité des avoirs et une liberté d’investissement nettement supérieures.",
+         "Enveloppe favorite de la gestion de fortune, il s’adresse aux patrimoines disposant du ticket d’entrée requis (généralement 125 000 à 250 000 €)."],
+        rev=True, checklist=["Triangle de sécurité & super-privilège","Neutralité fiscale (fiscalité du pays de résidence)","Univers d’investissement quasi illimité"]))
+
+    body += section(sec_head("Synthèse","L’essentiel à retenir", center=False) +
+        '<div class="grid grid-2" style="margin-top:24px;gap:8px 48px" data-reveal>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Sécurité exceptionnelle : triangle de sécurité et super-privilège du souscripteur",
+            "Neutralité fiscale : aucune imposition au Luxembourg, la fiscalité du pays de résidence s’applique",
+            "Souscription multi-devises (EUR, USD, GBP, CHF, JPY…)",
+        ]) + '</ul>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Univers très vaste : FAS, FID, FIC, OPCVM, obligations, actions, private equity, structurés",
+            "Absence de rétrocessions : un conseil impartial",
+            "Accès au crédit Lombard par nantissement du contrat",
+        ]) + '</ul></div>', cls="section band-cream")
+
+    # Sécurité
+    body += blocks_section("Sécurité","Une protection parmi les plus solides d’Europe",
+        [("cards","Les piliers de protection",[
+            ("shield","Triangle de sécurité","Séparation stricte des actifs entre assureur, souscripteur et banque dépositaire."),
+            ("lock","Super-privilège","Le souscripteur, créancier de premier rang en cas de défaillance de l’assureur."),
+            ("compass","Hors loi Sapin 2","Pas de blocage administratif des retraits, même en période de crise."),
+            ("scale","Contrôle indépendant","Supervision par le Commissariat aux Assurances et la banque dépositaire."),
+         ]),
+         ("text","Le triangle de sécurité, concrètement",
+            ["Trois acteurs encadrent le contrat — la compagnie d’assurance, la banque dépositaire et le Commissariat aux Assurances (avec l’État luxembourgeois comme garant). Les actifs des souscripteurs sont ségrégués, contrôlés régulièrement et transmis automatiquement en cas de défaillance de l’assureur."])])
+
+    # Neutralité fiscale
+    body += blocks_section("Fiscalité","La neutralité fiscale",
+        [("text","La fiscalité de votre pays de résidence",
+            ["Le Luxembourg n’applique aucune fiscalité propre : c’est la loi du pays de résidence du souscripteur qui s’applique. Tant qu’aucun rachat n’est effectué, les gains se capitalisent sans imposition.",
+             "Pour un résident français, le contrat conserve les avantages de l’assurance-vie française : abattements et fiscalité réduite sur les plus-values après 8 ans, et cadre successoral privilégié."]),
+         ("checklist","Au rachat & à la succession (résident français)",
+            ["Rachat : fiscalité fonction de l’ancienneté, des versements et des montants","Après 8 ans : abattement annuel et imposition réduite des gains","Succession : jusqu’à 152 500 € par bénéficiaire (primes avant 70 ans)","Au-delà de 70 ans : abattement global de 30 500 €, gains exonérés"])],
+        cls="section band-cream")
+
+    # Univers d'investissement
+    body += blocks_section("Investissement","Un univers quasi illimité",
+        [("cards","Les véhicules dédiés",[
+            ("chart","FID — Fonds Interne Dédié","Gestion sous mandat individualisée, supports sophistiqués et internationaux."),
+            ("puzzle","FAS — Fonds d’Assurance Spécialisé","Le souscripteur averti compose son portefeuille, coté ou non coté."),
+            ("treasury","FIC — Fonds Interne Collectif","Gestion mutualisée, plus accessible en montant."),
+         ]),
+         ("tags","Les supports accessibles",
+            ["Fonds en euros (limité)","Actions","Obligations","OPCVM & ETF","Private equity","Produits structurés sur-mesure","Immobilier (OPCI / OPPCI)","Fonds alternatifs","Multi-devises"])])
+
+    # Comparatif LU vs FR
+    body += section(sec_head("Comparatif","Luxembourg ou France ?",
+        "Deux enveloppes complémentaires ; le contrat luxembourgeois s’adresse aux patrimoines plus importants.", center=True) +
+        '<div class="table-wrap" style="margin-top:40px" data-reveal><table class="ptable">'
+        '<thead><tr><th>Critère</th><th>Assurance-vie luxembourgeoise</th><th>Assurance-vie française</th></tr></thead><tbody>'
+        + "".join('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % r for r in [
+            ("Ticket d’entrée","À partir de 125 000 €","Dès 100 €"),
+            ("Triangle de sécurité","Oui","Non"),
+            ("Multi-devises","Oui (EUR, USD, GBP, CHF, JPY)","Non"),
+            ("Loi Sapin 2 (blocage)","Non applicable","Applicable"),
+            ("Créancier de premier rang","Oui (super-privilège)","Non"),
+            ("Plafond de garantie","Illimité","70 000 €"),
+            ("Univers d’investissement","Très étendu (FAS / FID / FIC)","Plus limité"),
+            ("Produits structurés sur-mesure","Oui","Rare"),
+            ("Rétrocessions au conseiller","Interdites","Autorisées"),
+            ("Fonds en euros","Limité","Disponible"),
+        ]) + '</tbody></table></div>')
+
+    # Atouts complémentaires
+    body += blocks_section("Atouts","Des leviers réservés au contrat luxembourgeois",
+        [("cards","Quatre atouts différenciants",[
+            ("globe","Multi-devises","Libeller le contrat et investir en EUR, USD, GBP, CHF, JPY."),
+            ("coins","Crédit Lombard","Nantir le contrat pour obtenir des liquidités sans désinvestir."),
+            ("scale","Sans rétrocessions","Un conseil impartial, libéré des commissions de distribution."),
+            ("doc","Transférabilité","Transfert d’un contrat existant sans perte d’antériorité fiscale."),
+         ])], cls="section band-cream")
+
+    # Inconvénients
+    body += blocks_section("Vigilance","Les points à considérer",
+        [("checklist","Avant de souscrire",
+            ["Ticket d’entrée élevé (125 000 à 250 000 €)","Pas d’accès aux SCPI (mais OPCI / OPPCI possibles)","Souscription encadrée : justificatifs sur l’origine des fonds","Restrictions selon la nationalité (hors EEE) — résidents français éligibles","Fonds en euros moins rémunérateur qu’en France"])])
+
+    # Frais
+    body += blocks_section("Frais","Une tarification transparente",
+        [("checklist","Les principaux postes",
+            ["Frais d’entrée : 0 à 3 % du montant investi","Frais de gestion annuels : environ 1 à 2 %","Frais propres aux supports d’investissement","Transparence : documentation détaillée des frais et commissions","Aucune rétrocession au conseiller"])], cls="section band-cream")
+
+    # Partenaires
+    body += section(sec_head("Architecture ouverte","Nos compagnies partenaires",
+        "Sans dépendance à un assureur unique, nous sélectionnons la compagnie la plus adaptée selon votre patrimoine, votre résidence fiscale, le niveau de solvabilité et vos objectifs.", center=True)
+        + '<div class="tags" style="justify-content:center;margin-top:8px" data-reveal>' + "".join('<span class="tag">%s</span>' % html.escape(m) for m in LUX_INSURERS) + '</div>')
+
+    body += section(faq_block("Questions fréquentes","Vos questions sur le contrat luxembourgeois", [
+        ("Quels sont les avantages de l’assurance-vie luxembourgeoise ?",
+         "<p>La neutralité fiscale, la sécurité des fonds (triangle de sécurité, super-privilège), un univers d’investissement très large, l’absence de rétrocessions et la gestion multi-devises.</p>"),
+        ("Comment fonctionne sa fiscalité ?",
+         "<p>Elle dépend du pays de résidence fiscale. Pour un résident français, la fiscalité est identique à celle d’un contrat français : abattements sur les plus-values après 8 ans et avantages successoraux.</p>"),
+        ("Qui peut souscrire ?",
+         "<p>Tout résident de l’Union européenne, ainsi que les résidents de certains pays hors UE selon la politique de l’assureur. Les résidents français sont éligibles, sous réserve du ticket d’entrée.</p>"),
+        ("Quels sont les inconvénients ?",
+         "<p>Un ticket d’entrée élevé, l’absence de SCPI (compensée par les OPCI/OPPCI), une souscription plus encadrée et des restrictions pour certaines nationalités hors EEE.</p>"),
+        ("Pourquoi le préférer au contrat français ?",
+         "<p>Pour le triangle de sécurité, un univers d’investissement bien plus large, une protection renforcée en cas de crise (hors loi Sapin 2) et une liberté de retrait totale.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« Bien plus qu’un contrat d’assurance-vie : une véritable plateforme patrimoniale internationale, pensée pour protéger, diversifier et transmettre. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de la situation individuelle et du pays de résidence ; elle est susceptible d’évoluer. Les supports en unités de compte comportent un risque de perte en capital. Les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
+    body += cta_band("Ouvrons votre contrat luxembourgeois","Sélection de la compagnie, architecture du contrat et allocation sur-mesure : étudions ensemble la solution la plus adaptée à votre situation.")
+    page("contrat-luxembourgeois.html","Contrats d’assurance-vie luxembourgeois",
+         "Assurance-vie luxembourgeoise : triangle de sécurité, super-privilège, neutralité fiscale, FAS/FID/FIC, multi-devises, crédit Lombard et comparatif Luxembourg / France.", body)
+
 STRUCT_SOLUTIONS = [
     ("scale","Organisation & structures de détention","SCI, holding, société civile, démembrement : détenir intelligemment.","organisation-patrimoniale.html"),
     ("doc","Optimisation fiscale & flux","Structurer revenus, arbitrages et capitalisation pour le rendement net.","optimisation-fiscale-flux.html"),
@@ -2274,7 +2396,7 @@ def main():
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
-    build_produits_structures_page(); build_structures_tresorerie_page()
+    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page()
     build_private_equity(); build_private_equity_pages()
     build_immobilier(); build_immobilier_pages(); build_scpi_page()
     build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
