@@ -2181,6 +2181,134 @@ def build_comptes_titres_page():
     page("comptes-titres.html","Compte-titres (CTO)",
          "Compte-titres ordinaire : fonctionnement, fiscalité (PFU ou barème IR), comparatif avec le PEA, détention par les personnes morales et accompagnement.", body)
 
+def build_pea_page():
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Placements financiers","placements-financiers.html"),("PEA",None)]
+    body = page_hero("PEA — Plan d’Épargne en Actions",
+        "L’une des stratégies les plus efficaces pour investir en actions européennes avec une fiscalité allégée — l’exonération d’impôt sur le revenu après 5 ans reste l’avantage décisif de l’enveloppe.",
+        crumbs)
+
+    body += section(feature_row("assets/img/paris-courtyard.jpg","Plan d’Épargne en Actions","En bref",
+        "Le pilier actions, fiscalement optimisé",
+        ["Le PEA loge un portefeuille d’actions européennes et de fonds éligibles : tant que les fonds restent dans l’enveloppe, plus-values et dividendes ne sont pas imposés.",
+         "Depuis janvier 2026, la hausse de la CSG porte les prélèvements sociaux à 18,6 %, mais l’exonération d’IR après 5 ans préserve l’avantage du PEA sur le compte-titres."],
+        rev=True, checklist=["Exonération d’IR sur les gains après 5 ans","Arbitrages internes non imposés","Plafond de 150 000 € (225 000 € avec le PEA-PME)"]))
+
+    body += section(sec_head("Synthèse","L’essentiel à retenir", center=False) +
+        '<div class="grid grid-2" style="margin-top:24px;gap:8px 48px" data-reveal>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Prendre date sans attendre : le compteur de 5 ans démarre au premier versement",
+            "La hausse des PS (18,6 %) ne remet pas en cause l’avantage face au CTO (31,4 %)",
+            "Cumul PEA + PEA-PME : jusqu’à 225 000 € par personne, 450 000 € en couple",
+        ]) + '</ul>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Un ETF Monde domicilié en Europe maximise la diversification tout en restant éligible",
+            "Articuler les enveloppes : PEA (actions), assurance-vie (diversification, transmission), PER (déduction)",
+            "Un bilan patrimonial calibre la répartition entre ces enveloppes",
+        ]) + '</ul></div>', cls="section band-cream")
+
+    body += blocks_section("Fonctionnement","Comment fonctionne un PEA ?",
+        [("cards","Principe & conditions",[
+            ("treasury","Deux poches","Un compte espèces et un portefeuille titres au sein d’une même enveloppe."),
+            ("shield","Réservé aux résidents","Personne physique majeure, résidente fiscale française, un seul PEA classique."),
+            ("scale","Bancaire ou assurance","Titres vifs + ETF (bancaire) ou contrat de capitalisation en UC (assurance)."),
+            ("compass","Loi PACTE","Retraits partiels après 5 ans sans clôture, et création du PEA Jeunes."),
+         ]),
+         ("cards","Trois variantes",[
+            ("chart","PEA classique","Plafond de versement de 150 000 €."),
+            ("puzzle","PEA-PME","PME-ETI européennes, plafond cumulé de 225 000 €."),
+            ("retire","PEA Jeunes","18-25 ans rattachés au foyer, plafond de 20 000 €."),
+         ])])
+
+    body += blocks_section("Éligibilité","Titres & supports éligibles",
+        [("checklist","Ce que le PEA accepte",
+            ["Actions de sociétés de l’UE / EEE","OPCVM et ETF investis à 75 % minimum en actions européennes","Certains ETF Monde domiciliés en Europe (Luxembourg, Irlande)","Obligations convertibles de PME-ETI (PEA-PME uniquement)"]),
+         ("text","Ce qui est exclu",
+            ["Obligations classiques, titres démembrés, parts de SCI et actions de sociétés foncières (SIIC/REIT) pour les titres acquis depuis 2011."])],
+        cls="section band-cream")
+
+    body += blocks_section("Rendement","Combien rapporte un PEA ?",
+        [("text","Rendement réel vs indices",
+            ["Le rendement moyen déclaré par les épargnants ressort autour de 4,6 % par an (baromètre AMF), nettement sous les indices : un PEA diversifié via des ETF Monde affiche historiquement 7 à 9 % par an sur 15-20 ans.",
+             "L’écart s’explique par la sous-performance de la gestion active, les frais cumulés et les biais comportementaux (market timing)."]),
+         ("cards","Quatre leviers de performance",[
+            ("puzzle","Allocation","Un cœur d’ETF Monde surperforme statistiquement le stock picking sur 15 ans +."),
+            ("coins","Frais","0,5 % de frais annuels en trop, c’est plus de 10 % de capital en moins sur 20 ans."),
+            ("clock","Horizon","Les intérêts composés ne déploient leur effet qu’au-delà de 10 ans."),
+            ("growth","Régularité","Le versement programmé (DCA) lisse l’impact de la volatilité."),
+         ])])
+
+    body += blocks_section("Fiscalité 2026","La fiscalité du PEA",
+        [("cards","La ligne de partage des 5 ans",[
+            ("scale","Avant 5 ans","Tout retrait clôture le plan ; gains au PFU de 31,4 % (option barème IR)."),
+            ("shield","Après 5 ans","Exonération d’IR ; seuls les prélèvements sociaux de 18,6 % s’appliquent."),
+            ("compass","Arbitrages internes","Achats, ventes et réallocations ne déclenchent aucune imposition."),
+            ("coins","Retraits partiels","Après 5 ans, ils ne ferment plus le plan (loi PACTE)."),
+         ]),
+         ("text","Impact de la hausse de CSG (LFSS 2026)",
+            ["Les prélèvements sociaux passent de 17,2 % à 18,6 % sur les revenus mobiliers, PEA inclus. L’assurance-vie en est exclue (PS maintenus à 17,2 %). Malgré cela, le PEA conserve sa supériorité après 5 ans grâce à l’exonération d’IR — un avantage que ni le CTO ni l’assurance-vie n’offrent sur les plus-values mobilières."])],
+        cls="section band-cream")
+
+    body += section(sec_head("Comparatif","PEA, assurance-vie, CTO & PER", "Chaque enveloppe répond à un objectif patrimonial distinct.", center=True) +
+        '<div class="table-wrap" style="margin-top:40px" data-reveal><table class="ptable">'
+        '<thead><tr><th>Enveloppe</th><th>Fiscalité optimale</th><th>Condition</th><th>Objectif principal</th></tr></thead><tbody>'
+        + "".join('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % r for r in [
+            ("PEA","18,6 % (PS seuls)","Détention &gt; 5 ans","Actions européennes"),
+            ("Assurance-vie","24,7 % (7,5 % IR + 17,2 % PS)","&gt; 8 ans, versements &lt; 150 000 €","Diversification, transmission"),
+            ("Compte-titres","31,4 % (PFU)","Aucune","Univers illimité"),
+            ("PER","Barème / PFU à la sortie","Blocage jusqu’à la retraite","Déduction fiscale à l’entrée"),
+        ]) + '</tbody></table></div>')
+
+    body += blocks_section("Plafonds","Les plafonds de versement",
+        [("cards","Des plafonds sur les versements, pas sur la valeur",[
+            ("chart","PEA classique","150 000 € de versements (la valorisation peut dépasser ce montant)."),
+            ("puzzle","PEA-PME","225 000 €, en cumul avec le PEA classique."),
+            ("retire","PEA Jeunes","20 000 €, transformé en PEA classique à la sortie du foyer."),
+         ]),
+         ("text","Le levier du couple",
+            ["Chaque conjoint peut détenir un PEA et un PEA-PME : la capacité totale de versement atteint 450 000 € (2 × 225 000 €), un socle actions fiscalement optimisé pour un patrimoine important."])])
+
+    body += section(sec_head("Comparatif","PEA classique ou PEA-PME ?",
+        "Une logique cœur-satellite : le PEA pour le cœur du portefeuille, le PEA-PME pour une poche croissance.", center=True) +
+        '<div class="table-wrap" style="margin-top:40px" data-reveal><table class="ptable">'
+        '<thead><tr><th>Critère</th><th>PEA classique</th><th>PEA-PME</th></tr></thead><tbody>'
+        + "".join('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % r for r in [
+            ("Plafond de versement","150 000 €","225 000 € (cumul)"),
+            ("Titres éligibles","Actions UE/EEE, ETF, OPCVM","Actions PME-ETI, obligations convertibles"),
+            ("Liquidité","Élevée","Modérée à faible"),
+            ("Volatilité","Modérée","Élevée"),
+            ("Fiscalité après 5 ans","PS 18,6 % (exonération IR)","PS 18,6 % (exonération IR)"),
+        ]) + '</tbody></table></div>')
+
+    body += blocks_section("Ouvrir un PEA","Les étapes, et l’intérêt de prendre date",
+        [("cards","Quatre étapes",[
+            ("compass","1 · Choisir","Le type (bancaire ou assurance) et l’établissement teneur de compte."),
+            ("doc","2 · Constituer le dossier","Pièce d’identité, justificatif de domicile, attestation de non-détention."),
+            ("coins","3 · Premier versement","Souvent dès 10 à 100 € : il déclenche le compteur fiscal de 5 ans."),
+            ("chart","4 · Sélectionner les supports","ETF Monde ou Europe, actions en direct ou fonds éligibles."),
+         ]),
+         ("text","Pourquoi ouvrir le plus tôt possible",
+            ["Le délai de 5 ans court dès le premier versement, indépendamment des suivants. Ouvrir un PEA avec quelques euros aujourd’hui, c’est sécuriser l’exonération sur tous les gains futurs — y compris ceux des sommes investies dans plusieurs années."])])
+
+    body += section(faq_block("Questions fréquentes","Vos questions sur le PEA", [
+        ("Quand démarre le délai des 5 ans ?",
+         "<p>Au premier versement, quel que soit le montant. D’où l’intérêt de « prendre date » tôt, même avec une petite somme, pour sécuriser l’exonération d’IR sur les gains futurs.</p>"),
+        ("La hausse de CSG 2026 remet-elle en cause le PEA ?",
+         "<p>Non. Les prélèvements sociaux passent à 18,6 %, mais l’exonération d’impôt sur le revenu après 5 ans reste un avantage décisif que le compte-titres n’offre pas.</p>"),
+        ("Peut-on cumuler PEA et PEA-PME ?",
+         "<p>Oui, dans la limite globale de 225 000 € de versements par personne (450 000 € pour un couple). Le PEA-PME ouvre l’accès aux PME-ETI et à leurs obligations convertibles.</p>"),
+        ("Quels supports privilégier ?",
+         "<p>Pour un cœur de portefeuille diversifié, les ETF Monde ou Europe domiciliés en Europe restent éligibles et peu coûteux. Nous calibrons l’allocation selon votre profil et votre horizon.</p>"),
+        ("Que se passe-t-il en cas de retrait avant 5 ans ?",
+         "<p>Le plan est clôturé et les gains imposés au PFU (sauf cas particuliers : création d’entreprise, licenciement, invalidité…). Après 5 ans, les retraits partiels sont libres et ne ferment plus le plan.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« Le PEA couvre le pilier actions d’un patrimoine ; bien articulé avec l’assurance-vie et le PER, il optimise rendement et fiscalité sur le long terme. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Tout investissement en actions comporte un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
+    body += cta_band("Structurons votre pilier actions","Choix de l’enveloppe, allocation en ETF et articulation avec vos autres placements : construisons une stratégie cohérente et fiscalement optimisée.")
+    page("pea.html","PEA — Plan d’Épargne en Actions",
+         "PEA en 2026 : fonctionnement, rendement, fiscalité (CSG 18,6 %, exonération d’IR après 5 ans), plafonds, comparatif PEA / PEA-PME / assurance-vie / CTO / PER et ouverture.", body)
+
 STRUCT_SOLUTIONS = [
     ("scale","Organisation & structures de détention","SCI, holding, société civile, démembrement : détenir intelligemment.","organisation-patrimoniale.html"),
     ("doc","Optimisation fiscale & flux","Structurer revenus, arbitrages et capitalisation pour le rendement net.","optimisation-fiscale-flux.html"),
@@ -2492,7 +2620,7 @@ def main():
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
-    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page(); build_comptes_titres_page()
+    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page(); build_comptes_titres_page(); build_pea_page()
     build_private_equity(); build_private_equity_pages()
     build_immobilier(); build_immobilier_pages(); build_scpi_page()
     build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
