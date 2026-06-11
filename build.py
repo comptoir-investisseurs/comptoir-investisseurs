@@ -323,6 +323,20 @@ def sub_page(slug, title, subtitle, lede, img, alt, paras, atouts, mid, related,
     body += cta_band()
     page(slug, title, seo, body)
 
+def sec_head(eyebrow, title, lede=None, center=False):
+    cls = "center" if center else ""
+    st = ' style="max-width:720px;margin-inline:auto"' if center else ' style="max-width:820px"'
+    h = '<div class="%s"%s data-reveal><p class="eyebrow">%s</p><h2 class="title-lg">%s</h2><hr class="rule">' % (cls, st, eyebrow, title)
+    if lede: h += '<p class="lede">%s</p>' % lede
+    return h + '</div>'
+
+def blocks_section(eyebrow, title, blocks, lede=None, cls="section", center=False):
+    return section(sec_head(eyebrow, title, lede, center) + "".join(render_block(b) for b in blocks), cls=cls)
+
+def faq_block(eyebrow, title, items):
+    return (sec_head(eyebrow, title, center=True)
+            + '<div style="max-width:880px;margin:40px auto 0" data-reveal>' + faq(items) + '</div>')
+
 # ==========================================================================
 # PAGES
 # ==========================================================================
@@ -1787,6 +1801,168 @@ def build_scpi_page():
     page("scpi-immobilier-gere.html","SCPI & immobilier géré",
          "SCPI et immobilier géré : fonctionnement, types, fiscalité comparée selon le mode de détention, critères de sélection et notre sélection de SCPI partenaires 2026.", body)
 
+# Salles de marché mises en concurrence (émetteurs de produits structurés)
+DESKS = ["Société Générale","BNP Paribas","Natixis","Morgan Stanley","Goldman Sachs",
+         "Citi","UBS","Barclays","Vontobel","BBVA","J.P. Morgan","Crédit Agricole CIB"]
+
+# Les éléments qui définissent un produit structuré
+PS_ELEMENTS = [
+    ("compass","Le sous-jacent","Indice, action ou panier dont la performance détermine le résultat du produit."),
+    ("clock","La durée / l’échéance","La maturité maximale, au terme de laquelle les conditions finales sont constatées."),
+    ("coins","Le rendement","Sous forme de coupon périodique ou de gain à l’échéance, le plus souvent conditionnel."),
+    ("chart","La fréquence de constatation","Le rythme d’observation du sous-jacent (trimestriel, annuel…) qui déclenche coupons et rappels."),
+    ("scale","Le strike","Le niveau de référence du sous-jacent fixé à l’origine, base de toutes les comparaisons."),
+    ("shield","Le niveau de protection","La barrière, partielle ou totale, qui encadre le risque de perte en capital."),
+]
+
+def build_produits_structures_page():
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Placements financiers","placements-financiers.html"),("Produits structurés",None)]
+    body = page_hero("Produits structurés",
+        "Des instruments d’ingénierie financière qui combinent une composante obligataire et un produit dérivé pour viser un rendement défini, avec un niveau de risque calibré à l’avance selon un scénario de marché.",
+        crumbs)
+
+    body += section(feature_row("assets/img/paris-courtyard.jpg","Produits structurés sur-mesure","En bref",
+        "Concilier rendement et protection, sur-mesure",
+        ["Un produit structuré associe généralement un actif de base (souvent obligataire) qui apporte une assise, et un dérivé (une option) qui génère le rendement selon des scénarios définis dès l’origine.",
+         "Recherche de rendement dans des marchés peu directionnels, protection partielle ou totale du capital, exposition encadrée à un actif risqué : chaque produit répond à un objectif précis."],
+        rev=True, checklist=["Scénarios de gain et de protection définis à l’avance","Architecture ouverte : émetteurs mis en concurrence","Logeable dans la plupart des enveloppes patrimoniales"]))
+
+    body += blocks_section("Anatomie","Les éléments qui définissent un produit structuré",
+        [("cards","Six paramètres clés", PS_ELEMENTS)],
+        lede="Cinq à six paramètres, interdépendants, se choisissent selon vos objectifs et votre tolérance au risque.", center=True, cls="section band-cream")
+
+    body += blocks_section("Sous-jacents","Sur quoi peut-on indexer un produit structuré ?",
+        [("tags","Les univers éligibles",
+            ["Indices (CAC 40, Euro Stoxx 50, S&P 500…)","Indices ESG","Actions de grandes capitalisations","Paniers d’actions","Taux d’intérêt (EURIBOR, CMS, OAT)","Matières premières","Devises","ETF & OPCVM éligibles"]),
+         ("text","Le choix du sous-jacent",
+            ["Sa nature et sa volatilité conditionnent à la fois le rendement potentiel et le risque : un indice large et diversifié sera plus défensif qu’une action unique ou un panier concentré."])])
+
+    body += blocks_section("Formats","Les grandes familles de produits structurés",
+        [("cards","Du plus prudent au plus offensif",[
+            ("lock","Capital garanti","Remboursement intégral du capital à l’échéance (hors défaut de l’émetteur), en contrepartie d’un gain plus encadré."),
+            ("shield","Capital protégé","Participation à la hausse et pertes limitées tant qu’une barrière de protection n’est pas franchie."),
+            ("compass","Fonds à promesse","Objectif de performance conditionnel à la trajectoire du sous-jacent, sans garantie en capital."),
+            ("chart","Autocall","Remboursement anticipé automatique si le sous-jacent repasse au-dessus d’un seuil à une date d’observation."),
+            ("coins","Phoenix","Coupons conditionnels versés tant qu’une barrière n’est pas franchie, avec effet mémoire possible."),
+            ("doc","Athéna","Gains versés au remboursement (anticipé ou à l’échéance), sans coupon intermédiaire."),
+         ])], cls="section band-cream")
+
+    body += blocks_section("Intérêt & limites","Avantages et points de vigilance",
+        [("cards","Pourquoi les investisseurs les utilisent",[
+            ("scale","Adaptabilité","Configurables selon vos objectifs et vos anticipations de marché."),
+            ("puzzle","Diversification","Accès à des sous-jacents et stratégies variés au sein d’une seule solution."),
+            ("shield","Protection","Des mécanismes de protection partielle ou totale du capital."),
+            ("growth","Rendement potentiel","Une alternative aux placements les plus défensifs, dans un cadre maîtrisé."),
+         ]),
+         ("checklist","Les principaux risques à comprendre",
+            ["Risque de marché (évolution du sous-jacent)","Risque de crédit de l’émetteur","Risque de liquidité (revente avant l’échéance)","Complexité des mécanismes","Sensibilité aux taux d’intérêt","Non-versement de coupons conditionnels","Corrélation entre sous-jacents d’un panier"]),
+         ("text","Les frais",
+            ["Trois postes principaux : frais de structuration (intégrés au montage par l’émetteur), commission de souscription et, en cas de sortie anticipée, frais et décote sur le marché secondaire. Notre rôle est d’en assurer la transparence et de les négocier."])])
+
+    body += blocks_section("Enveloppes","Dans quelle enveloppe loger un produit structuré ?",
+        [("cards","Une grande flexibilité fiscale",[
+            ("chart","Compte-titres (CTO)","Souplesse maximale et accès le plus large.","comptes-titres.html"),
+            ("shield","Assurance-vie","Cadre fiscal et successoral privilégié après 8 ans.","assurance-vie.html"),
+            ("coins","Contrat de capitalisation","Détention patrimoniale ou sociétaire, antériorité conservée.","contrat-capitalisation.html"),
+            ("globe","Contrat luxembourgeois","Sécurité renforcée et univers de supports étendu.","contrat-luxembourgeois.html"),
+            ("retire","PER","Déduction des versements et préparation de la retraite.","solutions-retraite.html"),
+            ("building","Compte personne morale","Pour la trésorerie d’entreprise et les holdings.","structures-tresorerie.html"),
+         ])], cls="section band-cream")
+
+    # Notre approche indépendante (mise en concurrence des salles)
+    body += blocks_section("Notre approche","Architecture ouverte et mise en concurrence des salles",
+        [("tags","Les salles de marché que nous mettons en concurrence", DESKS),
+         ("checklist","Les critères que nous comparons sur chaque structuration",
+            ["Niveau de coupon / rendement proposé","Distance à la barrière de protection","Qualité de crédit de l’émetteur","Conditions de remboursement anticipé (autocall)","Univers sous-jacent et corrélation","Liquidité secondaire et transparence de valorisation","Volatilité implicite utilisée dans le pricing","Documentation (term sheet, EMTN, prospectus)"]),
+         ("text","La term sheet, document clé",
+            ["Cette fiche technique résume sous-jacent, barrières, coupons, scénarios (haussier, neutre, baissier) et risques. Nous l’analysons avec vous, ligne par ligne, avant toute décision."])])
+
+    body += section(faq_block("Questions fréquentes","Vos questions sur les produits structurés", [
+        ("Qu’est-ce qu’un produit structuré ?",
+         "<p>Un instrument financier émis par une banque, qui combine une composante obligataire et un produit dérivé pour relier le rendement à la performance d’un sous-jacent, selon une formule définie à l’avance.</p>"),
+        ("De quoi se compose-t-il ?",
+         "<p>Le plus souvent d’un actif de base (obligation) qui apporte une assise, et d’un dérivé (option) qui génère le rendement selon des scénarios prédéfinis.</p>"),
+        ("Quels sont les grands types ?",
+         "<p>Schématiquement : capital garanti, capital protégé et fonds à promesse, auxquels s’ajoutent les formats autocall, Phoenix et Athéna selon le mode de versement des gains et de rappel.</p>"),
+        ("Quels sont les principaux risques ?",
+         "<p>Risque de marché, risque de crédit de l’émetteur, risque de liquidité avant l’échéance et complexité. La protection du capital peut disparaître si une barrière est franchie.</p>"),
+        ("Dans quelle enveloppe l’loger ?",
+         "<p>Compte-titres, assurance-vie, contrat de capitalisation, PEA (selon éligibilité), PER ou compte de personne morale : le choix de l’enveloppe optimise la fiscalité selon votre situation.</p>"),
+        ("Pourquoi passer par un conseil indépendant ?",
+         "<p>Pour mettre les émetteurs en concurrence en architecture ouverte, analyser la term sheet sans biais commercial et intégrer le produit dans une allocation globale cohérente.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« Nous intervenons comme architectes de solutions, et non comme distributeurs : chaque produit est sélectionné ou structuré selon votre cahier des charges patrimonial. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Les produits structurés comportent un risque de perte en capital et un risque de crédit de l’émetteur. Les performances passées ne préjugent pas des performances futures. Toute souscription suppose la lecture de la documentation réglementaire (term sheet, prospectus / EMTN, DIC).</p>', cls="section--tight")
+    body += cta_band("Étudions une solution sur-mesure","Définissons ensemble le sous-jacent, l’horizon, le niveau de protection et l’enveloppe les plus adaptés — puis mettons les meilleures salles de marché en concurrence.")
+    page("produits-structures.html","Produits structurés",
+         "Produits structurés sur-mesure : définition, paramètres clés, sous-jacents, formats (autocall, Phoenix, Athéna), risques, enveloppes et mise en concurrence des salles de marché.", body)
+
+def build_structures_tresorerie_page():
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Trésorerie d’entreprise","tresorerie-entreprise.html"),("Produits structurés de trésorerie",None)]
+    body = page_hero("Produits structurés de trésorerie",
+        "Optimiser le rendement de capitaux disponibles avec un niveau de risque défini en amont — sans basculer dans une gestion actions classique.",
+        crumbs)
+
+    body += section(feature_row("assets/img/mansion.jpg","Produits structurés de trésorerie","En bref",
+        "Le rendement calibré, à l’échelle de l’entreprise",
+        ["Pour les entreprises, holdings et structures patrimoniales disposant de réserves significatives, le produit structuré combine obligation, options et mécanismes de protection pour viser un profil rendement / risque précis.",
+         "L’objectif : dépasser les solutions de placement court terme traditionnelles, dans un cadre maîtrisé, lisible et compatible avec votre gouvernance financière."],
+        rev=True, checklist=["Rendement conditionnel ou capital partiellement protégé","Horizon, sous-jacent et barrières définis sur-mesure","Architecture ouverte : aucune salle imposée"]))
+
+    body += blocks_section("Anatomie","Les paramètres d’un produit structuré",
+        [("cards","Six leviers à calibrer", PS_ELEMENTS)],
+        lede="Les mêmes briques que pour un particulier, mais lues à l’aune d’une politique de trésorerie d’entreprise.", center=True, cls="section band-cream")
+
+    body += blocks_section("Objectifs","Ce qu’une trésorerie peut viser",
+        [("cards","Des usages propres à l’entreprise",[
+            ("coins","Rendement conditionnel","Des coupons réguliers sous conditions de marché."),
+            ("shield","Protection du capital","Une protection partielle ou conditionnelle à l’échéance."),
+            ("puzzle","Diversification bilancielle","Décorréler une partie des réserves des placements classiques."),
+            ("clock","Portage défini","Un horizon calibré sur la trésorerie peu mobilisée."),
+         ]),
+         ("tags","Les formats les plus adaptés à la trésorerie",
+            ["Phoenix / Autocall défensifs","Capital partiellement protégé","Indices larges ou décrémentés","Portage sur sous-jacents robustes","Solutions multi-barrières sur-mesure"])])
+
+    body += blocks_section("Vigilance","Une lecture institutionnelle des risques",
+        [("checklist","Les risques que nous analysons",
+            ["Risque de marché","Risque de crédit de l’émetteur","Risque de liquidité","Gap risk","Risque de rappel anticipé","Corrélation des sous-jacents","Exposition à la volatilité implicite","Sensibilité aux taux"]),
+         ("text","Rendement et risque indissociables",
+            ["La recherche de rendement ne doit jamais être dissociée de la compréhension technique des risques : nous analysons chaque proposition avec une exigence comparable à celle d’une direction financière sophistiquée."])], cls="section band-cream")
+
+    body += blocks_section("Détention","Dans quelle enveloppe pour une personne morale ?",
+        [("cards","Les cadres de détention",[
+            ("treasury","Compte-titres personne morale","Souplesse et accès direct aux marchés.","comptes-titres.html"),
+            ("coins","Contrat de capitalisation","Capitalisation et fiscalité adaptée à l’IS.","capitalisation-personne-morale.html"),
+            ("globe","Contrat luxembourgeois dédié","Sécurité institutionnelle et univers étendu.","luxembourgeois-tresorerie.html"),
+         ])])
+
+    body += blocks_section("Notre approche","Architecture ouverte et mise en concurrence des salles",
+        [("tags","Les salles de marché que nous mettons en concurrence", DESKS),
+         ("checklist","Les critères comparés sur chaque structuration",
+            ["Coupon proposé et conditions de rappel (autocall)","Niveau des barrières de protection","Qualité de crédit de l’émetteur","Maturité et univers sous-jacent","Liquidité secondaire","Volatilité implicite utilisée dans le pricing","Documentation EMTN / cadre juridique","Fiscalité de l’enveloppe de détention"]),
+         ("text","Architectes, pas distributeurs",
+            ["Nous ne travaillons avec aucun broker imposé ni plateforme captive : chaque structure est sélectionnée selon votre politique de trésorerie — excédents de moyen terme, réserves stratégiques, recherche de rendement prudent ou diversification."])])
+
+    body += section(faq_block("Questions fréquentes","Vos questions", [
+        ("Pourquoi des produits structurés pour la trésorerie ?",
+         "<p>Pour viser un rendement supérieur aux placements monétaires sur la part durablement excédentaire, avec un niveau de risque défini à l’avance et une protection calibrée — sans gestion actions classique.</p>"),
+        ("Quelle protection du capital ?",
+         "<p>Selon la structure : protection totale (capital garanti) ou conditionnelle via une barrière. Le niveau de protection se définit en contrepartie du rendement visé ; un risque de perte en capital subsiste.</p>"),
+        ("Quelles enveloppes pour une société ?",
+         "<p>Compte-titres personne morale, contrat de capitalisation ou contrat luxembourgeois dédié — selon votre fiscalité (IS), vos objectifs de capitalisation et votre gouvernance.</p>"),
+        ("Comment garantissez-vous le meilleur produit ?",
+         "<p>Par la mise en concurrence institutionnelle des salles de marché et l’analyse de chaque term sheet, sans dépendance commerciale à une contrepartie unique.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« Transformer une trésorerie importante en une poche de rendement pilotée, indépendante et stratégiquement calibrée. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Les produits structurés comportent un risque de perte en capital et un risque de crédit de l’émetteur. Les performances passées ne préjugent pas des performances futures. Toute souscription suppose la lecture de la documentation réglementaire.</p>', cls="section--tight")
+    body += cta_band("Optimisons votre trésorerie","Étudions le format, l’émetteur et l’enveloppe les plus pertinents pour vos réserves, en toute indépendance.")
+    page("structures-tresorerie.html","Produits structurés de trésorerie",
+         "Produits structurés de trésorerie : paramètres, objectifs, risques, enveloppes pour personnes morales et mise en concurrence des salles de marché.", body)
+
 STRUCT_SOLUTIONS = [
     ("scale","Organisation & structures de détention","SCI, holding, société civile, démembrement : détenir intelligemment.","organisation-patrimoniale.html"),
     ("doc","Optimisation fiscale & flux","Structurer revenus, arbitrages et capitalisation pour le rendement net.","optimisation-fiscale-flux.html"),
@@ -2098,6 +2274,7 @@ def main():
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
+    build_produits_structures_page(); build_structures_tresorerie_page()
     build_private_equity(); build_private_equity_pages()
     build_immobilier(); build_immobilier_pages(); build_scpi_page()
     build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
