@@ -2309,6 +2309,166 @@ def build_pea_page():
     page("pea.html","PEA — Plan d’Épargne en Actions",
          "PEA en 2026 : fonctionnement, rendement, fiscalité (CSG 18,6 %, exonération d’IR après 5 ans), plafonds, comparatif PEA / PEA-PME / assurance-vie / CTO / PER et ouverture.", body)
 
+def build_per_page():
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Placements financiers","placements-financiers.html"),("Solutions retraite",None)]
+    body = page_hero("Solutions retraite — le PER",
+        "Entre 30 % et 50 % des revenus disparaissent au passage à la retraite. Le Plan d’Épargne Retraite (PER) permet de se constituer un capital tout en réduisant son impôt sur le revenu.",
+        crumbs)
+
+    body += section(feature_row("assets/img/retraite.jpg","Plan d’Épargne Retraite","En bref",
+        "Préparer la retraite, en réduisant son impôt",
+        ["Créé par la loi PACTE, le PER unifie les anciens dispositifs (PERP, Madelin, PERCO, article 83) : chaque versement est déductible du revenu imposable, générant une économie d’impôt immédiate.",
+         "L’épargne fructifie jusqu’à la retraite, puis se récupère en capital, en rente viagère ou en combinant les deux."],
+        rev=True, checklist=["Déduction des versements du revenu imposable","Cible idéale : TMI ≥ 30 % et horizon > 10 ans","Sortie libre en capital ou en rente"]))
+
+    body += section(sec_head("Synthèse","L’essentiel sur le PER", center=False) +
+        '<div class="grid grid-2" style="margin-top:24px;gap:8px 48px" data-reveal>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Plafonds de déduction 2026 : jusqu’à 37 680 € (salariés), 88 911 € (TNS)",
+            "Économie d’impôt proportionnelle à votre tranche marginale (TMI)",
+            "Bloqué jusqu’à la retraite, sauf 7 cas de déblocage anticipé",
+        ]) + '</ul>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Sortie au choix : capital, rente viagère ou panachage",
+            "Plafonds non utilisés reportables sur 3 ans, mutualisables entre conjoints",
+            "Complémentaire de l’assurance-vie — pas un concurrent",
+        ]) + '</ul></div>', cls="section band-cream")
+
+    body += blocks_section("Mécanisme","L’avantage fiscal à l’entrée",
+        [("text","Une économie d’impôt proportionnelle à la TMI",
+            ["Chaque euro versé (dans la limite des plafonds) se déduit du revenu imposable. À TMI 30 %, 1 000 € versés génèrent 300 € d’économie d’impôt ; à 41 %, 410 €.",
+             "Contrepartie : à la sortie, le capital déduit est imposé au barème de l’IR. L’avantage tient au différentiel de TMI, généralement plus faible à la retraite qu’en activité."]),
+         ("cards","Déduire ou non ses versements ?",[
+            ("scale","TMI actuelle > future","Déduire : l’économie immédiate l’emporte."),
+            ("compass","TMI actuelle < future","Ne pas déduire : capital exonéré d’IR à la sortie."),
+            ("coins","Plafonds reportables","Les plafonds non utilisés se cumulent sur 3 ans."),
+            ("concierge","Mutualisation","Optimisation des plafonds à l’échelle du foyer fiscal."),
+         ])])
+
+    body += blocks_section("Architecture","Les 3 compartiments du PER",
+        [("cards","Une origine de fonds par compartiment",[
+            ("coins","C1 · Versements volontaires","Épargne personnelle — sortie en capital ou en rente."),
+            ("treasury","C2 · Épargne salariale","Intéressement, participation, abondement — capital ou rente."),
+            ("retire","C3 · Versements obligatoires","Cotisations employeur — sortie en rente uniquement."),
+         ]),
+         ("text","Trois types de PER",
+            ["PER individuel (PERIN) : accessible à tous, sans condition de statut. PER collectif (PERECO) : proposé par l’employeur, alimenté par l’épargne salariale. PER obligatoire (PERO) : pour certaines catégories de salariés, à adhésion obligatoire."])],
+        cls="section band-cream")
+
+    body += section(sec_head("Comparatif","PER ou assurance-vie ?", "Deux logiques complémentaires, à articuler selon vos objectifs.", center=True) +
+        '<div class="table-wrap" style="margin-top:40px" data-reveal><table class="ptable">'
+        '<thead><tr><th>Critère</th><th>PER</th><th>Assurance-vie</th></tr></thead><tbody>'
+        + "".join('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % r for r in [
+            ("Avantage fiscal à l’entrée","Déduction du revenu imposable","Aucun"),
+            ("Disponibilité","Bloqué jusqu’à la retraite (sauf cas)","Libre, surtout après 8 ans"),
+            ("Fiscalité à la sortie","IR (capital) + PS sur les gains","PFU réduit après 8 ans (abattement)"),
+            ("Transmission","Abattement 152 500 € (décès avant 70 ans)","Abattement 152 500 € (primes avant 70 ans)"),
+            ("Objectif principal","Défiscalisation immédiate, retraite","Épargne disponible, transmission"),
+        ]) + '</tbody></table></div>'
+        '<p class="muted center" style="margin:16px auto 0;max-width:80ch" data-reveal>Pour un patrimoine important, les deux enveloppes se cumulent : le PER optimise la fiscalité courante, l’assurance-vie la disponibilité et la transmission.</p>')
+
+    body += blocks_section("Déblocage","À la retraite & par anticipation",
+        [("cards","La sortie à la retraite",[
+            ("coins","100 % en capital","Versement unique ou fractionné, pour lisser l’impact fiscal."),
+            ("retire","100 % en rente","Des revenus réguliers à vie, avec réversion possible."),
+            ("scale","Capital + rente","Financer un projet tout en sécurisant des revenus."),
+         ]),
+         ("checklist","Les 7 cas de déblocage anticipé",
+            ["Achat de la résidence principale (seul cas imposable)","Décès du conjoint ou partenaire de PACS","Invalidité (titulaire, conjoint ou enfant)","Surendettement","Fin de droits au chômage","Liquidation judiciaire (TNS)","Expiration des droits (mandataire social)"])],
+        )
+
+    body += blocks_section("Transmission","Le PER au décès",
+        [("text","Une fiscalité selon l’âge au décès",
+            ["Décès avant 70 ans : abattement de 152 500 € par bénéficiaire, puis 20 % à 31,25 %. Après 70 ans : abattement global de 30 500 €, puis droits de succession.",
+             "Le conjoint ou partenaire de PACS est totalement exonéré. La clause bénéficiaire mérite, comme en assurance-vie, une rédaction soignée et actualisée."]),
+         ("checklist","Les erreurs à éviter",
+            ["Ouvrir un PER avec une TMI faible (11 % ou non imposable)","Négliger son plafond de déduction disponible","Ignorer les frais (entrée, gestion, arbitrage)","Choisir la gestion libre sans maîtriser les marchés","Omettre de désigner un bénéficiaire","Sous-estimer la fiscalité de sortie"])],
+        cls="section band-cream")
+
+    body += section(faq_block("Questions fréquentes","Vos questions sur le PER", [
+        ("Quels sont les avantages fiscaux du PER ?",
+         "<p>La déduction des versements du revenu imposable : à TMI 30 %, 5 000 € versés économisent 1 500 € d’impôt. Les plafonds 2026 atteignent 37 680 € (salariés) et 88 911 € (TNS).</p>"),
+        ("Peut-on récupérer son argent avant la retraite ?",
+         "<p>Oui, dans 7 cas : achat de la résidence principale (seul cas imposable) et six accidents de la vie (décès du conjoint, invalidité, surendettement, fin de droits chômage, liquidation judiciaire TNS, expiration des droits mandataire social).</p>"),
+        ("PER ou assurance-vie ?",
+         "<p>Le PER offre une déduction à l’entrée mais bloque l’épargne ; l’assurance-vie n’offre pas d’avantage à l’entrée mais reste disponible. Les deux se complètent selon vos objectifs.</p>"),
+        ("Le PER est-il intéressant après 60 ans ?",
+         "<p>Oui dans certains cas : TMI élevée avec versement puis sortie rapide en capital, ou objectif de transmission (abattement de 152 500 € par bénéficiaire en cas de décès avant 70 ans).</p>"),
+        ("Faut-il déduire ses versements ?",
+         "<p>Si votre TMI actuelle est supérieure à celle anticipée à la retraite : oui. Si elle est plus faible aujourd’hui : il peut être préférable de ne pas déduire pour exonérer le capital à la sortie.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« Le PER ne remplace pas l’assurance-vie : il la complète, en transformant votre impôt en capacité d’épargne pour la retraite. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Les supports en unités de compte comportent un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
+    body += cta_band("Préparons votre retraite","Calibrons ensemble vos versements, l’arbitrage déduction / non-déduction et la répartition entre PER, assurance-vie et autres enveloppes.")
+    page("solutions-retraite.html","Solutions retraite — le PER",
+         "PER en 2026 : avantage fiscal à l’entrée, plafonds, 3 compartiments, comparatif PER / assurance-vie, déblocage, transmission et erreurs à éviter.", body)
+
+def build_capitalisation_page():
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Placements financiers","placements-financiers.html"),("Contrat de capitalisation",None)]
+    body = page_hero("Contrat de capitalisation",
+        "Pour les personnes physiques comme morales, le contrat de capitalisation prépare la transmission tout en offrant une capacité de rendement attractive.",
+        crumbs)
+
+    body += section(feature_row("assets/img/mansion.jpg","Contrat de capitalisation","En bref",
+        "Le cousin de l’assurance-vie, taillé pour la transmission",
+        ["Multisupport (fonds en euros, unités de compte, actions, obligations, SCPI…), il offre une fiscalité des rachats identique à celle de l’assurance-vie pour les personnes physiques.",
+         "Sa spécificité : il ne se dénoue pas au décès et peut être transmis du vivant — un atout majeur de structuration patrimoniale, y compris pour les sociétés et holdings."],
+        rev=True, checklist=["Transmissible par donation (pleine propriété ou démembrement)","Accessible aux personnes morales (sociétés, holdings)","Antériorité fiscale conservée par les héritiers"]))
+
+    body += blocks_section("Fonctionnement","Comment ça marche ?",
+        [("cards","Une enveloppe souple",[
+            ("shield","Fonds en euros","Capital garanti et rendement annuel fixé par l’assureur."),
+            ("chart","Unités de compte","Actions, obligations, OPCVM, SCPI pour dynamiser la performance."),
+            ("compass","Modes de gestion","Libre, profilée ou sous mandat, selon votre profil."),
+            ("coins","Épargne disponible","Rachats partiels ou totaux possibles à tout moment."),
+         ]),
+         ("text","Souscription",
+            ["Ouvert aux personnes physiques (sans limite d’âge) comme aux personnes morales. Versement initial puis versements complémentaires libres, sans plafond. Un délai de renonciation de 30 jours s’applique après l’acceptation."])])
+
+    body += blocks_section("Fiscalité","La fiscalité du contrat de capitalisation",
+        [("text","Au rachat : comme l’assurance-vie",
+            ["La fiscalité des gains au rachat est identique à celle de l’assurance-vie et dépend de l’ancienneté du contrat et de la date des versements. Après 8 ans, un abattement annuel s’applique (4 600 € pour une personne seule, 9 200 € pour un couple).",
+             "Les prélèvements sociaux de 17,2 % s’appliquent aux gains. L’option pour le barème de l’IR reste possible si elle est plus favorable."]),
+         ("checklist","Au décès & à la donation",
+            ["Au décès : le contrat intègre l’actif successoral (pas d’abattement de 152 500 €)","Mais l’antériorité fiscale est conservée par les héritiers","Donation du vivant possible (droits calculés sur la valeur nominale)","Donation en démembrement : transmettre la nue-propriété, conserver les revenus"]),
+         ("text","Pour les personnes morales",
+            ["Un rendement forfaitaire annuel (indexé sur le TME) est intégré au résultat afin de lisser l’imposition sur la durée de vie du contrat, avec régularisation au rachat."])],
+        cls="section band-cream")
+
+    body += blocks_section("Transmission","Un outil de transmission puissant",
+        [("text","La donation en démembrement",
+            ["Le donateur conserve l’usufruit (et les revenus) tandis que la nue-propriété est transmise aux héritiers, valorisée selon l’âge de l’usufruitier. Au décès, la pleine propriété se reconstitue sans droits supplémentaires, l’antériorité fiscale étant conservée.",
+             "Combiné aux abattements de droit commun (100 000 € par enfant et par parent, renouvelables tous les 15 ans), c’est un levier efficace de transmission — y compris après 70 ans."]),
+         ("checklist","Pourquoi le démembrement",
+            ["Acquisition de la nue-propriété avec décote liée à l’âge","Abattements de donation optimisés","Reconstitution de la pleine propriété sans fiscalité au décès","Conservation des revenus par l’usufruitier"])])
+
+    body += blocks_section("Atouts & limites","Avantages et points de vigilance",
+        [("checklist","Les atouts",
+            ["Épargne disponible et diversifiée (fonds €, UC, SCPI…)","Fiscalité des rachats avantageuse après 8 ans","Transmission par donation, du vivant","Accessible aux personnes morales (trésorerie, holdings)"]),
+         ("checklist","Les points de vigilance",
+            ["Pas de clause bénéficiaire ni d’abattement de 152 500 €","Au décès : droits de succession de droit commun","Frais d’entrée et de gestion à comparer","Risque de perte en capital sur les unités de compte"])],
+        cls="section band-cream")
+
+    body += section(faq_block("Questions fréquentes","Vos questions sur le contrat de capitalisation", [
+        ("Quelle différence avec l’assurance-vie ?",
+         "<p>Même fiscalité des rachats, mais le contrat de capitalisation ne se dénoue pas au décès : il peut être transmis du vivant (donation, démembrement) et détenu par une personne morale. En revanche, il ne bénéficie pas de l’abattement successoral de 152 500 €.</p>"),
+        ("Une société peut-elle en souscrire un ?",
+         "<p>Oui. C’est l’un de ses atouts : sociétés patrimoniales et holdings peuvent y loger leur trésorerie. Un rendement forfaitaire (indexé sur le TME) est alors intégré au résultat pour lisser l’imposition.</p>"),
+        ("Comment optimise-t-il la transmission ?",
+         "<p>Par donation du vivant, idéalement en démembrement : on transmet la nue-propriété (valorisée selon l’âge) en conservant l’usufruit. Au décès, la pleine propriété se reconstitue sans droits supplémentaires.</p>"),
+        ("Quelle fiscalité au rachat ?",
+         "<p>Identique à l’assurance-vie : selon l’ancienneté et la date des versements, avec abattement annuel après 8 ans (4 600 € / 9 200 €) et prélèvements sociaux de 17,2 %.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« Là où l’assurance-vie excelle dans la transmission au décès, le contrat de capitalisation organise la transmission du vivant — et s’ouvre aux personnes morales. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Les supports en unités de compte comportent un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
+    body += cta_band("Structurons votre transmission","Détention, donation ou démembrement, personne physique ou morale : étudions le rôle du contrat de capitalisation dans votre stratégie.")
+    page("contrat-capitalisation.html","Contrat de capitalisation",
+         "Contrat de capitalisation : fonctionnement, fiscalité des rachats (comme l’assurance-vie), transmission par donation et démembrement, détention par les personnes morales.", body)
+
 STRUCT_SOLUTIONS = [
     ("scale","Organisation & structures de détention","SCI, holding, société civile, démembrement : détenir intelligemment.","organisation-patrimoniale.html"),
     ("doc","Optimisation fiscale & flux","Structurer revenus, arbitrages et capitalisation pour le rendement net.","optimisation-fiscale-flux.html"),
@@ -2620,7 +2780,7 @@ def main():
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
-    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page(); build_comptes_titres_page(); build_pea_page()
+    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page(); build_comptes_titres_page(); build_pea_page(); build_per_page(); build_capitalisation_page()
     build_private_equity(); build_private_equity_pages()
     build_immobilier(); build_immobilier_pages(); build_scpi_page()
     build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
