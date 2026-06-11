@@ -2085,6 +2085,102 @@ def build_luxembourgeois_page():
     page("contrat-luxembourgeois.html","Contrats d’assurance-vie luxembourgeois",
          "Assurance-vie luxembourgeoise : triangle de sécurité, super-privilège, neutralité fiscale, FAS/FID/FIC, multi-devises, crédit Lombard et comparatif Luxembourg / France.", body)
 
+def build_comptes_titres_page():
+    crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
+              ("Placements financiers","placements-financiers.html"),("Comptes-titres",None)]
+    body = page_hero("Compte-titres (CTO)",
+        "L’enveloppe la plus souple et la plus accessible pour investir : un univers de gestion sans contrainte, sur tous les marchés et toutes les classes d’actifs.",
+        crumbs)
+
+    body += section(feature_row("assets/img/paris-colonnade.jpg","Compte-titres ordinaire","En bref",
+        "La liberté patrimoniale, sans contrainte",
+        ["Le compte-titres ordinaire (CTO) permet de détenir actions, obligations, OPCVM, ETF, produits structurés ou titres non cotés — en France comme à l’international.",
+         "Sa fiscalité n’offre pas d’avantage spécifique : il se conçoit en complément d’enveloppes comme l’assurance-vie, le PEA ou le contrat de capitalisation."],
+        rev=True, checklist=["Aucun plafond de versement","Accès à tous les marchés et classes d’actifs","Accessible aux particuliers comme aux personnes morales"]))
+
+    body += section(sec_head("Synthèse","L’essentiel à retenir", center=False) +
+        '<div class="grid grid-2" style="margin-top:24px;gap:8px 48px" data-reveal>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Souplesse totale : achat / vente à tout moment, sans durée minimale",
+            "Univers le plus large, y compris marchés étrangers et titres non cotés",
+            "Aucun plafond, plusieurs comptes possibles, transfert simple",
+        ]) + '</ul>'
+        '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
+            "Fiscalité au PFU par défaut, ou option pour le barème de l’IR",
+            "Imposition au moment de la cession / des revenus, pas au retrait",
+            "Ouvert aux personnes morales (sociétés, holdings, SCI)",
+        ]) + '</ul></div>', cls="section band-cream")
+
+    body += blocks_section("Caractéristiques","Une enveloppe universelle",
+        [("cards","Pourquoi le CTO",[
+            ("puzzle","Flexibilité totale","Tous les titres, cotés ou non, sans contrainte de gestion."),
+            ("globe","Sans frontières","Accès aux marchés français et internationaux."),
+            ("coins","Aucun plafond","Versements et nombre de comptes illimités."),
+            ("compass","Transfert simple","D’un établissement à l’autre, sans clôture forcée."),
+         ]),
+         ("text","Liquidité et retraits",
+            ["Les retraits s’effectuent par virement de la poche espèces vers votre compte bancaire, sans conséquence fiscale en soi : l’imposition ne se déclenche qu’à la vente de titres ou à l’encaissement de revenus."])])
+
+    body += blocks_section("Fiscalité","La fiscalité du compte-titres",
+        [("cards","Les règles pour un particulier",[
+            ("scale","PFU par défaut","Flat tax de 31,4 % (12,8 % d’IR + 18,6 % de prélèvements sociaux)."),
+            ("doc","Option barème IR","Avantageuse à TMI basse ; abattement de 40 % sur les dividendes."),
+            ("chart","Moins-values reportables","Imputables sur les plus-values pendant 10 ans."),
+            ("globe","Titres étrangers","Retenue à la source, neutralisée par un crédit d’impôt (conventions)."),
+         ]),
+         ("text","Abattement pour durée de détention",
+            ["Réservé aux titres acquis avant 2018 et à l’option pour le barème de l’IR, cet abattement progressif réduit la base imposable des plus-values selon la durée de détention. Depuis le PFU, il ne s’applique plus aux titres acquis après 2018."])],
+        cls="section band-cream")
+
+    body += section(sec_head("Comparatif","Compte-titres ou PEA ?",
+        "Deux enveloppes complémentaires : souplesse maximale d’un côté, avantage fiscal de long terme de l’autre.", center=True) +
+        '<div class="table-wrap" style="margin-top:40px" data-reveal><table class="ptable">'
+        '<thead><tr><th>Critère</th><th>Compte-titres (CTO)</th><th>PEA</th></tr></thead><tbody>'
+        + "".join('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % r for r in [
+            ("Univers d’investissement","Mondial, toutes classes d’actifs","Actions UE et fonds éligibles"),
+            ("Plafond de versement","Aucun","150 000 €"),
+            ("Fiscalité des gains","PFU 31,4 % ou barème IR","Exonération d’IR après 5 ans (PS 17,2 %)"),
+            ("Liquidité","Totale, sans incidence","Retrait avant 5 ans : clôture"),
+            ("Personnes morales","Oui","Non"),
+            ("Idéal pour","Diversification mondiale, non coté","Capitalisation actions UE de long terme"),
+        ]) + '</tbody></table></div>'
+        '<p class="muted center" style="margin:16px auto 0;max-width:80ch" data-reveal>Le CTO et le PEA sont souvent complémentaires : le PEA capitalise les actions européennes dans un cadre fiscal privilégié, le CTO ouvre le reste du monde et des classes d’actifs.</p>')
+
+    body += blocks_section("Atouts & limites","Avantages et points de vigilance",
+        [("checklist","Les atouts",
+            ["Univers d’investissement universel (coté et non coté)","Aucun plafond, souplesse de gestion totale","Retraits libres, sans incidence fiscale directe","Accessible aux personnes morales"]),
+         ("checklist","Les points de vigilance",
+            ["Aucun avantage fiscal propre (à la différence du PEA ou de l’assurance-vie)","Capital non garanti : risque de perte selon les choix d’investissement","Fiscalité des dividendes et plus-values dès leur réalisation"])])
+
+    body += blocks_section("Personnes morales","Le compte-titres des sociétés & holdings",
+        [("cards","Qui peut en ouvrir un",[
+            ("treasury","Sociétés","SA, SAS, SARL, EURL : placer la trésorerie plutôt que la laisser dormir."),
+            ("building","Holdings & SCI","Détenir et faire travailler des réserves financières."),
+            ("doc","Associations & fondations","Selon leur régime et leur activité."),
+         ]),
+         ("text","La fiscalité à l’IS",
+            ["Les gains (dividendes, intérêts, plus-values) sont imposés à l’impôt sur les sociétés — 15 % jusqu’à 42 500 € de bénéfices (sous conditions), 25 % au-delà. Pas d’abattement pour durée de détention, mais des provisions pour dépréciation possibles en cas de baisse de valeur."])],
+        cls="section band-cream")
+
+    body += section(faq_block("Questions fréquentes","Vos questions sur le compte-titres", [
+        ("Le compte-titres a-t-il un plafond ?",
+         "<p>Non. Contrairement au PEA (plafonné à 150 000 €), le compte-titres n’a aucun plafond de versement et vous pouvez en détenir plusieurs.</p>"),
+        ("Comment sont imposés les gains ?",
+         "<p>Par défaut au PFU (flat tax), avec une option possible pour le barème de l’IR — parfois plus favorable à TMI basse, grâce notamment à l’abattement de 40 % sur les dividendes. L’imposition n’intervient qu’à la cession des titres ou à l’encaissement des revenus.</p>"),
+        ("Une société peut-elle ouvrir un compte-titres ?",
+         "<p>Oui. Sociétés, holdings, SCI, associations : le compte-titres permet de placer la trésorerie. Les gains sont alors soumis à l’impôt sur les sociétés.</p>"),
+        ("CTO ou PEA ?",
+         "<p>Le PEA est plus avantageux fiscalement sur les actions européennes de long terme ; le CTO offre une diversification mondiale et l’accès au non coté. Les deux sont souvent complémentaires.</p>"),
+        ("Le transfert d’un compte-titres est-il possible ?",
+         "<p>Oui, d’un établissement à un autre, sans clôture ni perte d’antériorité — nous vous accompagnons dans la procédure.</p>"),
+    ]))
+
+    body += section('<div class="quote" data-reveal><p>« L’enveloppe la plus souple pour bâtir, diversifier et piloter un portefeuille sur-mesure — en complément des enveloppes fiscalement privilégiées. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Tout investissement comporte un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
+    body += cta_band("Construisons votre portefeuille","Allocation, sélection des supports et articulation avec vos autres enveloppes : définissons une stratégie cohérente et fiscalement optimisée.")
+    page("comptes-titres.html","Compte-titres (CTO)",
+         "Compte-titres ordinaire : fonctionnement, fiscalité (PFU ou barème IR), comparatif avec le PEA, détention par les personnes morales et accompagnement.", body)
+
 STRUCT_SOLUTIONS = [
     ("scale","Organisation & structures de détention","SCI, holding, société civile, démembrement : détenir intelligemment.","organisation-patrimoniale.html"),
     ("doc","Optimisation fiscale & flux","Structurer revenus, arbitrages et capitalisation pour le rendement net.","optimisation-fiscale-flux.html"),
@@ -2396,7 +2492,7 @@ def main():
     build_vos_besoins(); build_nos_solutions()
     build_epargner(); build_fiscalite(); build_ceder(); build_retraite(); build_expatriation()
     build_placements_financiers(); build_fin_pages(); build_tresorerie(); build_tresorerie_pages()
-    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page()
+    build_produits_structures_page(); build_structures_tresorerie_page(); build_luxembourgeois_page(); build_comptes_titres_page()
     build_private_equity(); build_private_equity_pages()
     build_immobilier(); build_immobilier_pages(); build_scpi_page()
     build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
