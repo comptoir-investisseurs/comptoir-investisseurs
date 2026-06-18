@@ -68,6 +68,9 @@ p{ margin:0 0 1.1em; }
   display:flex; align-items:center;
   background:rgba(251,248,241,0); border-bottom:1px solid transparent;
   transition:background .45s var(--ease), border-color .45s var(--ease), height .45s var(--ease);
+  /* Stabilise le bandeau fixe sur iOS/Safari (évite le tremblement au scroll) */
+  transform:translateZ(0); -webkit-backface-visibility:hidden; backface-visibility:hidden;
+  will-change:background;
 }
 .site-header .container{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
 .site-header::before{ /* legibility scrim while transparent (over bright sky) */
@@ -78,7 +81,8 @@ p{ margin:0 0 1.1em; }
 .site-header .container{ position:relative; z-index:1; }
 .site-header.is-solid::before{ opacity:0; }
 .site-header.is-solid{
-  background:rgba(251,248,241,.92); backdrop-filter:blur(10px);
+  background:rgba(251,248,241,.92);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line); height:74px;
 }
 /* On light sub-page heroes the header starts solid */
