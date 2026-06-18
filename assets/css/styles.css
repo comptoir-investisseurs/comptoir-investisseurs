@@ -478,10 +478,15 @@ body{ animation:pageIn .7s var(--ease) both; }
   :root{ --header-h:74px; }
   .nav-toggle{ display:flex; }
   .nav{
-    position:fixed; inset:var(--header-h) 0 0 0; flex-direction:column; align-items:stretch;
+    position:fixed; top:var(--header-h); left:0; right:0; bottom:0; width:100%;
+    min-height:calc(100vh - var(--header-h)); min-height:calc(100dvh - var(--header-h));
+    flex-direction:column; align-items:stretch;
     gap:0; background:var(--green); color:var(--cream); padding:18px var(--gutter) 60px;
     transform:translateX(100%); transition:transform .5s var(--ease); overflow-y:auto; z-index:999;
   }
+  /* Surcharge le display:contents en ligne du <ul> qui casse l'affichage des
+     entrées sur iOS Safari — force toutes les entrées à apparaître. */
+  .nav > ul{ display:block !important; width:100%; margin:0; padding:0; list-style:none; }
   .nav.is-open{ transform:translateX(0); }
   .site-header.is-solid .nav .nav__link, .site-header.is-light .nav .nav__link,
   .nav .nav__link{ color:var(--cream); padding:18px 0; font-size:1.1rem; width:100%; justify-content:space-between; }
