@@ -6,9 +6,64 @@ Run:  python3 build.py
 Outputs HTML pages at the repository root, sharing assets/ (css, js, img).
 A single layout guarantees a consistent header / footer / contact band.
 """
-import os, html
+import os, html, re
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Centralised feature-image distribution (everything except the homepage),
+# to maximise photo variety across pages. Order = order of images on the page.
+PAGE_IMAGES = {
+    # Vos besoins
+    "epargner-investir": ["echiquier.jpg", "place-vendome.jpg"],
+    "optimiser-fiscalite": ["plafond-baroque.jpg", "coupole-sculptee.jpg"],
+    "ceder-transmettre": ["yacht-mer.jpg", "voiture-prestige.jpg"],
+    "preparer-retraite": ["retraite.jpg", "plage-ocean.jpg"],
+    "expatriation": ["bateau-mer.jpg", "foret-aerien.jpg"],
+    # Nos solutions — hubs
+    "placements-financiers": ["place-vendome.jpg", "coupole-lafayette.jpg"],
+    "tresorerie-entreprise": ["toits-paris.jpg"],
+    "private-equity": ["foret-aerien.jpg"],
+    "placements-immobiliers": ["haussmann.jpg"],
+    "structuration-juridique": ["interieur-coupole.jpg"],
+    "family-office": ["opera-garnier.jpg"],
+    # Placements financiers — sous-pages
+    "assurance-vie": ["plage-ocean.jpg"],
+    "contrat-capitalisation": ["detail-raffinement.jpg"],
+    "contrat-luxembourgeois": ["coupole-lafayette.jpg"],
+    "solutions-retraite": ["yacht-mer.jpg"],
+    "comptes-titres": ["toits-paris.jpg"],
+    "pea": ["place-vendome.jpg"],
+    "pea-pme": ["echiquier.jpg"],
+    "mandats-gestion": ["coupole-sculptee.jpg"],
+    "produits-structures": ["plafond-baroque.jpg"],
+    # Trésorerie — sous-pages
+    "treso-audit": ["interieur-coupole.jpg"],
+    "comptes-a-terme": ["paris-colonnade.jpg"],
+    "capitalisation-personne-morale": ["detail-raffinement.jpg"],
+    "luxembourgeois-tresorerie": ["coupole-lafayette.jpg"],
+    "obligataire-taux": ["paris-courtyard.jpg"],
+    "structures-tresorerie": ["plafond-baroque.jpg"],
+    "mandats-tresorerie": ["echiquier.jpg"],
+    "holdings-reserves": ["opera-garnier.jpg"],
+    # Private Equity — sous-pages
+    "fonds-private-equity": ["foret-aerien.jpg"],
+    "club-deals-coinvestissement": ["voiture-prestige.jpg"],
+    "dette-privee-actifs-reels": ["bateau-mer.jpg"],
+    # Immobilier — sous-pages
+    "scpi-immobilier-gere": ["haussmann.jpg"],
+    "club-deals-immobiliers": ["paris-colonnade.jpg"],
+    "immobilier-direct": ["toits-paris.jpg"],
+    # Structuration — sous-pages
+    "organisation-patrimoniale": ["coupole-sculptee.jpg"],
+    "optimisation-fiscale-flux": ["interieur-coupole.jpg"],
+    "transmission-gouvernance": ["retraite.jpg"],
+    "structuration-dirigeant": ["serenite.jpg"],
+    # Family Office — sous-pages
+    "pilotage-patrimonial-global": ["opera-garnier.jpg"],
+    "ingenierie-patrimoniale": ["paris-courtyard.jpg"],
+    "allocation-architecture-ouverte": ["mansion.jpg"],
+    "gouvernance-familiale": ["retraite.jpg"],
+}
 
 BRAND = "La Financière de Rochechouart"
 EMAIL = "contact@lfdr.fr"
@@ -206,6 +261,16 @@ __FOOTER__
 """
 
 def page(slug, title, desc, body, home=False):
+    # Centralised photo distribution: swap feature images per page for variety.
+    imgs = PAGE_IMAGES.get(slug[:-5] if slug.endswith(".html") else slug)
+    if imgs:
+        seq = iter(imgs)
+        def _swap(m):
+            try:
+                return m.group(1) + "assets/img/" + next(seq) + m.group(2)
+            except StopIteration:
+                return m.group(0)
+        body = re.sub(r'(media-frame"><img src=")assets/img/[^"]+(")', _swap, body)
     out = (LAYOUT
            .replace("__TITLE__", html.escape(title))
            .replace("__DESC__", html.escape(desc))
