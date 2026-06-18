@@ -43,6 +43,15 @@
         items.forEach(function (o) { if (o !== item) { o.classList.remove('is-open'); var b = o.querySelector('.nav__link'); if (b) b.setAttribute('aria-expanded', 'false'); } });
       }
     });
+    // Close dropdown when clicking a link inside it (mobile)
+    var links = item.querySelectorAll('.dropdown a');
+    links.forEach(function (link) {
+      link.addEventListener('click', function () {
+        item.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        if (nav && nav.classList.contains('is-open') && toggle) toggle.click();
+      });
+    });
   });
   document.addEventListener('click', function (e) {
     if (!e.target.closest('.nav__item')) {
