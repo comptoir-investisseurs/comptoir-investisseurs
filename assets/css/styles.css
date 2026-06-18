@@ -480,7 +480,7 @@ body{ animation:pageIn .7s var(--ease) both; }
   }
   .nav.is-open{ transform:translateX(0); }
   .site-header.is-solid .nav .nav__link, .site-header.is-light .nav .nav__link,
-  .nav .nav__link{ color:var(--cream); padding:18px 0; font-size:1.1rem; width:100%; justify-content:space-between; }
+  .nav .nav__link{ display:flex; color:var(--cream); padding:18px 0; font-size:1.1rem; width:100%; justify-content:space-between; }
   .nav__item{ border-bottom:1px solid rgba(246,242,233,.12); }
   .nav__link::after{ display:none; }
   .dropdown{
