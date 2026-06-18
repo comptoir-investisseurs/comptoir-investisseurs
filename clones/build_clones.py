@@ -44,6 +44,22 @@ IC = {
     "handshake":'<path d="M3 12l4-4 4 2 3-2 4 3-4 5-3-3-3 2-2-1z"/>',
 }
 
+def _hx(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+def rgba_pct(h, pct):
+    """Equivalent to CSS color-mix(in srgb, h pct%, transparent)."""
+    r, g, b = _hx(h)
+    return f"rgba({r},{g},{b},{pct/100:.3f})"
+
+def mix_solid(h1, pct, h2):
+    """Equivalent to CSS color-mix(in srgb, h1 pct%, h2) for two opaque colors."""
+    r1, g1, b1 = _hx(h1); r2, g2, b2 = _hx(h2)
+    t = pct / 100
+    r = round(r1*t + r2*(1-t)); g = round(g1*t + g2*(1-t)); b = round(b1*t + b2*(1-t))
+    return f"rgb({r},{g},{b})"
+
 def icon(name, cls="ico", extra=""):
     return (f'<svg class="{cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
             f'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" '
@@ -286,6 +302,27 @@ def css(t):
     c = t["c"]
     serif, sans = t["serif"], t["sans"]
     dark_hero = t.get("dark_hero", False)
+    # Precomputed equivalents of CSS color-mix() — kept static for maximum
+    # rendering compatibility (older WebKit engines don't support color-mix).
+    m_paper_92    = rgba_pct(c["paper"], 92)
+    m_ink_14      = rgba_pct(c["ink"], 14)
+    m_base2_70_0  = mix_solid(c["base2"], 70, "#000000")
+    m_accent_45   = rgba_pct(c["accent"], 45)
+    m_accent2_50  = rgba_pct(c["accent2"], 50)
+    m_base_60     = rgba_pct(c["base"], 60)
+    m_accent2_30  = rgba_pct(c["accent2"], 30)
+    m_cream_88    = rgba_pct(c["cream"], 88)
+    m_accent2_36  = rgba_pct(c["accent2"], 36)
+    m_base_45     = rgba_pct(c["base"], 45)
+    m_accent2_40  = rgba_pct(c["accent2"], 40)
+    m_ink_12      = rgba_pct(c["ink"], 12)
+    m_base_14     = rgba_pct(c["base"], 14)
+    m_cream_70    = rgba_pct(c["cream"], 70)
+    m_cream_80    = rgba_pct(c["cream"], 80)
+    m_base_88_0   = mix_solid(c["base"], 88, "#000000")
+    m_cream_74    = rgba_pct(c["cream"], 74)
+    m_cream_14    = rgba_pct(c["cream"], 14)
+    m_cream_48    = rgba_pct(c["cream"], 48)
     return f"""
 :root{{
   --base:{c['base']}; --base2:{c['base2']}; --accent:{c['accent']}; --accent2:{c['accent2']};
@@ -318,7 +355,7 @@ p{{margin:0 0 1.1em}}
   transition:background .45s var(--ease),height .45s var(--ease),border-color .45s var(--ease);border-bottom:1px solid transparent}}
 .site-header::before{{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,0));transition:opacity .45s}}
 .site-header .container{{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:24px}}
-.site-header.is-solid{{background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);border-bottom-color:color-mix(in srgb,var(--ink) 14%,transparent);height:72px}}
+.site-header.is-solid{{background:{m_paper_92};backdrop-filter:blur(10px);border-bottom-color:{m_ink_14};height:72px}}
 .site-header.is-solid::before{{opacity:0}}
 .brand{{display:flex;align-items:center;gap:12px;color:#fff}}
 .site-header.is-solid .brand{{color:var(--base)}}
@@ -349,23 +386,23 @@ p{{margin:0 0 1.1em}}
 
 /* Hero */
 .hero{{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
-  background:linear-gradient(135deg,var(--base) 0%,var(--base2) 60%,color-mix(in srgb,var(--base2) 70%,#000) 100%);color:var(--cream)}}
+  background:linear-gradient(135deg,var(--base) 0%,var(--base2) 60%,{m_base2_70_0} 100%);color:var(--cream)}}
 .hero__scene{{position:absolute;inset:0;z-index:0;overflow:hidden}}
 .hero__scene svg{{position:absolute}}
 .hero__emblem{{position:absolute;right:-4%;top:50%;transform:translateY(-50%);width:min(58vh,640px);height:min(58vh,640px);
   color:var(--accent);opacity:.14}}
 .hero__glow{{position:absolute;width:70vh;height:70vh;border-radius:50%;
-  background:radial-gradient(circle,color-mix(in srgb,var(--accent) 45%,transparent),transparent 65%);filter:blur(20px);opacity:.5}}
+  background:radial-gradient(circle,{m_accent_45},transparent 65%);filter:blur(20px);opacity:.5}}
 .guides{{position:absolute;inset:0;z-index:1;pointer-events:none}}
 .guides span{{position:absolute}}
-.guides .v{{top:0;bottom:0;border-left:1px dashed color-mix(in srgb,var(--accent2) 50%,transparent)}}
-.guides .h{{left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--accent2) 50%,transparent)}}
+.guides .v{{top:0;bottom:0;border-left:1px dashed {m_accent2_50}}}
+.guides .h{{left:0;right:0;border-top:1px dashed {m_accent2_50}}}
 .hero .container{{position:relative;z-index:2;width:100%}}
-.hero__panel{{width:min(560px,100%);background:color-mix(in srgb,var(--base) 60%,transparent);backdrop-filter:blur(7px);
-  border:1px solid color-mix(in srgb,var(--accent2) 30%,transparent);padding:clamp(28px,3.4vw,46px);border-radius:4px}}
+.hero__panel{{width:min(560px,100%);background:{m_base_60};backdrop-filter:blur(7px);
+  border:1px solid {m_accent2_30};padding:clamp(28px,3.4vw,46px);border-radius:4px}}
 .hero__panel h1{{color:#fff;font-size:clamp(2rem,3.7vw,3.2rem);font-weight:600}}
 .hero__panel .rule{{background:var(--accent2);margin:16px 0}}
-.hero__panel p{{color:color-mix(in srgb,var(--cream) 88%,transparent);font-weight:300;font-size:1rem}}
+.hero__panel p{{color:{m_cream_88};font-weight:300;font-size:1rem}}
 .hero__actions{{display:flex;flex-wrap:wrap;gap:14px;margin-top:26px}}
 .hero--right .container{{display:flex;justify-content:flex-end}}
 .hero--center{{text-align:center}}
@@ -375,10 +412,10 @@ p{{margin:0 0 1.1em}}
 .hero--center h1{{font-size:clamp(2.3rem,5vw,4rem)}}
 .hero--split .container{{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(36px,6vw,80px);align-items:center}}
 .hero--split .hero__panel{{background:transparent;border:0;backdrop-filter:none;padding:0;width:auto}}
-.hero__card{{position:relative;aspect-ratio:4/5;border:1px solid color-mix(in srgb,var(--accent2) 36%,transparent);border-radius:6px;
-  background:color-mix(in srgb,var(--base) 45%,transparent);display:grid;place-items:center;overflow:hidden}}
+.hero__card{{position:relative;aspect-ratio:4/5;border:1px solid {m_accent2_36};border-radius:6px;
+  background:{m_base_45};display:grid;place-items:center;overflow:hidden}}
 .hero__card svg.emblem{{width:54%;height:54%;color:var(--accent2);opacity:.85}}
-.hero__card::after{{content:"";position:absolute;inset:14px;border:1px dashed color-mix(in srgb,var(--accent2) 40%,transparent);border-radius:4px}}
+.hero__card::after{{content:"";position:absolute;inset:14px;border:1px dashed {m_accent2_40};border-radius:4px}}
 .scroll-cue{{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;
   align-items:center;gap:9px;color:rgba(255,255,255,.8);font-size:.66rem;letter-spacing:.25em;text-transform:uppercase}}
 .scroll-cue .mouse{{width:23px;height:37px;border:1px solid rgba(255,255,255,.6);border-radius:13px;position:relative}}
@@ -394,10 +431,10 @@ p{{margin:0 0 1.1em}}
 .media-frame svg{{width:42%;height:42%;color:var(--accent2);opacity:.9}}
 .media-frame::after{{content:"";position:absolute;inset:14px -14px -14px 14px;border:1px solid var(--accent);z-index:-1;border-radius:4px}}
 .grid{{display:grid;gap:26px}} .grid-3{{grid-template-columns:repeat(3,1fr)}}
-.tile{{display:flex;flex-direction:column;gap:14px;padding:32px;background:#fff;border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);
+.tile{{display:flex;flex-direction:column;gap:14px;padding:32px;background:#fff;border:1px solid {m_ink_12};
   border-radius:4px;transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .5s;height:100%;position:relative;overflow:hidden}}
 .tile::after{{content:"";position:absolute;left:0;top:0;height:3px;width:0;background:var(--accent);transition:width .5s var(--ease)}}
-.tile:hover{{transform:translateY(-6px);box-shadow:0 24px 50px color-mix(in srgb,var(--base) 14%,transparent);border-color:transparent}}
+.tile:hover{{transform:translateY(-6px);box-shadow:0 24px 50px {m_base_14};border-color:transparent}}
 .tile:hover::after{{width:100%}}
 .tile .ico{{width:44px;height:44px;color:var(--accent)}}
 .tile h3{{font-size:1.4rem}} .tile p{{font-size:.95rem;color:var(--muted);margin:0;flex:1}}
@@ -406,26 +443,26 @@ p{{margin:0 0 1.1em}}
 .band-cream{{background:var(--cream)}} .band-sand{{background:var(--sand)}}
 .stats{{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}}
 .stat__num{{font-family:var(--serif);font-size:clamp(2rem,3.6vw,3rem);color:#fff;line-height:1}}
-.stat__lbl{{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--cream) 70%,transparent);margin-top:10px}}
+.stat__lbl{{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:{m_cream_70};margin-top:10px}}
 .quote{{max-width:880px;margin-inline:auto;text-align:center}}
 .quote p{{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.4;font-style:italic;color:var(--base)}}
 .quote cite{{display:block;margin-top:18px;font-family:var(--sans);font-style:normal;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}}
 .cta-band{{position:relative;background:linear-gradient(135deg,var(--base),var(--base2));color:var(--cream);overflow:hidden}}
 .cta-band .container{{position:relative;z-index:1;display:grid;grid-template-columns:1.3fr auto;gap:40px;align-items:center}}
 .cta-band h2{{color:#fff;font-size:clamp(1.8rem,3.4vw,2.8rem)}}
-.cta-band p{{color:color-mix(in srgb,var(--cream) 80%,transparent);margin:0;max-width:54ch}}
+.cta-band p{{color:{m_cream_80};margin:0;max-width:54ch}}
 .cta-band__actions{{display:flex;gap:14px;flex-wrap:wrap}}
 
 /* Footer */
-.site-footer{{background:color-mix(in srgb,var(--base) 88%,#000);color:color-mix(in srgb,var(--cream) 74%,transparent);padding-top:70px}}
+.site-footer{{background:{m_base_88_0};color:{m_cream_74};padding-top:70px}}
 .footer-grid{{display:grid;grid-template-columns:1.6fr 1fr 1.2fr;gap:40px;padding-bottom:50px}}
 .site-footer .brand{{color:#fff;margin-bottom:18px}}
 .site-footer h5{{font-family:var(--sans);font-weight:500;font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin:0 0 18px}}
 .footer-links{{list-style:none;margin:0;padding:0;display:grid;gap:11px}}
 .footer-links a{{font-size:.94rem;transition:color .3s,padding-left .3s}} .footer-links a:hover{{color:#fff;padding-left:5px}}
 .footer-contact p{{font-size:.94rem;margin:0 0 9px}} .footer-contact a{{color:#fff}}
-.footer-bottom{{border-top:1px solid color-mix(in srgb,var(--cream) 14%,transparent);padding:22px 0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.8rem}}
-.disclaimer{{font-size:.76rem;color:color-mix(in srgb,var(--cream) 48%,transparent);padding-bottom:26px;line-height:1.6}}
+.footer-bottom{{border-top:1px solid {m_cream_14};padding:22px 0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.8rem}}
+.disclaimer{{font-size:.76rem;color:{m_cream_48};padding-bottom:26px;line-height:1.6}}
 
 /* Reveal */
 [data-reveal]{{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}}
@@ -600,8 +637,29 @@ def page(t):
   var h=document.querySelector('.site-header');
   function s(){{h.classList.toggle('is-solid',window.scrollY>40);}}
   s();window.addEventListener('scroll',s,{{passive:true}});
-  var io=new IntersectionObserver(function(es){{es.forEach(function(e){{if(e.isIntersecting){{e.target.classList.add('is-in');io.unobserve(e.target);}}}});}},{{threshold:.12}});
-  document.querySelectorAll('[data-reveal]').forEach(function(el){{io.observe(el);}});
+  var els=document.querySelectorAll('[data-reveal]');
+  function revealAll(){{for(var i=0;i<els.length;i++){{els[i].className+=' is-in';}}}}
+  try {{
+    if('IntersectionObserver' in window){{
+      var io=new IntersectionObserver(function(es){{
+        for(var i=0;i<es.length;i++){{
+          if(es[i].isIntersecting){{es[i].target.className+=' is-in';io.unobserve(es[i].target);}}
+        }}
+      }},{{threshold:.12}});
+      for(var i=0;i<els.length;i++){{io.observe(els[i]);}}
+    }} else {{
+      revealAll();
+    }}
+  }} catch(e) {{ revealAll(); }}
+  /* Safety net: guarantee visibility even if the observer never fires
+     (static renderers, snapshot tools, edge-case browsers). Skips the
+     transition for stragglers only, so normal scroll-triggered reveals
+     (already done well before this fires) are unaffected. */
+  setTimeout(function(){{
+    for(var i=0;i<els.length;i++){{
+      if(els[i].className.indexOf('is-in')===-1){{ els[i].style.transition='none'; els[i].className+=' is-in'; }}
+    }}
+  }}, 1200);
 }})();
 </script>
 </body>
