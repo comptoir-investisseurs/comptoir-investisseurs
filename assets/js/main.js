@@ -21,6 +21,7 @@
     toggle.addEventListener('click', function () {
       var open = nav.classList.toggle('is-open');
       toggle.classList.toggle('is-open', open);
+      if (header) header.classList.toggle('menu-open', open);
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       document.body.style.overflow = open ? 'hidden' : '';
     });
@@ -149,9 +150,9 @@
         message.value.trim()
       ].filter(Boolean);
       var body = encodeURIComponent(bodyLines.join('\n'));
-      window.location.href = 'mailto:contact@lfdr.fr?subject=' + subject + '&body=' + body;
+      window.location.href = 'mailto:contact@lfd-rochechouart.com?subject=' + subject + '&body=' + body;
       status.classList.add('is-ok');
-      status.textContent = 'Merci. Votre messagerie va s’ouvrir pour finaliser l’envoi. Vous pouvez aussi nous écrire directement à contact@lfdr.fr.';
+      status.textContent = 'Merci. Votre messagerie va s’ouvrir pour finaliser l’envoi. Vous pouvez aussi nous écrire directement à contact@lfd-rochechouart.com.';
       form.reset();
     });
   }

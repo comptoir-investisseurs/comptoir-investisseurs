@@ -505,3 +505,47 @@ body{ animation:pageIn .7s var(--ease) both; }
   .brand__text b,.brand__text span{ font-size:1.02rem; }
   .hero__actions .btn{ width:100%; justify-content:center; }
 }
+
+/* =========================================================================
+   Mobile polish
+   ========================================================================= */
+/* Header bar matches the panel while the mobile menu is open */
+.site-header.menu-open{ background:var(--green); border-bottom-color:transparent; }
+.site-header.menu-open::before{ opacity:0; }
+.site-header.menu-open .brand__logo--dark{ display:none; }
+.site-header.menu-open .brand__logo--light{ display:block; }
+.site-header.menu-open .nav-toggle span{ background:#fff; }
+
+/* Tables: scroll hint + tighter cells on small screens */
+@media (max-width:760px){
+  .table-wrap{ position:relative; }
+  .table-wrap::after{ content:""; position:absolute; top:0; right:0; bottom:0; width:36px;
+    background:linear-gradient(90deg,rgba(255,255,255,0),#fff); pointer-events:none; }
+  .ptable{ min-width:560px; font-size:.9rem; }
+  .ptable th,.ptable td{ padding:12px 13px; }
+}
+
+@media (max-width:560px){
+  /* Calmer rhythm, less endless scrolling */
+  .section{ padding-block:56px; }
+  .section--tight{ padding-block:42px; }
+  /* Hero: let the photo breathe, tighten the panel */
+  .hero{ min-height:90svh; }
+  .hero__panel{ width:100%; padding:24px 22px; background:rgba(0,27,0,.66); }
+  .hero__panel .eyebrow{ letter-spacing:.16em; font-size:.66rem; }
+  .hero__panel h1{ font-size:1.95rem; }
+  .hero__panel p{ font-size:.95rem; }
+  .hero__actions{ margin-top:20px; gap:12px; }
+  /* Headings a touch tighter */
+  .title-lg{ font-size:1.9rem; }
+  .page-hero h1{ font-size:2.1rem; }
+  /* Tag pills easier to tap */
+  .tags{ gap:10px; }
+  .tag{ padding:9px 16px; }
+  /* Feature image: a bit shorter so text follows quickly */
+  .feature-row__media img, .split__media img{ aspect-ratio:4/3; }
+  /* Decorative gold frame off on phones (cleaner, no edge clutter) */
+  .media-frame::after{ inset:8px; opacity:.5; }
+  /* Contact info: comfortable spacing */
+  .info-list li{ gap:14px; }
+}

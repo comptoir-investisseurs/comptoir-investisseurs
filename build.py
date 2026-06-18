@@ -66,7 +66,7 @@ PAGE_IMAGES = {
 }
 
 BRAND = "La Financière de Rochechouart"
-EMAIL = "contact@lfdr.fr"
+EMAIL = "contact@lfd-rochechouart.com"
 ADDRESS = "58 rue de Monceau, 75008 Paris"
 
 # Swap these for your own assets, then re-run `python3 build.py`.
@@ -3015,7 +3015,7 @@ def build_contact():
         '</div>')
     osm = ('https://www.openstreetmap.org/export/embed.html?bbox=2.3019%%2C48.8737%%2C2.3219%%2C48.8837&amp;layer=mapnik&amp;marker=%s%%2C%s' % (lat, lon))
     body += section('<div class="map" data-reveal><iframe title="Plan — 58 rue de Monceau, 75008 Paris" loading="lazy" src="%s"></iframe></div>' % osm, cls="section--tight")
-    page("contact.html","Nous contacter","Contactez La Financière de Rochechouart — 58 rue de Monceau, 75008 Paris — contact@lfdr.fr.", body)
+    page("contact.html","Nous contacter","Contactez La Financière de Rochechouart — 58 rue de Monceau, 75008 Paris — contact@lfd-rochechouart.com.", body)
 
 def build_mentions():
     body = page_hero("Mentions légales",
