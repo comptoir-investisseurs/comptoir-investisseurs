@@ -1,0 +1,11 @@
+{
+  "name": "la-financiere-rochechouart",
+  "version": "1.0.0",
+  "description": "Site vitrine statique pour La Financière de Rochechouart",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "python3 build.py",
+    "dev": "python3 -m http.server 8000"
+  }
+}
