@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maison Sillon — Patrimoine du monde agricole &amp; viticole</title>
+<meta name="description" content="Patrimoine du monde agricole &amp; viticole. Exploitants agricoles, viticulteurs et familles du foncier rural : structurer, valoriser et transmettre une exploitation, c’est préparer plusieurs générations à la fois.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Karla:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --base:#2E3A24; --base2:#3B4A2F; --accent:#A8552E; --accent2:#C97A4E;
+  --cream:#F4F0E4; --sand:#E7DDC6; --ink:#23271C; --muted:#5E6452; --paper:#FAF7EE;
+  --serif:'Source Serif 4', Georgia, serif; --sans:'Karla', system-ui, sans-serif;
+  --maxw:1240px; --gutter:clamp(20px,5vw,64px); --header-h:84px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);
+  line-height:1.7;font-size:17px;font-weight:300;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;line-height:1.12;margin:0;letter-spacing:.005em}
+p{margin:0 0 1.1em}
+.container{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gutter)}
+.section{padding-block:clamp(64px,9vw,124px)}
+.section--tight{padding-block:clamp(48px,6vw,80px)}
+.eyebrow{font-family:var(--sans);font-size:.74rem;font-weight:500;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 18px}
+.eyebrow--light{color:var(--accent2)}
+.lede{font-size:clamp(1.05rem,1.6vw,1.26rem);color:var(--muted);font-weight:300}
+.rule{width:64px;height:2px;background:var(--accent);border:0;margin:22px 0}
+.center{text-align:center} .center .rule{margin-inline:auto}
+.title-lg{font-size:clamp(2rem,4.4vw,3.2rem)}
+
+/* Header */
+.site-header{position:fixed;inset:0 0 auto 0;z-index:1000;height:var(--header-h);display:flex;align-items:center;
+  transition:background .45s var(--ease),height .45s var(--ease),border-color .45s var(--ease);border-bottom:1px solid transparent}
+.site-header::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,0));transition:opacity .45s}
+.site-header .container{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.site-header.is-solid{background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);border-bottom-color:color-mix(in srgb,var(--ink) 14%,transparent);height:72px}
+.site-header.is-solid::before{opacity:0}
+.brand{display:flex;align-items:center;gap:12px;color:#fff}
+.site-header.is-solid .brand{color:var(--base)}
+.brand__mark{width:40px;height:40px;flex:none;border:1px solid currentColor;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--serif);font-size:1.2rem;font-weight:600}
+.brand__name{display:flex;flex-direction:column;line-height:1.05}
+.brand__name b{font-family:var(--serif);font-weight:600;font-size:1.16rem;letter-spacing:.02em}
+.brand__name span{font-family:var(--sans);font-weight:400;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;opacity:.8;margin-top:3px}
+.nav{display:flex;align-items:center;gap:clamp(16px,2.4vw,38px)}
+.nav a.nav__link{font-size:.92rem;font-weight:400;letter-spacing:.02em;color:#fff;position:relative;padding:8px 0}
+.site-header.is-solid .nav a.nav__link{color:var(--base)}
+.nav a.nav__link::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:currentColor;
+  transform:scaleX(0);transform-origin:right;transition:transform .4s var(--ease);opacity:.8}
+.nav a.nav__link:hover::after{transform:scaleX(1);transform-origin:left}
+.btn{position:relative;display:inline-flex;align-items:center;gap:11px;padding:15px 30px;font-family:var(--sans);
+  font-size:.78rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--base);
+  border:1px solid var(--base);background:transparent;cursor:pointer;overflow:hidden;border-radius:2px;isolation:isolate;
+  transition:color .45s var(--ease),border-color .45s}
+.btn::before{content:"";position:absolute;inset:0;background:var(--base);z-index:-1;transform:translateY(101%);transition:transform .5s var(--ease)}
+.btn:hover{color:#fff} .btn:hover::before{transform:translateY(0)}
+.btn svg{transition:transform .45s var(--ease)} .btn:hover svg{transform:translateX(5px)}
+.btn--accent{color:var(--accent);border-color:var(--accent)} .btn--accent::before{background:var(--accent)} .btn--accent:hover{color:#fff}
+.btn--light{color:#fff;border-color:rgba(255,255,255,.6)} .btn--light::before{background:var(--cream)} .btn--light:hover{color:var(--base)}
+.btn--ghost{color:#fff;border-color:rgba(255,255,255,.45)} .btn--ghost::before{background:#fff} .btn--ghost:hover{color:var(--base)}
+.site-header.is-solid .btn--ghost{color:var(--base);border-color:var(--base)} .site-header.is-solid .btn--ghost::before{background:var(--base)} .site-header.is-solid .btn--ghost:hover{color:#fff}
+.link-arrow{display:inline-flex;align-items:center;gap:9px;font-size:.82rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.link-arrow svg{transition:transform .4s var(--ease)} .link-arrow:hover svg,.tile:hover .link-arrow svg{transform:translateX(6px)}
+
+/* Hero */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
+  background:linear-gradient(135deg,var(--base) 0%,var(--base2) 60%,color-mix(in srgb,var(--base2) 70%,#000) 100%);color:var(--cream)}
+.hero__scene{position:absolute;inset:0;z-index:0;overflow:hidden}
+.hero__scene svg{position:absolute}
+.hero__emblem{position:absolute;right:-4%;top:50%;transform:translateY(-50%);width:min(58vh,640px);height:min(58vh,640px);
+  color:var(--accent);opacity:.14}
+.hero__glow{position:absolute;width:70vh;height:70vh;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--accent) 45%,transparent),transparent 65%);filter:blur(20px);opacity:.5}
+.guides{position:absolute;inset:0;z-index:1;pointer-events:none}
+.guides span{position:absolute}
+.guides .v{top:0;bottom:0;border-left:1px dashed color-mix(in srgb,var(--accent2) 50%,transparent)}
+.guides .h{left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--accent2) 50%,transparent)}
+.hero .container{position:relative;z-index:2;width:100%}
+.hero__panel{width:min(560px,100%);background:color-mix(in srgb,var(--base) 60%,transparent);backdrop-filter:blur(7px);
+  border:1px solid color-mix(in srgb,var(--accent2) 30%,transparent);padding:clamp(28px,3.4vw,46px);border-radius:4px}
+.hero__panel h1{color:#fff;font-size:clamp(2rem,3.7vw,3.2rem);font-weight:600}
+.hero__panel .rule{background:var(--accent2);margin:16px 0}
+.hero__panel p{color:color-mix(in srgb,var(--cream) 88%,transparent);font-weight:300;font-size:1rem}
+.hero__actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:26px}
+.hero--right .container{display:flex;justify-content:flex-end}
+.hero--center{text-align:center}
+.hero--center .hero__panel{width:min(760px,100%);margin-inline:auto;background:transparent;border:0;backdrop-filter:none;padding:0}
+.hero--center .rule{margin-inline:auto}
+.hero--center .hero__actions{justify-content:center}
+.hero--center h1{font-size:clamp(2.3rem,5vw,4rem)}
+.hero--split .container{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(36px,6vw,80px);align-items:center}
+.hero--split .hero__panel{background:transparent;border:0;backdrop-filter:none;padding:0;width:auto}
+.hero__card{position:relative;aspect-ratio:4/5;border:1px solid color-mix(in srgb,var(--accent2) 36%,transparent);border-radius:6px;
+  background:color-mix(in srgb,var(--base) 45%,transparent);display:grid;place-items:center;overflow:hidden}
+.hero__card svg.emblem{width:54%;height:54%;color:var(--accent2);opacity:.85}
+.hero__card::after{content:"";position:absolute;inset:14px;border:1px dashed color-mix(in srgb,var(--accent2) 40%,transparent);border-radius:4px}
+.scroll-cue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;
+  align-items:center;gap:9px;color:rgba(255,255,255,.8);font-size:.66rem;letter-spacing:.25em;text-transform:uppercase}
+.scroll-cue .mouse{width:23px;height:37px;border:1px solid rgba(255,255,255,.6);border-radius:13px;position:relative}
+.scroll-cue .mouse::after{content:"";position:absolute;left:50%;top:7px;width:3px;height:7px;background:#fff;border-radius:2px;
+  transform:translateX(-50%);animation:dot 1.8s var(--ease) infinite}
+@keyframes dot{0%{opacity:0;transform:translate(-50%,0)}30%,70%{opacity:1}100%{opacity:0;transform:translate(-50%,12px)}}
+
+/* Content blocks */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,6vw,90px);align-items:center}
+.split__media{position:relative}
+.media-frame{position:relative;aspect-ratio:4/3;border-radius:4px;overflow:hidden;
+  background:linear-gradient(150deg,var(--base),var(--base2));display:grid;place-items:center}
+.media-frame svg{width:42%;height:42%;color:var(--accent2);opacity:.9}
+.media-frame::after{content:"";position:absolute;inset:14px -14px -14px 14px;border:1px solid var(--accent);z-index:-1;border-radius:4px}
+.grid{display:grid;gap:26px} .grid-3{grid-template-columns:repeat(3,1fr)}
+.tile{display:flex;flex-direction:column;gap:14px;padding:32px;background:#fff;border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);
+  border-radius:4px;transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .5s;height:100%;position:relative;overflow:hidden}
+.tile::after{content:"";position:absolute;left:0;top:0;height:3px;width:0;background:var(--accent);transition:width .5s var(--ease)}
+.tile:hover{transform:translateY(-6px);box-shadow:0 24px 50px color-mix(in srgb,var(--base) 14%,transparent);border-color:transparent}
+.tile:hover::after{width:100%}
+.tile .ico{width:44px;height:44px;color:var(--accent)}
+.tile h3{font-size:1.4rem} .tile p{font-size:.95rem;color:var(--muted);margin:0;flex:1}
+.band-dark{background:linear-gradient(135deg,var(--base),var(--base2));color:var(--cream)}
+.band-dark h2{color:#fff}
+.band-cream{background:var(--cream)} .band-sand{background:var(--sand)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+.stat__num{font-family:var(--serif);font-size:clamp(2rem,3.6vw,3rem);color:#fff;line-height:1}
+.stat__lbl{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--cream) 70%,transparent);margin-top:10px}
+.quote{max-width:880px;margin-inline:auto;text-align:center}
+.quote p{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.4;font-style:italic;color:var(--base)}
+.quote cite{display:block;margin-top:18px;font-family:var(--sans);font-style:normal;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.cta-band{position:relative;background:linear-gradient(135deg,var(--base),var(--base2));color:var(--cream);overflow:hidden}
+.cta-band .container{position:relative;z-index:1;display:grid;grid-template-columns:1.3fr auto;gap:40px;align-items:center}
+.cta-band h2{color:#fff;font-size:clamp(1.8rem,3.4vw,2.8rem)}
+.cta-band p{color:color-mix(in srgb,var(--cream) 80%,transparent);margin:0;max-width:54ch}
+.cta-band__actions{display:flex;gap:14px;flex-wrap:wrap}
+
+/* Footer */
+.site-footer{background:color-mix(in srgb,var(--base) 88%,#000);color:color-mix(in srgb,var(--cream) 74%,transparent);padding-top:70px}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1.2fr;gap:40px;padding-bottom:50px}
+.site-footer .brand{color:#fff;margin-bottom:18px}
+.site-footer h5{font-family:var(--sans);font-weight:500;font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin:0 0 18px}
+.footer-links{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.footer-links a{font-size:.94rem;transition:color .3s,padding-left .3s} .footer-links a:hover{color:#fff;padding-left:5px}
+.footer-contact p{font-size:.94rem;margin:0 0 9px} .footer-contact a{color:#fff}
+.footer-bottom{border-top:1px solid color-mix(in srgb,var(--cream) 14%,transparent);padding:22px 0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.8rem}
+.disclaimer{font-size:.76rem;color:color-mix(in srgb,var(--cream) 48%,transparent);padding-bottom:26px;line-height:1.6}
+
+/* Reveal */
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+[data-reveal].is-in{opacity:1;transform:none}
+[data-reveal][data-delay="1"]{transition-delay:.1s} [data-reveal][data-delay="2"]{transition-delay:.2s} [data-reveal][data-delay="3"]{transition-delay:.3s}
+@media (prefers-reduced-motion:reduce){[data-reveal]{opacity:1!important;transform:none!important}}
+
+/* Responsive */
+@media (max-width:900px){
+  .nav{display:none}
+  .hero--split .container,.split,.cta-band .container{grid-template-columns:1fr}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:repeat(2,1fr);gap:34px 20px}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .hero--split .hero__card{display:none}
+}
+@media (max-width:560px){
+  .grid-3{grid-template-columns:1fr}
+  .hero__panel{width:100%}
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="#" aria-label="Maison Sillon — accueil">
+      <span class="brand__mark">S</span>
+      <span class="brand__name"><b>Maison Sillon</b><span>Patrimoine du monde agricole & viticole</span></span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale"><a class="nav__link" href="#">Accueil</a><a class="nav__link" href="#approche">Notre approche</a><a class="nav__link" href="#solutions">Nos solutions</a><a class="nav__link" href="#contact">Nous contacter</a><a class="btn btn--ghost" href="#contact">Prendre rendez-vous</a></nav>
+  </div>
+</header>
+<main>
+  <section class="hero hero--left">
+    <div class="hero__scene">
+      <span class="hero__glow" style="right:-8%;top:-10%"></span>
+      <span class="hero__glow" style="left:-12%;bottom:-14%;opacity:.3"></span>
+      <svg class="hero__emblem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V8M12 8c0-3 2-5 4-6 0 3-2 5-4 6zm0 0c0-3-2-5-4-6 0 3 2 5 4 6zM12 13c0-2 2-3 4-4 0 2-2 3-4 4zm0 0c0-2-2-3-4-4 0 2 2 3 4 4z"/></svg>
+    </div>
+    <div class="guides"><span class="v" style="left:13%"></span><span class="v" style="right:13%"></span><span class="h" style="top:20%"></span></div>
+    <div class="container"><div class="hero__panel" data-reveal>
+      <p class="eyebrow eyebrow--light">Patrimoine du monde agricole & viticole</p>
+      <h1>La terre se transmet. Le patrimoine se cultive.</h1>
+      <hr class="rule">
+      <p>Exploitants agricoles, viticulteurs et familles du foncier rural : structurer, valoriser et transmettre une exploitation, c’est préparer plusieurs générations à la fois.</p>
+      <div class="hero__actions">
+        <a class="btn btn--light" href="#solutions">Découvrir nos solutions <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn--ghost" href="#contact">Prendre rendez-vous</a>
+      </div>
+    </div></div>
+    <a class="scroll-cue" href="#approche" aria-label="Faire défiler"><span class="mouse"></span><span>Défiler</span></a>
+  </section>
+
+  <section class="section" id="approche">
+    <div class="container split">
+      <div data-reveal>
+        <p class="eyebrow">La maison</p>
+        <h2 class="title-lg">Enracinés dans le réel, tournés vers la durée</h2>
+        <hr class="rule">
+        <p class="lede">La patience de la terre, la précision du conseil.</p>
+        <p>Transmission d’exploitation, GFA et foncier, fiscalité agricole (DPI, DEP), diversification du patrimoine hors sol : nous accompagnons celles et ceux qui nourrissent le pays avec une stratégie qui respecte le temps long de votre métier.</p>
+        <a class="link-arrow" href="#solutions">Découvrir notre accompagnement <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M12 21V8M12 8c0-3 2-5 4-6 0 3-2 5-4 6zm0 0c0-3-2-5-4-6 0 3 2 5 4 6zM12 13c0-2 2-3 4-4 0 2-2 3-4 4zm0 0c0-2-2-3-4-4 0 2 2 3 4 4z"/></svg></div></div>
+    </div>
+  </section>
+
+  <section class="section band-cream" id="solutions">
+    <div class="container">
+      <div class="center" style="max-width:720px;margin-inline:auto" data-reveal>
+        <p class="eyebrow">Nos solutions</p>
+        <h2 class="title-lg">Une expertise patrimoniale complète, dédiée à votre métier</h2>
+        <hr class="rule">
+        <p class="lede">Chaque solution est pensée pour les réalités concrètes de votre profession — fiscalité, revenus, retraite et transmission.</p>
+      </div>
+      <div class="grid grid-3" style="margin-top:54px"><a class="tile" href="#contact" data-reveal data-delay="1"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M12 21v-6M12 15c-3 0-5-2-5-5a5 5 0 0110 0c0 3-2 5-5 5z"/></svg><h3>Transmission d’exploitation</h3><p>Préparer la reprise familiale ou la cession dans de bonnes conditions.</p><span class="link-arrow">En savoir plus <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a><a class="tile" href="#contact" data-reveal data-delay="2"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9 12h7M9 16h7"/></svg><h3>Fiscalité agricole</h3><p>Optimiser DPI, DEP et revenus exceptionnels de récolte.</p><span class="link-arrow">En savoir plus <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a><a class="tile" href="#contact" data-reveal data-delay="3"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><circle cx="8" cy="8" r="4"/><path d="M11 11l9 9M16 16l2-2M18 18l2-2"/></svg><h3>Foncier & GFA</h3><p>Structurer la détention du foncier et sécuriser le portage.</p><span class="link-arrow">En savoir plus <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a><a class="tile" href="#contact" data-reveal data-delay="1"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M3 17l6-6 4 4 8-8M21 7v6m0-6h-6"/></svg><h3>Diversification</h3><p>Constituer un patrimoine financier hors aléas climatiques.</p><span class="link-arrow">En savoir plus <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a><a class="tile" href="#contact" data-reveal data-delay="2"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M4 21v-6a8 8 0 0116 0v6"/><circle cx="12" cy="6" r="3"/></svg><h3>Retraite agricole</h3><p>Compenser une pension MSA souvent insuffisante.</p><span class="link-arrow">En savoir plus <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a><a class="tile" href="#contact" data-reveal data-delay="3"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M12 3l7 3v6c0 4-3 6.5-7 8-4-1.5-7-4-7-8V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg><h3>Aléas & prévoyance</h3><p>Protéger l’exploitation et la famille face aux imprévus.</p><span class="link-arrow">En savoir plus <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
+      <div class="center" style="margin-top:46px" data-reveal><a class="btn btn--accent" href="#contact">Échanger avec un conseiller <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </div>
+  </section>
+  <section class="section band-dark"><div class="container"><div class="stats"><div data-reveal data-delay="0"><div class="stat__num">GFA</div><div class="stat__lbl">Foncier structuré</div></div><div data-reveal data-delay="1"><div class="stat__num">MSA</div><div class="stat__lbl">Retraite anticipée</div></div><div data-reveal data-delay="2"><div class="stat__num">Long terme</div><div class="stat__lbl">Le temps de la terre</div></div><div data-reveal data-delay="3"><div class="stat__num">Familial</div><div class="stat__lbl">De génération en génération</div></div></div></div></section>
+
+  <section class="section">
+    <div class="container">
+      <div class="quote" data-reveal>
+        <p>« On ne récolte bien que ce que l’on a patiemment semé — y compris son patrimoine. »</p>
+        <cite>Maison Sillon</cite>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band section--tight" id="contact"><div class="container">
+    <div data-reveal>
+      <p class="eyebrow eyebrow--light">Un échange confidentiel</p>
+      <h2>Échangeons sur votre situation</h2>
+      <p>Nos conseillers, spécialistes de votre profession, vous reçoivent en toute confidentialité pour étudier vos objectifs patrimoniaux.</p>
+    </div>
+    <div class="cta-band__actions" data-reveal data-delay="1">
+      <a class="btn btn--light" href="mailto:contact@maisonsillon.fr">Nous contacter <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn btn--ghost" href="mailto:contact@maisonsillon.fr">contact@maisonsillon.fr</a>
+    </div>
+  </div></section>
+</main>
+<footer class="site-footer"><div class="container">
+  <div class="footer-grid">
+    <div>
+      <a class="brand" href="#"><span class="brand__mark">S</span><span class="brand__name"><b>Maison Sillon</b><span>Patrimoine du monde agricole & viticole</span></span></a>
+      <p style="max-width:36ch;font-size:.94rem;margin-top:14px">Patrimoine du monde agricole & viticole. Une gestion patrimoniale sur-mesure, alignée avec les réalités de votre profession.</p>
+    </div>
+    <div><h5>Nos solutions</h5><ul class="footer-links"><li><a href="#solutions">Transmission d’exploitation</a></li><li><a href="#solutions">Fiscalité agricole</a></li><li><a href="#solutions">Foncier & GFA</a></li><li><a href="#solutions">Diversification</a></li></ul></div>
+    <div class="footer-contact"><h5>Nous contacter</h5><p>58 avenue des Champs-Élysées, 75008 Paris</p><p><a href="mailto:contact@maisonsillon.fr">contact@maisonsillon.fr</a></p>
+      <p style="margin-top:14px"><a class="link-arrow" href="#contact">Prendre rendez-vous <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p></div>
+  </div>
+  <p class="disclaimer">Maquette de démonstration. Les informations présentées ont une vocation strictement illustrative et ne constituent ni un conseil en investissement, ni une offre. Tout investissement comporte des risques, notamment de perte en capital. La fiscalité dépend de la situation individuelle de chaque client.</p>
+  <div class="footer-bottom"><span>© 2026 Maison Sillon — Tous droits réservés.</span><span>Mentions légales · Contact</span></div>
+</div></footer>
+<script>
+(function(){
+  var h=document.querySelector('.site-header');
+  function s(){h.classList.toggle('is-solid',window.scrollY>40);}
+  s();window.addEventListener('scroll',s,{passive:true});
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}});},{threshold:.12});
+  document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el);});
+})();
+</script>
+</body>
+</html>
