@@ -2980,32 +2980,31 @@ def build_contact():
          icon("mail","tile__ico"), EMAIL, EMAIL,
          icon("clock","tile__ico"),
          lat, lon, lat, lon, arrow()))
-    form = (
-      '<form id="contact-form" class="form" novalidate>'
-        '<div class="row">'
-          '<div class="field"><label for="f-name">Nom &amp; prénom</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>'
-          '<div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>'
-        '</div>'
-        '<div class="row">'
-          '<div class="field"><label for="f-phone">Téléphone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>'
-          '<div class="field"><label for="f-subject">Objet</label>'
-            '<select id="f-subject" name="subject">'
-              '<option>Gestion privée &amp; placements</option>'
-              '<option>Assurance-vie luxembourgeoise</option>'
-              '<option>Produits structurés sur-mesure</option>'
-              '<option>Trésorerie d’entreprise</option>'
-              '<option>Cession / transmission d’entreprise</option>'
-              '<option>Family Office</option>'
-              '<option>Autre demande</option>'
-            '</select></div>'
-        '</div>'
-        '<div class="field"><label for="f-message">Votre message</label><textarea id="f-message" name="message" required></textarea></div>'
-        '<div class="form__status" role="status" aria-live="polite"></div>'
-        '<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">'
-          '<button class="btn btn--solid" type="submit">Envoyer ma demande %s</button>'
-          '<span class="form__note">Vos informations restent strictement confidentielles.</span>'
-        '</div>'
-      '</form>' % arrow())
+    form = ("""<form id="contact-form" class="form" action="https://formsubmit.co/%s" method="POST" novalidate>
+<div class="row">
+<div class="field"><label for="f-name">Nom &amp; prénom</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>
+<div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+</div>
+<div class="row">
+<div class="field"><label for="f-phone">Téléphone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
+<div class="field"><label for="f-subject">Objet</label>
+<select id="f-subject" name="subject">
+<option>Gestion privée &amp; placements</option>
+<option>Assurance-vie luxembourgeoise</option>
+<option>Produits structurés sur-mesure</option>
+<option>Trésorerie d’entreprise</option>
+<option>Cession / transmission d’entreprise</option>
+<option>Family Office</option>
+<option>Autre demande</option>
+</select></div>
+</div>
+<div class="field"><label for="f-message">Votre message</label><textarea id="f-message" name="message" required></textarea></div>
+<div class="form__status" role="status" aria-live="polite"></div>
+<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+<button class="btn btn--solid" type="submit">Envoyer ma demande %s</button>
+<span class="form__note">Vos informations restent strictement confidentielles.</span>
+</div>
+</form>""" % (EMAIL, arrow()))
     body += section(
         '<div class="contact-grid">'
           '<div data-reveal><p class="eyebrow">Prendre contact</p><h2 class="title-lg">Parlons de votre projet</h2><hr class="rule">'

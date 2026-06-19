@@ -133,36 +133,26 @@
   var y = document.getElementById('year');
   if (y) y.textContent = new Date().getFullYear();
 
-  /* ---------- Contact form (client-side, no backend) ---------- */
-  var form = document.getElementById('contact-form');
+  /* ---------- Contact form (FormSubmit backend) ---------- */
+  var form = document.getElementById(‘contact-form’);
   if (form) {
-    var status = form.querySelector('.form__status');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var name = form.querySelector('[name=name]');
-      var email = form.querySelector('[name=email]');
-      var message = form.querySelector('[name=message]');
-      status.className = 'form__status';
-      var emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((email.value || '').trim());
+    var status = form.querySelector(‘.form__status’);
+    form.addEventListener(‘submit’, function (e) {
+      // Validation basique avant envoi à FormSubmit
+      var name = form.querySelector(‘[name=name]’);
+      var email = form.querySelector(‘[name=email]’);
+      var message = form.querySelector(‘[name=message]’);
+      status.className = ‘form__status’;
+      var emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((email.value || ‘’).trim());
       if (!name.value.trim() || !emailOk || !message.value.trim()) {
-        status.classList.add('is-err');
-        status.textContent = 'Merci de renseigner votre nom, un email valide et votre message.';
+        e.preventDefault();
+        status.classList.add(‘is-err’);
+        status.textContent = ‘Merci de renseigner votre nom, un email valide et votre message.’;
         return;
       }
-      var subject = encodeURIComponent('Demande de contact — ' + name.value.trim());
-      var bodyLines = [
-        'Nom : ' + name.value.trim(),
-        'Email : ' + email.value.trim(),
-        (form.querySelector('[name=phone]') ? 'Téléphone : ' + form.querySelector('[name=phone]').value.trim() : ''),
-        (form.querySelector('[name=subject]') ? 'Objet : ' + form.querySelector('[name=subject]').value : ''),
-        '',
-        message.value.trim()
-      ].filter(Boolean);
-      var body = encodeURIComponent(bodyLines.join('\n'));
-      window.location.href = 'mailto:contact@lfd-rochechouart.com?subject=' + subject + '&body=' + body;
-      status.classList.add('is-ok');
-      status.textContent = 'Merci. Votre messagerie va s’ouvrir pour finaliser l’envoi. Vous pouvez aussi nous écrire directement à contact@lfd-rochechouart.com.';
-      form.reset();
+      // FormSubmit va traiter l’envoi et rediriger
+      status.classList.add(‘is-ok’);
+      status.textContent = ‘Envoi en cours... Vous serez redirigé dans quelques secondes.’;
     });
   }
 })();
