@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="400" height="400">
+  <defs>
+    <radialGradient id="halo1" cx="0.5" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#F6E6B8" stop-opacity="0.6"/>
+      <stop offset="0.7" stop-color="#EBD49A" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#EBD49A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="200" height="200" fill="#001B00"/>
+  <circle cx="100" cy="90" r="70" fill="url(#halo1)"/>
+  <text x="100" y="108" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="62" font-weight="600" letter-spacing="-2" fill="#F6F2E9">LFDR</text>
+  <line x1="55" y1="120" x2="145" y2="120" stroke="#A9853F" stroke-width="1.5"/>
+  <text x="100" y="148" text-anchor="middle" font-family="Jost, Helvetica, sans-serif" font-size="8" font-weight="400" letter-spacing="6" fill="#A9853F" text-transform="uppercase">LA FINANCIERE</text>
+  <text x="100" y="162" text-anchor="middle" font-family="Jost, Helvetica, sans-serif" font-size="8" font-weight="400" letter-spacing="6" fill="#A9853F">DE ROCHECHOUART</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" width="500" height="180">
+  <rect width="500" height="180" fill="#001B00"/>
+  <!-- Decorative gold line top -->
+  <line x1="150" y1="30" x2="350" y2="30" stroke="#A9853F" stroke-width="0.8"/>
+  <!-- Small diamond ornament -->
+  <polygon points="250,24 254,30 250,36 246,30" fill="#A9853F"/>
+  <text x="250" y="72" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="36" font-weight="500" letter-spacing="3" fill="#F6F2E9">La Financiere</text>
+  <text x="250" y="115" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="36" font-weight="500" letter-spacing="3" fill="#F6F2E9">de Rochechouart</text>
+  <!-- Decorative gold line bottom -->
+  <line x1="150" y1="140" x2="350" y2="140" stroke="#A9853F" stroke-width="0.8"/>
+  <polygon points="250,134 254,140 250,146 246,140" fill="#A9853F"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="500" height="200">
+  <rect width="500" height="200" fill="#001B00"/>
+  <!-- Centered arch/arc ornament -->
+  <path d="M150,85 Q250,40 350,85" fill="none" stroke="#A9853F" stroke-width="1"/>
+  <!-- Main text -->
+  <text x="250" y="120" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="44" font-weight="600" letter-spacing="2" fill="#F6F2E9">ROCHECHOUART</text>
+  <!-- Subtitle -->
+  <line x1="150" y1="135" x2="350" y2="135" stroke="#A9853F" stroke-width="0.8"/>
+  <text x="250" y="160" text-anchor="middle" font-family="Jost, Helvetica, sans-serif" font-size="10" font-weight="300" letter-spacing="8" fill="#C9A86A">LA FINANCIERE</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" width="500" height="120">
+  <rect width="500" height="120" fill="#F6F2E9"/>
+  <!-- LFDR large letters -->
+  <text x="20" y="78" font-family="Cormorant Garamond, Georgia, serif" font-size="72" font-weight="700" letter-spacing="8" fill="#001B00">LFDR</text>
+  <!-- Vertical gold separator -->
+  <line x1="255" y1="20" x2="255" y2="100" stroke="#A9853F" stroke-width="1.5"/>
+  <!-- Full name on right -->
+  <text x="275" y="50" font-family="Cormorant Garamond, Georgia, serif" font-size="18" font-weight="500" letter-spacing="1.5" fill="#001B00">La Financiere</text>
+  <text x="275" y="76" font-family="Cormorant Garamond, Georgia, serif" font-size="18" font-weight="500" letter-spacing="1.5" fill="#001B00">de Rochechouart</text>
+  <!-- Small gold underline -->
+  <line x1="275" y1="88" x2="430" y2="88" stroke="#A9853F" stroke-width="1"/>
+</svg>
