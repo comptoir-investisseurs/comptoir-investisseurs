@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 60" width="560" height="120">
+  <rect width="280" height="60" fill="#001B00"/>
+  <text x="35" y="42" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="36" font-weight="600" letter-spacing="3" fill="#F6F2E9">FR</text>
+  <line x1="75" y1="14" x2="75" y2="46" stroke="#A9853F" stroke-width="1"/>
+  <text x="175" y="30" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="13" font-weight="500" letter-spacing="1" fill="#F6F2E9">La Financiere</text>
+  <text x="175" y="47" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="13" font-weight="500" letter-spacing="1" fill="#F6F2E9">de Rochechouart</text>
+</svg>

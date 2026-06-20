@@ -1,13 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 250" width="400" height="500">
-  <rect width="200" height="250" fill="#001B00"/>
-  <!-- Stacked letters vertically -->
-  <text x="100" y="62" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="48" font-weight="300" letter-spacing="18" fill="#F6F2E9">LF</text>
-  <line x1="50" y1="75" x2="150" y2="75" stroke="#A9853F" stroke-width="0.8"/>
-  <text x="100" y="120" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="48" font-weight="300" letter-spacing="18" fill="#F6F2E9">DR</text>
-  <!-- Full name below -->
-  <line x1="40" y1="155" x2="160" y2="155" stroke="#A9853F" stroke-width="0.5"/>
-  <text x="100" y="178" text-anchor="middle" font-family="Jost, Helvetica, sans-serif" font-size="7" font-weight="400" letter-spacing="5" fill="#C9A86A">LA FINANCIERE</text>
-  <text x="100" y="196" text-anchor="middle" font-family="Jost, Helvetica, sans-serif" font-size="7" font-weight="400" letter-spacing="5" fill="#C9A86A">DE ROCHECHOUART</text>
-  <!-- Bottom line -->
-  <line x1="40" y1="215" x2="160" y2="215" stroke="#A9853F" stroke-width="0.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60" width="600" height="120">
+  <rect width="300" height="60" fill="#001B00"/>
+  <text x="55" y="42" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="34" font-weight="600" letter-spacing="4" fill="#F6F2E9">LFDR</text>
+  <line x1="105" y1="14" x2="105" y2="46" stroke="#A9853F" stroke-width="1"/>
+  <text x="200" y="30" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="13" font-weight="500" letter-spacing="1" fill="#F6F2E9">La Financiere</text>
+  <text x="200" y="47" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="13" font-weight="500" letter-spacing="1" fill="#F6F2E9">de Rochechouart</text>
 </svg>
