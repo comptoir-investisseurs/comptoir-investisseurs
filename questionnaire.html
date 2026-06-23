@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Questionnaire client — La Financière de Rochechouart</title>
+<meta name="description" content="Complétez votre fiche de connaissance client pour La Financière de Rochechouart.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/monogram.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/questionnaire.css">
+</head>
+<body>
+
+<!-- Minimal branded header -->
+<header class="site-header is-solid" style="position:relative"><div class="container" style="justify-content:center"><a class="brand brand--img" href="index.html" aria-label="La Financière de Rochechouart — accueil"><img class="brand__logo brand__logo--dark" src="assets/img/logo.png" alt="La Financière de Rochechouart"></a></div></header>
+
+<main>
+
+<!-- Hero + Progress -->
+<section class="q-hero">
+  <div class="container">
+    <h1>Votre fiche de connaissance client</h1>
+    <p>Nous avons besoin de mieux vous connaître afin de vous proposer les solutions les plus adaptées à votre situation et vos objectifs.</p>
+    <div class="progress">
+      <div class="progress__line"><div class="progress__fill"></div></div>
+      <div class="progress__step is-active"><div class="progress__dot"><span>1</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Identité</div></div>
+      <div class="progress__step"><div class="progress__dot"><span>2</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Famille</div></div>
+      <div class="progress__step"><div class="progress__dot"><span>3</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Profession</div></div>
+      <div class="progress__step"><div class="progress__dot"><span>4</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Patrimoine</div></div>
+      <div class="progress__step"><div class="progress__dot"><span>5</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Objectifs</div></div>
+      <div class="progress__step"><div class="progress__dot"><span>6</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Expérience</div></div>
+      <div class="progress__step"><div class="progress__dot"><span>7</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Risque</div></div>
+      <div class="progress__step"><div class="progress__dot"><span>8</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Validation</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Form body -->
+<section class="q-body">
+<div class="q-container">
+<form id="questionnaire" novalidate>
+
+<!-- ========== STEP 1 : Identité & Coordonnées ========== -->
+<div class="q-step is-visible">
+  <h2 class="q-step__title">Identité & coordonnées</h2>
+  <p class="q-step__subtitle">Informations de base pour l'ouverture de votre dossier.</p>
+
+  <div class="q-field">
+    <label>Civilité <span class="req">*</span></label>
+    <div class="q-options q-options--grid" data-required-group="civilite">
+      <label class="q-option"><input type="radio" name="civilite" value="Monsieur" required><span>Monsieur</span></label>
+      <label class="q-option"><input type="radio" name="civilite" value="Madame"><span>Madame</span></label>
+    </div>
+  </div>
+
+  <div class="q-row">
+    <div class="q-field"><label for="nom">Nom <span class="req">*</span></label><input type="text" id="nom" name="nom" autocomplete="family-name" required></div>
+    <div class="q-field"><label for="prenom">Prénom <span class="req">*</span></label><input type="text" id="prenom" name="prenom" autocomplete="given-name" required></div>
+  </div>
+
+  <div class="q-row">
+    <div class="q-field"><label for="date_naissance">Date de naissance <span class="req">*</span></label><input type="date" id="date_naissance" name="date_naissance" required></div>
+    <div class="q-field"><label for="lieu_naissance">Lieu de naissance</label><input type="text" id="lieu_naissance" name="lieu_naissance"></div>
+  </div>
+
+  <div class="q-row">
+    <div class="q-field"><label for="nationalite">Nationalité <span class="req">*</span></label><input type="text" id="nationalite" name="nationalite" value="Française" required></div>
+    <div class="q-field"><label for="pays_residence">Pays de résidence fiscale <span class="req">*</span></label><input type="text" id="pays_residence" name="pays_residence" value="France" required></div>
+  </div>
+
+  <hr class="q-divider">
+
+  <div class="q-field"><label for="adresse">Adresse postale <span class="req">*</span></label><input type="text" id="adresse" name="adresse" autocomplete="street-address" required></div>
+
+  <div class="q-row">
+    <div class="q-field"><label for="code_postal">Code postal <span class="req">*</span></label><input type="text" id="code_postal" name="code_postal" autocomplete="postal-code" required></div>
+    <div class="q-field"><label for="ville">Ville <span class="req">*</span></label><input type="text" id="ville" name="ville" autocomplete="address-level2" required></div>
+  </div>
+
+  <div class="q-row">
+    <div class="q-field"><label for="email">Email <span class="req">*</span></label><input type="email" id="email" name="email" autocomplete="email" required></div>
+    <div class="q-field"><label for="telephone">Téléphone <span class="req">*</span></label><input type="tel" id="telephone" name="telephone" autocomplete="tel" required></div>
+  </div>
+
+  <div class="q-nav">
+    <div></div>
+    <button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<!-- ========== STEP 2 : Situation familiale ========== -->
+<div class="q-step">
+  <h2 class="q-step__title">Situation familiale</h2>
+  <p class="q-step__subtitle">Ces informations sont essentielles pour adapter les préconisations civiles et fiscales.</p>
+
+  <div class="q-field">
+    <label>Situation matrimoniale <span class="req">*</span></label>
+    <div class="q-options" data-required-group="situation_matrimoniale">
+      <label class="q-option"><input type="radio" name="situation_matrimoniale" value="Célibataire"><span>Célibataire</span></label>
+      <label class="q-option"><input type="radio" name="situation_matrimoniale" value="Marié(e)"><span>Marié(e)</span></label>
+      <label class="q-option"><input type="radio" name="situation_matrimoniale" value="Pacsé(e)"><span>Pacsé(e)</span></label>
+      <label class="q-option"><input type="radio" name="situation_matrimoniale" value="Divorcé(e)"><span>Divorcé(e)</span></label>
+      <label class="q-option"><input type="radio" name="situation_matrimoniale" value="Veuf/Veuve"><span>Veuf / Veuve</span></label>
+      <label class="q-option"><input type="radio" name="situation_matrimoniale" value="Union libre"><span>Union libre</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Régime matrimonial (si marié(e))</label>
+    <div class="q-options">
+      <label class="q-option"><input type="radio" name="regime_matrimonial" value="Communauté réduite aux acquêts"><span>Communauté réduite aux acquêts (défaut)</span></label>
+      <label class="q-option"><input type="radio" name="regime_matrimonial" value="Séparation de biens"><span>Séparation de biens</span></label>
+      <label class="q-option"><input type="radio" name="regime_matrimonial" value="Communauté universelle"><span>Communauté universelle</span></label>
+      <label class="q-option"><input type="radio" name="regime_matrimonial" value="Participation aux acquêts"><span>Participation aux acquêts</span></label>
+      <label class="q-option"><input type="radio" name="regime_matrimonial" value="Autre"><span>Autre</span></label>
+    </div>
+  </div>
+
+  <div class="q-row">
+    <div class="q-field"><label for="nb_enfants">Nombre d'enfants</label><input type="number" id="nb_enfants" name="nb_enfants" min="0" value="0"></div>
+    <div class="q-field"><label for="ages_enfants">Âge(s) des enfants</label><input type="text" id="ages_enfants" name="ages_enfants" placeholder="ex : 12, 8, 3"></div>
+  </div>
+
+  <div class="q-field">
+    <label for="personnes_a_charge">Autres personnes à charge (nombre et lien)</label>
+    <input type="text" id="personnes_a_charge" name="personnes_a_charge" placeholder="ex : 1 parent, 1 frère en situation de handicap">
+  </div>
+
+  <div class="q-field">
+    <label>Avez-vous rédigé un testament ou effectué des donations ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="radio" name="testament_donation" value="Oui"><span>Oui</span></label>
+      <label class="q-option"><input type="radio" name="testament_donation" value="Non"><span>Non</span></label>
+    </div>
+  </div>
+
+  <div class="q-nav">
+    <button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button>
+    <button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<!-- ========== STEP 3 : Situation professionnelle ========== -->
+<div class="q-step">
+  <h2 class="q-step__title">Situation professionnelle</h2>
+  <p class="q-step__subtitle">Votre activité et vos revenus nous aident à calibrer nos recommandations.</p>
+
+  <div class="q-field">
+    <label>Catégorie socioprofessionnelle <span class="req">*</span></label>
+    <div class="q-options" data-required-group="csp">
+      <label class="q-option"><input type="radio" name="csp" value="Dirigeant / Chef d'entreprise"><span>Dirigeant / Chef d'entreprise</span></label>
+      <label class="q-option"><input type="radio" name="csp" value="Profession libérale"><span>Profession libérale</span></label>
+      <label class="q-option"><input type="radio" name="csp" value="Cadre supérieur"><span>Cadre supérieur</span></label>
+      <label class="q-option"><input type="radio" name="csp" value="Cadre"><span>Cadre</span></label>
+      <label class="q-option"><input type="radio" name="csp" value="Retraité(e)"><span>Retraité(e)</span></label>
+      <label class="q-option"><input type="radio" name="csp" value="Sans activité"><span>Sans activité professionnelle</span></label>
+      <label class="q-option"><input type="radio" name="csp" value="Autre"><span>Autre</span></label>
+    </div>
+  </div>
+
+  <div class="q-row">
+    <div class="q-field"><label for="profession">Profession / Intitulé de poste</label><input type="text" id="profession" name="profession"></div>
+    <div class="q-field"><label for="employeur">Employeur ou raison sociale</label><input type="text" id="employeur" name="employeur"></div>
+  </div>
+
+  <div class="q-field">
+    <label>Revenus annuels nets du foyer <span class="req">*</span></label>
+    <div class="q-options" data-required-group="revenus">
+      <label class="q-option"><input type="radio" name="revenus" value="< 50 000 €"><span>Moins de 50 000 €</span></label>
+      <label class="q-option"><input type="radio" name="revenus" value="50 000 – 100 000 €"><span>50 000 – 100 000 €</span></label>
+      <label class="q-option"><input type="radio" name="revenus" value="100 000 – 200 000 €"><span>100 000 – 200 000 €</span></label>
+      <label class="q-option"><input type="radio" name="revenus" value="200 000 – 500 000 €"><span>200 000 – 500 000 €</span></label>
+      <label class="q-option"><input type="radio" name="revenus" value="> 500 000 €"><span>Plus de 500 000 €</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Capacité d'épargne annuelle estimée</label>
+    <div class="q-options">
+      <label class="q-option"><input type="radio" name="capacite_epargne" value="< 10 000 €"><span>Moins de 10 000 €</span></label>
+      <label class="q-option"><input type="radio" name="capacite_epargne" value="10 000 – 30 000 €"><span>10 000 – 30 000 €</span></label>
+      <label class="q-option"><input type="radio" name="capacite_epargne" value="30 000 – 100 000 €"><span>30 000 – 100 000 €</span></label>
+      <label class="q-option"><input type="radio" name="capacite_epargne" value="> 100 000 €"><span>Plus de 100 000 €</span></label>
+    </div>
+  </div>
+
+  <div class="q-nav">
+    <button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button>
+    <button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<!-- ========== STEP 4 : Situation patrimoniale ========== -->
+<div class="q-step">
+  <h2 class="q-step__title">Situation patrimoniale</h2>
+  <p class="q-step__subtitle">Un aperçu de votre patrimoine global pour des conseils pertinents.</p>
+
+  <div class="q-field">
+    <label>Patrimoine financier total estimé (hors résidence principale) <span class="req">*</span></label>
+    <div class="q-options" data-required-group="patrimoine_financier">
+      <label class="q-option"><input type="radio" name="patrimoine_financier" value="< 100 000 €"><span>Moins de 100 000 €</span></label>
+      <label class="q-option"><input type="radio" name="patrimoine_financier" value="100 000 – 500 000 €"><span>100 000 – 500 000 €</span></label>
+      <label class="q-option"><input type="radio" name="patrimoine_financier" value="500 000 – 1 M€"><span>500 000 – 1 000 000 €</span></label>
+      <label class="q-option"><input type="radio" name="patrimoine_financier" value="1 – 5 M€"><span>1 – 5 millions €</span></label>
+      <label class="q-option"><input type="radio" name="patrimoine_financier" value="> 5 M€"><span>Plus de 5 millions €</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Patrimoine immobilier total estimé</label>
+    <div class="q-options">
+      <label class="q-option"><input type="radio" name="patrimoine_immobilier" value="Aucun"><span>Aucun</span></label>
+      <label class="q-option"><input type="radio" name="patrimoine_immobilier" value="< 500 000 €"><span>Moins de 500 000 €</span></label>
+      <label class="q-option"><input type="radio" name="patrimoine_immobilier" value="500 000 – 1 M€"><span>500 000 – 1 000 000 €</span></label>
+      <label class="q-option"><input type="radio" name="patrimoine_immobilier" value="1 – 3 M€"><span>1 – 3 millions €</span></label>
+      <label class="q-option"><input type="radio" name="patrimoine_immobilier" value="> 3 M€"><span>Plus de 3 millions €</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>De quels types de placements disposez-vous actuellement ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="checkbox" name="placements_existants" value="Assurance-vie"><span>Assurance-vie</span></label>
+      <label class="q-option"><input type="checkbox" name="placements_existants" value="PEA"><span>PEA</span></label>
+      <label class="q-option"><input type="checkbox" name="placements_existants" value="Compte-titres"><span>Compte-titres</span></label>
+      <label class="q-option"><input type="checkbox" name="placements_existants" value="PER / Retraite"><span>PER / Retraite</span></label>
+      <label class="q-option"><input type="checkbox" name="placements_existants" value="SCPI / OPCI"><span>SCPI / OPCI</span></label>
+      <label class="q-option"><input type="checkbox" name="placements_existants" value="Private Equity"><span>Private Equity / Non coté</span></label>
+      <label class="q-option"><input type="checkbox" name="placements_existants" value="Livrets / Fonds euros"><span>Livrets / Fonds euros</span></label>
+      <label class="q-option"><input type="checkbox" name="placements_existants" value="Crypto-actifs"><span>Crypto-actifs</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Avez-vous des crédits en cours ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="radio" name="credits" value="Non"><span>Non</span></label>
+      <label class="q-option"><input type="radio" name="credits" value="Immobilier"><span>Oui — crédit immobilier</span></label>
+      <label class="q-option"><input type="radio" name="credits" value="Conso"><span>Oui — crédit consommation</span></label>
+      <label class="q-option"><input type="radio" name="credits" value="Professionnel"><span>Oui — crédit professionnel</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label for="montant_investir">Montant que vous souhaitez investir / placer</label>
+    <select id="montant_investir" name="montant_investir">
+      <option value="">— Sélectionner —</option>
+      <option>Moins de 50 000 €</option>
+      <option>50 000 – 150 000 €</option>
+      <option>150 000 – 500 000 €</option>
+      <option>500 000 – 1 000 000 €</option>
+      <option>Plus de 1 000 000 €</option>
+    </select>
+  </div>
+
+  <div class="q-field">
+    <label for="origine_fonds">Origine des fonds à investir <span class="req">*</span></label>
+    <select id="origine_fonds" name="origine_fonds" required>
+      <option value="">— Sélectionner —</option>
+      <option>Épargne personnelle</option>
+      <option>Cession d'entreprise</option>
+      <option>Héritage / Donation</option>
+      <option>Revenus professionnels</option>
+      <option>Plus-value immobilière</option>
+      <option>Trésorerie d'entreprise</option>
+      <option>Autre</option>
+    </select>
+    <span class="q-error">Ce champ est obligatoire</span>
+  </div>
+
+  <div class="q-nav">
+    <button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button>
+    <button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<!-- ========== STEP 5 : Objectifs & Horizon ========== -->
+<div class="q-step">
+  <h2 class="q-step__title">Objectifs & horizon de placement</h2>
+  <p class="q-step__subtitle">Comprendre vos priorités nous permet de bâtir une stratégie sur-mesure.</p>
+
+  <div class="q-field">
+    <label>Quels sont vos principaux objectifs ? <span class="req">*</span></label>
+    <div class="q-options" data-required-group="objectifs">
+      <label class="q-option"><input type="checkbox" name="objectifs" value="Valoriser mon capital"><span>Valoriser mon capital à long terme</span></label>
+      <label class="q-option"><input type="checkbox" name="objectifs" value="Générer des revenus"><span>Générer des revenus complémentaires</span></label>
+      <label class="q-option"><input type="checkbox" name="objectifs" value="Préparer ma retraite"><span>Préparer ma retraite</span></label>
+      <label class="q-option"><input type="checkbox" name="objectifs" value="Transmettre mon patrimoine"><span>Transmettre mon patrimoine</span></label>
+      <label class="q-option"><input type="checkbox" name="objectifs" value="Optimiser ma fiscalité"><span>Optimiser ma fiscalité</span></label>
+      <label class="q-option"><input type="checkbox" name="objectifs" value="Protéger ma famille"><span>Protéger ma famille</span></label>
+      <label class="q-option"><input type="checkbox" name="objectifs" value="Placer ma trésorerie d'entreprise"><span>Placer la trésorerie de mon entreprise</span></label>
+      <label class="q-option"><input type="checkbox" name="objectifs" value="Diversifier"><span>Diversifier mes placements</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Horizon de placement envisagé <span class="req">*</span></label>
+    <div class="q-options q-options--grid" data-required-group="horizon">
+      <label class="q-option"><input type="radio" name="horizon" value="< 2 ans"><span>Court terme (&lt; 2 ans)</span></label>
+      <label class="q-option"><input type="radio" name="horizon" value="2-5 ans"><span>Moyen terme (2 – 5 ans)</span></label>
+      <label class="q-option"><input type="radio" name="horizon" value="5-10 ans"><span>Long terme (5 – 10 ans)</span></label>
+      <label class="q-option"><input type="radio" name="horizon" value="> 10 ans"><span>Très long terme (&gt; 10 ans)</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Aurez-vous besoin de liquidité dans les prochaines années ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="radio" name="besoin_liquidite" value="Non"><span>Non, pas de besoin prévu</span></label>
+      <label class="q-option"><input type="radio" name="besoin_liquidite" value="Peut-être"><span>Peut-être, à définir</span></label>
+      <label class="q-option"><input type="radio" name="besoin_liquidite" value="Oui, partiellement"><span>Oui, une partie des fonds</span></label>
+      <label class="q-option"><input type="radio" name="besoin_liquidite" value="Oui, rapidement"><span>Oui, une grande partie sous 1 – 2 ans</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label for="projets_specifiques">Projets spécifiques à financer (immobilier, études des enfants, etc.)</label>
+    <textarea id="projets_specifiques" name="projets_specifiques" placeholder="Décrivez vos projets éventuels…"></textarea>
+  </div>
+
+  <div class="q-nav">
+    <button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button>
+    <button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<!-- ========== STEP 6 : Connaissances & Expérience financière ========== -->
+<div class="q-step">
+  <h2 class="q-step__title">Connaissances & expérience financière</h2>
+  <p class="q-step__subtitle">Conformément à la réglementation MiFID II, nous évaluons votre familiarité avec les instruments financiers.</p>
+
+  <div class="q-field">
+    <label>Comment évalueriez-vous vos connaissances en matière de placements financiers ? <span class="req">*</span></label>
+    <div class="q-options" data-required-group="niveau_connaissance">
+      <label class="q-option"><input type="radio" name="niveau_connaissance" value="Débutant"><span>Débutant — je connais peu les marchés</span></label>
+      <label class="q-option"><input type="radio" name="niveau_connaissance" value="Intermédiaire"><span>Intermédiaire — je comprends les grands principes</span></label>
+      <label class="q-option"><input type="radio" name="niveau_connaissance" value="Avancé"><span>Avancé — je suis les marchés et j'investis régulièrement</span></label>
+      <label class="q-option"><input type="radio" name="niveau_connaissance" value="Expert"><span>Expert — c'est mon métier ou je suis très actif</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Avez-vous déjà investi dans les produits suivants ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="checkbox" name="experience_produits" value="Actions"><span>Actions cotées</span></label>
+      <label class="q-option"><input type="checkbox" name="experience_produits" value="Obligations"><span>Obligations</span></label>
+      <label class="q-option"><input type="checkbox" name="experience_produits" value="OPCVM / ETF"><span>OPCVM / ETF</span></label>
+      <label class="q-option"><input type="checkbox" name="experience_produits" value="Assurance-vie UC"><span>Assurance-vie en UC</span></label>
+      <label class="q-option"><input type="checkbox" name="experience_produits" value="Produits structurés"><span>Produits structurés</span></label>
+      <label class="q-option"><input type="checkbox" name="experience_produits" value="Private Equity"><span>Private Equity / FCPR</span></label>
+      <label class="q-option"><input type="checkbox" name="experience_produits" value="SCPI / OPCI"><span>SCPI / OPCI</span></label>
+      <label class="q-option"><input type="checkbox" name="experience_produits" value="Produits dérivés"><span>Produits dérivés / Options</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Depuis combien de temps investissez-vous ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="radio" name="experience_duree" value="Jamais"><span>Jamais encore</span></label>
+      <label class="q-option"><input type="radio" name="experience_duree" value="< 2 ans"><span>Moins de 2 ans</span></label>
+      <label class="q-option"><input type="radio" name="experience_duree" value="2-5 ans"><span>2 – 5 ans</span></label>
+      <label class="q-option"><input type="radio" name="experience_duree" value="> 5 ans"><span>Plus de 5 ans</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Fréquence de vos opérations financières</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="radio" name="frequence_operations" value="Aucune"><span>Aucune</span></label>
+      <label class="q-option"><input type="radio" name="frequence_operations" value="Quelques par an"><span>Quelques par an</span></label>
+      <label class="q-option"><input type="radio" name="frequence_operations" value="Mensuelle"><span>Mensuelle</span></label>
+      <label class="q-option"><input type="radio" name="frequence_operations" value="Hebdomadaire+"><span>Hebdomadaire ou plus</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Avez-vous déjà subi des pertes significatives sur un placement ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="radio" name="pertes_passees" value="Non"><span>Non, jamais</span></label>
+      <label class="q-option"><input type="radio" name="pertes_passees" value="Oui, modérées"><span>Oui, modérées</span></label>
+      <label class="q-option"><input type="radio" name="pertes_passees" value="Oui, importantes"><span>Oui, importantes</span></label>
+    </div>
+  </div>
+
+  <div class="q-nav">
+    <button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button>
+    <button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<!-- ========== STEP 7 : Profil de risque ========== -->
+<div class="q-step">
+  <h2 class="q-step__title">Profil de risque & tolérance</h2>
+  <p class="q-step__subtitle">Ces questions nous permettent de déterminer votre profil d'investisseur et l'allocation la mieux adaptée.</p>
+
+  <div class="q-field">
+    <label>Si votre portefeuille perdait 15 % en un mois, quelle serait votre réaction ? <span class="req">*</span></label>
+    <div class="q-options" data-required-group="reaction_baisse">
+      <label class="q-option"><input type="radio" name="reaction_baisse" value="Vendre tout"><span>Je vends tout immédiatement pour limiter les pertes</span></label>
+      <label class="q-option"><input type="radio" name="reaction_baisse" value="Vendre une partie"><span>Je vends une partie pour sécuriser</span></label>
+      <label class="q-option"><input type="radio" name="reaction_baisse" value="Attendre"><span>J'attends que le marché remonte</span></label>
+      <label class="q-option"><input type="radio" name="reaction_baisse" value="Renforcer"><span>J'en profite pour investir davantage</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Quelle perte maximale annuelle accepteriez-vous sur votre portefeuille ? <span class="req">*</span></label>
+    <div class="q-options" data-required-group="perte_max">
+      <label class="q-option"><input type="radio" name="perte_max" value="0%"><span>0 % — je ne veux aucune perte</span></label>
+      <label class="q-option"><input type="radio" name="perte_max" value="-5%"><span>Jusqu'à –5 %</span></label>
+      <label class="q-option"><input type="radio" name="perte_max" value="-10%"><span>Jusqu'à –10 %</span></label>
+      <label class="q-option"><input type="radio" name="perte_max" value="-20%"><span>Jusqu'à –20 %</span></label>
+      <label class="q-option"><input type="radio" name="perte_max" value="-30%+"><span>Plus de –20 % si le potentiel de gain le justifie</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Quel couple rendement / risque vous correspond le mieux ?</label>
+    <div class="q-options">
+      <label class="q-option"><input type="radio" name="couple_rendement_risque" value="Sécuritaire"><span>Rendement faible, capital garanti (fonds euros, livrets)</span></label>
+      <label class="q-option"><input type="radio" name="couple_rendement_risque" value="Prudent"><span>Rendement modéré, faible volatilité</span></label>
+      <label class="q-option"><input type="radio" name="couple_rendement_risque" value="Equilibré"><span>Rendement moyen, volatilité maîtrisée</span></label>
+      <label class="q-option"><input type="radio" name="couple_rendement_risque" value="Dynamique"><span>Rendement élevé, volatilité acceptée</span></label>
+      <label class="q-option"><input type="radio" name="couple_rendement_risque" value="Offensif"><span>Rendement maximal, forte volatilité acceptée</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Quelle part de votre patrimoine êtes-vous prêt(e) à investir en actifs non liquides (Private Equity, SCPI, etc.) ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="radio" name="part_illiquide" value="0%"><span>0 % — tout doit rester disponible</span></label>
+      <label class="q-option"><input type="radio" name="part_illiquide" value="< 20%"><span>Moins de 20 %</span></label>
+      <label class="q-option"><input type="radio" name="part_illiquide" value="20-40%"><span>20 – 40 %</span></label>
+      <label class="q-option"><input type="radio" name="part_illiquide" value="> 40%"><span>Plus de 40 %</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Êtes-vous sensible aux critères ESG (Environnement, Social, Gouvernance) dans vos placements ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="radio" name="esg" value="Très important"><span>Oui, c'est un critère essentiel</span></label>
+      <label class="q-option"><input type="radio" name="esg" value="Souhaitable"><span>Souhaitable, mais pas déterminant</span></label>
+      <label class="q-option"><input type="radio" name="esg" value="Indifférent"><span>Pas de préférence particulière</span></label>
+      <label class="q-option"><input type="radio" name="esg" value="Rendement avant tout"><span>Le rendement prime</span></label>
+    </div>
+  </div>
+
+  <div class="q-field">
+    <label>Avez-vous une préférence géographique pour vos investissements ?</label>
+    <div class="q-options q-options--grid">
+      <label class="q-option"><input type="checkbox" name="preference_geo" value="France"><span>France</span></label>
+      <label class="q-option"><input type="checkbox" name="preference_geo" value="Europe"><span>Europe</span></label>
+      <label class="q-option"><input type="checkbox" name="preference_geo" value="Monde"><span>Monde / Diversifié</span></label>
+      <label class="q-option"><input type="checkbox" name="preference_geo" value="Pas de préférence"><span>Pas de préférence</span></label>
+    </div>
+  </div>
+
+  <div class="q-nav">
+    <button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button>
+    <button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
+<!-- ========== STEP 8 : Validation & Consentements ========== -->
+<div class="q-step">
+  <h2 class="q-step__title">Validation & consentements</h2>
+  <p class="q-step__subtitle">Dernière étape : vérifiez vos informations et validez votre questionnaire.</p>
+
+  <div class="q-field">
+    <label for="commentaires">Commentaires ou précisions complémentaires</label>
+    <textarea id="commentaires" name="commentaires" placeholder="Toute information que vous souhaitez nous communiquer…"></textarea>
+  </div>
+
+  <div class="q-field">
+    <label for="comment_connu">Comment avez-vous connu La Financière de Rochechouart ?</label>
+    <select id="comment_connu" name="comment_connu">
+      <option value="">— Sélectionner —</option>
+      <option>Recommandation personnelle</option>
+      <option>Recherche internet</option>
+      <option>Réseaux sociaux</option>
+      <option>Presse / Média</option>
+      <option>Événement / Conférence</option>
+      <option>Partenaire professionnel</option>
+      <option>Autre</option>
+    </select>
+  </div>
+
+  <div class="q-rgpd">
+    <p><strong>Protection de vos données</strong></p>
+    <p>Les informations recueillies dans ce questionnaire sont traitées par La Financière de Rochechouart, en qualité de responsable de traitement, aux fins de connaissance client (KYC), de conseil en investissement et de conformité réglementaire (MiFID II, LCB-FT). Elles sont hébergées au sein de l'Union européenne et conservées pendant la durée de la relation contractuelle, augmentée des délais de prescription légaux.</p>
+    <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et de portabilité de vos données, ainsi que d'un droit d'opposition et de limitation du traitement. Pour exercer ces droits : <a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a>.</p>
+  </div>
+
+  <div class="q-field" style="margin-top:20px">
+    <label class="q-option" style="border-color:var(--gold-soft)">
+      <input type="checkbox" name="consentement_rgpd" value="oui" required>
+      <span>J'accepte que mes données personnelles soient traitées conformément aux finalités décrites ci-dessus. <span class="req">*</span></span>
+    </label>
+    <span class="q-error">Vous devez accepter pour continuer</span>
+  </div>
+
+  <div class="q-field">
+    <label class="q-option">
+      <input type="checkbox" name="consentement_commercial" value="oui">
+      <span>J'accepte de recevoir des communications de La Financière de Rochechouart (actualités, analyses de marché). Facultatif.</span>
+    </label>
+  </div>
+
+  <div class="q-nav">
+    <button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button>
+    <button type="submit" class="btn btn--solid btn--gold">Valider mon questionnaire <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></button>
+  </div>
+
+  <div class="q-secure">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/></svg>
+    Données chiffrées • Hébergement UE • Conforme RGPD
+  </div>
+</div>
+
+</form>
+</div>
+</section>
+
+<!-- Success screen (hidden by default) -->
+<section id="q-success" class="q-success" style="display:none">
+  <div class="container">
+    <div class="q-success__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+    <h2>Merci pour votre confiance</h2>
+    <p>Votre questionnaire a bien été enregistré. Un conseiller de La Financière de Rochechouart vous contactera dans les meilleurs délais pour poursuivre votre accompagnement.</p>
+    <p style="margin-top:24px"><a class="btn" href="index.html">Retour au site <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer"><div class="container"><div class="footer-bottom" style="padding-top:24px"><span>© <span id="year">2026</span> La Financière de Rochechouart — Tous droits réservés.</span><span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a></span></div></div></footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/questionnaire.js"></script>
+</body>
+</html>
