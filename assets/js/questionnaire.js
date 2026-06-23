@@ -36,7 +36,6 @@
     });
 
     step.querySelectorAll('[data-required-group]').forEach(group => {
-      const name = group.dataset.requiredGroup;
       const checked = group.querySelectorAll('input:checked').length > 0;
       if(!checked){ group.classList.add('has-error'); valid = false; }
       else group.classList.remove('has-error');
@@ -57,7 +56,6 @@
     });
   });
 
-  // Radio/checkbox visual selection
   document.querySelectorAll('.q-option input[type="radio"]').forEach(r => {
     r.addEventListener('change', () => {
       const group = r.closest('.q-options');
@@ -71,7 +69,6 @@
     });
   });
 
-  // Collect all form data
   function collectData(){
     const data = {};
     document.querySelectorAll('#questionnaire input, #questionnaire select, #questionnaire textarea').forEach(el => {
@@ -85,40 +82,65 @@
         data[el.name] = el.value;
       }
     });
+    // Convert boolean consent fields
+    data.consentement_rgpd = (data.consentement_rgpd && data.consentement_rgpd.length > 0);
+    data.consentement_commercial = (data.consentement_commercial && data.consentement_commercial.length > 0);
+    // Parse nb_enfants as integer
+    if(data.nb_enfants) data.nb_enfants = parseInt(data.nb_enfants, 10) || 0;
     return data;
   }
-
-  // Submit handler
-  const form = document.getElementById('questionnaire');
-  if(form) form.addEventListener('submit', function(e){
-    e.preventDefault();
-    if(!validateStep(current)) return;
-
-    const data = collectData();
-    console.log('Questionnaire data:', data);
-
-    // --- Supabase integration (à activer) ---
-    // const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-    // const SUPABASE_KEY = 'YOUR_ANON_KEY';
-    // fetch(SUPABASE_URL + '/rest/v1/clients', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'apikey': SUPABASE_KEY,
-    //     'Authorization': 'Bearer ' + SUPABASE_KEY,
-    //     'Prefer': 'return=minimal'
-    //   },
-    //   body: JSON.stringify(data)
-    // }).then(() => showSuccess()).catch(err => console.error(err));
-
-    showSuccess();
-  });
 
   function showSuccess(){
     document.querySelector('.q-body').style.display = 'none';
     document.querySelector('.q-hero').style.display = 'none';
     document.getElementById('q-success').style.display = 'block';
   }
+
+  function showError(msg){
+    const status = document.getElementById('q-submit-status');
+    if(status){
+      status.textContent = msg;
+      status.style.display = 'block';
+    }
+  }
+
+  const form = document.getElementById('questionnaire');
+  if(form) form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!validateStep(current)) return;
+
+    const data = collectData();
+    const btn = form.querySelector('[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours…';
+
+    if(!SUPABASE_URL || SUPABASE_URL.includes('VOTRE_PROJET')){
+      console.log('Mode démo — données:', data);
+      setTimeout(showSuccess, 600);
+      return;
+    }
+
+    fetch(SUPABASE_URL + '/rest/v1/clients', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(res => {
+      if(!res.ok) throw new Error('Erreur ' + res.status);
+      showSuccess();
+    })
+    .catch(err => {
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = 'Valider mon questionnaire';
+      showError('Une erreur est survenue. Veuillez réessayer ou nous contacter directement.');
+    });
+  });
 
   showStep(0);
 })();

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM — La Financière de Rochechouart</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/monogram.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/questionnaire.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+<!-- ========== LOGIN ========== -->
+<div class="login-wrap">
+  <div class="login-card">
+    <img src="assets/img/logo.png" alt="LFDR">
+    <h2>Espace conseiller</h2>
+    <p>Connectez-vous pour accéder au CRM client.</p>
+    <form id="login-form">
+      <div class="q-field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" autocomplete="email" required>
+      </div>
+      <div class="q-field">
+        <label for="login-password">Mot de passe</label>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn--solid" type="submit">Se connecter</button>
+      <p class="login-error"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD ========== -->
+<div class="dash">
+
+  <!-- Header -->
+  <div class="dash-header"><div class="container">
+    <img src="assets/img/logo-light.png" alt="LFDR">
+    <div class="dash-header__right">
+      <span class="dash-header__user" id="dash-user-email"></span>
+      <button class="btn--logout" id="btn-logout">Déconnexion</button>
+    </div>
+  </div></div>
+
+  <!-- Main content -->
+  <div class="container" style="padding-top:32px;padding-bottom:60px">
+
+    <!-- Stats -->
+    <div class="dash-stats">
+      <div class="dash-stat">
+        <div class="dash-stat__num" id="stat-total">—</div>
+        <div class="dash-stat__lbl">Clients total</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat__num" id="stat-today">—</div>
+        <div class="dash-stat__lbl">Aujourd'hui</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat__num" id="stat-month">—</div>
+        <div class="dash-stat__lbl">Ce mois-ci</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="dash-toolbar">
+      <input type="search" class="dash-search" id="dash-search" placeholder="Rechercher par nom, email ou téléphone…">
+      <button class="dash-btn-export" id="btn-export">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Exporter CSV
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Patrimoine</th>
+            <th>Date</th>
+            <th>Profil</th>
+          </tr>
+        </thead>
+        <tbody id="client-list">
+          <tr><td colspan="6" class="dash-loading">Connectez-vous pour voir les clients.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== DETAIL MODAL ========== -->
+<div class="dash-modal" id="client-modal">
+  <div class="dash-modal__card">
+    <div class="dash-modal__head">
+      <h3 id="modal-title">Fiche client</h3>
+      <button class="dash-modal__close" id="modal-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dash-modal__body" id="modal-body"></div>
+  </div>
+</div>
+
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>
