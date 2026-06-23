@@ -186,3 +186,65 @@
 .act-row:hover{box-shadow:0 4px 14px rgba(0,27,0,.12);transform:translateX(2px)}
 .act-row__main{flex:1;min-width:0}
 .act-row__client{font-size:.8rem;color:var(--gold);font-weight:500;margin-top:2px}
+
+/* ---------- PORTFOLIO ---------- */
+.pf-header{margin-bottom:28px}
+.pf-total-card{background:linear-gradient(135deg,var(--green) 0%,#003d00 100%);border-radius:16px;padding:32px 36px;color:#fff}
+.pf-total-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:8px}
+.pf-total-value{font-family:var(--serif);font-size:2.6rem;font-weight:500;line-height:1.1}
+.pf-total-perf{font-size:1rem;margin-top:10px;font-weight:500}
+.pf-total-perf.positive{color:#81c784}
+.pf-total-perf.negative{color:#ef9a9a}
+.pf-total-invested{font-size:.82rem;opacity:.55;margin-top:6px}
+
+.pf-chart-section,.pf-alloc-section,.pf-contracts-section{margin-bottom:28px}
+.pf-chart-section h4,.pf-alloc-section h4,.pf-contracts-section h4{
+  font-family:var(--sans);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--gold);margin:0 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)
+}
+.pf-chart-wrap{background:#fff;border-radius:12px;padding:20px 16px 12px;border:1px solid var(--line)}
+.pf-chart-wrap canvas{display:block}
+
+.pf-alloc-grid{display:flex;gap:28px;align-items:center}
+@media(max-width:600px){.pf-alloc-grid{flex-direction:column}}
+.pf-donut-wrap{flex-shrink:0}
+.pf-alloc-list{flex:1;min-width:0}
+.pf-alloc-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.85rem}
+.pf-alloc-item:last-child{border-bottom:0}
+.pf-alloc-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.pf-alloc-name{flex:1;color:var(--ink);font-weight:500}
+.pf-alloc-val{color:var(--muted);font-size:.8rem;min-width:90px;text-align:right}
+.pf-alloc-pct{font-weight:600;color:var(--green);min-width:50px;text-align:right}
+
+.pf-contract{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden;transition:box-shadow .2s}
+.pf-contract:hover{box-shadow:0 4px 14px rgba(0,27,0,.08)}
+.pf-contract__head{display:flex;align-items:center;gap:16px;padding:18px 20px;cursor:pointer;transition:background .15s}
+.pf-contract__head:hover{background:var(--parchment)}
+.pf-contract__info{flex:1;min-width:0}
+.pf-contract__name{font-weight:600;color:var(--green);font-size:.94rem}
+.pf-contract__provider{font-size:.78rem;color:var(--muted);margin-top:3px}
+.pf-contract__figures{text-align:right}
+.pf-contract__value{font-weight:600;font-size:1.05rem;color:var(--ink)}
+.pf-contract__perf{font-size:.82rem;margin-top:2px;font-weight:500}
+.pf-contract__perf.positive{color:#2e7d32}
+.pf-contract__perf.negative{color:#c0392b}
+.pf-contract__toggle{background:none;border:0;padding:8px;cursor:pointer;color:var(--muted);transition:transform .2s;border-radius:6px;line-height:0}
+.pf-contract__toggle:hover{color:var(--green);background:var(--parchment)}
+.pf-contract__toggle.is-open{transform:rotate(180deg)}
+
+.pf-contract__detail{padding:0 20px 20px;border-top:1px solid var(--line);overflow-x:auto}
+.pf-contract__meta{display:flex;gap:20px;flex-wrap:wrap;padding:14px 0;font-size:.82rem;color:var(--muted)}
+.pf-contract__meta .positive{color:#2e7d32}
+.pf-contract__meta .negative{color:#c0392b}
+
+.pf-lines-table{width:100%;border-collapse:collapse;font-size:.84rem}
+.pf-lines-table th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line);font-weight:600;white-space:nowrap}
+.pf-lines-table td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.pf-lines-table tr:last-child td{border-bottom:0}
+.pf-lines-table tbody tr:hover{background:var(--parchment)}
+.pf-line-name{font-weight:500;color:var(--ink)}
+.pf-line-isin{font-size:.72rem;color:var(--muted);margin-top:2px;font-family:monospace}
+.pf-line-class{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:600;white-space:nowrap}
+.pf-line-val{font-weight:500}
+.pf-lines-table .positive{color:#2e7d32}
+.pf-lines-table .negative{color:#c0392b}
