@@ -151,3 +151,158 @@
 .dash-loading{text-align:center;padding:40px;color:var(--muted);font-size:.9rem}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============ CRM v2 : Onglets, Pipeline, Activités ============ */
+
+/* Tabs navigation */
+.dash-tabs{
+  display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:28px;
+  flex-wrap:wrap;
+}
+.dash-tab{
+  padding:12px 22px;border:0;background:none;cursor:pointer;
+  font-family:var(--sans);font-size:.88rem;font-weight:500;color:var(--muted);
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;
+}
+.dash-tab:hover{color:var(--green)}
+.dash-tab.is-active{color:var(--green);border-bottom-color:var(--gold)}
+.dash-tab .count{
+  display:inline-block;margin-left:6px;padding:1px 7px;border-radius:10px;
+  background:var(--sand);font-size:.72rem;color:var(--green);
+}
+
+/* Views */
+.dash-view{display:none}
+.dash-view.is-active{display:block}
+
+/* Pipeline (kanban) */
+.kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:16px}
+.kanban-col{
+  flex:0 0 260px;background:#fff;border-radius:10px;padding:12px;
+  box-shadow:0 1px 4px rgba(0,27,0,.06);min-height:120px;
+}
+.kanban-col.is-dragover{background:rgba(169,133,63,.08);outline:2px dashed var(--gold-soft)}
+.kanban-col__head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:4px 6px 12px;border-bottom:1px solid var(--line);margin-bottom:10px;
+}
+.kanban-col__title{font-family:var(--sans);font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--green)}
+.kanban-col__count{font-size:.72rem;color:var(--muted);background:var(--parchment);padding:1px 8px;border-radius:10px}
+.kanban-card{
+  background:var(--parchment);border:1px solid var(--line);border-radius:8px;
+  padding:12px 14px;margin-bottom:8px;cursor:grab;transition:box-shadow .2s,transform .1s;
+}
+.kanban-card:hover{box-shadow:0 2px 10px rgba(0,27,0,.1)}
+.kanban-card.is-dragging{opacity:.5}
+.kanban-card__name{font-weight:500;color:var(--green);font-size:.9rem;margin-bottom:3px}
+.kanban-card__meta{font-size:.76rem;color:var(--muted);line-height:1.4}
+.kanban-card__badge{
+  display:inline-block;margin-top:6px;font-size:.68rem;padding:1px 7px;border-radius:3px;
+}
+.badge-prospect{background:#fff3e0;color:#e65100}
+.badge-client{background:#e3f2fd;color:#1565c0}
+.kanban-card__action{margin-top:6px;font-size:.74rem;color:var(--gold);display:flex;align-items:center;gap:4px}
+
+/* Activities timeline */
+.activity-add{
+  background:var(--parchment);border:1px solid var(--line);border-radius:8px;
+  padding:16px;margin-bottom:20px;
+}
+.activity-types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.activity-type-btn{
+  padding:6px 14px;border:1px solid var(--line);border-radius:20px;background:#fff;
+  font-family:var(--sans);font-size:.8rem;cursor:pointer;color:var(--muted);transition:all .2s;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.activity-type-btn.is-active{background:var(--green);color:#fff;border-color:var(--green)}
+.activity-add input,.activity-add textarea{
+  width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:6px;
+  font-family:var(--sans);font-size:.86rem;margin-bottom:8px;outline:none;
+}
+.activity-add input:focus,.activity-add textarea:focus{border-color:var(--gold)}
+.activity-add__row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+.activity-list{list-style:none;margin:0;padding:0}
+.activity-item{
+  display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);
+}
+.activity-item:last-child{border-bottom:0}
+.activity-ico{
+  flex-shrink:0;width:34px;height:34px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;background:var(--sand);color:var(--green);
+}
+.activity-ico svg{width:17px;height:17px}
+.activity-ico.t-appel{background:#e8f5e9;color:#2e7d32}
+.activity-ico.t-email{background:#e3f2fd;color:#1565c0}
+.activity-ico.t-rdv{background:#fff3e0;color:#e65100}
+.activity-ico.t-tache{background:#f3e5f5;color:#6a1b9a}
+.activity-content{flex:1}
+.activity-title{font-size:.88rem;color:var(--ink);font-weight:500}
+.activity-meta{font-size:.76rem;color:var(--muted);margin-top:2px}
+.activity-notes{font-size:.84rem;color:var(--ink);margin-top:4px;line-height:1.5}
+.activity-done-check{margin-right:6px;accent-color:var(--gold)}
+.activity-overdue{color:#c0392b}
+
+/* Activities tab grouping */
+.act-group{margin-bottom:28px}
+.act-group h3{
+  font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--gold);margin-bottom:12px;font-weight:600;
+}
+.act-row{
+  background:#fff;border-radius:8px;padding:14px 18px;margin-bottom:8px;
+  box-shadow:0 1px 3px rgba(0,27,0,.05);display:flex;align-items:center;gap:14px;cursor:pointer;
+  transition:box-shadow .2s;
+}
+.act-row:hover{box-shadow:0 2px 10px rgba(0,27,0,.1)}
+.act-row__main{flex:1}
+.act-row__client{font-size:.8rem;color:var(--gold);font-weight:500}
+
+/* Editable detail form */
+.edit-field{margin-bottom:14px}
+.edit-field label{
+  display:block;font-size:.76rem;font-weight:500;color:var(--green);margin-bottom:4px;
+}
+.edit-field input,.edit-field select,.edit-field textarea{
+  width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:6px;
+  font-family:var(--sans);font-size:.86rem;outline:none;background:#fff;color:var(--ink);
+}
+.edit-field input:focus,.edit-field select:focus,.edit-field textarea:focus{
+  border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,133,63,.1);
+}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px}
+@media(max-width:600px){.edit-grid{grid-template-columns:1fr}}
+
+.modal-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.modal-tab{
+  padding:10px 18px;border:0;background:none;cursor:pointer;font-family:var(--sans);
+  font-size:.84rem;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+}
+.modal-tab.is-active{color:var(--green);border-bottom-color:var(--gold)}
+.modal-pane{display:none}
+.modal-pane.is-active{display:block}
+
+.modal-save-bar{
+  position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
+  padding:16px 0 4px;margin-top:20px;display:flex;align-items:center;gap:14px;
+}
+.modal-save-status{font-size:.82rem}
+
+.dash-btn-add{
+  padding:9px 20px;border:1px solid var(--gold);border-radius:6px;
+  font-family:var(--sans);font-size:.82rem;font-weight:500;color:#fff;
+  background:var(--gold);cursor:pointer;transition:all .2s;
+}
+.dash-btn-add:hover{background:#96732f;border-color:#96732f}
+
+/* Pipeline header inside contact modal */
+.contact-pipeline{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap}
+.contact-stage{
+  flex:1;min-width:80px;text-align:center;padding:8px 4px;background:var(--parchment);
+  border:1px solid var(--line);font-size:.72rem;cursor:pointer;color:var(--muted);
+  transition:all .2s;
+}
+.contact-stage:first-child{border-radius:6px 0 0 6px}
+.contact-stage:last-child{border-radius:0 6px 6px 0}
+.contact-stage.is-active{background:var(--gold);color:#fff;border-color:var(--gold)}

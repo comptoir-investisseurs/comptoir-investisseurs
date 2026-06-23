@@ -49,54 +49,68 @@
   </div></div>
 
   <!-- Main content -->
-  <div class="container" style="padding-top:32px;padding-bottom:60px">
+  <div class="container" style="padding-top:28px;padding-bottom:60px">
 
     <!-- Stats -->
     <div class="dash-stats">
-      <div class="dash-stat">
-        <div class="dash-stat__num" id="stat-total">—</div>
-        <div class="dash-stat__lbl">Clients total</div>
+      <div class="dash-stat"><div class="dash-stat__num" id="stat-clients">—</div><div class="dash-stat__lbl">Clients</div></div>
+      <div class="dash-stat"><div class="dash-stat__num" id="stat-prospects">—</div><div class="dash-stat__lbl">Prospects</div></div>
+      <div class="dash-stat"><div class="dash-stat__num" id="stat-todo">—</div><div class="dash-stat__lbl">Actions à venir</div></div>
+      <div class="dash-stat"><div class="dash-stat__num" id="stat-overdue">—</div><div class="dash-stat__lbl">En retard</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="dash-tabs">
+      <button class="dash-tab is-active" data-tab="pipeline">Pipeline</button>
+      <button class="dash-tab" data-tab="clients">Clients <span class="count" id="tab-count-clients">0</span></button>
+      <button class="dash-tab" data-tab="prospects">Prospects <span class="count" id="tab-count-prospects">0</span></button>
+      <button class="dash-tab" data-tab="activites">Activités <span class="count" id="tab-count-activites">0</span></button>
+    </div>
+
+    <!-- ===== VIEW: PIPELINE ===== -->
+    <div class="dash-view is-active" id="view-pipeline">
+      <div class="dash-toolbar">
+        <button class="dash-btn-add" id="btn-add-prospect-2">+ Ajouter un prospect</button>
+        <button class="dash-btn-invite" id="btn-invite">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M4 4h16v16H4zM4 7l8 5 8-5"/></svg>
+          Inviter un client
+        </button>
       </div>
-      <div class="dash-stat">
-        <div class="dash-stat__num" id="stat-today">—</div>
-        <div class="dash-stat__lbl">Aujourd'hui</div>
+      <div class="kanban" id="kanban"></div>
+    </div>
+
+    <!-- ===== VIEW: CLIENTS ===== -->
+    <div class="dash-view" id="view-clients">
+      <div class="dash-toolbar">
+        <input type="search" class="dash-search" id="search-clients" placeholder="Rechercher un client…">
+        <button class="dash-btn-export" id="btn-export">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Exporter CSV
+        </button>
       </div>
-      <div class="dash-stat">
-        <div class="dash-stat__num" id="stat-month">—</div>
-        <div class="dash-stat__lbl">Ce mois-ci</div>
+      <div class="dash-table-wrap">
+        <table class="dash-table"><thead><tr>
+          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Patrimoine</th><th>Étape</th><th>Prochaine action</th>
+        </tr></thead><tbody id="list-clients"></tbody></table>
       </div>
     </div>
 
-    <!-- Toolbar -->
-    <div class="dash-toolbar">
-      <input type="search" class="dash-search" id="dash-search" placeholder="Rechercher par nom, email ou téléphone…">
-      <button class="dash-btn-invite" id="btn-invite">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M4 4h16v16H4zM4 7l8 5 8-5"/></svg>
-        Inviter un client
-      </button>
-      <button class="dash-btn-export" id="btn-export">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        Exporter CSV
-      </button>
+    <!-- ===== VIEW: PROSPECTS ===== -->
+    <div class="dash-view" id="view-prospects">
+      <div class="dash-toolbar">
+        <input type="search" class="dash-search" id="search-prospects" placeholder="Rechercher un prospect…">
+        <button class="dash-btn-add" id="btn-add-prospect">+ Ajouter un prospect</button>
+      </div>
+      <div class="dash-table-wrap">
+        <table class="dash-table"><thead><tr>
+          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Étape</th><th>Prochaine action</th><th>Échéance</th>
+        </tr></thead><tbody id="list-prospects"></tbody></table>
+      </div>
     </div>
 
-    <!-- Table -->
-    <div class="dash-table-wrap">
-      <table class="dash-table">
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Téléphone</th>
-            <th>Patrimoine</th>
-            <th>Date</th>
-            <th>Profil</th>
-          </tr>
-        </thead>
-        <tbody id="client-list">
-          <tr><td colspan="6" class="dash-loading">Connectez-vous pour voir les clients.</td></tr>
-        </tbody>
-      </table>
+    <!-- ===== VIEW: ACTIVITES ===== -->
+    <div class="dash-view" id="view-activites">
+      <div id="activities-feed"></div>
     </div>
 
   </div>
@@ -126,11 +140,39 @@
   </div>
 </div>
 
-<!-- ========== DETAIL MODAL ========== -->
+<!-- ========== PROSPECT MODAL ========== -->
+<div class="dash-modal" id="prospect-modal">
+  <div class="dash-modal__card" style="max-width:480px">
+    <div class="dash-modal__head">
+      <h3>Ajouter un prospect</h3>
+      <button class="dash-modal__close" id="prospect-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dash-modal__body">
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Créez une fiche prospect manuellement. Vous pourrez la compléter, ajouter des activités, ou l'inviter à remplir le questionnaire plus tard.</p>
+      <form id="prospect-form">
+        <div class="q-row">
+          <div class="q-field"><label for="pro-prenom">Prénom</label><input type="text" id="pro-prenom"></div>
+          <div class="q-field"><label for="pro-nom">Nom <span class="req">*</span></label><input type="text" id="pro-nom" required></div>
+        </div>
+        <div class="q-row">
+          <div class="q-field"><label for="pro-email">Email</label><input type="email" id="pro-email"></div>
+          <div class="q-field"><label for="pro-tel">Téléphone</label><input type="tel" id="pro-tel"></div>
+        </div>
+        <div class="q-field"><label for="pro-source">Source / Origine</label><input type="text" id="pro-source" placeholder="ex : recommandation, salon, LinkedIn…"></div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
+          <button type="submit" class="btn btn--solid" id="prospect-submit">Créer le prospect</button>
+          <span id="prospect-status" style="font-size:.85rem"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CONTACT DETAIL MODAL ========== -->
 <div class="dash-modal" id="client-modal">
   <div class="dash-modal__card">
     <div class="dash-modal__head">
-      <h3 id="modal-title">Fiche client</h3>
+      <h3 id="modal-title">Fiche</h3>
       <button class="dash-modal__close" id="modal-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="dash-modal__body" id="modal-body"></div>
