@@ -70,6 +70,10 @@
     <!-- Toolbar -->
     <div class="dash-toolbar">
       <input type="search" class="dash-search" id="dash-search" placeholder="Rechercher par nom, email ou téléphone…">
+      <button class="dash-btn-invite" id="btn-invite">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M4 4h16v16H4zM4 7l8 5 8-5"/></svg>
+        Inviter un client
+      </button>
       <button class="dash-btn-export" id="btn-export">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
         Exporter CSV
@@ -95,6 +99,30 @@
       </table>
     </div>
 
+  </div>
+</div>
+
+<!-- ========== INVITE MODAL ========== -->
+<div class="dash-modal" id="invite-modal">
+  <div class="dash-modal__card" style="max-width:480px">
+    <div class="dash-modal__head">
+      <h3>Inviter un client</h3>
+      <button class="dash-modal__close" id="invite-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dash-modal__body">
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Le client recevra un email brandé avec un lien personnalisé pour compléter son questionnaire.</p>
+      <form id="invite-form">
+        <div class="q-row">
+          <div class="q-field"><label for="inv-prenom">Prénom</label><input type="text" id="inv-prenom"></div>
+          <div class="q-field"><label for="inv-nom">Nom <span class="req">*</span></label><input type="text" id="inv-nom" required></div>
+        </div>
+        <div class="q-field"><label for="inv-email">Email <span class="req">*</span></label><input type="email" id="inv-email" required></div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
+          <button type="submit" class="btn btn--solid" id="invite-submit">Envoyer l'invitation</button>
+          <span id="invite-status" style="font-size:.85rem"></span>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 

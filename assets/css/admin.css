@@ -73,6 +73,13 @@
 }
 .dash-btn-export:hover{background:var(--green);color:#fff}
 
+.dash-btn-invite{
+  padding:9px 20px;border:1px solid var(--gold);border-radius:6px;
+  font-family:var(--sans);font-size:.82rem;font-weight:500;color:#fff;
+  background:var(--gold);cursor:pointer;transition:all .2s;
+}
+.dash-btn-invite:hover{background:#96732f;border-color:#96732f}
+
 /* Table */
 .dash-table-wrap{
   background:#fff;border-radius:8px;overflow-x:auto;

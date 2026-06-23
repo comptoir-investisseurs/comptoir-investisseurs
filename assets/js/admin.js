@@ -150,6 +150,54 @@
     a.click();
   });
 
+  // ---------- INVITE CLIENT ----------
+  const inviteModal = document.getElementById('invite-modal');
+  const inviteForm = document.getElementById('invite-form');
+  const inviteStatus = document.getElementById('invite-status');
+
+  document.getElementById('btn-invite').addEventListener('click', () => {
+    inviteForm.reset();
+    inviteStatus.textContent = '';
+    inviteModal.classList.add('is-open');
+  });
+  document.getElementById('invite-close').addEventListener('click', () => inviteModal.classList.remove('is-open'));
+  inviteModal.addEventListener('click', e => { if(e.target === inviteModal) inviteModal.classList.remove('is-open'); });
+
+  inviteForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const nom = document.getElementById('inv-nom').value.trim();
+    const prenom = document.getElementById('inv-prenom').value.trim();
+    const email = document.getElementById('inv-email').value.trim();
+    const btn = document.getElementById('invite-submit');
+
+    btn.disabled = true;
+    inviteStatus.style.color = 'var(--muted)';
+    inviteStatus.textContent = 'Envoi en cours…';
+
+    // Appel sécurisé à la fonction Supabase invite_client (la clé Brevo reste côté serveur)
+    fetch(API + '/rpc/invite_client', {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({p_nom: nom, p_prenom: prenom, p_email: email})
+    })
+    .then(r => {
+      if(!r.ok) throw new Error(r.status);
+      return r.json();
+    })
+    .then(() => {
+      inviteStatus.style.color = '#2e7d32';
+      inviteStatus.textContent = '✓ Invitation envoyée à ' + email;
+      btn.disabled = false;
+      inviteForm.reset();
+    })
+    .catch(err => {
+      console.error(err);
+      inviteStatus.style.color = '#c0392b';
+      inviteStatus.textContent = 'Erreur lors de l\'envoi. Vérifiez la configuration.';
+      btn.disabled = false;
+    });
+  });
+
   // ---------- DETAIL MODAL ----------
   const modal = document.getElementById('client-modal');
   const modalBody = document.getElementById('modal-body');

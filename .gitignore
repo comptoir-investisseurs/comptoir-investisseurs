@@ -1,0 +1,5 @@
+# Fichiers contenant des secrets — NE JAMAIS committer
+supabase-invitations.sql
+*.secret
+.env
+.env.*

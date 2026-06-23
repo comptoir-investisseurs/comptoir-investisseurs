@@ -8,6 +8,27 @@
   const totalSteps = steps.length;
   let current = 0;
 
+  // ---------- Invitation token (lien email personnalisé) ----------
+  const inviteToken = new URLSearchParams(window.location.search).get('token');
+
+  if(inviteToken && SUPABASE_URL && !SUPABASE_URL.includes('VOTRE_PROJET')){
+    // Pré-remplir les coordonnées à partir de l'invitation
+    fetch(SUPABASE_URL + '/rest/v1/invitations?select=nom,prenom,email&token=eq.' + encodeURIComponent(inviteToken), {
+      headers: {'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY}
+    })
+    .then(r => r.json())
+    .then(rows => {
+      if(rows && rows[0]){
+        const inv = rows[0];
+        const set = (id, val) => { const el = document.getElementById(id); if(el && val) el.value = val; };
+        set('nom', inv.nom);
+        set('prenom', inv.prenom);
+        set('email', inv.email);
+      }
+    })
+    .catch(() => {});
+  }
+
   function showStep(idx){
     steps.forEach((s,i) => s.classList.toggle('is-visible', i === idx));
     dots.forEach((d,i) => {
@@ -87,6 +108,8 @@
     data.consentement_commercial = (data.consentement_commercial && data.consentement_commercial.length > 0);
     // Parse nb_enfants as integer
     if(data.nb_enfants) data.nb_enfants = parseInt(data.nb_enfants, 10) || 0;
+    // Lier la réponse à l'invitation d'origine
+    if(inviteToken) data.invitation_token = inviteToken;
     return data;
   }
 
@@ -132,6 +155,19 @@
     })
     .then(res => {
       if(!res.ok) throw new Error('Erreur ' + res.status);
+      // Marquer l'invitation comme complétée
+      if(inviteToken){
+        fetch(SUPABASE_URL + '/rest/v1/invitations?token=eq.' + encodeURIComponent(inviteToken), {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({completed: true, completed_at: new Date().toISOString()})
+        }).catch(() => {});
+      }
       showSuccess();
     })
     .catch(err => {
