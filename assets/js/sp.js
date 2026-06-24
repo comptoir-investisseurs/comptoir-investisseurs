@@ -454,7 +454,7 @@
       cell('Famille', esc(p.fam||'—')),
       cell('Émetteur', esc(p.emetteur||'—')),
       cell('Devise', esc(p.dev||'EUR')),
-      cell('Nominal unitaire', p.nominalRef!=null?money(p.nominalRef,p.dev):'—'),
+      cell('Nominal unitaire', money(1000,p.dev)),
       p.nomTot!=null?cell('Taille book', compact(toEur(p.nomTot,p.dev))):'',
       p.cpnPercus!=null?cell('Coupons perçus', compact(toEur(p.cpnPercus,p.dev))):'',
     ]);
@@ -553,11 +553,12 @@
     if(window.innerWidth<=1240){ scroll.style.maxHeight=''; return; }   // layout empilé
     // 1) on « réduit » le calendrier pour qu'il ne gonfle plus la rangée
     scroll.style.maxHeight='60px';
-    const chrome=calCard.offsetHeight - scroll.offsetHeight;            // h4 + onglets + paddings
+    const _cs=getComputedStyle(calCard);
+    const chrome=(scroll.getBoundingClientRect().top-calCard.getBoundingClientRect().top)+parseFloat(_cs.paddingBottom||0);            // h4 + onglets + paddings
     // 2) hauteur cible = hauteur naturelle de la rangée (conditions / graphe)
     const rowH=cond.offsetHeight;
     // 3) le calendrier remplit cette hauteur (molette si plus long)
-    scroll.style.maxHeight=Math.max(180, rowH - chrome)+'px';
+    scroll.style.maxHeight=Math.max(160, rowH - chrome)+'px';
     // la rangée a pu changer de hauteur : on redessine le graphe à la bonne taille
     if(chartState) requestAnimationFrame(paint);
   }
