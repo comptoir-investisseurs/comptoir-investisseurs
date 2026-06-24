@@ -344,13 +344,19 @@
     const sch=genSchedule(p);
     box.innerHTML = `
       <div class="sp-phead">
-        <div class="sp-phead__badges">
-          <span class="sp-badge fam">${esc(p.fam||'Structuré')}</span>
-          <span class="sp-badge ${status==='LIVE'?'live':'done'}">${status==='LIVE'?'En cours':'Soldé'}</span>
-          ${p.ac!=null?`<span class="sp-badge">Autocall ${pct(p.ac,0)}${p.trig?' ↓':''}</span>`:''}
-          ${p.mem?`<span class="sp-badge">Mémoire</span>`:''}
-          ${p.trig?`<span class="sp-badge">Trigger dégressif</span>`:''}
-          <span class="sp-badge">${esc(p.dev||'EUR')}</span>
+        <div class="sp-phead__top">
+          <div class="sp-phead__badges">
+            <span class="sp-badge fam">${esc(p.fam||'Structuré')}</span>
+            <span class="sp-badge ${status==='LIVE'?'live':'done'}">${status==='LIVE'?'En cours':'Soldé'}</span>
+            ${p.ac!=null?`<span class="sp-badge">Autocall ${pct(p.ac,0)}${p.trig?' ↓':''}</span>`:''}
+            ${p.mem?`<span class="sp-badge">Mémoire</span>`:''}
+            ${p.trig?`<span class="sp-badge">Trigger dégressif</span>`:''}
+            <span class="sp-badge">${esc(p.dev||'EUR')}</span>
+          </div>
+          <div class="sp-phead__search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="7"/><path d="M21 21l-5-5"/></svg>
+            <input id="sp-search-mini" list="sp-isin-list" placeholder="Autre ISIN / produit…" autocomplete="off">
+          </div>
         </div>
         <h2 class="sp-phead__name">${esc(p.lib||p.isin)}</h2>
         <div class="sp-phead__meta">
@@ -388,7 +394,13 @@
         </div>
       </div>`;
 
-    if(uls.length){ setTimeout(()=>{ drawChart(p); renderBarriers(p); },20); }
+    const sb=document.querySelector('.sp-searchbar'); if(sb) sb.hidden=true;
+    const mini=document.getElementById('sp-search-mini');
+    if(mini){ mini.addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(mini.value); });
+      mini.addEventListener('change',()=>{ if(productsMap.has(mini.value.trim().toUpperCase())) doSearch(mini.value); }); }
+    bindCalTabs();
+    if(uls.length){ setTimeout(()=>{ drawChart(p); renderBarriers(p); syncCalHeight(); },20); }
+    else { setTimeout(syncCalHeight,20); }
     bindAlloc(p);
   }
 
@@ -443,13 +455,10 @@
       cell('Émetteur', esc(p.emetteur||'—')),
       cell('Devise', esc(p.dev||'EUR')),
       cell('Nominal unitaire', p.nominalRef!=null?money(p.nominalRef,p.dev):'—'),
-    ]);
-    const book=grp('Book interne',[
       p.nomTot!=null?cell('Taille book', compact(toEur(p.nomTot,p.dev))):'',
       p.cpnPercus!=null?cell('Coupons perçus', compact(toEur(p.cpnPercus,p.dev))):'',
-      p.nL!=null?cell('Lignes au book', String(p.nL)):'',
     ]);
-    return rendement+barrieres+dates+carac+book;
+    return rendement+barrieres+dates+carac;
   }
 
   function currentLevels(p){
@@ -509,17 +518,48 @@
     if(!sch.length) return '<p class="sp-muted">Calendrier indisponible (dates manquantes).</p>';
     const showCoupons = !isAthena(p) && p.coupon!=null;
     const showAutocall = p.ac!=null;
-    const blocks=[];
-    if(showAutocall){
-      blocks.push(`<div class="sp-cal-block"><div class="sp-cal-h">Rappels anticipés (autocall)${p.trig?' · seuil dégressif':''}</div>${calTable(sch, 'autocall', p)}</div>`);
-    }
+    const tabs=[], panes=[];
     if(showCoupons){
-      blocks.push(`<div class="sp-cal-block"><div class="sp-cal-h">Coupons${p.mem?' · à mémoire':''}</div>${calTable(sch, 'coupon', p)}</div>`);
+      tabs.push(`<button class="sp-cal-tab is-active" data-pane="cpn">Coupons${p.mem?' · mémoire':''}</button>`);
+      panes.push(`<div class="sp-cal-pane is-active" data-pane="cpn">${calTable(sch,'coupon',p)}</div>`);
     }
-    if(!blocks.length){ // BRC / note sans autocall : on montre quand même les coupons
-      blocks.push(`<div class="sp-cal-block"><div class="sp-cal-h">Coupons</div>${calTable(sch,'coupon',p)}</div>`);
+    if(showAutocall){
+      const a=showCoupons?'':' is-active';
+      tabs.push(`<button class="sp-cal-tab${a}" data-pane="ac">Autocalls${p.trig?' ↓':''}</button>`);
+      panes.push(`<div class="sp-cal-pane${a}" data-pane="ac">${calTable(sch,'autocall',p)}</div>`);
     }
-    return `<div class="sp-cal-scroll">${blocks.join('')}</div>`;
+    if(!panes.length){
+      tabs.push(`<button class="sp-cal-tab is-active" data-pane="cpn">Coupons</button>`);
+      panes.push(`<div class="sp-cal-pane is-active" data-pane="cpn">${calTable(sch,'coupon',p)}</div>`);
+    }
+    const bar = tabs.length>1?`<div class="sp-cal-tabs">${tabs.join('')}</div>`:'';
+    return `${bar}<div class="sp-cal-scroll">${panes.join('')}</div>`;
+  }
+  function bindCalTabs(){
+    const card=document.querySelector('.sp-cal-card'); if(!card) return;
+    card.querySelectorAll('.sp-cal-tab').forEach(b=>b.addEventListener('click',()=>{
+      const pane=b.dataset.pane;
+      card.querySelectorAll('.sp-cal-tab').forEach(x=>x.classList.toggle('is-active',x===b));
+      card.querySelectorAll('.sp-cal-pane').forEach(x=>x.classList.toggle('is-active',x.dataset.pane===pane));
+    }));
+  }
+  // Cale la hauteur du calendrier sur celle des conditions : bords bas alignés,
+  // molette interne si le calendrier dépasse (sans gonfler la fiche).
+  function syncCalHeight(){
+    const cond=document.querySelector('.sp-cond-card');
+    const calCard=document.querySelector('.sp-cal-card');
+    if(!cond||!calCard) return;
+    const scroll=calCard.querySelector('.sp-cal-scroll'); if(!scroll) return;
+    if(window.innerWidth<=1240){ scroll.style.maxHeight=''; return; }   // layout empilé
+    // 1) on « réduit » le calendrier pour qu'il ne gonfle plus la rangée
+    scroll.style.maxHeight='60px';
+    const chrome=calCard.offsetHeight - scroll.offsetHeight;            // h4 + onglets + paddings
+    // 2) hauteur cible = hauteur naturelle de la rangée (conditions / graphe)
+    const rowH=cond.offsetHeight;
+    // 3) le calendrier remplit cette hauteur (molette si plus long)
+    scroll.style.maxHeight=Math.max(180, rowH - chrome)+'px';
+    // la rangée a pu changer de hauteur : on redessine le graphe à la bonne taille
+    if(chartState) requestAnimationFrame(paint);
   }
 
   /* ---- graphique multi-séries ---- */
@@ -546,7 +586,7 @@
       chartState.range=b.dataset.r; paint();
     }));
 
-    const ro=()=>paint();
+    const ro=()=>{ paint(); syncCalHeight(); };
     window.removeEventListener('resize', chartState._ro||(()=>{}));
     chartState._ro=ro; window.addEventListener('resize', ro);
     paint();
@@ -566,7 +606,8 @@
     const canvas=document.getElementById('sp-chart'); if(!canvas) return;
     const tip=document.getElementById('sp-tip');
     const dpr=window.devicePixelRatio||1;
-    const w=canvas.parentElement.getBoundingClientRect().width, h=262;
+    const box=canvas.parentElement, rect=box.getBoundingClientRect();
+    const w=rect.width; let h=rect.height; if(!h||h<200) h=262;
     canvas.width=w*dpr; canvas.height=h*dpr; canvas.style.width=w+'px'; canvas.style.height=h+'px';
     const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
     const pad={t:14,r:52,b:24,l:14};

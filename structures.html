@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/questionnaire.css">
 <link rel="stylesheet" href="assets/css/admin.css?v=6">
-<link rel="stylesheet" href="assets/css/sp.css?v=3">
+<link rel="stylesheet" href="assets/css/sp.css?v=4">
 </head>
 <body class="admin-body">
 
@@ -114,8 +114,12 @@
 
     <!-- ===== VIEW: VUE D'ENSEMBLE ===== -->
     <div class="dash-view is-active" id="view-apercu">
-      <div class="dash-toolbar">
-        <select class="dash-search" id="ov-client" style="flex:1;min-width:240px;padding-left:14px"></select>
+      <div class="ov-toolbar">
+        <span class="ov-toolbar__lbl">Périmètre</span>
+        <div class="ov-select">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13A4 4 0 0119 7"/></svg>
+          <select id="ov-client"></select>
+        </div>
       </div>
       <div id="ov-body" class="sp-ov"></div>
     </div>
@@ -174,6 +178,6 @@
 <script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/sp-data.js?v=2"></script>
-<script src="assets/js/sp.js?v=3"></script>
+<script src="assets/js/sp.js?v=4"></script>
 </body>
 </html>
