@@ -40,6 +40,8 @@ ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS next_cpn  date;
 ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS final_obs date;
 ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS mem       boolean DEFAULT false;
 ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS trig      boolean DEFAULT false;
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS trig_step numeric;   -- décrément autocall (0.05 = −5 %)
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS trig_freq text;      -- fréquence du décrément
 ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS deleted   boolean DEFAULT false;
 
 -- 2) Positions / allocations (lignes du portefeuille)
