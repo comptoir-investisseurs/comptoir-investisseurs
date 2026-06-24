@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/questionnaire.css">
 <link rel="stylesheet" href="assets/css/admin.css?v=6">
-<link rel="stylesheet" href="assets/css/sp.css?v=2">
+<link rel="stylesheet" href="assets/css/sp.css?v=3">
 </head>
 <body class="admin-body">
 
@@ -63,14 +63,14 @@
 
     <!-- Tabs -->
     <div class="dash-tabs">
-      <button class="dash-tab is-active" data-tab="suivi">Suivi produit</button>
+      <button class="dash-tab is-active" data-tab="apercu">Vue d'ensemble</button>
+      <button class="dash-tab" data-tab="suivi">Suivi produit</button>
       <button class="dash-tab" data-tab="portefeuille">Portefeuille <span class="count" id="tab-count-pf">0</span></button>
-      <button class="dash-tab" data-tab="apercu">Vue d'ensemble</button>
       <button class="dash-tab" data-tab="reporting">Reporting client</button>
     </div>
 
     <!-- ===== VIEW: SUIVI PRODUIT ===== -->
-    <div class="dash-view is-active" id="view-suivi">
+    <div class="dash-view" id="view-suivi">
 
       <div class="sp-searchbar">
         <div class="sp-search-field">
@@ -113,7 +113,7 @@
     </div>
 
     <!-- ===== VIEW: VUE D'ENSEMBLE ===== -->
-    <div class="dash-view" id="view-apercu">
+    <div class="dash-view is-active" id="view-apercu">
       <div class="dash-toolbar">
         <select class="dash-search" id="ov-client" style="flex:1;min-width:240px;padding-left:14px"></select>
       </div>
@@ -174,6 +174,6 @@
 <script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/sp-data.js?v=2"></script>
-<script src="assets/js/sp.js?v=2"></script>
+<script src="assets/js/sp.js?v=3"></script>
 </body>
 </html>

@@ -71,7 +71,7 @@
       .then(afterLoad)
       .catch(e => { console.warn(e); afterLoad(); });
   }
-  function afterLoad(){ buildIsinList(); updateStats(); renderSuggest(); renderPortfolio(); buildReportSelect(); buildOverviewClientSelect(); }
+  function afterLoad(){ buildIsinList(); updateStats(); renderSuggest(); renderPortfolio(); buildReportSelect(); buildOverviewClientSelect(); renderOverview(); }
 
   function loadSbProducts(){
     if(!SB) return;
@@ -107,13 +107,13 @@
     return { isin:r.isin, lib:r.lib, emetteur:r.emetteur, dev:r.dev||'EUR', coupon:r.coupon, freq:r.freq,
       ac:r.ac, bcap:r.bcap, bcpn:r.bcpn, strike:r.strike, emission:r.emission, nextObs:r.next_obs, nextCpn:r.next_cpn,
       finalObs:r.final_obs, maturity:r.maturity, trade:r.trade_date, nominalRef:r.nominal_ref,
-      fam:r.fam||'Autre', mem:r.mem, trig:r.trig, uls:r.uls||[], _db:true };
+      fam:r.fam||'Autre', mem:r.mem, trig:r.trig, trigStep:r.trig_step, trigFreq:r.trig_freq, uls:r.uls||[], _db:true };
   }
   function toDbProduct(p){
     return { isin:p.isin, lib:p.lib, emetteur:p.emetteur, dev:p.dev, coupon:p.coupon, freq:p.freq,
       ac:p.ac, bcap:p.bcap, bcpn:p.bcpn, strike:p.strike, emission:p.emission||null, next_obs:p.nextObs,
       next_cpn:p.nextCpn||null, final_obs:p.finalObs||null, maturity:p.maturity, trade_date:p.trade,
-      nominal_ref:p.nominalRef, fam:p.fam, mem:!!p.mem, trig:!!p.trig, uls:p.uls };
+      nominal_ref:p.nominalRef, fam:p.fam, mem:!!p.mem, trig:!!p.trig, trig_step:p.trigStep||null, trig_freq:p.trigFreq||null, uls:p.uls };
   }
   function fromDbPosition(r){
     return { id:r.id, seed_id:r.seed_id, isin:r.isin, prenom:r.prenom, nom:r.nom, pole:r.pole, compte:r.compte,
@@ -160,9 +160,11 @@
   const FX={EUR:1,USD:0.92,CHF:1.04,GBP:1.17};
   function toEur(n,dev){ return n==null?null:n*(FX[dev]||1); }
 
-  const UL_COLORS=['#2563eb','#dc2626','#d97706','#7c3aed','#0891b2'];
+  // palette « camaïeu » LFDR : verts, or, terre — une couleur par sous-jacent
+  const UL_COLORS=['#1f4d2e','#A9853F','#5b7d6a','#356a78','#9c6b3f'];
   function ulColor(i){ return UL_COLORS[i%UL_COLORS.length]; }
-  const WORST_COLOR='#0b1f12';
+  // couleurs cohérentes des barrières (chart + jauge + chips)
+  const BARC={strike:'#9a978f', ac:'#A9853F', cpn:'#3f6b4a', cap:'#b04a32'};
 
   /* ---------------- SIMULATEUR DE COURS (déterministe par sous-jacent) ---------------- */
   const EPOCH = new Date(2018,0,1);
@@ -234,13 +236,17 @@
   }
   // Fin de vie « graphique » : aujourd'hui (vivant) ou date de rappel (soldé).
   function lifeEnd(p){ const cd=callDate(p); if(cd) return cd; const mat=pd(p.maturity); const t=today(); return (mat&&mat<t)?mat:t; }
-  // Seuil autocall à une observation k (0-based), avec dégressivité éventuelle (indicatif).
+  // Dégressivité du seuil autocall (Trigger Descending) : décrément + fréquence.
+  function trigStepOf(p){ return p.trigStep!=null?p.trigStep:0.05; }      // défaut -5 %
+  function trigFreqOf(p){ return p.trigFreq||'Annuelle'; }                // défaut /an
+  // Seuil autocall à une observation k (0-based), avec dégressivité éventuelle.
   function trigAt(p,k){
     if(p.ac==null) return null;
     if(!p.trig) return p.ac;
-    const m=freqMonths(p.freq)||3; const stepObs=0.05*m/12;          // ~5 %/an
+    const obsM=freqMonths(p.freq)||3, decM=freqMonths(trigFreqOf(p))||12;
+    const nDec=Math.floor((k*obsM)/decM);
     const floor=(p.bcpn!=null?p.bcpn:0.6);
-    return Math.max(floor, +(p.ac - stepObs*k).toFixed(4));
+    return Math.max(floor, +(p.ac - trigStepOf(p)*nDec).toFixed(4));
   }
   // Calendrier unifié : une entrée par observation.
   function genSchedule(p){
@@ -265,7 +271,7 @@
   }
 
   /* ---------------- TABS ---------------- */
-  let activeTab='suivi';
+  let activeTab='apercu';
   document.querySelectorAll('.dash-tab').forEach(btn=>{
     btn.addEventListener('click',()=>{
       activeTab=btn.dataset.tab;
@@ -405,39 +411,45 @@
     }));
   }
 
-  /* ---- conditions : toutes les infos disponibles ---- */
+  /* ---- conditions : organisées par groupe ---- */
   function cell(k,v,cls){ return `<div class="sp-kv ${cls||''}"><div class="k">${k}</div><div class="v">${v}</div></div>`; }
+  function grp(title, cells){ cells=cells.filter(Boolean); if(!cells.length) return ''; return `<div class="sp-kv-sub">${title}</div><div class="sp-kv-grid">${cells.join('')}</div>`; }
   function conditionsHTML(p){
     const m=freqMonths(p.freq);
     const couponPer=(p.coupon!=null&&m)?p.coupon*m/12:p.coupon;
     const status=productStatus(p);
-    const acTxt = p.ac!=null ? (pct(p.ac,0)+(p.trig?' · dégressif':'')) : '—';
-    const cells=[
+    const rendement=grp('Rendement',[
       cell('Coupon annuel', p.coupon!=null?`<span class="hi">${pct(p.coupon,2)}</span>`:'—'),
       cell('Par '+freqWord(p.freq), couponPer!=null?pct(couponPer,3):'—'),
-      cell('Fréquence d\'obs.', esc(p.freq||'—')),
-      cell('Coupon à mémoire', p.mem?'Oui':'Non'),
+      cell('Fréquence', esc(p.freq||'—')),
+      cell('Mémoire', p.mem?'Oui':'Non'),
+    ]);
+    const barrieres=grp('Barrières & autocall',[
       cell('Barrière capital', p.bcap!=null?pct(p.bcap,0):'—'),
       cell('Barrière coupon', p.bcpn!=null?pct(p.bcpn,0):'—'),
-      cell('Seuil autocall', acTxt),
-      cell('Famille', esc(p.fam||'—')),
-      cell('Date de strike', fmtShort(p.strike)),
-      cell('Date d\'émission', fmtShort(p.emission)),
+      cell('Seuil autocall', p.ac!=null?pct(p.ac,0):'—'),
+      p.trig?cell('Dégressivité', '−'+pct(trigStepOf(p),2)+' / '+freqWord(trigFreqOf(p))):'',
+    ]);
+    const dates=grp('Dates',[
+      cell('Strike', fmtShort(p.strike)),
+      cell('Émission', fmtShort(p.emission)),
       cell('Constatation finale', fmtShort(p.finalObs)),
-      cell('Échéance finale', fmtShort(p.maturity)),
+      cell('Échéance', fmtShort(p.maturity)),
       cell('Prochaine obs.', status==='LIVE'?fmtShort(p.nextObs):'—'),
       cell('Prochain coupon', status==='LIVE'?fmtShort(p.nextCpn||p.nextObs):'—'),
-      cell('Nominal unitaire', p.nominalRef!=null?money(p.nominalRef,p.dev):'—'),
+    ]);
+    const carac=grp('Caractéristiques',[
+      cell('Famille', esc(p.fam||'—')),
+      cell('Émetteur', esc(p.emetteur||'—')),
       cell('Devise', esc(p.dev||'EUR')),
-    ];
-    // données book agrégées (si présentes)
-    const book=[];
-    if(p.nomTot!=null) book.push(cell('Taille book', compact(toEur(p.nomTot,p.dev))));
-    if(p.nomLive!=null) book.push(cell('Encours vivant', compact(toEur(p.nomLive,p.dev))));
-    if(p.cpnPercus!=null) book.push(cell('Coupons perçus', compact(toEur(p.cpnPercus,p.dev))));
-    if(p.nL!=null) book.push(cell('Lignes au book', String(p.nL)));
-    if(p.vend&&p.vend.length) book.push(cell('Vendeur(s)', esc(p.vend.join(', '))));
-    return `<div class="sp-kv-grid">${cells.join('')}</div>${book.length?`<div class="sp-kv-sub">Book interne</div><div class="sp-kv-grid">${book.join('')}</div>`:''}`;
+      cell('Nominal unitaire', p.nominalRef!=null?money(p.nominalRef,p.dev):'—'),
+    ]);
+    const book=grp('Book interne',[
+      p.nomTot!=null?cell('Taille book', compact(toEur(p.nomTot,p.dev))):'',
+      p.cpnPercus!=null?cell('Coupons perçus', compact(toEur(p.cpnPercus,p.dev))):'',
+      p.nL!=null?cell('Lignes au book', String(p.nL)):'',
+    ]);
+    return rendement+barrieres+dates+carac+book;
   }
 
   function currentLevels(p){
@@ -455,23 +467,23 @@
     const inline=document.getElementById('sp-worst-inline');
     if(inline) inline.textContent = cur.worst!=null?`— pire : ${worstName} ${cur.worst.toFixed(1)}%`:'';
     const bars=[];
-    if(p.ac!=null)  bars.push({name:'Autocall', lvl:p.ac*100, color:'#A9853F'});
-    if(p.bcpn!=null)bars.push({name:'Coupon', lvl:p.bcpn*100, color:'#2563eb'});
-    if(p.bcap!=null)bars.push({name:'Capital', lvl:p.bcap*100, color:'#dc2626'});
+    if(p.ac!=null)  bars.push({name:'Autocall', lvl:p.ac*100, color:BARC.ac});
+    if(p.bcpn!=null)bars.push({name:'Coupon', lvl:p.bcpn*100, color:BARC.cpn});
+    if(p.bcap!=null)bars.push({name:'Capital', lvl:p.bcap*100, color:BARC.cap});
     const w=cur.worst==null?100:cur.worst;
     const lo=Math.min(40, ...bars.map(b=>b.lvl-8), w-8), hi=Math.max(125, w+8);
     const posPct=v=>Math.max(2,Math.min(98,(v-lo)/((hi-lo)||1)*100));
-    // une seule jauge avec le pire sous-jacent + les barrières positionnées
-    const ticks=bars.map(b=>`<div class="sp-g-bar" style="left:${posPct(b.lvl)}%;background:${b.color}"><span style="color:${b.color}">${b.name} ${b.lvl.toFixed(0)}%</span></div>`).join('');
+    // jauge épurée : ticks colorés sans texte (les valeurs sont dans les chips dessous)
+    const ticks=bars.map(b=>`<div class="sp-g-bar" style="left:${posPct(b.lvl)}%;background:${b.color}" title="${b.name} ${b.lvl.toFixed(0)}%"></div>`).join('');
     host.innerHTML=`
       <div class="sp-gauge">
         <div class="sp-g-track"></div>
         ${ticks}
         <div class="sp-g-cur" style="left:${posPct(w)}%"><i></i><b>${w.toFixed(1)}%</b></div>
-        <div class="sp-g-scale"><span>${lo.toFixed(0)}%</span><span>${hi.toFixed(0)}%</span></div>
+        <div class="sp-g-scale"><span>${lo.toFixed(0)}%</span><span>strike 100%</span><span>${hi.toFixed(0)}%</span></div>
       </div>
       <div class="sp-bar-dist">${bars.map(b=>{ const d=w-b.lvl; const sev=d>12?'safe':(d>0?'warn':'danger');
-        return `<span class="sp-dist ${sev}"><i style="background:${b.color}"></i>${b.name} <b>${d>=0?'+':''}${d.toFixed(1)} pts</b></span>`; }).join('')}</div>`;
+        return `<span class="sp-dist ${sev}"><i style="background:${b.color}"></i>${b.name} ${b.lvl.toFixed(0)}% <b>${d>=0?'+':''}${d.toFixed(1)} pts</b></span>`; }).join('')}</div>`;
   }
 
   /* ---- calendrier : coupons + autocalls séparés ---- */
@@ -516,20 +528,16 @@
     const uls=(p.uls||[]);
     const end=lifeEnd(p);
     const series = uls.map((u,i)=>({name:u.n, color:ulColor(i), pts:rebasedSeries(u.n,p.strike,end,targetLevel(p,u.n)), on:true}));
-    const len=Math.min(...series.map(s=>s.pts.length));
-    const worst=[]; for(let k=0;k<len;k++){ let mv=Infinity,t=series[0].pts[k].t; series.forEach(s=>{ if(s.pts[k].v<mv){mv=s.pts[k].v;} }); worst.push({t,v:mv}); }
     const obs=observationDates(p).map(d=>d.getTime());
-    chartState={p, series, worst, range:'max', hover:-1, showWorst:uls.length>1, showObs:true, obs};
+    chartState={p, series, range:'max', hover:-1, showObs:true, obs};
 
     const leg=document.getElementById('sp-legend');
     leg.innerHTML = series.map((s,i)=>`<span class="sp-leg" data-i="${i}"><span class="ln" style="background:${s.color}"></span><b>${esc(s.name)}</b></span>`).join('')
-      + (chartState.showWorst?`<span class="sp-leg" data-i="worst"><span class="ln" style="background:${WORST_COLOR};height:4px"></span><b>Pire sous-jacent</b></span>`:'')
       + `<span class="sp-leg" data-i="obs"><span class="ln dotted"></span><b>Observations</b></span>`
       + `<span class="sp-rangebtns">${['1A','3A','Max'].map(r=>`<button data-r="${r}" class="${r==='Max'?'on':''}">${r}</button>`).join('')}</span>`;
     leg.querySelectorAll('.sp-leg[data-i]').forEach(el=>el.addEventListener('click',()=>{
       const id=el.dataset.i;
-      if(id==='worst'){ chartState.showWorst=!chartState.showWorst; el.classList.toggle('off',!chartState.showWorst); }
-      else if(id==='obs'){ chartState.showObs=!chartState.showObs; el.classList.toggle('off',!chartState.showObs); }
+      if(id==='obs'){ chartState.showObs=!chartState.showObs; el.classList.toggle('off',!chartState.showObs); }
       else { const s=series[+id]; s.on=!s.on; el.classList.toggle('off',!s.on); }
       paint();
     }));
@@ -554,7 +562,7 @@
   }
   function paint(){
     if(!chartState) return;
-    const {p, series, worst} = chartState;
+    const {p, series} = chartState;
     const canvas=document.getElementById('sp-chart'); if(!canvas) return;
     const tip=document.getElementById('sp-tip');
     const dpr=window.devicePixelRatio||1;
@@ -577,7 +585,6 @@
     if(tmax<=tmin) tmax=tmin+86400000;
 
     const allPts=[]; visible.forEach(s=>s.pts.forEach(pt=>{ if(pt.t>=tmin) allPts.push(pt.v); }));
-    if(chartState.showWorst) worst.forEach(pt=>{ if(pt.t>=tmin) allPts.push(pt.v); });
     const barr=[100]; if(p.ac!=null)barr.push(p.ac*100); if(p.bcpn!=null)barr.push(p.bcpn*100); if(p.bcap!=null)barr.push(p.bcap*100);
     let lo=Math.min(...allPts, ...barr), hi=Math.max(...allPts, ...barr);
     if(!isFinite(lo)){lo=50;hi=120;} const padR=(hi-lo)*0.08||5; lo-=padR; hi+=padR;
@@ -597,14 +604,15 @@
       ctx.strokeStyle='#eee8da'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
       ctx.fillStyle='#a8a496'; ctx.textAlign='left'; ctx.fillText(v.toFixed(0)+'%', x1+6, y); }
 
-    // lignes de barrière
-    function barLine(v,col,label){ if(v==null) return; const y=sy(v*100);
-      ctx.strokeStyle=col; ctx.lineWidth=1.3; ctx.setLineDash([5,3]); ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle=col; ctx.font='600 9px Jost,sans-serif'; ctx.textAlign='left'; ctx.fillText(label, x0+3, y-6); }
-    barLine(1,'#9a978f','Strike 100%');
-    if(p.ac!=null) barLine(p.ac,'#A9853F','Autocall '+(p.ac*100).toFixed(0)+'%');
-    if(p.bcpn!=null) barLine(p.bcpn,'#2563eb','Coupon '+(p.bcpn*100).toFixed(0)+'%');
-    if(p.bcap!=null) barLine(p.bcap,'#dc2626','Capital '+(p.bcap*100).toFixed(0)+'%');
+    // lignes de barrière (couleurs cohérentes + labels décalés pour éviter les chevauchements)
+    const blines=[{v:1,col:BARC.strike,t:'Strike 100%'}];
+    if(p.ac!=null) blines.push({v:p.ac,col:BARC.ac,t:'Autocall '+(p.ac*100).toFixed(0)+'%'});
+    if(p.bcpn!=null) blines.push({v:p.bcpn,col:BARC.cpn,t:'Coupon '+(p.bcpn*100).toFixed(0)+'%'});
+    if(p.bcap!=null) blines.push({v:p.bcap,col:BARC.cap,t:'Capital '+(p.bcap*100).toFixed(0)+'%'});
+    blines.forEach(b=>{ const y=sy(b.v*100); ctx.strokeStyle=b.col; ctx.lineWidth=1.2; ctx.setLineDash([5,3]); ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); ctx.setLineDash([]); });
+    ctx.font='600 9px Jost,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    const lbl=blines.map(b=>({col:b.col,t:b.t,y:sy(b.v*100)})).sort((a,b)=>a.y-b.y);
+    let lastY=-1e9; lbl.forEach(b=>{ let ly=b.y-7; if(ly-lastY<11) ly=lastY+11; lastY=ly; ctx.fillStyle=b.col; ctx.fillText(b.t, x0+3, ly); });
 
     // droites verticales d'observation (pointillés)
     if(chartState.showObs){
@@ -633,12 +641,10 @@
       ctx.beginPath(); vis.forEach((pt,i)=>{ const X=sx(pt.t),Y=sy(pt.v); i?ctx.lineTo(X,Y):ctx.moveTo(X,Y); });
       ctx.strokeStyle=col; ctx.lineWidth=width; ctx.lineJoin='round'; ctx.stroke();
     }
-    visible.forEach(s=>drawSeries(s.pts,s.color,1.7,false));
-    if(chartState.showWorst) drawSeries(worst,WORST_COLOR,2.4,true);
+    visible.forEach(s=>drawSeries(s.pts,s.color,1.8,false));
 
     // points de fin
-    const endPts=visible.concat(chartState.showWorst?[{pts:worst,color:WORST_COLOR}]:[]);
-    endPts.forEach(s=>{ const vis=s.pts.filter(pt=>pt.t>=tmin); if(!vis.length)return; const last=vis[vis.length-1];
+    visible.forEach(s=>{ const vis=s.pts.filter(pt=>pt.t>=tmin); if(!vis.length)return; const last=vis[vis.length-1];
       ctx.beginPath(); ctx.arc(sx(last.t),sy(last.v),3.4,0,7); ctx.fillStyle=s.color; ctx.fill();
       ctx.strokeStyle='#fff'; ctx.lineWidth=1.4; ctx.stroke(); });
 
@@ -649,11 +655,10 @@
         const x=sx(tHov);
         ctx.strokeStyle='rgba(0,27,0,.18)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke(); ctx.setLineDash([]);
         const rows=[]; let nearestDate=null;
-        const all=visible.concat(chartState.showWorst?[{name:'Pire',color:WORST_COLOR,pts:worst}]:[]);
-        all.forEach(s=>{ const vis=s.pts.filter(pt=>pt.t>=tmin); if(!vis.length)return;
+        visible.forEach(s=>{ const vis=s.pts.filter(pt=>pt.t>=tmin); if(!vis.length)return;
           let nb=vis[0],md=Infinity; vis.forEach(pt=>{const d=Math.abs(pt.t-tHov); if(d<md){md=d;nb=pt;}}); nearestDate=nb.t;
           ctx.beginPath(); ctx.arc(sx(nb.t),sy(nb.v),4,0,7); ctx.fillStyle=s.color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
-          rows.push(`<div class="r"><span>${esc(s.name)}</span><span class="v" style="color:${s.color===WORST_COLOR?'#e6c988':'#fff'}">${nb.v.toFixed(1)}%</span></div>`); });
+          rows.push(`<div class="r"><span>${esc(s.name)}</span><span class="v" style="color:#fff">${nb.v.toFixed(1)}%</span></div>`); });
         if(tip){ tip.innerHTML=`<div class="d">${fmtShort(new Date(nearestDate))}</div>${rows.join('')}`;
           tip.style.opacity=1; let tx=x+12; if(tx> w-150) tx=x-145; tip.style.left=tx+'px'; tip.style.top='14px'; }
       } else if(tip){ tip.style.opacity=0; }
@@ -866,6 +871,8 @@
         <div class="sp-fld"><label>Barrière capital (ex 0.6)</label><input id="e-bcap" type="number" step="0.01" value="${p.bcap!=null?p.bcap:''}"></div>
         <div class="sp-fld sp-check"><label><input type="checkbox" id="e-mem" ${p.mem?'checked':''}> Coupon à mémoire</label></div>
         <div class="sp-fld sp-check"><label><input type="checkbox" id="e-trig" ${p.trig?'checked':''}> Autocall dégressif (Trigger Descending)</label></div>
+        <div class="sp-fld"><label>Décrément autocall (ex 0.05 = −5 %)</label><input id="e-trigstep" type="number" step="0.005" value="${p.trigStep!=null?p.trigStep:''}" placeholder="0.05"></div>
+        <div class="sp-fld"><label>Fréquence de décrément</label><select id="e-trigfreq">${['Annuelle','Semestrielle','Trimestrielle','Mensuelle'].map(f=>`<option ${f===(p.trigFreq||'Annuelle')?'selected':''}>${f}</option>`).join('')}</select></div>
         <div class="sp-fld"><label>Date de strike</label><input id="e-strike" type="date" value="${p.strike?String(p.strike).slice(0,10):''}"></div>
         <div class="sp-fld"><label>Date d'émission</label><input id="e-emission" type="date" value="${p.emission?String(p.emission).slice(0,10):''}"></div>
         <div class="sp-fld"><label>Prochaine observation</label><input id="e-nextobs" type="date" value="${p.nextObs?String(p.nextObs).slice(0,10):''}"></div>
@@ -890,6 +897,7 @@
       coupon:numv('e-coupon'), freq:val('e-freq'), ac:numv('e-ac'), bcpn:numv('e-bcpn'), bcap:numv('e-bcap'),
       mem:document.getElementById('e-mem')&&document.getElementById('e-mem').checked,
       trig:document.getElementById('e-trig')&&document.getElementById('e-trig').checked,
+      trigStep:numv('e-trigstep'), trigFreq:val('e-trigfreq'),
       strike:val('e-strike')||null, emission:val('e-emission')||null, nextObs:val('e-nextobs')||null,
       nextCpn:val('e-nextcpn')||null, finalObs:val('e-finalobs')||null, maturity:val('e-maturity')||null,
       nominalRef:numv('e-nominalref'), uls,
