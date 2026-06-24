@@ -188,6 +188,9 @@
 .act-row__client{font-size:.8rem;color:var(--gold);font-weight:500;margin-top:2px}
 
 /* ---------- PORTFOLIO ---------- */
+.pf-toolbar{display:flex;justify-content:flex-end;margin-bottom:16px}
+.pf-export-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#fff;border:1px solid var(--line);border-radius:8px;font-family:var(--sans);font-size:.84rem;font-weight:500;color:var(--green);cursor:pointer;transition:all .2s}
+.pf-export-btn:hover{border-color:var(--green);background:var(--green);color:#fff}
 .pf-header{margin-bottom:28px}
 .pf-total-card{background:linear-gradient(135deg,var(--green) 0%,#003d00 100%);border-radius:16px;padding:32px 36px;color:#fff}
 .pf-total-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:8px}

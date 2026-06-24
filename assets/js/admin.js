@@ -532,6 +532,12 @@
     pf.contracts.forEach(c => c.lines.forEach(l => { classMap[l.type]=(classMap[l.type]||0)+l.value; }));
     const allocEntries = Object.entries(classMap).sort((a,b) => b[1]-a[1]);
     return `
+      <div class="pf-toolbar">
+        <button class="pf-export-btn" id="pf-export-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Exporter le relevé
+        </button>
+      </div>
       <div class="pf-header"><div class="pf-total-card">
         <div class="pf-total-label">Valorisation totale du portefeuille</div>
         <div class="pf-total-value">${fmtMoney(totalValue)}</div>
@@ -603,39 +609,82 @@
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio||1;
     const rect = canvas.parentElement.getBoundingClientRect();
-    const w = Math.max(rect.width-32, 300), h = 260;
+    const w = Math.max(rect.width-32,300), h = 260;
     canvas.width=w*dpr; canvas.height=h*dpr;
     canvas.style.width=w+'px'; canvas.style.height=h+'px';
-    ctx.scale(dpr,dpr);
     const pad={top:20,right:16,bottom:36,left:72};
     const plotW=w-pad.left-pad.right, plotH=h-pad.top-pad.bottom;
     const minVal=Math.min(...history)*0.998, maxVal=Math.max(...history)*1.002, range=maxVal-minVal;
-    ctx.strokeStyle='#e8e6df'; ctx.lineWidth=1;
-    for(let i=0;i<=4;i++){
-      const y=pad.top+(plotH*i/4);
-      ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(w-pad.right,y); ctx.stroke();
-      ctx.fillStyle='#8a8780'; ctx.font='11px Jost,sans-serif'; ctx.textAlign='right';
-      ctx.fillText(fmtMoney(Math.round(maxVal-(range*i/4))), pad.left-8, y+4);
-    }
-    const months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-    ctx.fillStyle='#8a8780'; ctx.font='10px Jost,sans-serif'; ctx.textAlign='center';
-    const step=Math.max(1,Math.floor(history.length/7));
-    for(let i=0;i<history.length;i+=step){
-      const x=pad.left+(plotW*i/(history.length-1));
-      ctx.fillText(months[i%12]+' '+(i<12?'25':'26'), x, h-pad.bottom+18);
-    }
     const pts=history.map((v,i)=>({x:pad.left+(plotW*i/(history.length-1)),y:pad.top+plotH-((v-minVal)/range*plotH)}));
-    const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+plotH);
-    grad.addColorStop(0,'rgba(169,133,63,.18)'); grad.addColorStop(1,'rgba(169,133,63,.02)');
-    ctx.beginPath(); ctx.moveTo(pts[0].x,pad.top+plotH);
-    pts.forEach(p=>ctx.lineTo(p.x,p.y));
-    ctx.lineTo(pts[pts.length-1].x,pad.top+plotH); ctx.closePath();
-    ctx.fillStyle=grad; ctx.fill();
-    ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
-    ctx.strokeStyle='#A9853F'; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.stroke();
-    const last=pts[pts.length-1];
-    ctx.beginPath(); ctx.arc(last.x,last.y,5,0,Math.PI*2);
-    ctx.fillStyle='#A9853F'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    const MONTHS=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+    function render(hoverIdx){
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,w,h);
+      ctx.strokeStyle='#e8e6df'; ctx.lineWidth=1;
+      for(let i=0;i<=4;i++){
+        const y=pad.top+(plotH*i/4);
+        ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(w-pad.right,y); ctx.stroke();
+        ctx.fillStyle='#8a8780'; ctx.font='11px Jost,sans-serif'; ctx.textAlign='right';
+        ctx.fillText(fmtMoney(Math.round(maxVal-(range*i/4))), pad.left-8, y+4);
+      }
+      ctx.fillStyle='#8a8780'; ctx.font='10px Jost,sans-serif'; ctx.textAlign='center';
+      const step=Math.max(1,Math.floor(history.length/7));
+      for(let i=0;i<history.length;i+=step){
+        const x=pad.left+(plotW*i/(history.length-1));
+        ctx.fillText(MONTHS[i%12]+' '+(i<12?'25':'26'), x, h-pad.bottom+18);
+      }
+      const grad=ctx.createLinearGradient(0,pad.top,0,pad.top+plotH);
+      grad.addColorStop(0,'rgba(169,133,63,.18)'); grad.addColorStop(1,'rgba(169,133,63,.02)');
+      ctx.beginPath(); ctx.moveTo(pts[0].x,pad.top+plotH);
+      pts.forEach(p=>ctx.lineTo(p.x,p.y));
+      ctx.lineTo(pts[pts.length-1].x,pad.top+plotH); ctx.closePath();
+      ctx.fillStyle=grad; ctx.fill();
+      ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+      ctx.strokeStyle='#A9853F'; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.stroke();
+      const last=pts[pts.length-1];
+      ctx.beginPath(); ctx.arc(last.x,last.y,5,0,Math.PI*2);
+      ctx.fillStyle='#A9853F'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+
+      if(hoverIdx!==undefined&&hoverIdx>=0&&hoverIdx<pts.length){
+        const hp=pts[hoverIdx];
+        ctx.beginPath(); ctx.setLineDash([4,3]);
+        ctx.strokeStyle='rgba(169,133,63,.5)'; ctx.lineWidth=1;
+        ctx.moveTo(hp.x,pad.top); ctx.lineTo(hp.x,pad.top+plotH); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(hp.x,hp.y,7,0,Math.PI*2);
+        ctx.fillStyle='#A9853F'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2.5; ctx.stroke();
+        const label=MONTHS[hoverIdx%12]+' '+(hoverIdx<12?'2025':'2026');
+        const valTxt=fmtMoney(history[hoverIdx]);
+        const txt=valTxt+' · '+label;
+        ctx.font='600 12px Jost,sans-serif';
+        const tw=ctx.measureText(txt).width+24; const rh=28;
+        let tx=hp.x-tw/2;
+        if(tx<pad.left) tx=pad.left;
+        if(tx+tw>w-pad.right) tx=w-pad.right-tw;
+        let ty=hp.y-40; if(ty<4) ty=hp.y+16;
+        ctx.fillStyle='#001B00';
+        ctx.beginPath();
+        const rr=7;
+        ctx.moveTo(tx+rr,ty); ctx.lineTo(tx+tw-rr,ty);
+        ctx.quadraticCurveTo(tx+tw,ty,tx+tw,ty+rr); ctx.lineTo(tx+tw,ty+rh-rr);
+        ctx.quadraticCurveTo(tx+tw,ty+rh,tx+tw-rr,ty+rh); ctx.lineTo(tx+rr,ty+rh);
+        ctx.quadraticCurveTo(tx,ty+rh,tx,ty+rh-rr); ctx.lineTo(tx,ty+rr);
+        ctx.quadraticCurveTo(tx,ty,tx+rr,ty); ctx.fill();
+        ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(txt,tx+tw/2,ty+rh/2);
+      }
+    }
+    render();
+    canvas.style.cursor='crosshair';
+    canvas.onmousemove=function(e){
+      const br=canvas.getBoundingClientRect();
+      const mx=(e.clientX-br.left)*(w/br.width);
+      let nearest=0,minD=Infinity;
+      pts.forEach((p,i)=>{const d=Math.abs(p.x-mx);if(d<minD){minD=d;nearest=i;}});
+      render(nearest);
+    };
+    canvas.onmouseleave=function(){render();};
   }
 
   function drawAllocationDonut(canvasId, allocEntries, totalValue){
@@ -682,6 +731,124 @@
         toggle.classList.toggle('is-open',!open);
       });
     });
+    const expBtn=document.getElementById('pf-export-btn');
+    if(expBtn) expBtn.addEventListener('click',()=>exportReport());
+  }
+
+  function exportReport(){
+    const c = contacts.find(x=>x.id===currentId);
+    if(!c) return;
+    const pf = DEMO_PORTFOLIO;
+    const totalInvested = pf.contracts.reduce((s,ct)=>s+ct.invested,0);
+    const totalValue = pf.contracts.reduce((s,ct)=>s+ct.currentValue,0);
+    const gain = totalValue-totalInvested;
+    const perf = ((gain/totalInvested)*100).toFixed(1);
+    const sign = gain>=0?'+':'';
+    const today = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+
+    const contractsHTML = pf.contracts.map(ct=>{
+      const g = ct.currentValue-ct.invested;
+      const p = ((g/ct.invested)*100).toFixed(1);
+      const s = g>=0?'+':'';
+      return `
+        <div class="contract">
+          <div class="contract-head">
+            <div>
+              <h3>${ct.name}</h3>
+              <div class="contract-provider">${ct.provider} · ${ct.number}</div>
+            </div>
+            <div class="contract-val">
+              <div class="contract-amount">${fmtMoney(ct.currentValue)}</div>
+              <div class="${g>=0?'positive':'negative'}">${s}${p}%</div>
+            </div>
+          </div>
+          <div class="contract-meta">
+            <span>Date d'ouverture : ${fmtDate(ct.openDate)}</span>
+            <span>Montant investi : ${fmtMoney(ct.invested)}</span>
+            <span class="${g>=0?'positive':'negative'}">Plus/Moins-value : ${s}${fmtMoney(g)}</span>
+          </div>
+          <table>
+            <thead><tr><th>Support</th><th>ISIN</th><th>Classe</th><th>Allocation</th><th>Valorisation</th><th>Perf.</th></tr></thead>
+            <tbody>${ct.lines.map(l=>`<tr>
+              <td>${l.name}</td><td class="mono">${l.isin}</td><td>${l.type}</td>
+              <td>${l.allocation.toFixed(1)}%</td><td>${fmtMoney(l.value)}</td>
+              <td class="${l.perf>=0?'positive':'negative'}">${l.perf>=0?'+':''}${l.perf.toFixed(1)}%</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<title>Relevé de situation — ${c.prenom||''} ${c.nom||''} — ${today}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Jost,Helvetica,Arial,sans-serif;color:#1E211C;padding:48px 56px;max-width:900px;margin:0 auto;font-size:13px;line-height:1.6}
+.header{text-align:center;border-bottom:2px solid #A9853F;padding-bottom:24px;margin-bottom:32px}
+.header h1{font-family:'Cormorant Garamond',Georgia,serif;color:#001B00;font-size:22px;font-weight:500;letter-spacing:.04em}
+.header .date{color:#5B6058;font-size:12px;margin-top:6px}
+.client-section{margin-bottom:32px;display:flex;gap:40px}
+.client-section h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#A9853F;margin-bottom:10px;font-weight:600}
+.client-info{flex:1}
+.client-info table{font-size:12px;border-collapse:collapse}
+.client-info td{padding:3px 20px 3px 0;vertical-align:top}
+.client-info td:first-child{color:#5B6058;white-space:nowrap}
+.summary{background:#f6f4ee;border-radius:10px;padding:24px 28px;margin-bottom:36px;display:flex;gap:36px;flex-wrap:wrap}
+.summary-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#5B6058;margin-bottom:4px}
+.summary-item .value{font-size:20px;font-weight:600;color:#001B00}
+.summary-item .sub{font-size:12px;margin-top:2px}
+.positive{color:#2e7d32}.negative{color:#c0392b}
+.contract{margin-bottom:32px;page-break-inside:avoid}
+.contract-head{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:2px solid #A9853F;margin-bottom:10px}
+.contract h3{font-size:15px;color:#001B00;font-weight:600;margin:0}
+.contract-provider{font-size:11px;color:#5B6058;margin-top:3px}
+.contract-val{text-align:right}
+.contract-amount{font-size:17px;font-weight:600;color:#001B00}
+.contract-meta{display:flex;gap:24px;flex-wrap:wrap;font-size:11px;color:#5B6058;margin-bottom:14px;padding:8px 0}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{text-align:left;padding:8px 10px;border-bottom:1.5px solid #d5d2c9;font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#5B6058;font-weight:600}
+td{padding:8px 10px;border-bottom:1px solid #eae8e1;vertical-align:middle}
+.mono{font-family:'SF Mono',Consolas,monospace;font-size:10px;color:#8a8780}
+.footer{text-align:center;font-size:10px;color:#999;margin-top:48px;border-top:1px solid #e8e6df;padding-top:20px;line-height:1.7}
+.print-btn{position:fixed;top:20px;right:20px;background:#A9853F;color:#fff;border:0;padding:12px 24px;border-radius:8px;font-family:Jost,sans-serif;font-size:13px;font-weight:500;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.print-btn:hover{background:#96732f}
+@media print{.print-btn{display:none}body{padding:24px}}
+</style></head><body>
+<button class="print-btn" onclick="window.print()">Imprimer / Enregistrer PDF</button>
+<div class="header">
+  <h1>La Financière de Rochechouart</h1>
+  <div class="date">Relevé de situation au ${today}</div>
+</div>
+<div class="client-section">
+  <div class="client-info">
+    <h2>Informations client</h2>
+    <table>
+      ${c.civilite?'<tr><td>Civilité</td><td>'+c.civilite+'</td></tr>':''}
+      <tr><td>Nom</td><td><strong>${c.prenom||''} ${c.nom||''}</strong></td></tr>
+      ${c.adresse?'<tr><td>Adresse</td><td>'+c.adresse+(c.code_postal?' '+c.code_postal:'')+(c.ville?' '+c.ville:'')+'</td></tr>':''}
+      ${c.email?'<tr><td>Email</td><td>'+c.email+'</td></tr>':''}
+      ${c.telephone?'<tr><td>Téléphone</td><td>'+c.telephone+'</td></tr>':''}
+      ${c.date_naissance?'<tr><td>Date de naissance</td><td>'+fmtDate(c.date_naissance)+'</td></tr>':''}
+    </table>
+  </div>
+</div>
+<div class="summary">
+  <div class="summary-item"><div class="label">Valorisation totale</div><div class="value">${fmtMoney(totalValue)}</div></div>
+  <div class="summary-item"><div class="label">Montant investi</div><div class="value">${fmtMoney(totalInvested)}</div></div>
+  <div class="summary-item"><div class="label">Plus/Moins-value</div><div class="value ${gain>=0?'positive':'negative'}">${sign}${fmtMoney(gain)}</div><div class="sub ${gain>=0?'positive':'negative'}">${sign}${perf}%</div></div>
+  <div class="summary-item"><div class="label">Nombre de contrats</div><div class="value">${pf.contracts.length}</div></div>
+</div>
+${contractsHTML}
+<div class="footer">
+  <p><strong>La Financière de Rochechouart</strong></p>
+  <p>58 rue de Monceau, 75008 Paris</p>
+  <p>Document confidentiel — Données à titre indicatif, non contractuelles.</p>
+</div>
+</body></html>`;
+
+    const w = window.open('','_blank');
+    w.document.write(html);
+    w.document.close();
   }
 
   // ---------- INVITE CLIENT ----------
