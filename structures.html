@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/questionnaire.css">
 <link rel="stylesheet" href="assets/css/admin.css?v=6">
-<link rel="stylesheet" href="assets/css/sp.css?v=1">
+<link rel="stylesheet" href="assets/css/sp.css?v=2">
 </head>
 <body class="admin-body">
 
@@ -65,6 +65,7 @@
     <div class="dash-tabs">
       <button class="dash-tab is-active" data-tab="suivi">Suivi produit</button>
       <button class="dash-tab" data-tab="portefeuille">Portefeuille <span class="count" id="tab-count-pf">0</span></button>
+      <button class="dash-tab" data-tab="apercu">Vue d'ensemble</button>
       <button class="dash-tab" data-tab="reporting">Reporting client</button>
     </div>
 
@@ -93,21 +94,30 @@
     <!-- ===== VIEW: PORTEFEUILLE ===== -->
     <div class="dash-view" id="view-portefeuille">
       <div class="dash-toolbar">
-        <input type="search" class="dash-search" id="pf-search" placeholder="Rechercher (ISIN, nom, sous-jacent, client, émetteur)…">
+        <input type="search" class="dash-search" id="pf-search" placeholder="Rechercher (ISIN, produit, sous-jacent, émetteur, famille)…">
         <select class="sp-filter" id="pf-filter-statut"><option value="">Tous statuts</option></select>
+        <select class="sp-filter" id="pf-filter-fam"><option value="">Toutes familles</option></select>
         <select class="sp-filter" id="pf-filter-emetteur"><option value="">Tous émetteurs</option></select>
         <button class="dash-btn-add" id="pf-import-ts">＋ Importer une TS</button>
-        <button class="dash-btn-add" id="pf-import-kid" style="background:var(--green);border-color:var(--green)">＋ Importer un KID</button>
         <button class="dash-btn-export" id="pf-add-manual">Saisie manuelle</button>
       </div>
       <div class="sp-pf-summary" id="pf-summary"></div>
       <div class="dash-table-wrap">
         <table class="dash-table sp-pf-table"><thead><tr>
-          <th>Produit</th><th>ISIN</th><th>Émetteur</th><th>Sous-jacents</th><th>Client</th>
-          <th class="num">Nominal</th><th class="num">Coupon</th><th>Prochaine obs.</th><th>Statut</th><th></th>
+          <th>Produit</th><th>Émetteur</th><th>Sous-jacents</th><th class="num">Coupon</th>
+          <th class="num">Barrières</th><th>Strike → Éch.</th><th class="num">Encours</th>
+          <th class="num">Coupons perçus</th><th>Statut</th><th></th>
         </tr></thead><tbody id="pf-list"></tbody></table>
       </div>
       <div class="sp-pf-more" id="pf-more" hidden></div>
+    </div>
+
+    <!-- ===== VIEW: VUE D'ENSEMBLE ===== -->
+    <div class="dash-view" id="view-apercu">
+      <div class="dash-toolbar">
+        <select class="dash-search" id="ov-client" style="flex:1;min-width:240px;padding-left:14px"></select>
+      </div>
+      <div id="ov-body" class="sp-ov"></div>
     </div>
 
     <!-- ===== VIEW: REPORTING CLIENT ===== -->
@@ -163,7 +173,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
 <script src="assets/js/supabase-config.js"></script>
-<script src="assets/js/sp-data.js?v=1"></script>
-<script src="assets/js/sp.js?v=1"></script>
+<script src="assets/js/sp-data.js?v=2"></script>
+<script src="assets/js/sp.js?v=2"></script>
 </body>
 </html>

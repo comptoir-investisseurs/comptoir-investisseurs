@@ -21,12 +21,26 @@ CREATE TABLE IF NOT EXISTS sp_products (
   bcpn         numeric,            -- barrière de coupon (0.7)
   bcap         numeric,            -- barrière de capital (0.6)
   strike       date,
+  emission     date,
   next_obs     date,
+  next_cpn     date,
+  final_obs    date,
   maturity     date,
   trade_date   date,
   nominal_ref  numeric,
-  uls          jsonb DEFAULT '[]'::jsonb   -- [{"n":"Nom","k":strike}]
+  mem          boolean DEFAULT false,      -- coupon à mémoire
+  trig         boolean DEFAULT false,      -- autocall à barrière dégressive (Trigger Descending)
+  deleted      boolean DEFAULT false,      -- produit retiré du book
+  uls          jsonb DEFAULT '[]'::jsonb   -- [{"n":"Nom","k":strike,"b":..,"c":..,"a":..}]
 );
+
+-- Relançable : ajoute les colonnes manquantes si la table existait déjà
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS emission  date;
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS next_cpn  date;
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS final_obs date;
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS mem       boolean DEFAULT false;
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS trig      boolean DEFAULT false;
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS deleted   boolean DEFAULT false;
 
 -- 2) Positions / allocations (lignes du portefeuille)
 CREATE TABLE IF NOT EXISTS sp_positions (
