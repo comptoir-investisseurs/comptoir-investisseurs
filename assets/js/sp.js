@@ -773,7 +773,7 @@
     }
 
     // grille horizontale
-    ctx.font='10px Helvetica,Arial,sans-serif'; ctx.textBaseline='middle';
+    ctx.font='10px Jost,sans-serif'; ctx.textBaseline='middle';
     for(let i=0;i<=4;i++){ const v=lo+(hi-lo)*i/4; const y=sy(v);
       ctx.strokeStyle='#eee8da'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
       ctx.fillStyle='#a8a496'; ctx.textAlign='left'; ctx.fillText(v.toFixed(0)+'%', x1+6, y); }
@@ -784,7 +784,7 @@
     if(p.bcpn!=null) blines.push({v:p.bcpn,col:BARC.cpn,t:'Coupon '+(p.bcpn*100).toFixed(0)+'%'});
     if(p.bcap!=null) blines.push({v:p.bcap,col:BARC.cap,t:'Capital '+(p.bcap*100).toFixed(0)+'%'});
     blines.forEach(b=>{ const y=sy(b.v*100); ctx.strokeStyle=b.col; ctx.lineWidth=1.2; ctx.setLineDash([5,3]); ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); ctx.setLineDash([]); });
-    ctx.font='600 9px Helvetica,Arial,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.font='600 9px Jost,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle';
     const lbl=blines.map(b=>({col:b.col,t:b.t,y:sy(b.v*100)})).sort((a,b)=>a.y-b.y);
     let lastY=-1e9; lbl.forEach(b=>{ let ly=b.y-7; if(ly-lastY<11) ly=lastY+11; lastY=ly; ctx.fillStyle=b.col; ctx.fillText(b.t, x0+3, ly); });
 
@@ -796,7 +796,7 @@
       ctx.setLineDash([]);
     }
     // axe x (années)
-    ctx.fillStyle='#a8a496'; ctx.font='10px Helvetica,Arial,sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#a8a496'; ctx.font='10px Jost,sans-serif'; ctx.textAlign='center';
     const span=tmax-tmin; const yStep= span>3*31536000000?12:(span>31536000000?6:3);
     let dd=new Date(tmin); dd.setDate(1);
     for(let g=0;g<80;g++){ const t=dd.getTime(); if(t>tmax) break; if(t>=tmin){ const x=sx(t);
@@ -806,7 +806,7 @@
     // ligne « aujourd'hui »
     if(live && tToday>=tmin && tToday<=tmax){ const x=sx(tToday);
       ctx.strokeStyle='rgba(11,31,18,.45)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
-      ctx.fillStyle='#0b1f12'; ctx.font='600 9px Helvetica,Arial,sans-serif'; ctx.textAlign='center'; ctx.fillText('aujourd\'hui', x, y0+2+5); }
+      ctx.fillStyle='#0b1f12'; ctx.font='600 9px Jost,sans-serif'; ctx.textAlign='center'; ctx.fillText('aujourd\'hui', x, y0+2+5); }
 
     function drawSeries(pts,col,width,fill){
       const vis=pts.filter(pt=>pt.t>=tmin); if(vis.length<2) return;
@@ -1276,8 +1276,8 @@
         <td>${pos.nominal!=null?Math.round(pos.nominal).toLocaleString('fr-FR')+' '+symbol(pos.dev):'—'}</td>
         <td>${fmtShort(p.maturity)}</td><td>${status==='LIVE'?'En cours':'Soldé'}</td></tr>`; }).join('');
     const html=`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Reporting produits structurés — ${esc(name)} — ${tday}</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
-<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Helvetica,Arial,sans-serif;color:#1E211C;padding:46px 54px;max-width:960px;margin:0 auto;font-size:13px;line-height:1.6}
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Jost,Arial,sans-serif;color:#1E211C;padding:46px 54px;max-width:960px;margin:0 auto;font-size:13px;line-height:1.6}
 .header{text-align:center;border-bottom:2px solid #A9853F;padding-bottom:22px;margin-bottom:28px}
 .header h1{font-family:'Cormorant Garamond',serif;color:#001B00;font-size:23px;font-weight:500}
 .header .date{color:#5B6058;font-size:12px;margin-top:6px}
@@ -1291,7 +1291,7 @@ th{text-align:left;padding:9px 8px;border-bottom:1.5px solid #d5d2c9;font-size:9
 td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
 .mono{font-family:Consolas,monospace;font-size:9.5px;color:#8a8780;margin-top:2px}
 .footer{text-align:center;font-size:10px;color:#999;margin-top:40px;border-top:1px solid #e8e6df;padding-top:18px;line-height:1.7}
-.print-btn{position:fixed;top:18px;right:18px;background:#A9853F;color:#fff;border:0;padding:11px 22px;border-radius:8px;font-family:Helvetica,Arial,sans-serif;font-size:13px;cursor:pointer}
+.print-btn{position:fixed;top:18px;right:18px;background:#A9853F;color:#fff;border:0;padding:11px 22px;border-radius:8px;font-family:Jost;font-size:13px;cursor:pointer}
 @media print{.print-btn{display:none}body{padding:20px}}</style></head><body>
 <button class="print-btn" onclick="window.print()">Imprimer / PDF</button>
 <div class="header"><h1>La Financière de Rochechouart</h1><div class="date">Reporting produits structurés au ${tday}</div></div>
@@ -1521,12 +1521,12 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
     let lo=Math.min(...allPts,...barr), hi=Math.max(...allPts,...barr); if(!isFinite(lo)){lo=50;hi=120;}
     const pr=(hi-lo)*0.08||5; lo-=pr; hi+=pr;
     const sx=t=>x0+(x1-x0)*((t-tmin)/((tmax-tmin)||1)), sy=v=>y1-(y1-y0)*((v-lo)/((hi-lo)||1));
-    ctx.fillStyle='#001B00'; ctx.font='600 15px Helvetica,Arial,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    ctx.fillStyle='#001B00'; ctx.font='600 15px Jost,Arial,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     ctx.fillText(p.lib||p.isin, x0, 20);
-    let lx=x0; ctx.font='12px Helvetica,Arial,sans-serif'; ctx.textBaseline='middle';
+    let lx=x0; ctx.font='12px Jost,Arial,sans-serif'; ctx.textBaseline='middle';
     series.forEach(se=>{ ctx.fillStyle=se.color; ctx.fillRect(lx,32,11,11); lx+=15; ctx.fillStyle='#444';
       ctx.fillText(se.name,lx,38); lx+=ctx.measureText(se.name).width+18; });
-    ctx.font='10px Helvetica,Arial,sans-serif';
+    ctx.font='10px Jost,Arial,sans-serif';
     for(let i=0;i<=4;i++){ const v=lo+(hi-lo)*i/4, y=sy(v); ctx.strokeStyle='#eee8da'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
       ctx.fillStyle='#a8a496'; ctx.textAlign='left'; ctx.fillText(v.toFixed(0)+'%',x1+6,y); }
@@ -1536,10 +1536,10 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
     if(p.bcap!=null)bl.push({v:p.bcap,c:'#b04a32',t:'Capital '+(p.bcap*100).toFixed(0)+'%'});
     bl.forEach(b=>{ const y=sy(b.v*100); ctx.strokeStyle=b.c; ctx.lineWidth=1.1; ctx.setLineDash([5,3]);
       ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); ctx.setLineDash([]); });
-    ctx.font='600 9px Helvetica,Arial,sans-serif';
+    ctx.font='600 9px Jost,Arial,sans-serif';
     const lbl=bl.map(b=>({c:b.c,t:b.t,y:sy(b.v*100)})).sort((a,b)=>a.y-b.y); let last=-1e9;
     lbl.forEach(b=>{ let ly=b.y-6; if(ly-last<11)ly=last+11; last=ly; ctx.fillStyle=b.c; ctx.textAlign='left'; ctx.fillText(b.t,x0+3,ly); });
-    ctx.fillStyle='#a8a496'; ctx.font='10px Helvetica,Arial,sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#a8a496'; ctx.font='10px Jost,Arial,sans-serif'; ctx.textAlign='center';
     const span=tmax-tmin, step=span>3*31536e6?12:(span>31536e6?6:3); let dd=new Date(tmin); dd.setDate(1);
     for(let g=0;g<80;g++){ const t=dd.getTime(); if(t>tmax)break; if(t>=tmin){ const x=sx(t);
       ctx.fillText(dd.getMonth()===0?String(dd.getFullYear()):MONTHS[dd.getMonth()].replace('.',''),x,y1+14); } dd=addMonths(dd,step); }
