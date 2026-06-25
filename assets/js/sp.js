@@ -15,7 +15,7 @@
     'Authorization': 'Bearer ' + (sessionStorage.getItem('sb_access_token') || SB_KEY),
     'Content-Type': 'application/json'
   }, extra || {});
-  let sbProducts = true, sbPositions = true;
+  let sbProducts = true, sbPositions = true, sbObs = true;
 
   /* ---------------- AUTH ---------------- */
   const loginWrap = document.querySelector('.login-wrap');
@@ -56,6 +56,8 @@
   let positions = [];              // allocations détenteurs (CRM / Supabase)
   let crmClients = [];
   let nextLocalId = 900000;
+  const obsValid = new Map();      // observations validées : "isin|kind|YYYY-MM-DD" -> {result, amount, note, by, at}
+  function obsKey(isin,kind,d){ const iso=(d instanceof Date)?d.toISOString().slice(0,10):String(d).slice(0,10); return isin+'|'+kind+'|'+iso; }
 
   function seedState(){
     (window.SP_PRODUCTS||[]).forEach(p => { p.uls = p.uls||[]; productsMap.set(p.isin, Object.assign({}, p)); });
@@ -67,11 +69,32 @@
     Promise.resolve()
       .then(loadSbProducts)
       .then(loadSbPositions)
+      .then(loadSbObservations)
       .then(loadCrm)
       .then(afterLoad)
       .catch(e => { console.warn(e); afterLoad(); });
   }
-  function afterLoad(){ buildIsinList(); updateStats(); renderSuggest(); renderPortfolio(); buildReportSelect(); buildOverviewClientSelect(); renderOverview(); }
+  function loadSbObservations(){
+    if(!SB) return;
+    return fetch(API + '/sp_observations?select=*', {headers:headers()})
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(rows => { (rows||[]).forEach(r => { obsValid.set(obsKey(r.isin,r.kind,r.obs_date), {result:r.result, amount:r.amount, note:r.note, by:r.validated_by, at:r.updated_at||r.created_at}); }); })
+      .catch(() => { sbObs = false; });
+  }
+  function saveObservation(isin,kind,d,result,amount,note){
+    const iso=(d instanceof Date)?d.toISOString().slice(0,10):String(d).slice(0,10);
+    obsValid.set(obsKey(isin,kind,iso), {result, amount:amount!=null?amount:null, note:note||null, by:sessionStorage.getItem('sb_user_email')||'', at:new Date().toISOString()});
+    if(!SB || !sbObs) return Promise.resolve(false);
+    const payload={isin,kind,obs_date:iso,result,amount:amount!=null?amount:null,note:note||null,validated_by:sessionStorage.getItem('sb_user_email')||null,updated_at:new Date().toISOString()};
+    return fetch(API+'/sp_observations?on_conflict=isin,kind,obs_date',{method:'POST',headers:headers({'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(payload)})
+      .then(r=>r.ok?true:Promise.reject(r.status)).catch(()=>{ sbObs=false; return false; });
+  }
+  function clearObservation(isin,kind,d){
+    const iso=(d instanceof Date)?d.toISOString().slice(0,10):String(d).slice(0,10);
+    obsValid.delete(obsKey(isin,kind,iso));
+    if(SB && sbObs){ fetch(API+'/sp_observations?isin=eq.'+encodeURIComponent(isin)+'&kind=eq.'+kind+'&obs_date=eq.'+iso,{method:'DELETE',headers:headers()}).catch(()=>{}); }
+  }
+  function afterLoad(){ buildIsinList(); updateStats(); renderSuggest(); renderPortfolio(); buildReportSelect(); buildOverviewClientSelect(); renderOverview(); updateObsCount(); }
 
   function loadSbProducts(){
     if(!SB) return;
@@ -304,23 +327,31 @@
     for(let k=0;k<obs.length;k++){
       const date=obs[k], past=date<=tod, pay=addDays(date,7), w=ok?worstAt(data,date.getTime()):null;
       if(p.ac!=null){
-        const trig=trigAt(p,k), callable=k>=fi; let st;
+        const trig=trigAt(p,k), callable=k>=fi; const aov=obsValid.get(obsKey(p.isin,'autocall',date)); let st;
         if(called) st='after';
+        else if(aov){ st = aov.result==='called'?'called':'notcalled'; if(st==='called'){ called=true; redeemDate=date; } }
         else if(!past) st='future';
         else if(!callable) st='notcalled';                    // période de non-rappel
         else if(ok){ if(w!=null && w>=trig*100){ st='called'; called=true; redeemDate=date; } else st='notcalled'; }
         else st='na';                                          // pas de cours : indéterminé
-        if(st!=='after') autocalls.push({date,pay,trig,status:st,w,nonCall:!callable});
+        if(st!=='after') autocalls.push({date,pay,trig,status:st,w,nonCall:!callable,valid:!!aov});
       }
       if(!isAthena(p) && p.coupon!=null){
         if(called){ /* après rappel : plus de coupon */ }
-        else if(!past) coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'future',w});
-        else if(ok){
-          const paid = (p.bcpn!=null) ? (w!=null && w>=p.bcpn*100) : (w!=null);
-          if(paid){ const amt=per*(p.mem?(1+carry):1); carry=0; coupons.push({date,pay,bcpn:p.bcpn,amount:amt,status:'paid',w}); }
-          else { if(p.mem) carry+=1; coupons.push({date,pay,bcpn:p.bcpn,amount:0,status:'unpaid',w}); }
+        else {
+          const cov=obsValid.get(obsKey(p.isin,'coupon',date));
+          if(cov){
+            if(cov.result==='paid'){ const amt=cov.amount!=null?cov.amount:per*(p.mem?(1+carry):1); carry=0; coupons.push({date,pay,bcpn:p.bcpn,amount:amt,status:'paid',w,valid:true}); }
+            else { if(p.mem) carry+=1; coupons.push({date,pay,bcpn:p.bcpn,amount:0,status:'unpaid',w,valid:true}); }
+          }
+          else if(!past) coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'future',w});
+          else if(ok){
+            const paid = (p.bcpn!=null) ? (w!=null && w>=p.bcpn*100) : (w!=null);
+            if(paid){ const amt=per*(p.mem?(1+carry):1); carry=0; coupons.push({date,pay,bcpn:p.bcpn,amount:amt,status:'paid',w}); }
+            else { if(p.mem) carry+=1; coupons.push({date,pay,bcpn:p.bcpn,amount:0,status:'unpaid',w}); }
+          }
+          else coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'na',w});
         }
-        else coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'na',w});
       }
     }
     if(!called){ const na=autocalls.find(r=>r.status==='future'); if(na) na.status='next';
@@ -341,6 +372,7 @@
       if(activeTab==='portefeuille') renderPortfolio();
       if(activeTab==='reporting') renderReport();
       if(activeTab==='apercu') renderOverview();
+      if(activeTab==='observations') renderObservations();
     });
   });
 
@@ -1343,6 +1375,120 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
       </div>`;
     host.querySelectorAll('.ov-risk__row[data-isin]').forEach(el=>el.addEventListener('click',()=>gotoProduct(el.dataset.isin)));
   }
+
+  /* ===================================================================
+     ONGLET — OBSERVATIONS (validation quotidienne coupon / autocall)
+     =================================================================== */
+  const obsDataCache = new Map();   // isin -> data cours (session)
+  // Observations sur [since, until] : coupons + autocalls rappelables (hors non-call).
+  function gatherObs(since, until){
+    const out=[];
+    productsMap.forEach(p=>{
+      const obs=observationDates(p); if(!obs.length) return;
+      const fi=firstCallIdx(p), m=freqMonths(p.freq), per=(p.coupon!=null&&m)?p.coupon*m/12:p.coupon;
+      obs.forEach((d,k)=>{
+        if(d<since || d>until) return;
+        if(p.ac!=null && k>=fi) out.push({p,k,date:d,kind:'autocall', barrier:trigAt(p,k)});
+        if(!isAthena(p) && p.coupon!=null) out.push({p,k,date:d,kind:'coupon', barrier:p.bcpn, per});
+      });
+    });
+    return out;
+  }
+  function countDueObs(){ const tod=today();
+    return gatherObs(addDays(tod,-1), tod).filter(o=>!obsValid.get(obsKey(o.p.isin,o.kind,o.date))).length; }
+  function updateObsCount(){ const el=document.getElementById('tab-count-obs'); if(el) el.textContent=countDueObs(); }
+
+  function obsProposal(o){
+    const v=obsValid.get(obsKey(o.p.isin,o.kind,o.date));
+    if(v) return {validated:true, result:v.result, by:v.by};
+    const data=obsDataCache.get(o.p.isin); const w=(data&&data.ok)?worstAt(data,o.date.getTime()):null;
+    let proposed=null;
+    if(w!=null){ proposed = o.kind==='coupon' ? ((o.barrier==null||w>=o.barrier*100)?'paid':'unpaid')
+                                              : (w>=o.barrier*100?'called':'notcalled'); }
+    return {validated:false, worst:w, proposed};
+  }
+  function obsLabels(kind){ return kind==='coupon'?{pos:'paid',neg:'unpaid',posL:'Payé',negL:'Non payé'}
+                                                  :{pos:'called',neg:'notcalled',posL:'Remboursé',negL:'Non remb.'}; }
+  function obsRowHTML(o, loading){
+    const pr=obsProposal(o), isin=o.p.isin, di=o.date.toISOString().slice(0,10), L=obsLabels(o.kind);
+    const barr=o.barrier!=null?pct(o.barrier,0):'—';
+    const worst=loading?'<span class="muted">…</span>':(pr.worst!=null?pr.worst.toFixed(1)+'%':'—');
+    const data=`data-isin="${esc(isin)}" data-kind="${o.kind}" data-date="${di}"`;
+    let act;
+    if(pr.validated){
+      act=`<span class="obs-validated ${pr.result===L.pos?'pos':'neg'}">✓ ${pr.result===L.pos?L.posL:L.negL}</span><button class="obs-edit" ${data}>Modifier</button>`;
+    } else {
+      const sg=r=>pr.proposed===r?' is-sugg':'';
+      act=`<button class="obs-btn ok${sg(L.pos)}" ${data} data-res="${L.pos}">${L.posL}</button>`+
+          `<button class="obs-btn no${sg(L.neg)}" ${data} data-res="${L.neg}">${L.negL}</button>`;
+    }
+    return `<div class="obs-row ${o.kind}">
+      <div class="obs-row__date">${fmtShort(o.date)}</div>
+      <div class="obs-row__prod">${esc(o.p.lib||isin)}<small>${esc(isin)} · ${esc((o.p.uls||[]).map(u=>u.n).join(', '))}</small></div>
+      <div class="obs-row__type"><span class="obs-type ${o.kind}">${o.kind==='coupon'?'Coupon':'Autocall'}</span><small>barr. ${barr}</small></div>
+      <div class="obs-row__worst"><span>Pire</span><b>${worst}</b></div>
+      <div class="obs-row__sugg">${pr.validated?('validé · '+esc(pr.by||'—')):(pr.proposed?('proposé : '+(pr.proposed===L.pos?L.posL:L.negL)):'cours indispo — à renseigner')}</div>
+      <div class="obs-row__act">${act}</div>
+    </div>`;
+  }
+  function obsSoonHTML(o){
+    return `<div class="obs-row soonrow ${o.kind}">
+      <div class="obs-row__date">${fmtShort(o.date)}</div>
+      <div class="obs-row__prod">${esc(o.p.lib||o.p.isin)}<small>${esc((o.p.uls||[]).map(u=>u.n).join(', '))}</small></div>
+      <div class="obs-row__type"><span class="obs-type ${o.kind}">${o.kind==='coupon'?'Coupon':'Autocall'}</span><small>barr. ${o.barrier!=null?pct(o.barrier,0):'—'}</small></div>
+      <div class="obs-row__sugg">à venir</div></div>`;
+  }
+  function obsListHTML(due, soon, loading){
+    let h=`<div class="sp-card"><h4>À valider <span class="sp-h4-note">— constatations dues (du plus récent)</span></h4>`;
+    h+= due.length? `<div class="obs-list">${due.map(o=>obsRowHTML(o,loading)).join('')}</div>` : '<p class="sp-muted sm">Rien à valider sur la période.</p>';
+    h+=`</div>`;
+    if(soon.length) h+=`<div class="sp-card"><h4>À venir (14 jours)</h4><div class="obs-list">${soon.map(obsSoonHTML).join('')}</div></div>`;
+    return h;
+  }
+  function bindObsRows(due){
+    const host=document.getElementById('obs-body'); if(!host) return;
+    host.querySelectorAll('.obs-btn').forEach(b=>b.addEventListener('click',()=>{
+      const {isin,kind,date,res}=b.dataset; b.textContent='…';
+      saveObservation(isin,kind,date,res,null,null).then(()=>{ updateObsCount();
+        if(currentProduct && currentProduct.isin===isin && activeTab==='suivi'){ /* recalcul au prochain rendu */ }
+        renderObservations(); });
+    }));
+    host.querySelectorAll('.obs-edit').forEach(b=>b.addEventListener('click',()=>{
+      clearObservation(b.dataset.isin,b.dataset.kind,b.dataset.date); updateObsCount(); renderObservations();
+    }));
+  }
+  function renderObservations(){
+    const host=document.getElementById('obs-body'); if(!host) return;
+    const sinceEl=document.getElementById('obs-since'), tod=today();
+    if(sinceEl && !sinceEl.value) sinceEl.value=addDays(tod,-1).toISOString().slice(0,10);
+    const since = sinceEl&&sinceEl.value ? pd(sinceEl.value) : addDays(tod,-1);
+    const due = gatherObs(since, tod).sort((a,b)=> b.date-a.date || (a.p.lib||'').localeCompare(b.p.lib||''));
+    const soon = gatherObs(addDays(tod,1), addDays(tod,14)).sort((a,b)=>a.date-b.date);
+    const sum=document.getElementById('obs-summary'); if(sum) sum.textContent=`${due.filter(o=>!obsValid.get(obsKey(o.p.isin,o.kind,o.date))).length} à valider · ${soon.length} à venir (14 j)`;
+    if(!due.length && !soon.length){ host.innerHTML='<div class="sp-rep-empty"><p>Aucune observation sur la période. Ajustez la date « À valider depuis ».</p></div>'; return; }
+    host.innerHTML = obsListHTML(due, soon, true); bindObsRows(due);
+    const isins=[...new Set(due.filter(o=>!obsValid.get(obsKey(o.p.isin,o.kind,o.date))).map(o=>o.p.isin))].slice(0,80);
+    Promise.all(isins.map(isin=>{ if(obsDataCache.has(isin)) return null;
+      const p=productsMap.get(isin); if(!p||!p.uls||!p.uls.length){ obsDataCache.set(isin,{ok:false,series:[]}); return null; }
+      return loadProductSeries(p).then(d=>obsDataCache.set(isin,d)); })
+    ).then(()=>{ if(activeTab!=='observations') return; host.innerHTML=obsListHTML(due, soon, false); bindObsRows(due); });
+  }
+  (function wireObs(){
+    const since=document.getElementById('obs-since'); if(since) since.addEventListener('change',renderObservations);
+    const all=document.getElementById('obs-validate-all');
+    if(all) all.addEventListener('click',()=>{
+      const tod=today(), sinceEl=document.getElementById('obs-since');
+      const since=sinceEl&&sinceEl.value?pd(sinceEl.value):addDays(tod,-1);
+      const due=gatherObs(since,tod); const ps=[];
+      due.forEach(o=>{ if(obsValid.get(obsKey(o.p.isin,o.kind,o.date))) return;
+        const data=obsDataCache.get(o.p.isin); const w=(data&&data.ok)?worstAt(data,o.date.getTime()):null;
+        if(w==null) return; const L=obsLabels(o.kind);
+        const res = o.kind==='coupon'?((o.barrier==null||w>=o.barrier*100)?'paid':'unpaid'):(w>=o.barrier*100?'called':'notcalled');
+        ps.push(saveObservation(o.p.isin,o.kind,o.date,res,null,null)); });
+      if(!ps.length){ toast('Rien à valider automatiquement (cours indisponibles).',true); return; }
+      Promise.all(ps).then(()=>{ toast(ps.length+' observation(s) validée(s)'); updateObsCount(); renderObservations(); });
+    });
+  })();
 
   /* ---------------- AUTO-LOGIN ---------------- */
   if(sessionStorage.getItem('sb_access_token')){

@@ -74,6 +74,26 @@ CREATE INDEX IF NOT EXISTS idx_sp_positions_isin   ON sp_positions (isin);
 CREATE INDEX IF NOT EXISTS idx_sp_positions_seed   ON sp_positions (seed_id);
 CREATE INDEX IF NOT EXISTS idx_sp_positions_client ON sp_positions (client_id);
 
+-- 2bis) Observations validées (outil de suivi quotidien coupon / autocall)
+CREATE TABLE IF NOT EXISTS sp_observations (
+  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at   timestamptz DEFAULT now(),
+  updated_at   timestamptz DEFAULT now(),
+  isin         text NOT NULL,
+  kind         text NOT NULL,        -- 'coupon' | 'autocall'
+  obs_date     date NOT NULL,        -- date de constatation
+  result       text,                 -- coupon: 'paid'|'unpaid' ; autocall: 'called'|'notcalled'
+  amount       numeric,              -- coupon réellement payé (%) si différent
+  note         text,
+  validated_by text,
+  UNIQUE (isin, kind, obs_date)
+);
+CREATE INDEX IF NOT EXISTS idx_sp_obs_date ON sp_observations (obs_date);
+ALTER TABLE sp_observations ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Auth manage sp_observations" ON sp_observations;
+CREATE POLICY "Auth manage sp_observations"
+  ON sp_observations FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
 -- 3) Row Level Security : réservé aux conseillers connectés
 ALTER TABLE sp_products  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sp_positions ENABLE ROW LEVEL SECURITY;

@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/questionnaire.css">
 <link rel="stylesheet" href="assets/css/admin.css?v=6">
-<link rel="stylesheet" href="assets/css/sp.css?v=11">
+<link rel="stylesheet" href="assets/css/sp.css?v=12">
 </head>
 <body class="admin-body">
 
@@ -67,6 +67,7 @@
     <!-- Tabs -->
     <div class="dash-tabs">
       <button class="dash-tab is-active" data-tab="apercu">Vue d'ensemble</button>
+      <button class="dash-tab" data-tab="observations">Observations <span class="count" id="tab-count-obs">0</span></button>
       <button class="dash-tab" data-tab="suivi">Suivi produit</button>
       <button class="dash-tab" data-tab="portefeuille">Portefeuille <span class="count" id="tab-count-pf">0</span></button>
       <button class="dash-tab" data-tab="reporting">Reporting client</button>
@@ -127,6 +128,17 @@
       <div id="ov-body" class="sp-ov"></div>
     </div>
 
+    <!-- ===== VIEW: OBSERVATIONS (validation quotidienne) ===== -->
+    <div class="dash-view" id="view-observations">
+      <div class="dash-toolbar obs-toolbar">
+        <span class="ov-toolbar__lbl">À valider depuis</span>
+        <input type="date" id="obs-since" class="sp-filter">
+        <button class="dash-btn-add" id="obs-validate-all">✓ Valider tout le proposé</button>
+        <span id="obs-summary" class="obs-summary"></span>
+      </div>
+      <div id="obs-body" class="sp-ov"></div>
+    </div>
+
     <!-- ===== VIEW: REPORTING CLIENT ===== -->
     <div class="dash-view" id="view-reporting">
       <div class="dash-toolbar">
@@ -181,6 +193,6 @@
 <script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/sp-data.js?v=2"></script>
-<script src="assets/js/sp.js?v=11"></script>
+<script src="assets/js/sp.js?v=12"></script>
 </body>
 </html>
