@@ -625,10 +625,10 @@
       for(let i=0;i<=4;i++){
         const y=pad.top+(plotH*i/4);
         ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(w-pad.right,y); ctx.stroke();
-        ctx.fillStyle='#8a8780'; ctx.font='11px Jost,sans-serif'; ctx.textAlign='right';
+        ctx.fillStyle='#8a8780'; ctx.font='11px Helvetica,Arial,sans-serif'; ctx.textAlign='right';
         ctx.fillText(fmtMoney(Math.round(maxVal-(range*i/4))), pad.left-8, y+4);
       }
-      ctx.fillStyle='#8a8780'; ctx.font='10px Jost,sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#8a8780'; ctx.font='10px Helvetica,Arial,sans-serif'; ctx.textAlign='center';
       const step=Math.max(1,Math.floor(history.length/7));
       for(let i=0;i<history.length;i+=step){
         const x=pad.left+(plotW*i/(history.length-1));
@@ -657,7 +657,7 @@
         const label=MONTHS[hoverIdx%12]+' '+(hoverIdx<12?'2025':'2026');
         const valTxt=fmtMoney(history[hoverIdx]);
         const txt=valTxt+' · '+label;
-        ctx.font='600 12px Jost,sans-serif';
+        ctx.font='600 12px Helvetica,Arial,sans-serif';
         const tw=ctx.measureText(txt).width+24; const rh=28;
         let tx=hp.x-tw/2;
         if(tx<pad.left) tx=pad.left;
@@ -703,7 +703,7 @@
       ctx.fillStyle=ALLOC_COLORS[type]||'#999'; ctx.fill();
       start+=slice;
     });
-    ctx.fillStyle='#001B00'; ctx.font='600 14px Jost,sans-serif';
+    ctx.fillStyle='#001B00'; ctx.font='600 14px Helvetica,Arial,sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(allocEntries.length+' classes',cx,cy);
   }
@@ -780,10 +780,10 @@
 
     const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
 <title>Relevé de situation — ${c.prenom||''} ${c.nom||''} — ${today}</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Jost,Helvetica,Arial,sans-serif;color:#1E211C;padding:48px 56px;max-width:900px;margin:0 auto;font-size:13px;line-height:1.6}
+body{font-family:Helvetica,Arial,sans-serif;color:#1E211C;padding:48px 56px;max-width:900px;margin:0 auto;font-size:13px;line-height:1.6}
 .header{text-align:center;border-bottom:2px solid #A9853F;padding-bottom:24px;margin-bottom:32px}
 .header h1{font-family:'Cormorant Garamond',Georgia,serif;color:#001B00;font-size:22px;font-weight:500;letter-spacing:.04em}
 .header .date{color:#5B6058;font-size:12px;margin-top:6px}
@@ -810,7 +810,7 @@ th{text-align:left;padding:8px 10px;border-bottom:1.5px solid #d5d2c9;font-size:
 td{padding:8px 10px;border-bottom:1px solid #eae8e1;vertical-align:middle}
 .mono{font-family:'SF Mono',Consolas,monospace;font-size:10px;color:#8a8780}
 .footer{text-align:center;font-size:10px;color:#999;margin-top:48px;border-top:1px solid #e8e6df;padding-top:20px;line-height:1.7}
-.print-btn{position:fixed;top:20px;right:20px;background:#A9853F;color:#fff;border:0;padding:12px 24px;border-radius:8px;font-family:Jost,sans-serif;font-size:13px;font-weight:500;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.print-btn{position:fixed;top:20px;right:20px;background:#A9853F;color:#fff;border:0;padding:12px 24px;border-radius:8px;font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:500;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .print-btn:hover{background:#96732f}
 @media print{.print-btn{display:none}body{padding:24px}}
 </style></head><body>
