@@ -43,6 +43,7 @@ ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS trig      boolean DEFAULT false
 ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS trig_step numeric;   -- décrément autocall (0.05 = −5 %)
 ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS trig_freq text;      -- fréquence du décrément
 ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS deleted   boolean DEFAULT false;
+ALTER TABLE sp_products ADD COLUMN IF NOT EXISTS non_call  int;       -- période de non-rappel (mois)
 
 -- 2) Positions / allocations (lignes du portefeuille)
 CREATE TABLE IF NOT EXISTS sp_positions (

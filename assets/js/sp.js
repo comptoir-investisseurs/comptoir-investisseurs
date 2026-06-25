@@ -107,13 +107,13 @@
     return { isin:r.isin, lib:r.lib, emetteur:r.emetteur, dev:r.dev||'EUR', coupon:r.coupon, freq:r.freq,
       ac:r.ac, bcap:r.bcap, bcpn:r.bcpn, strike:r.strike, emission:r.emission, nextObs:r.next_obs, nextCpn:r.next_cpn,
       finalObs:r.final_obs, maturity:r.maturity, trade:r.trade_date, nominalRef:r.nominal_ref,
-      fam:r.fam||'Autre', mem:r.mem, trig:r.trig, trigStep:r.trig_step, trigFreq:r.trig_freq, uls:r.uls||[], _db:true };
+      fam:r.fam||'Autre', mem:r.mem, trig:r.trig, trigStep:r.trig_step, trigFreq:r.trig_freq, nonCall:r.non_call, uls:r.uls||[], _db:true };
   }
   function toDbProduct(p){
     return { isin:p.isin, lib:p.lib, emetteur:p.emetteur, dev:p.dev, coupon:p.coupon, freq:p.freq,
       ac:p.ac, bcap:p.bcap, bcpn:p.bcpn, strike:p.strike, emission:p.emission||null, next_obs:p.nextObs,
       next_cpn:p.nextCpn||null, final_obs:p.finalObs||null, maturity:p.maturity, trade_date:p.trade,
-      nominal_ref:p.nominalRef, fam:p.fam, mem:!!p.mem, trig:!!p.trig, trig_step:p.trigStep||null, trig_freq:p.trigFreq||null, uls:p.uls };
+      nominal_ref:p.nominalRef, fam:p.fam, mem:!!p.mem, trig:!!p.trig, trig_step:p.trigStep||null, trig_freq:p.trigFreq||null, non_call:(p.nonCall!=null?p.nonCall:null), uls:p.uls };
   }
   function fromDbPosition(r){
     return { id:r.id, seed_id:r.seed_id, isin:r.isin, prenom:r.prenom, nom:r.nom, pole:r.pole, compte:r.compte,
@@ -263,49 +263,54 @@
     return out;
   }
   function nextObsDate(p){ const tod=today(); const o=observationDates(p).find(d=>d>tod); return o||pd(p.nextObs); }
-  // Date de rappel (soldé) : 1re observation où le pire ≥ seuil (cours réels), sinon dernière passée.
-  function callDateFrom(p,data){
-    if(productStatus(p)!=='DONE') return null;
-    const obs=observationDates(p), tod=today();
-    if(data&&data.ok && p.ac!=null){
-      for(let k=0;k<obs.length;k++){ if(obs[k]>tod) break; const w=worstAt(data,obs[k].getTime()); if(w!=null && w>=trigAt(p,k)*100) return obs[k]; }
-    }
-    let c=null; for(const o of obs){ if(o<=tod) c=o; else break; }
-    if(!c){ const no=pd(p.nextObs); c=(no&&no<tod)?no:(obs[0]||pd(p.maturity)); }
-    const mat=pd(p.maturity); if(mat&&c>mat) c=mat; return c;
+  // Période de non-rappel : pas d'autocall possible avant strike + N mois (défaut 1 an).
+  function nonCallMonths(p){ return p.nonCall!=null?p.nonCall:12; }
+  function firstCallIdx(p){
+    const obs=observationDates(p), sd=pd(p.strike); if(!sd||!obs.length) return 0;
+    const fc=addMonths(sd, nonCallMonths(p)).getTime();
+    const idx=obs.findIndex(d=>d.getTime()>=fc-4*86400000); return idx<0?obs.length:idx;
   }
-  // Fin de vie « graphique » : aujourd'hui (vivant) ou date de rappel (soldé).
-  function lifeEndFrom(p,data){ const cd=callDateFrom(p,data); if(cd) return cd; const mat=pd(p.maturity), t=today(); return (mat&&mat<t)?mat:t; }
   // Dégressivité du seuil autocall (Trigger Descending) : décrément + fréquence.
   function trigStepOf(p){ return p.trigStep!=null?p.trigStep:0.01; }     // défaut −1 % / période
   function trigFreqOf(p){ return p.trigFreq||'Trimestrielle'; }          // défaut / trimestre
-  // Seuil autocall à une observation k (0-based), avec dégressivité éventuelle.
+  // Seuil autocall à l'observation k : niveau initial pendant la non-call, puis dégressif.
   function trigAt(p,k){
     if(p.ac==null) return null;
     if(!p.trig) return p.ac;
+    const fi=firstCallIdx(p); if(k<fi) return p.ac;
     const obsM=freqMonths(p.freq)||3, decM=freqMonths(trigFreqOf(p))||12;
-    const nDec=Math.floor((k*obsM)/decM);
+    const nDec=Math.floor(((k-fi)*obsM)/decM);
     const floor=(p.bcpn!=null?p.bcpn:0.6);
     return Math.max(floor, +(p.ac - trigStepOf(p)*nDec).toFixed(4));
   }
+  // Date de rappel : 1re observation RAPPELABLE (après non-call) où le pire ≥ seuil (cours réels).
+  function callDateFrom(p,data){
+    if(!data||!data.ok || p.ac==null) return null;
+    const obs=observationDates(p), tod=today(), fi=firstCallIdx(p);
+    for(let k=fi;k<obs.length;k++){ const d=obs[k]; if(d>tod) break;
+      const w=worstAt(data,d.getTime()); if(w!=null && w>=trigAt(p,k)*100) return d; }
+    return null;
+  }
+  // Fin de vie « graphique » : date de rappel calculée, sinon aujourd'hui (ou maturité si échu).
+  function lifeEndFrom(p,data){ const cd=callDateFrom(p,data); if(cd) return cd; const mat=pd(p.maturity), t=today(); return (mat&&mat<t)?mat:t; }
   // Calendrier détaillé à partir des cours réels.
   // Coupons : payé / non payé (pire < barrière coupon) avec report mémoire.
   // Autocalls : remboursé / non remboursé (pire ≥ seuil).
   function computeSchedule(p,data){
     const obs=observationDates(p), m=freqMonths(p.freq);
     const per=(p.coupon!=null&&m)?p.coupon*m/12:p.coupon;
-    const tod=today(), live=productStatus(p)==='LIVE', ok=!!(data&&data.ok), cd=callDateFrom(p,data);
-    const coupons=[], autocalls=[]; let carry=0, called=false;
+    const tod=today(), ok=!!(data&&data.ok), fi=firstCallIdx(p);
+    const coupons=[], autocalls=[]; let carry=0, called=false, redeemDate=null;
     for(let k=0;k<obs.length;k++){
       const date=obs[k], past=date<=tod, pay=addDays(date,7), w=ok?worstAt(data,date.getTime()):null;
       if(p.ac!=null){
-        const trig=trigAt(p,k); let st;
+        const trig=trigAt(p,k), callable=k>=fi; let st;
         if(called) st='after';
         else if(!past) st='future';
-        else if(live) st='notcalled';                         // produit vivant = jamais remboursé (statut avéré)
-        else if(ok){ if(w!=null && w>=trig*100){ st='called'; called=true; } else st='notcalled'; }
-        else { st = (cd && Math.abs(daysBetween(date,cd))<=20) ? 'called' : 'notcalled'; if(st==='called') called=true; }
-        if(st!=='after') autocalls.push({date,pay,trig,status:st,w});
+        else if(!callable) st='notcalled';                    // période de non-rappel
+        else if(ok){ if(w!=null && w>=trig*100){ st='called'; called=true; redeemDate=date; } else st='notcalled'; }
+        else st='na';                                          // pas de cours : indéterminé
+        if(st!=='after') autocalls.push({date,pay,trig,status:st,w,nonCall:!callable});
       }
       if(!isAthena(p) && p.coupon!=null){
         if(called){ /* après rappel : plus de coupon */ }
@@ -318,9 +323,11 @@
         else coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'na',w});
       }
     }
-    if(live){ const na=autocalls.find(r=>r.status==='future'); if(na) na.status='next';
-              const nc=coupons.find(r=>r.status==='future'); if(nc) nc.status='next'; }
-    return {coupons, autocalls, hasData:ok};
+    if(!called){ const na=autocalls.find(r=>r.status==='future'); if(na) na.status='next';
+                 const nc=coupons.find(r=>r.status==='future'); if(nc) nc.status='next'; }
+    const matured = pd(p.maturity)&&pd(p.maturity)<tod;
+    return {coupons, autocalls, hasData:ok, redeemed:called, redeemDate, matured,
+            status: (called||matured)?'DONE':'LIVE'};
   }
 
   /* ---------------- TABS ---------------- */
@@ -401,7 +408,7 @@
         <div class="sp-phead__top">
           <div class="sp-phead__badges">
             <span class="sp-badge fam">${esc(p.fam||'Structuré')}</span>
-            <span class="sp-badge ${status==='LIVE'?'live':'done'}">${status==='LIVE'?'En cours':'Soldé'}</span>
+            <span class="sp-badge ${status==='LIVE'?'live':'done'}" id="sp-status-badge">${status==='LIVE'?'En cours':'Soldé'}</span>
             ${p.ac!=null?`<span class="sp-badge">Autocall ${pct(p.ac,0)}${p.trig?' ↓':''}</span>`:''}
             ${p.mem?`<span class="sp-badge">Mémoire</span>`:''}
             ${p.trig?`<span class="sp-badge">Trigger dégressif</span>`:''}
@@ -458,10 +465,19 @@
     if(uls.length){
       loadProductSeries(p).then(data=>{
         if(myTok!==renderToken) return;                 // un autre produit a été ouvert
-        drawChart(p,data); renderBarriers(p,data);
+        const sch=computeSchedule(p,data);
+        applyComputedStatus(p, sch);                    // statut déduit des observations
+        drawChart(p,data,sch); renderBarriers(p,data);
         if(calHost){ calHost.innerHTML=scheduleHTML(p,data); bindCalTabs(); syncCalHeight(); }
       });
     }
+  }
+  // Met à jour le badge de statut d'après les observations réelles (et non le book).
+  function applyComputedStatus(p, sch){
+    const el=document.getElementById('sp-status-badge'); if(!el || !sch.hasData) return;
+    if(sch.redeemed){ el.className='sp-badge done'; el.textContent='Remboursé '+fmtShort(sch.redeemDate); }
+    else if(sch.matured){ el.className='sp-badge done'; el.textContent='Échu'; }
+    else { el.className='sp-badge live'; el.textContent='En cours'; }
   }
 
   /* ---- barre d'allocation (compacte) ---- */
@@ -632,7 +648,7 @@
   }
 
   /* ---- graphique multi-séries (cours réels) ---- */
-  function drawChart(p,data){
+  function drawChart(p,data,sch){
     const canvas=document.getElementById('sp-chart'); if(!canvas) return;
     const msg=document.getElementById('sp-chart-msg');
     const leg=document.getElementById('sp-legend');
@@ -647,7 +663,8 @@
     const endTs=lifeEndFrom(p,data).getTime();
     const series=data.series.map(s=>({name:s.name, color:s.color, pts:s.pts.filter(pt=>pt.t<=endTs+6*86400000), on:true}));
     const obs=observationDates(p).map(d=>d.getTime());
-    chartState={p, data, series, range:'max', hover:-1, showObs:true, obs};
+    const live = !(sch && (sch.redeemed||sch.matured));
+    chartState={p, data, series, range:'max', hover:-1, showObs:true, obs, live};
 
     leg.innerHTML = series.map((s,i)=>`<span class="sp-leg" data-i="${i}"><span class="ln" style="background:${s.color}"></span><b>${esc(s.name)}</b></span>`).join('')
       + `<span class="sp-leg" data-i="obs"><span class="ln dotted"></span><b>Observations</b></span>`
@@ -690,7 +707,7 @@
     const pad={t:14,r:52,b:24,l:14};
     const x0=pad.l, x1=w-pad.r, y0=pad.t, y1=h-pad.b;
 
-    const status=productStatus(p);
+    const live=chartState.live;
     const rs=rangeStart(chartState.range);
     const visible=series.filter(s=>s.on);
 
@@ -699,7 +716,7 @@
     const tmin=Math.max(rs, tStrike);
     const tMat=pd(p.maturity)?pd(p.maturity).getTime():today().getTime();
     const tEnd=lifeEndFrom(p,chartState.data).getTime();
-    let tmax = status==='DONE' ? tEnd : tMat;
+    let tmax = live ? tMat : tEnd;
     if(tmax<=tmin) tmax=tmin+86400000;
 
     const allPts=[]; visible.forEach(s=>s.pts.forEach(pt=>{ if(pt.t>=tmin) allPts.push(pt.v); }));
@@ -712,7 +729,7 @@
     const tToday=today().getTime();
 
     // zone « vie restante » (vivant) : de aujourd'hui à maturité
-    if(status==='LIVE' && tToday<tmax){
+    if(live && tToday<tmax){
       ctx.fillStyle='rgba(169,133,63,.05)'; ctx.fillRect(sx(Math.max(tToday,tmin)),y0,x1-sx(Math.max(tToday,tmin)),y1-y0);
     }
 
@@ -748,7 +765,7 @@
       dd=addMonths(dd,yStep); }
 
     // ligne « aujourd'hui »
-    if(status==='LIVE' && tToday>=tmin && tToday<=tmax){ const x=sx(tToday);
+    if(live && tToday>=tmin && tToday<=tmax){ const x=sx(tToday);
       ctx.strokeStyle='rgba(11,31,18,.45)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
       ctx.fillStyle='#0b1f12'; ctx.font='600 9px Jost,sans-serif'; ctx.textAlign='center'; ctx.fillText('aujourd\'hui', x, y0+2+5); }
 
@@ -991,6 +1008,7 @@
         <div class="sp-fld sp-check"><label><input type="checkbox" id="e-trig" ${p.trig?'checked':''}> Autocall dégressif (Trigger Descending)</label></div>
         <div class="sp-fld"><label>Décrément autocall (ex 0.01 = −1 %)</label><input id="e-trigstep" type="number" step="0.005" value="${p.trigStep!=null?p.trigStep:''}" placeholder="0.01"></div>
         <div class="sp-fld"><label>Fréquence de décrément</label><select id="e-trigfreq">${['Trimestrielle','Semestrielle','Annuelle','Mensuelle'].map(f=>`<option ${f===(p.trigFreq||'Trimestrielle')?'selected':''}>${f}</option>`).join('')}</select></div>
+        <div class="sp-fld"><label>Période de non-rappel (mois)</label><input id="e-noncall" type="number" step="1" value="${p.nonCall!=null?p.nonCall:''}" placeholder="12"></div>
         <div class="sp-fld"><label>Date de strike</label><input id="e-strike" type="date" value="${p.strike?String(p.strike).slice(0,10):''}"></div>
         <div class="sp-fld"><label>Date d'émission</label><input id="e-emission" type="date" value="${p.emission?String(p.emission).slice(0,10):''}"></div>
         <div class="sp-fld"><label>Prochaine observation</label><input id="e-nextobs" type="date" value="${p.nextObs?String(p.nextObs).slice(0,10):''}"></div>
@@ -1015,7 +1033,7 @@
       coupon:numv('e-coupon'), freq:val('e-freq'), ac:numv('e-ac'), bcpn:numv('e-bcpn'), bcap:numv('e-bcap'),
       mem:document.getElementById('e-mem')&&document.getElementById('e-mem').checked,
       trig:document.getElementById('e-trig')&&document.getElementById('e-trig').checked,
-      trigStep:numv('e-trigstep'), trigFreq:val('e-trigfreq'),
+      trigStep:numv('e-trigstep'), trigFreq:val('e-trigfreq'), nonCall:numv('e-noncall'),
       strike:val('e-strike')||null, emission:val('e-emission')||null, nextObs:val('e-nextobs')||null,
       nextCpn:val('e-nextcpn')||null, finalObs:val('e-finalobs')||null, maturity:val('e-maturity')||null,
       nominalRef:numv('e-nominalref'), uls,
