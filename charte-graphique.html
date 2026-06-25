@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charte graphique — La Financière de Rochechouart</title>
+<link rel="icon" href="assets/img/monogram.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#001B00; --green-700:#0B2E16; --green-600:#16472A;
+  --gold:#A9853F; --gold-soft:#C9A86A; --gold-light:#E6C988;
+  --cream:#F6F2E9; --parchment:#FBF8F1; --sand:#E7DCC7; --stone:#D8CBB0;
+  --ink:#1E211C; --muted:#5B6058; --line:rgba(0,27,0,.14);
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --sans:'Jost',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#cfcabd}
+body{font-family:var(--sans);color:var(--ink);font-weight:300;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;line-height:1.12;letter-spacing:.005em}
+.page{width:210mm;min-height:297mm;background:var(--parchment);margin:14px auto;padding:20mm 18mm;position:relative;overflow:hidden;box-shadow:0 6px 30px rgba(0,0,0,.18)}
+.eyebrow{font-size:9.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.rule{height:1px;background:var(--line);margin:9px 0 16px}
+.gold-rule{height:2px;width:54px;background:var(--gold);margin:10px 0 18px}
+small,.muted{color:var(--muted)}
+
+/* ---------- COVER ---------- */
+.cover{background:var(--green);color:var(--cream);display:flex;flex-direction:column;justify-content:space-between}
+.cover .eyebrow{color:var(--gold-light)}
+.cover__mono{width:96px;height:96px}
+.cover__mono svg{width:100%;height:100%}
+.cover h1{font-size:52px;color:#fff;margin-top:18px;font-weight:500}
+.cover h1 em{font-style:italic;color:var(--gold-light)}
+.cover__sub{font-family:var(--serif);font-style:italic;font-size:21px;color:var(--gold-soft);margin-top:6px}
+.cover__foot{display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;letter-spacing:.04em;color:rgba(246,242,233,.7)}
+.cover__line{height:1px;background:rgba(230,201,136,.35);margin:0 0 16px}
+
+/* ---------- SECTIONS ---------- */
+.sec-title{font-size:25px;color:var(--green)}
+.sec-num{font-family:var(--sans);font-weight:500;font-size:11px;color:var(--gold);letter-spacing:.2em}
+.block{margin-bottom:26px}
+.lead{font-size:13px;line-height:1.65;color:var(--ink);max-width:150mm}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* logo plates */
+.plate{border:1px solid var(--line);border-radius:6px;height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.plate--light{background:#fff}
+.plate--dark{background:var(--green)}
+.plate--gold{background:var(--gold)}
+.plate img{max-width:74%;max-height:64%}
+.plate__cap{font-size:10px;color:var(--muted);margin-top:7px;letter-spacing:.02em}
+.mono-row{display:flex;gap:14px;align-items:center}
+.mono-chip{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.mono-chip svg{width:62px;height:62px}
+
+/* colours */
+.sw{border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.sw__c{height:74px}
+.sw__b{padding:8px 10px;background:#fff}
+.sw__n{font-size:11px;font-weight:500;color:var(--ink)}
+.sw__hex{font-size:10.5px;color:var(--muted);font-family:var(--sans);letter-spacing:.04em;text-transform:uppercase}
+.sw__use{font-size:9.5px;color:var(--muted);margin-top:2px}
+.swgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.swgrid--n{grid-template-columns:repeat(5,1fr)}
+
+/* typography */
+.type-card{border:1px solid var(--line);border-radius:6px;padding:18px 20px;background:#fff}
+.type-name{font-size:12px;color:var(--gold);letter-spacing:.04em;text-transform:uppercase;font-weight:500}
+.spec-serif{font-family:var(--serif);color:var(--green)}
+.spec-aa{font-size:60px;line-height:1;font-weight:500}
+.spec-line{font-size:23px;margin-top:8px}
+.spec-line em{font-style:italic;color:var(--gold)}
+.weights{font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:.02em}
+.spec-sans{font-family:var(--sans)}
+.spec-sans .big{font-size:30px;font-weight:300;color:var(--ink)}
+.scale td{font-size:11px;padding:5px 0;border-bottom:1px solid var(--line);color:var(--muted)}
+.scale td:first-child{color:var(--ink)}
+
+/* ui elements */
+.ui-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;padding:13px 28px;font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;border-radius:2px;border:1px solid var(--green)}
+.btn--solid{background:var(--green);color:#fff;border-color:var(--green)}
+.btn--gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn--out{background:transparent;color:var(--green)}
+.principles{display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;margin-top:6px}
+.principle{display:flex;gap:10px;font-size:11.5px;line-height:1.5}
+.principle b{color:var(--green)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--gold);margin-top:6px;flex:0 0 auto}
+
+.foot{position:absolute;left:18mm;right:18mm;bottom:12mm;display:flex;justify-content:space-between;font-size:9.5px;color:var(--muted);letter-spacing:.04em;border-top:1px solid var(--line);padding-top:8px}
+.print-btn{position:fixed;top:16px;right:16px;background:var(--gold);color:#fff;border:0;padding:11px 20px;border-radius:6px;font-family:var(--sans);font-size:13px;letter-spacing:.04em;cursor:pointer;z-index:9}
+@media print{.print-btn{display:none}body{background:#fff}.page{margin:0;box-shadow:none;min-height:auto;height:297mm;page-break-after:always}}
+@page{size:A4;margin:0}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">Imprimer / PDF</button>
+
+<!-- ============ PAGE 1 — COUVERTURE ============ -->
+<section class="page cover">
+  <div>
+    <div class="eyebrow">Identité de marque · 2026</div>
+    <div class="cover__mono" style="margin-top:30px">
+      <svg viewBox="0 0 64 64" role="img" aria-label="Monogramme">
+        <defs><radialGradient id="halo" cx="0.5" cy="0.42" r="0.6">
+          <stop offset="0" stop-color="#F6E6B8"/><stop offset="0.7" stop-color="#EBD49A"/><stop offset="1" stop-color="#EBD49A" stop-opacity="0"/>
+        </radialGradient></defs>
+        <circle cx="32" cy="30" r="24" fill="url(#halo)"/>
+        <text x="32" y="41" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="30" font-weight="600" letter-spacing="-1" fill="#001B00">FR</text>
+      </svg>
+    </div>
+    <h1>Charte<br><em>graphique</em></h1>
+    <div class="cover__sub">La Financière de Rochechouart</div>
+  </div>
+  <div>
+    <div class="cover__line"></div>
+    <div class="cover__foot">
+      <span>Gestion de patrimoine · Paris</span>
+      <span>Document de référence — usage interne</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PAGE 2 — LOGO & COULEURS ============ -->
+<section class="page">
+  <div class="sec-num">01 — Logo &amp; monogramme</div>
+  <h2 class="sec-title">Le signe</h2>
+  <div class="gold-rule"></div>
+  <p class="lead block">Le logotype associe l'initiale <strong>FR</strong> à un halo doré évoquant la lumière d'automne. Il se décline en version sombre sur fond clair, et en version claire sur fond vert ou photographique. Préserver autour du signe une zone de protection au moins égale à la hauteur de la lettre « F ».</p>
+
+  <div class="grid2 block">
+    <div>
+      <div class="plate plate--light"><img src="assets/img/logo.png" alt="Logo principal"></div>
+      <div class="plate__cap">Logo principal — fond clair (parchemin / blanc)</div>
+    </div>
+    <div>
+      <div class="plate plate--dark"><img src="assets/img/logo-light.png" alt="Logo clair"></div>
+      <div class="plate__cap">Version claire — fond vert ou image</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="type-name" style="margin-bottom:10px">Monogramme — usage réduit (favicon, sceau, réseaux)</div>
+    <div class="mono-row">
+      <div class="mono-chip" style="background:var(--parchment);border:1px solid var(--line)">
+        <svg viewBox="0 0 64 64"><circle cx="32" cy="30" r="24" fill="url(#halo)"/><text x="32" y="41" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="30" font-weight="600" letter-spacing="-1" fill="#001B00">FR</text></svg>
+      </div>
+      <div class="mono-chip" style="background:var(--green)">
+        <svg viewBox="0 0 64 64"><circle cx="32" cy="30" r="24" fill="url(#halo)"/><text x="32" y="41" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="30" font-weight="600" letter-spacing="-1" fill="#001B00">FR</text></svg>
+      </div>
+      <p class="lead" style="font-size:11.5px;max-width:90mm">Le monogramme reprend le halo doré et la lettre verte. Il ne remplace jamais le logotype complet dans les communications officielles.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>La Financière de Rochechouart</span><span>Charte graphique · 02</span></div>
+</section>
+
+<!-- ============ PAGE 3 — COULEURS ============ -->
+<section class="page">
+  <div class="sec-num">02 — Palette</div>
+  <h2 class="sec-title">Les couleurs</h2>
+  <div class="gold-rule"></div>
+  <p class="lead block">Une bichromie signature — <strong>vert profond</strong> et <strong>or d'automne</strong> — posée sur des neutres chauds inspirés du parchemin et de la pierre. Le vert porte l'autorité et la pérennité ; l'or souligne, ponctue, met en valeur ; il ne s'emploie jamais en aplat dominant.</p>
+
+  <div class="block">
+    <div class="type-name" style="margin-bottom:11px">Couleurs primaires</div>
+    <div class="swgrid">
+      <div class="sw"><div class="sw__c" style="background:#001B00"></div><div class="sw__b"><div class="sw__n">Vert Rochechouart</div><div class="sw__hex">#001B00</div><div class="sw__use">Fonds, titres, autorité</div></div></div>
+      <div class="sw"><div class="sw__c" style="background:#16472A"></div><div class="sw__b"><div class="sw__n">Vert 600</div><div class="sw__hex">#16472A</div><div class="sw__use">Dégradés, profondeur</div></div></div>
+      <div class="sw"><div class="sw__c" style="background:#A9853F"></div><div class="sw__b"><div class="sw__n">Or d'automne</div><div class="sw__hex">#A9853F</div><div class="sw__use">Accent, filets, CTA</div></div></div>
+      <div class="sw"><div class="sw__c" style="background:#E6C988"></div><div class="sw__b"><div class="sw__n">Or clair</div><div class="sw__hex">#E6C988</div><div class="sw__use">Halo, surlignage</div></div></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="type-name" style="margin-bottom:11px">Neutres &amp; texte</div>
+    <div class="swgrid swgrid--n">
+      <div class="sw"><div class="sw__c" style="background:#FBF8F1"></div><div class="sw__b"><div class="sw__n">Parchemin</div><div class="sw__hex">#FBF8F1</div><div class="sw__use">Fond principal</div></div></div>
+      <div class="sw"><div class="sw__c" style="background:#F6F2E9"></div><div class="sw__b"><div class="sw__n">Crème</div><div class="sw__hex">#F6F2E9</div><div class="sw__use">Surfaces claires</div></div></div>
+      <div class="sw"><div class="sw__c" style="background:#E7DCC7"></div><div class="sw__b"><div class="sw__n">Sable</div><div class="sw__hex">#E7DCC7</div><div class="sw__use">Séparations</div></div></div>
+      <div class="sw"><div class="sw__c" style="background:#1E211C"></div><div class="sw__b"><div class="sw__n">Encre</div><div class="sw__hex">#1E211C</div><div class="sw__use">Texte courant</div></div></div>
+      <div class="sw"><div class="sw__c" style="background:#5B6058"></div><div class="sw__b"><div class="sw__n">Gris atténué</div><div class="sw__hex">#5B6058</div><div class="sw__use">Texte secondaire</div></div></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="type-name" style="margin-bottom:8px">Proportions recommandées</div>
+    <div style="display:flex;height:34px;border-radius:5px;overflow:hidden;border:1px solid var(--line)">
+      <div style="flex:62;background:#001B00"></div><div style="flex:26;background:#FBF8F1"></div><div style="flex:7;background:#A9853F"></div><div style="flex:5;background:#1E211C"></div>
+    </div>
+    <div style="display:flex;font-size:9.5px;color:var(--muted);margin-top:6px;gap:4px">
+      <span style="flex:62">Vert ≈ 60 %</span><span style="flex:26">Neutres ≈ 26 %</span><span style="flex:7">Or ≈ 8 %</span><span style="flex:5">Encre</span>
+    </div>
+  </div>
+
+  <div class="foot"><span>La Financière de Rochechouart</span><span>Charte graphique · 03</span></div>
+</section>
+
+<!-- ============ PAGE 4 — TYPOGRAPHIE & UI ============ -->
+<section class="page">
+  <div class="sec-num">03 — Typographie</div>
+  <h2 class="sec-title">Les caractères</h2>
+  <div class="gold-rule"></div>
+  <p class="lead block">Deux familles complémentaires : un <strong>serif d'apparat</strong> pour les titres et les citations, une <strong>linéale élégante</strong> pour les textes et l'interface. Le contraste entre les deux porte le ton : raffinement classique et clarté contemporaine.</p>
+
+  <div class="grid2 block">
+    <div class="type-card">
+      <div class="type-name">Titres &amp; accents</div>
+      <div class="spec-serif spec-aa">Aa</div>
+      <div class="spec-serif spec-line">Cormorant <em>Garamond</em></div>
+      <div class="weights">Regular 400 · Medium 500 · SemiBold 600 · Italique</div>
+    </div>
+    <div class="type-card">
+      <div class="type-name">Texte &amp; interface</div>
+      <div class="spec-sans"><div class="big" style="margin:6px 0 2px">Aa Bb Cc</div></div>
+      <div class="spec-sans" style="font-size:23px;font-weight:400;color:var(--ink)">Jost</div>
+      <div class="weights">Light 300 · Regular 400 · Medium 500 · SemiBold 600</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="type-name" style="margin-bottom:8px">Échelle typographique</div>
+    <table class="scale" style="width:100%;border-collapse:collapse">
+      <tr><td style="font-family:var(--serif);font-size:24px;color:var(--green)">Titre de section</td><td>Cormorant Garamond Medium · 25–52 px</td><td style="text-align:right">H1 · H2</td></tr>
+      <tr><td style="font-family:var(--serif);font-size:16px;color:var(--green)">Sous-titre</td><td>Cormorant Garamond · italique</td><td style="text-align:right">H3</td></tr>
+      <tr><td style="font-size:13px">Texte courant — lecture confortable</td><td>Jost Light · 13–17 px · interligne 1.7</td><td style="text-align:right">Body</td></tr>
+      <tr><td style="font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)">Surtitre</td><td>Jost Medium · majuscules · interlettrage large</td><td style="text-align:right">Eyebrow</td></tr>
+    </table>
+  </div>
+
+  <div class="sec-num" style="margin-top:8px">04 — Éléments &amp; ton</div>
+  <h3 class="sec-title" style="font-size:20px">Interface &amp; principes</h3>
+  <div class="gold-rule"></div>
+  <div class="ui-row block">
+    <span class="btn btn--solid">Prendre rendez-vous</span>
+    <span class="btn btn--gold">Action principale</span>
+    <span class="btn btn--out">En savoir plus</span>
+  </div>
+
+  <div class="principles">
+    <div class="principle"><span class="dot"></span><div><b>Sobriété.</b> Beaucoup de blanc (parchemin), peu d'éléments, des respirations généreuses.</div></div>
+    <div class="principle"><span class="dot"></span><div><b>L'or ponctue.</b> Filets, surlignages et CTA — jamais en grand aplat.</div></div>
+    <div class="principle"><span class="dot"></span><div><b>Angles discrets.</b> Coins à peine arrondis (2 px), filets fins, ombres légères.</div></div>
+    <div class="principle"><span class="dot"></span><div><b>Imagerie.</b> Patrimoine haussmannien, nature et matières nobles, lumière chaude.</div></div>
+  </div>
+
+  <div class="foot"><span>La Financière de Rochechouart</span><span>Charte graphique · 04</span></div>
+</section>
+
+</body>
+</html>
