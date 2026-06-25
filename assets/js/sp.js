@@ -232,12 +232,13 @@
       if(!t) return Promise.resolve({name:u.n, color:ulColor(i), ticker:null, ok:false});
       return fetchYahoo(t,s0).then(pts=>{
         if(!pts||!pts.length) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
-        // base = clôture du strike (dernière ≤ strike, à défaut la 1re disponible) -> 100 % à T0
+        // base = clôture du strike (dernière ≤ date de strike, à défaut la 1re disponible)
         let base=null, bi=0;
-        for(let k=0;k<pts.length;k++){ if(pts[k].t<=s0+4*86400000){ base=pts[k].p; bi=k; } else break; }
+        for(let k=0;k<pts.length;k++){ if(pts[k].t<=s0){ base=pts[k].p; bi=k; } else break; }
         if(base==null||base<=0){ base=pts[0].p; bi=0; }
         const reb=[]; for(let k=bi;k<pts.length;k++) reb.push({t:pts[k].t, v:pts[k].p/base*100});
         if(reb.length<2) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
+        reb[0]={t:s0, v:100};   // le graphe démarre exactement au strike, à 100 %
         return {name:u.n,color:ulColor(i),ticker:t,ok:true,pts:reb};
       });
     })).then(series=>({ok:series.length>0 && series.every(s=>s.ok), series}));
