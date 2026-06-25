@@ -231,21 +231,28 @@
 
   function fetchYahoo(ticker, fromTs){
     const day=new Date().toISOString().slice(0,10), ck='sppx:'+ticker;
-    try{ const c=JSON.parse(localStorage.getItem(ck)||'null'); if(c&&c.day===day) return Promise.resolve(c.pts); }catch(e){}
+    let cached=null; try{ cached=JSON.parse(localStorage.getItem(ck)||'null'); }catch(e){}
+    if(cached && cached.day===day && cached.pts && cached.pts.length) return Promise.resolve(cached.pts);
     const p1=Math.floor((Math.min(fromTs,Date.now())-31*86400000)/1000), p2=Math.floor(Date.now()/1000);
-    const yurl='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(ticker)+'?period1='+p1+'&period2='+p2+'&interval=1wk';
+    const qs='?period1='+p1+'&period2='+p2+'&interval=1wk';
+    // Plusieurs hôtes Yahoo + plusieurs proxys CORS : on enchaîne jusqu'à une réponse valide.
+    const hosts=['https://query1.finance.yahoo.com/v8/finance/chart/',
+                 'https://query2.finance.yahoo.com/v8/finance/chart/'];
     const wraps=[ u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
                   u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+                  u=>'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u),
                   u=>'https://thingproxy.freeboard.io/fetch/'+u ];
+    const urls=[]; hosts.forEach(h=>wraps.forEach(w=>urls.push(w(h+encodeURIComponent(ticker)+qs))));
     let chain=Promise.reject(0);
-    wraps.forEach(w=>{ chain=chain.catch(()=>fetch(w(yurl)).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{
+    urls.forEach(u=>{ chain=chain.catch(()=>fetch(u).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{
       const res=j&&j.chart&&j.chart.result&&j.chart.result[0]; if(!res||!res.timestamp) throw 0;
       const cl=res.indicators.quote[0].close, pts=[];
       for(let i=0;i<res.timestamp.length;i++) if(cl[i]!=null) pts.push({t:res.timestamp[i]*1000,p:cl[i]});
       if(pts.length<3) throw 0;
       try{ localStorage.setItem(ck,JSON.stringify({day,pts})); }catch(e){}
       return pts; })); });
-    return chain.catch(()=>null);
+    // En dernier recours : on réutilise le dernier cache disponible (même périmé) plutôt qu'un trou.
+    return chain.catch(()=>(cached&&cached.pts&&cached.pts.length)?cached.pts:null);
   }
   // Charge + rebase à 100 au strike les sous-jacents d'un produit.
   function loadProductSeries(p){
@@ -1380,16 +1387,28 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
      ONGLET — OBSERVATIONS (validation quotidienne coupon / autocall)
      =================================================================== */
   const obsDataCache = new Map();   // isin -> data cours (session)
+  // Date de remboursement anticipé d'un produit : autocall validé « Remboursé », sinon déduit des cours.
+  function redeemDateOf(p){
+    if(p.ac==null) return null;
+    const obs=observationDates(p);
+    for(const d of obs){ const v=obsValid.get(obsKey(p.isin,'autocall',d)); if(v && v.result==='called') return d; }
+    const data=obsDataCache.get(p.isin);
+    if(data && data.ok){ const cd=callDateFrom(p,data); if(cd) return cd; }
+    return null;
+  }
   // Observations sur [since, until] : coupons + autocalls rappelables (hors non-call).
+  // Un produit déjà remboursé par anticipation ne remonte plus d'observation après son rappel.
   function gatherObs(since, until){
     const out=[];
     productsMap.forEach(p=>{
       const obs=observationDates(p); if(!obs.length) return;
       const fi=firstCallIdx(p), m=freqMonths(p.freq), per=(p.coupon!=null&&m)?p.coupon*m/12:p.coupon;
+      const rd=redeemDateOf(p);
       obs.forEach((d,k)=>{
         if(d<since || d>until) return;
+        if(rd && d>rd) return;                              // produit remboursé : plus rien après le rappel
         if(p.ac!=null && k>=fi) out.push({p,k,date:d,kind:'autocall', barrier:trigAt(p,k)});
-        if(!isAthena(p) && p.coupon!=null) out.push({p,k,date:d,kind:'coupon', barrier:p.bcpn, per});
+        if(!isAthena(p) && p.coupon!=null && !(rd && d>=rd)) out.push({p,k,date:d,kind:'coupon', barrier:p.bcpn, per});
       });
     });
     return out;
@@ -1409,6 +1428,13 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
   }
   function obsLabels(kind){ return kind==='coupon'?{pos:'paid',neg:'unpaid',posL:'Payé',negL:'Non payé'}
                                                   :{pos:'called',neg:'notcalled',posL:'Remboursé',negL:'Non remb.'}; }
+  // Clients détenant un produit (allocations CRM) + leur email éventuel.
+  function holdersForIsin(isin){
+    return positions.filter(x=>!x._deleted && x.isin===isin).map(pos=>{
+      const c = pos.client_id ? crmClients.find(cc=>String(cc.id)===String(pos.client_id)) : null;
+      return {name:fullName(pos), email:(c&&c.email)?c.email:'', pos};
+    });
+  }
   function obsRowHTML(o, loading){
     const pr=obsProposal(o), isin=o.p.isin, di=o.date.toISOString().slice(0,10), L=obsLabels(o.kind);
     const barr=o.barrier!=null?pct(o.barrier,0):'—';
@@ -1422,6 +1448,15 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
       act=`<button class="obs-btn ok${sg(L.pos)}" ${data} data-res="${L.pos}">${L.posL}</button>`+
           `<button class="obs-btn no${sg(L.neg)}" ${data} data-res="${L.neg}">${L.negL}</button>`;
     }
+    // Événement « positif » (coupon payé / produit remboursé) -> on propose le mail client.
+    const positive = pr.validated ? (pr.result===L.pos) : (pr.proposed===L.pos || pr.proposed==null);
+    const cli = holdersForIsin(isin);
+    const cliHtml = cli.length
+      ? `<span class="lbl">Client${cli.length>1?'s':''}</span>`+cli.map(h=>{
+          const md=`data-isin="${esc(isin)}" data-kind="${o.kind}" data-date="${di}" data-name="${esc(h.name)}" data-email="${esc(h.email||'')}" data-nominal="${h.pos.nominal!=null?h.pos.nominal:''}" data-dev="${esc(h.pos.dev||'EUR')}"`;
+          return `<span class="obs-cli"><span class="obs-cli__n">${esc(h.name)}</span>${positive?`<button class="obs-mail" title="Pré-rédiger l'email client" ${md}>✉</button>`:''}</span>`;
+        }).join('')
+      : `<span class="obs-cli muted">Aucun client alloué</span>`;
     return `<div class="obs-row ${o.kind}">
       <div class="obs-row__date">${fmtShort(o.date)}</div>
       <div class="obs-row__prod">${esc(o.p.lib||isin)}<small>${esc(isin)} · ${esc((o.p.uls||[]).map(u=>u.n).join(', '))}</small></div>
@@ -1429,6 +1464,7 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
       <div class="obs-row__worst"><span>Pire</span><b>${worst}</b></div>
       <div class="obs-row__sugg">${pr.validated?('validé · '+esc(pr.by||'—')):(pr.proposed?('proposé : '+(pr.proposed===L.pos?L.posL:L.negL)):'cours indispo — à renseigner')}</div>
       <div class="obs-row__act">${act}</div>
+      <div class="obs-row__clients">${cliHtml}</div>
     </div>`;
   }
   function obsSoonHTML(o){
@@ -1456,22 +1492,132 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
     host.querySelectorAll('.obs-edit').forEach(b=>b.addEventListener('click',()=>{
       clearObservation(b.dataset.isin,b.dataset.kind,b.dataset.date); updateObsCount(); renderObservations();
     }));
+    host.querySelectorAll('.obs-mail').forEach(b=>b.addEventListener('click',()=>prepareMail(b.dataset)));
+  }
+
+  /* ---- Email client : paiement de coupon / remboursement anticipé ---- */
+  // Rendement de l'événement + rendement total (fractions) à une date donnée.
+  function eventYield(p, data, kind, date){
+    const sch=computeSchedule(p,data); let total=0, evt=0;
+    sch.coupons.forEach(c=>{ if(c.status==='paid' && c.date<=date){ total+=c.amount; if(+c.date===+date) evt=c.amount; } });
+    if(kind==='autocall'){
+      if(isAthena(p) && total===0 && p.coupon!=null) total=p.coupon*Math.max(0,yearsBetween(p.strike,date));
+      evt=total;
+    } else if(evt===0){ const m=freqMonths(p.freq); evt=(p.coupon!=null&&m)?p.coupon*m/12:(p.coupon||0); total=Math.max(total,evt); }
+    return {evt, total};
+  }
+  // Graphique produit rendu sur un canvas hors-écran (fond blanc), prêt à coller dans un mail.
+  function renderMailChart(p, data){
+    if(!data||!data.ok) return null;
+    const w=760, h=340, s=2, cv=document.createElement('canvas'); cv.width=w*s; cv.height=h*s;
+    const ctx=cv.getContext('2d'); ctx.scale(s,s); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+    const series=data.series.map(se=>({name:se.name,color:se.color,pts:se.pts}));
+    const pad={t:46,r:58,b:28,l:16}, x0=pad.l,x1=w-pad.r,y0=pad.t,y1=h-pad.b;
+    const tmin=pd(p.strike)?pd(p.strike).getTime():0;
+    const tMat=pd(p.maturity)?pd(p.maturity).getTime():today().getTime();
+    const tEnd=lifeEndFrom(p,data).getTime(), live=!callDateFrom(p,data);
+    let tmax=live?tMat:tEnd; if(tmax<=tmin) tmax=tmin+86400000;
+    const allPts=[]; series.forEach(se=>se.pts.forEach(pt=>{ if(pt.t>=tmin&&pt.t<=tmax+6*864e5) allPts.push(pt.v); }));
+    const barr=[100]; if(p.ac!=null)barr.push(p.ac*100); if(p.bcpn!=null)barr.push(p.bcpn*100); if(p.bcap!=null)barr.push(p.bcap*100);
+    let lo=Math.min(...allPts,...barr), hi=Math.max(...allPts,...barr); if(!isFinite(lo)){lo=50;hi=120;}
+    const pr=(hi-lo)*0.08||5; lo-=pr; hi+=pr;
+    const sx=t=>x0+(x1-x0)*((t-tmin)/((tmax-tmin)||1)), sy=v=>y1-(y1-y0)*((v-lo)/((hi-lo)||1));
+    ctx.fillStyle='#001B00'; ctx.font='600 15px Jost,Arial,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    ctx.fillText(p.lib||p.isin, x0, 20);
+    let lx=x0; ctx.font='12px Jost,Arial,sans-serif'; ctx.textBaseline='middle';
+    series.forEach(se=>{ ctx.fillStyle=se.color; ctx.fillRect(lx,32,11,11); lx+=15; ctx.fillStyle='#444';
+      ctx.fillText(se.name,lx,38); lx+=ctx.measureText(se.name).width+18; });
+    ctx.font='10px Jost,Arial,sans-serif';
+    for(let i=0;i<=4;i++){ const v=lo+(hi-lo)*i/4, y=sy(v); ctx.strokeStyle='#eee8da'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+      ctx.fillStyle='#a8a496'; ctx.textAlign='left'; ctx.fillText(v.toFixed(0)+'%',x1+6,y); }
+    const bl=[{v:1,c:'#9a978f',t:'100%'}];
+    if(p.ac!=null)bl.push({v:p.ac,c:'#A9853F',t:'Autocall '+(p.ac*100).toFixed(0)+'%'});
+    if(p.bcpn!=null)bl.push({v:p.bcpn,c:'#3f6b4a',t:'Coupon '+(p.bcpn*100).toFixed(0)+'%'});
+    if(p.bcap!=null)bl.push({v:p.bcap,c:'#b04a32',t:'Capital '+(p.bcap*100).toFixed(0)+'%'});
+    bl.forEach(b=>{ const y=sy(b.v*100); ctx.strokeStyle=b.c; ctx.lineWidth=1.1; ctx.setLineDash([5,3]);
+      ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); ctx.setLineDash([]); });
+    ctx.font='600 9px Jost,Arial,sans-serif';
+    const lbl=bl.map(b=>({c:b.c,t:b.t,y:sy(b.v*100)})).sort((a,b)=>a.y-b.y); let last=-1e9;
+    lbl.forEach(b=>{ let ly=b.y-6; if(ly-last<11)ly=last+11; last=ly; ctx.fillStyle=b.c; ctx.textAlign='left'; ctx.fillText(b.t,x0+3,ly); });
+    ctx.fillStyle='#a8a496'; ctx.font='10px Jost,Arial,sans-serif'; ctx.textAlign='center';
+    const span=tmax-tmin, step=span>3*31536e6?12:(span>31536e6?6:3); let dd=new Date(tmin); dd.setDate(1);
+    for(let g=0;g<80;g++){ const t=dd.getTime(); if(t>tmax)break; if(t>=tmin){ const x=sx(t);
+      ctx.fillText(dd.getMonth()===0?String(dd.getFullYear()):MONTHS[dd.getMonth()].replace('.',''),x,y1+14); } dd=addMonths(dd,step); }
+    const tTod=today().getTime(); if(live&&tTod>=tmin&&tTod<=tmax){ const x=sx(tTod);
+      ctx.strokeStyle='rgba(11,31,18,.4)'; ctx.lineWidth=1.1; ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke(); }
+    series.forEach(se=>{ const vis=se.pts.filter(pt=>pt.t>=tmin&&pt.t<=tmax+6*864e5); if(vis.length<2)return;
+      ctx.beginPath(); vis.forEach((pt,i)=>{ const X=sx(pt.t),Y=sy(pt.v); i?ctx.lineTo(X,Y):ctx.moveTo(X,Y); });
+      ctx.strokeStyle=se.color; ctx.lineWidth=1.8; ctx.lineJoin='round'; ctx.stroke();
+      const lp=vis[vis.length-1]; ctx.beginPath(); ctx.arc(sx(lp.t),sy(lp.v),3.2,0,7); ctx.fillStyle=se.color; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.3; ctx.stroke(); });
+    return cv;
+  }
+  function prepareMail(ds){
+    const p=productsMap.get(ds.isin); if(!p){ toast('Produit introuvable',true); return; }
+    const have=obsDataCache.get(ds.isin);
+    const go=data=>buildMail(p, ds.kind, pd(ds.date), ds.name, ds.email, ds.nominal!==''?+ds.nominal:null, ds.dev||'EUR', data);
+    if(have){ go(have); }
+    else { toast('Préparation du mail…'); loadProductSeries(p).then(d=>{ obsDataCache.set(ds.isin,d); go(d); }); }
+  }
+  function buildMail(p, kind, date, name, email, nominal, dev, data){
+    const {evt,total}=eventYield(p, data, kind, date);
+    const evtPct=(evt*100).toFixed(2), totPct=(total*100).toFixed(2);
+    const totEur = nominal!=null ? Math.round(total*nominal).toLocaleString('fr-FR')+' '+symbol(dev) : null;
+    const isCpn = kind==='coupon';
+    const subject = (isCpn?'Paiement des intérêts':'Remboursement par anticipation')+` (+${isCpn?evtPct:totPct}%) | La Financière de Rochechouart`;
+    const body=[
+      `Bonjour ${name&&name!=='—'?name:'Madame, Monsieur'},`,'',
+      `Nous avons le plaisir de vous informer du ${isCpn?'détachement du coupon':'remboursement par anticipation'} de ce produit :`,'',
+      `ISIN : ${p.isin}`,
+      `Nom du produit : ${p.lib||'—'}`,
+      `Nominal : ${nominal!=null?money(nominal,dev):'—'}`,
+      `Rendement total : +${totPct}%${totEur?(' ('+totEur+')'):''}`,'',
+      `[ Graphique du produit ci-dessous — collez l'image (Ctrl+V) ]`,'',
+      'Nous vous remercions pour votre confiance et vous souhaitons une excellente journée,','',
+      'Bien cordialement,','La Financière de Rochechouart'
+    ].join('\n');
+    // Graphique -> presse-papiers (collage Ctrl+V) + téléchargement de secours.
+    const cv=renderMailChart(p,data);
+    if(cv && cv.toBlob){ cv.toBlob(blob=>{ if(!blob) return;
+      try{ if(navigator.clipboard&&window.ClipboardItem) navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).catch(()=>{}); }catch(e){}
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='LFDR_'+p.isin+'.png';
+      document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
+    }, 'image/png'); }
+    // Ouverture du brouillon dans le compte mail de connexion (Gmail si applicable).
+    const me=sessionStorage.getItem('sb_user_email')||'';
+    if(/@(gmail|googlemail)\./i.test(me)){
+      const u='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(email||'')+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)+(me?'&authuser='+encodeURIComponent(me):'');
+      window.open(u,'_blank');
+    } else {
+      const a=document.createElement('a'); a.href='mailto:'+(email||'')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    toast(cv?'Brouillon prêt. Graphique copié : collez-le (Ctrl+V) dans le mail.':'Brouillon prêt à envoyer.');
   }
   function renderObservations(){
     const host=document.getElementById('obs-body'); if(!host) return;
     const sinceEl=document.getElementById('obs-since'), tod=today();
     if(sinceEl && !sinceEl.value) sinceEl.value=addDays(tod,-1).toISOString().slice(0,10);
     const since = sinceEl&&sinceEl.value ? pd(sinceEl.value) : addDays(tod,-1);
-    const due = gatherObs(since, tod).sort((a,b)=> b.date-a.date || (a.p.lib||'').localeCompare(b.p.lib||''));
-    const soon = gatherObs(addDays(tod,1), addDays(tod,14)).sort((a,b)=>a.date-b.date);
-    const sum=document.getElementById('obs-summary'); if(sum) sum.textContent=`${due.filter(o=>!obsValid.get(obsKey(o.p.isin,o.kind,o.date))).length} à valider · ${soon.length} à venir (14 j)`;
-    if(!due.length && !soon.length){ host.innerHTML='<div class="sp-rep-empty"><p>Aucune observation sur la période. Ajustez la date « À valider depuis ».</p></div>'; return; }
-    host.innerHTML = obsListHTML(due, soon, true); bindObsRows(due);
+    const collect=()=>({
+      due: gatherObs(since, tod).sort((a,b)=> b.date-a.date || (a.p.lib||'').localeCompare(b.p.lib||'')),
+      soon: gatherObs(addDays(tod,1), addDays(tod,14)).sort((a,b)=>a.date-b.date) });
+    const paint=(loading)=>{
+      const {due,soon}=collect();
+      const sum=document.getElementById('obs-summary');
+      if(sum) sum.textContent=`${due.filter(o=>!obsValid.get(obsKey(o.p.isin,o.kind,o.date))).length} à valider · ${soon.length} à venir (14 j)`;
+      if(!due.length && !soon.length){ host.innerHTML='<div class="sp-rep-empty"><p>Aucune observation sur la période. Ajustez la date « À valider depuis ».</p></div>'; return {due,soon}; }
+      host.innerHTML = obsListHTML(due, soon, loading); bindObsRows(due);
+      return {due,soon};
+    };
+    const {due}=paint(true);
+    // Charge les cours réels des produits dus, puis re-rend (filtre les remboursés, calcule le pire réel).
     const isins=[...new Set(due.filter(o=>!obsValid.get(obsKey(o.p.isin,o.kind,o.date))).map(o=>o.p.isin))].slice(0,80);
     Promise.all(isins.map(isin=>{ if(obsDataCache.has(isin)) return null;
       const p=productsMap.get(isin); if(!p||!p.uls||!p.uls.length){ obsDataCache.set(isin,{ok:false,series:[]}); return null; }
       return loadProductSeries(p).then(d=>obsDataCache.set(isin,d)); })
-    ).then(()=>{ if(activeTab!=='observations') return; host.innerHTML=obsListHTML(due, soon, false); bindObsRows(due); });
+    ).then(()=>{ if(activeTab!=='observations') return; paint(false); updateObsCount(); });
   }
   (function wireObs(){
     const since=document.getElementById('obs-since'); if(since) since.addEventListener('change',renderObservations);
