@@ -1566,34 +1566,55 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
     const totEur = nominal!=null ? Math.round(total*nominal).toLocaleString('fr-FR')+' '+symbol(dev) : null;
     const isCpn = kind==='coupon';
     const subject = (isCpn?'Paiement des intérêts':'Remboursement par anticipation')+` (+${isCpn?evtPct:totPct}%) | La Financière de Rochechouart`;
-    const body=[
-      `Bonjour ${name&&name!=='—'?name:'Madame, Monsieur'},`,'',
-      `Nous avons le plaisir de vous informer du ${isCpn?'détachement du coupon':'remboursement par anticipation'} de ce produit :`,'',
+    const greet = name&&name!=='—'?name:'Madame, Monsieur';
+    const intro = isCpn?'détachement du coupon':'remboursement par anticipation';
+    const rend = `+${totPct}%${totEur?(' ('+totEur+')'):''}`;
+    // Version texte (repli) + version HTML enrichie (texte + graphique en ligne).
+    const plain=[
+      `Bonjour ${greet},`,'',
+      `Nous avons le plaisir de vous informer du ${intro} de ce produit :`,'',
       `ISIN : ${p.isin}`,
       `Nom du produit : ${p.lib||'—'}`,
       `Nominal : ${nominal!=null?money(nominal,dev):'—'}`,
-      `Rendement total : +${totPct}%${totEur?(' ('+totEur+')'):''}`,'',
-      `[ Graphique du produit ci-dessous — collez l'image (Ctrl+V) ]`,'',
+      `Rendement total : ${rend}`,'',
       'Nous vous remercions pour votre confiance et vous souhaitons une excellente journée,','',
       'Bien cordialement,','La Financière de Rochechouart'
     ].join('\n');
-    // Graphique -> presse-papiers (collage Ctrl+V) + téléchargement de secours.
     const cv=renderMailChart(p,data);
+    const dataUrl = cv?cv.toDataURL('image/png'):'';
+    const eh=s=>esc(s);
+    const row=(k,v)=>`<tr><td style="padding:1px 16px 1px 0;color:#5B6058">${k}</td><td><b>${eh(v)}</b></td></tr>`;
+    const html=`<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1E211C;line-height:1.6">`
+      +`<p>Bonjour ${eh(greet)},</p>`
+      +`<p>Nous avons le plaisir de vous informer du ${intro} de ce produit&nbsp;:</p>`
+      +`<table style="border-collapse:collapse;margin:8px 0 14px"><tbody>`
+      +row('ISIN',p.isin)+row('Nom du produit',p.lib||'—')
+      +row('Nominal',nominal!=null?money(nominal,dev):'—')+row('Rendement total',rend)
+      +`</tbody></table>`
+      +(dataUrl?`<p><img src="${dataUrl}" alt="Graphique du produit" style="display:block;width:680px;max-width:100%;border:1px solid #eee8da;border-radius:6px"/></p>`:'')
+      +`<p>Nous vous remercions pour votre confiance et vous souhaitons une excellente journée,</p>`
+      +`<p>Bien cordialement,<br>La Financière de Rochechouart</p></div>`;
+    // Tout l'email (texte + graphique) dans le presse-papiers : un seul Ctrl+V dans le corps.
+    const clipOK = !!(navigator.clipboard && window.ClipboardItem);
+    if(clipOK){ try{ navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([html],{type:'text/html'}),
+        'text/plain': new Blob([plain],{type:'text/plain'}) })]).catch(()=>{}); }catch(e){} }
+    // Téléchargement du graphique (repli pièce jointe si le presse-papiers n'est pas géré).
     if(cv && cv.toBlob){ cv.toBlob(blob=>{ if(!blob) return;
-      try{ if(navigator.clipboard&&window.ClipboardItem) navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).catch(()=>{}); }catch(e){}
       const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='LFDR_'+p.isin+'.png';
       document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
     }, 'image/png'); }
     // Ouverture du brouillon dans le compte mail de connexion (Gmail si applicable).
+    // Si le presse-papiers fonctionne : corps vide (un Ctrl+V suffit). Sinon : on pré-remplit le texte.
     const me=sessionStorage.getItem('sb_user_email')||'';
+    const bodyParam = clipOK?'':'&body='+encodeURIComponent(plain);
     if(/@(gmail|googlemail)\./i.test(me)){
-      const u='https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(email||'')+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)+(me?'&authuser='+encodeURIComponent(me):'');
-      window.open(u,'_blank');
+      window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(email||'')+'&su='+encodeURIComponent(subject)+bodyParam+(me?'&authuser='+encodeURIComponent(me):''),'_blank');
     } else {
-      const a=document.createElement('a'); a.href='mailto:'+(email||'')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+      const a=document.createElement('a'); a.href='mailto:'+(email||'')+'?subject='+encodeURIComponent(subject)+(clipOK?'':'&body='+encodeURIComponent(plain));
       document.body.appendChild(a); a.click(); a.remove();
     }
-    toast(cv?'Brouillon prêt. Graphique copié : collez-le (Ctrl+V) dans le mail.':'Brouillon prêt à envoyer.');
+    toast(clipOK?'Brouillon ouvert — cliquez dans le corps et collez (Ctrl+V) : texte + graphique.':'Brouillon prêt. Ajoutez le graphique téléchargé en pièce jointe.');
   }
   function renderObservations(){
     const host=document.getElementById('obs-body'); if(!host) return;
