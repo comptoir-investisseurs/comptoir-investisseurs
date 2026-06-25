@@ -302,8 +302,9 @@
         const trig=trigAt(p,k); let st;
         if(called) st='after';
         else if(!past) st='future';
-        else if(ok) { if(w!=null && w>=trig*100){ st='called'; called=true; } else st='notcalled'; }
-        else { st = live ? 'notcalled' : (cd && Math.abs(daysBetween(date,cd))<=20 ? 'called' : 'notcalled'); if(st==='called') called=true; }
+        else if(live) st='notcalled';                         // produit vivant = jamais remboursé (statut avéré)
+        else if(ok){ if(w!=null && w>=trig*100){ st='called'; called=true; } else st='notcalled'; }
+        else { st = (cd && Math.abs(daysBetween(date,cd))<=20) ? 'called' : 'notcalled'; if(st==='called') called=true; }
         if(st!=='after') autocalls.push({date,pay,trig,status:st,w});
       }
       if(!isAthena(p) && p.coupon!=null){
