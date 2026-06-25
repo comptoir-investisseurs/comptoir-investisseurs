@@ -137,21 +137,30 @@
 .sp-cal-scroll{flex:1;min-height:0;overflow:auto;margin:-2px -4px 0;padding:0 4px}
 .sp-cal-block{margin-bottom:14px}
 .sp-cal-h{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--green);font-weight:600;margin:0 0 6px;position:sticky;top:0;background:#fff;padding:3px 0}
-.sp-cal{width:100%;border-collapse:collapse;font-size:.78rem}
-.sp-cal th{text-align:left;font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600;padding:4px 7px;border-bottom:1px solid var(--line)}
-.sp-cal td{padding:5px 7px;border-bottom:1px solid var(--parchment);color:var(--ink)}
+.sp-cal-note{font-size:.68rem;color:#8a6d2f;background:#fbf3e2;border:1px solid #efe2c6;border-radius:6px;padding:4px 8px;margin-bottom:8px}
+.sp-cal{width:100%;border-collapse:collapse;font-size:.75rem}
+.sp-cal th{text-align:left;font-size:.58rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:600;padding:4px 5px;border-bottom:1px solid var(--line)}
+.sp-cal td{padding:4px 5px;border-bottom:1px solid var(--parchment);color:var(--ink)}
 .sp-cal td:first-child{font-weight:600;color:var(--green)}
 .sp-cal .num{text-align:right}
 .sp-cal .muted{color:var(--muted)}
 .sp-cal tr.r-paid td:first-child{color:#2e7d32}
+.sp-cal tr.r-unpaid td:first-child{color:#c0392b}
 .sp-cal tr.r-called{background:#fbf6ea}
 .sp-cal tr.r-next td{background:#fffaf0}
-.sp-cal tr.r-future td{color:var(--muted)}
-.sp-st{font-size:.62rem;text-transform:uppercase;letter-spacing:.03em;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.sp-cal tr.r-future td,.sp-cal tr.r-na td{color:var(--muted)}
+.sp-st{font-size:.6rem;text-transform:uppercase;letter-spacing:.02em;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap}
 .st-paid{background:#e8f5e9;color:#2e7d32}
+.st-unpaid{background:#fdecea;color:#c0392b}
 .st-called{background:#f3ecdc;color:#96732f}
+.st-notcalled{background:#eef0ee;color:#5B6058}
 .st-next{background:#fff0d9;color:#b06f15}
 .st-future{background:#eef0ee;color:#5B6058}
+.st-na{background:#f1eee6;color:#9a958a}
+/* graphe : message « visualisation indisponible » */
+.sp-chart-msg{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;color:var(--muted);background:repeating-linear-gradient(45deg,#faf7f1,#faf7f1 10px,#f5f1e8 10px,#f5f1e8 20px)}
+.sp-chart-msg .big{font-family:var(--serif);font-size:1.15rem;color:var(--green);font-weight:500}
+.sp-chart-msg .sub{font-size:.78rem;max-width:78%}
 
 /* ---------- PORTFOLIO TAB ---------- */
 .sp-filter{padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-family:var(--sans);font-size:.84rem;background:#fff;color:var(--green);outline:none;cursor:pointer;min-width:150px}

@@ -166,53 +166,86 @@
   // couleurs cohérentes des barrières (chart + jauge + chips)
   const BARC={strike:'#9a978f', ac:'#A9853F', cpn:'#3f6b4a', cap:'#b04a32'};
 
-  /* ---------------- SIMULATEUR DE COURS (déterministe par sous-jacent) ---------------- */
-  const EPOCH = new Date(2018,0,1);
-  const seriesCache = new Map();
-  function hashStr(s){ let h=2166136261>>>0; s=String(s||''); for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
-  function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
-  function masterSeries(name){
-    if(seriesCache.has(name)) return seriesCache.get(name);
-    const seed = hashStr(name); const rnd = mulberry32(seed);
-    const vol = 0.14 + (seed%13)/100;
-    const mu  = 0.00 + ((seed>>5)%10)/100;
-    const dt = 1/365, sq = Math.sqrt(dt);
-    const end = today(); let price = 100; const pts=[];
-    let g2=null;
-    function gauss(){ if(g2!=null){ const v=g2; g2=null; return v; } const u1=Math.max(rnd(),1e-9),u2=rnd();
-      const r=Math.sqrt(-2*Math.log(u1)); g2=r*Math.sin(2*Math.PI*u2); return r*Math.cos(2*Math.PI*u2); }
-    for(let d=new Date(EPOCH); d<=end; d.setDate(d.getDate()+1)){
-      const ret = (mu - vol*vol/2)*dt + vol*sq*gauss();
-      price *= Math.exp(ret);
-      pts.push({t:d.getTime(), p:price});
-    }
-    seriesCache.set(name, pts); return pts;
+  /* ---------------- COURS RÉELS (Yahoo Finance via proxy CORS) ----------------
+     Cours réels rebasés à 100 au strike. Sans ticker connu ou si la
+     récupération échoue → « Visualisation indisponible ». Cache localStorage 1 j. */
+  const EPOCH = new Date(2015,0,1);
+  const TICKERS = {
+    // France (Euronext Paris)
+    'TotalEnergies':'TTE.PA','Total':'TTE.PA','BNP Paribas':'BNP.PA','BNP':'BNP.PA',
+    'Société Générale':'GLE.PA','Société générale':'GLE.PA','Airbus':'AIR.PA','Stellantis':'STLAP.PA',
+    'Unibail':'URW.PA','Carrefour':'CA.PA','Orange':'ORA.PA','Crédit Agricole':'ACA.PA',
+    'Credit agricole':'ACA.PA','Crédit Agricole 1.05':'ACA.PA','Bouygues':'EN.PA','LVMH':'MC.PA',
+    'Engie':'ENGI.PA','Sanofi':'SAN.PA','Saint-Gobain':'SGO.PA','Saint Gobain':'SGO.PA',
+    'Veolia':'VIE.PA','Alstom':'ALO.PA','Axa':'CS.PA','Schneider Electric':'SU.PA','Schneider':'SU.PA',
+    'Vivendi':'VIV.PA','Pernod-Ricard':'RI.PA','Pernod Ricard':'RI.PA','Publicis':'PUB.PA',
+    'Vinci':'DG.PA','Danone':'BN.PA','Accor':'AC.PA','Air France':'AF.PA','Renault':'RNO.PA',
+    'Valeo':'FR.PA','Michelin':'ML.PA','Safran':'SAF.PA','Klepierre':'LI.PA','Klépierre':'LI.PA',
+    'Dassault System':'DSY.PA',"L'Oréal":'OR.PA','Ubisoft':'UBI.PA','Air Liquide':'AI.PA',
+    'Legrand':'LR.PA','EssilorLuxottica':'EL.PA','Capgemini':'CAP.PA','Eiffage':'FGR.PA',
+    'Arkema':'AKE.PA','Thales':'HO.PA','Thalès':'HO.PA','Worldline':'WLN.PA','Sodexo':'SW.PA',
+    'Atos':'ATO.PA','Hermès':'RMS.PA','Forvia':'FRVIA.PA','Cointreau':'RCO.PA','Technip':'TE.PA',
+    // Europe
+    'Richemont':'CFR.SW','ASML':'ASML.AS','ING Groep':'INGA.AS','UMG':'UMG.AS',
+    'Banco Santander':'SAN.MC','BBVA':'BBVA.MC','Intesa':'ISP.MI','Eni':'ENI.MI','ENI':'ENI.MI',
+    'Barclays':'BARC.L','Rolls-Royce':'RR.L','Nestlé':'NESN.SW','ArcelorMittal':'MT.AS',
+    'Mercedes-benz':'MBG.DE','Volkswagen':'VOW3.DE','Volkswagen 6.36':'VOW3.DE','Adidas':'ADS.DE',
+    'Allianz':'ALV.DE','Rheinmetall':'RHM.DE','Novo Nordisk':'NVO',
+    // US
+    'Amazon':'AMZN','Microsoft':'MSFT','Alphabet':'GOOGL','Apple':'AAPL','Nvidia':'NVDA',
+    'Tesla':'TSLA','Chevron':'CVX','Salesforce':'CRM','Visa':'V','Broadcom':'AVGO','Abbvie':'ABBV',
+    'Facebook':'META','Meta':'META','Intel':'INTC','NextEra':'NEE','Nextera':'NEE','Morgan Stanley':'MS',
+    'UnitedHealth Group':'UNH','UnitedHealth':'UNH','Citi':'C','Conocophillips':'COP','ConocoPhilips':'COP',
+    'Air Product':'APD','AppLovin':'APP','Eli Lilly':'LLY','Moderna':'MRNA','Brookfield Corp.':'BN',
+    'Uber':'UBER','Mercadolibre':'MELI','MercadoLibre':'MELI',
+    // Asie / ADR
+    'Alibaba':'BABA','Baidu':'BIDU','Tencent':'0700.HK','TSMC':'TSM',
+    // Indices
+    'SPX':'^GSPC','SX5E':'^STOXX50E','CAC 40':'^FCHI'
+  };
+  function tickerFor(name){ if(!name) return null; if(TICKERS[name]) return TICKERS[name];
+    const lk=String(name).toLowerCase().trim(); const k=Object.keys(TICKERS).find(x=>x.toLowerCase()===lk); return k?TICKERS[k]:null; }
+
+  function fetchYahoo(ticker, fromTs){
+    const day=new Date().toISOString().slice(0,10), ck='sppx:'+ticker;
+    try{ const c=JSON.parse(localStorage.getItem(ck)||'null'); if(c&&c.day===day) return Promise.resolve(c.pts); }catch(e){}
+    const p1=Math.floor((Math.min(fromTs,Date.now())-31*86400000)/1000), p2=Math.floor(Date.now()/1000);
+    const yurl='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(ticker)+'?period1='+p1+'&period2='+p2+'&interval=1wk';
+    const wraps=[ u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+                  u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+                  u=>'https://thingproxy.freeboard.io/fetch/'+u ];
+    let chain=Promise.reject(0);
+    wraps.forEach(w=>{ chain=chain.catch(()=>fetch(w(yurl)).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{
+      const res=j&&j.chart&&j.chart.result&&j.chart.result[0]; if(!res||!res.timestamp) throw 0;
+      const cl=res.indicators.quote[0].close, pts=[];
+      for(let i=0;i<res.timestamp.length;i++) if(cl[i]!=null) pts.push({t:res.timestamp[i]*1000,p:cl[i]});
+      if(pts.length<3) throw 0;
+      try{ localStorage.setItem(ck,JSON.stringify({day,pts})); }catch(e){}
+      return pts; })); });
+    return chain.catch(()=>null);
   }
-  function rebasedSeries(name, strikeDate, endDate, target){
-    const ms = masterSeries(name);
-    const s0 = pd(strikeDate)?pd(strikeDate).getTime():EPOCH.getTime();
-    const e0 = (pd(endDate)?pd(endDate).getTime():today().getTime());
-    let base=null; const out=[];
-    for(const pt of ms){
-      if(pt.t < s0) continue;
-      if(base==null) base = pt.p;
-      if(pt.t > e0) break;
-      out.push({t:pt.t, v: pt.p/base*100});
-    }
-    if(!out.length) out.push({t:s0, v:100});
-    if(target!=null && out.length>1){
-      const t0=out[0].t, tN=out[out.length-1].t, vN=out[out.length-1].v, span=(tN-t0)||1;
-      const k=Math.log(target/vN);
-      for(const r of out){ r.v = r.v*Math.exp(k*(r.t-t0)/span); }
-    }
-    return out;
+  // Charge + rebase à 100 au strike les sous-jacents d'un produit.
+  function loadProductSeries(p){
+    const uls=p.uls||[], s0=(pd(p.strike)||EPOCH).getTime();
+    return Promise.all(uls.map((u,i)=>{
+      const t=tickerFor(u.n);
+      if(!t) return Promise.resolve({name:u.n, color:ulColor(i), ticker:null, ok:false});
+      return fetchYahoo(t,s0).then(pts=>{
+        if(!pts||!pts.length) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
+        let base=null; const reb=[];
+        for(const pt of pts){ if(pt.t < s0-12*86400000) continue; if(base==null) base=pt.p; reb.push({t:pt.t, v:pt.p/base*100}); }
+        if(base==null||reb.length<2) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
+        return {name:u.n,color:ulColor(i),ticker:t,ok:true,pts:reb};
+      });
+    })).then(series=>({ok:series.length>0 && series.every(s=>s.ok), series}));
   }
-  function gaussSeed(seed){ const r=mulberry32(seed); const u1=Math.max(r(),1e-9),u2=r(); return Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2); }
-  function targetLevel(p, name){
-    const g = gaussSeed(hashStr((p.isin||'')+'|'+name));
-    const done = productStatus(p)==='DONE';
-    const T = done ? 100*Math.exp(0.10*g+0.05) : 100*Math.exp(0.12*g-0.015);
-    return Math.max(58, Math.min(146, T));
+  function levelAt(pts, t){ if(!pts||!pts.length) return null; let v=pts[0].v; for(const pt of pts){ if(pt.t<=t) v=pt.v; else break; } return v; }
+  function worstAt(data, t){ if(!data||!data.ok) return null; let w=null; data.series.forEach(s=>{ const v=levelAt(s.pts,t); if(v!=null&&(w==null||v<w)) w=v; }); return w; }
+  function currentLevelsFrom(data){
+    if(!data||!data.ok) return {ok:false, levels:[], worst:null, wi:-1};
+    const levels=data.series.map(s=>s.pts[s.pts.length-1].v);
+    let worst=null,wi=-1; levels.forEach((l,i)=>{ if(l!=null&&(worst==null||l<worst)){worst=l;wi=i;} });
+    return {ok:true, levels, worst, wi};
   }
 
   /* ---------------- CALENDRIER D'OBSERVATIONS ---------------- */
@@ -225,20 +258,23 @@
     if(!out.length) out.push(new Date(mat));
     return out;
   }
-  // Date de rappel estimée pour un produit soldé : dernière observation passée.
-  function callDate(p){
+  function nextObsDate(p){ const tod=today(); const o=observationDates(p).find(d=>d>tod); return o||pd(p.nextObs); }
+  // Date de rappel (soldé) : 1re observation où le pire ≥ seuil (cours réels), sinon dernière passée.
+  function callDateFrom(p,data){
     if(productStatus(p)!=='DONE') return null;
-    const obs=observationDates(p), tod=today(); let c=null;
-    for(const o of obs){ if(o<=tod) c=o; else break; }
-    if(!c){ const no=pd(p.nextObs); c = (no && no<tod)?no:(obs[0]||pd(p.maturity)); }
-    const mat=pd(p.maturity); if(mat && c>mat) c=mat;
-    return c;
+    const obs=observationDates(p), tod=today();
+    if(data&&data.ok && p.ac!=null){
+      for(let k=0;k<obs.length;k++){ if(obs[k]>tod) break; const w=worstAt(data,obs[k].getTime()); if(w!=null && w>=trigAt(p,k)*100) return obs[k]; }
+    }
+    let c=null; for(const o of obs){ if(o<=tod) c=o; else break; }
+    if(!c){ const no=pd(p.nextObs); c=(no&&no<tod)?no:(obs[0]||pd(p.maturity)); }
+    const mat=pd(p.maturity); if(mat&&c>mat) c=mat; return c;
   }
   // Fin de vie « graphique » : aujourd'hui (vivant) ou date de rappel (soldé).
-  function lifeEnd(p){ const cd=callDate(p); if(cd) return cd; const mat=pd(p.maturity); const t=today(); return (mat&&mat<t)?mat:t; }
+  function lifeEndFrom(p,data){ const cd=callDateFrom(p,data); if(cd) return cd; const mat=pd(p.maturity), t=today(); return (mat&&mat<t)?mat:t; }
   // Dégressivité du seuil autocall (Trigger Descending) : décrément + fréquence.
-  function trigStepOf(p){ return p.trigStep!=null?p.trigStep:0.05; }      // défaut -5 %
-  function trigFreqOf(p){ return p.trigFreq||'Annuelle'; }                // défaut /an
+  function trigStepOf(p){ return p.trigStep!=null?p.trigStep:0.01; }     // défaut −1 % / période
+  function trigFreqOf(p){ return p.trigFreq||'Trimestrielle'; }          // défaut / trimestre
   // Seuil autocall à une observation k (0-based), avec dégressivité éventuelle.
   function trigAt(p,k){
     if(p.ac==null) return null;
@@ -248,26 +284,38 @@
     const floor=(p.bcpn!=null?p.bcpn:0.6);
     return Math.max(floor, +(p.ac - trigStepOf(p)*nDec).toFixed(4));
   }
-  // Calendrier unifié : une entrée par observation.
-  function genSchedule(p){
-    const obs=observationDates(p); if(!obs.length) return [];
-    const m=freqMonths(p.freq);
-    const couponPer=(p.coupon!=null&&m)?p.coupon*m/12:p.coupon;
-    const status=productStatus(p), cd=callDate(p), tod=today();
-    const rows=obs.map((date,k)=>{
-      const r={date:new Date(date), pay:addDays(date,7), k, coupon:couponPer, bcpn:p.bcpn,
-               ac:trigAt(p,k), idx:k};
-      if(status==='DONE' && cd){
-        if(Math.abs(daysBetween(date,cd))<=20 && date<=addDays(cd,20)){ r.status='called'; }
-        else if(date<cd){ r.status='paid'; }
-        else { r.status='after'; }
-      } else {
-        r.status = date<=tod ? 'paid' : 'future';
+  // Calendrier détaillé à partir des cours réels.
+  // Coupons : payé / non payé (pire < barrière coupon) avec report mémoire.
+  // Autocalls : remboursé / non remboursé (pire ≥ seuil).
+  function computeSchedule(p,data){
+    const obs=observationDates(p), m=freqMonths(p.freq);
+    const per=(p.coupon!=null&&m)?p.coupon*m/12:p.coupon;
+    const tod=today(), live=productStatus(p)==='LIVE', ok=!!(data&&data.ok), cd=callDateFrom(p,data);
+    const coupons=[], autocalls=[]; let carry=0, called=false;
+    for(let k=0;k<obs.length;k++){
+      const date=obs[k], past=date<=tod, pay=addDays(date,7), w=ok?worstAt(data,date.getTime()):null;
+      if(p.ac!=null){
+        const trig=trigAt(p,k); let st;
+        if(called) st='after';
+        else if(!past) st='future';
+        else if(ok) { if(w!=null && w>=trig*100){ st='called'; called=true; } else st='notcalled'; }
+        else { st = live ? 'notcalled' : (cd && Math.abs(daysBetween(date,cd))<=20 ? 'called' : 'notcalled'); if(st==='called') called=true; }
+        if(st!=='after') autocalls.push({date,pay,trig,status:st,w});
       }
-      return r;
-    }).filter(r=>r.status!=='after');
-    if(status==='LIVE'){ const nx=rows.find(r=>r.status==='future'); if(nx) nx.status='next'; }
-    return rows;
+      if(!isAthena(p) && p.coupon!=null){
+        if(called){ /* après rappel : plus de coupon */ }
+        else if(!past) coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'future',w});
+        else if(ok){
+          const paid = (p.bcpn!=null) ? (w!=null && w>=p.bcpn*100) : (w!=null);
+          if(paid){ const amt=per*(p.mem?(1+carry):1); carry=0; coupons.push({date,pay,bcpn:p.bcpn,amount:amt,status:'paid',w}); }
+          else { if(p.mem) carry+=1; coupons.push({date,pay,bcpn:p.bcpn,amount:0,status:'unpaid',w}); }
+        }
+        else coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'na',w});
+      }
+    }
+    if(live){ const na=autocalls.find(r=>r.status==='future'); if(na) na.status='next';
+              const nc=coupons.find(r=>r.status==='future'); if(nc) nc.status='next'; }
+    return {coupons, autocalls, hasData:ok};
   }
 
   /* ---------------- TABS ---------------- */
@@ -292,7 +340,7 @@
     const enc=live.reduce((s,p)=>s+(toEur(p.nomLive!=null?p.nomLive:p.nominalRef,p.dev)||0),0);
     document.getElementById('stat-encours').textContent = compact(enc);
     const tod=today(), in30=addDays(tod,30); let cnt=0;
-    live.forEach(p=>{ const sch=genSchedule(p); if(sch.some(r=>(r.status==='next'||r.status==='future') && r.date>=tod && r.date<=in30)) cnt++; });
+    live.forEach(p=>{ const o=nextObsDate(p); if(o && o>=tod && o<=in30) cnt++; });
     document.getElementById('stat-obs').textContent = cnt;
     const pf=document.getElementById('tab-count-pf'); if(pf) pf.textContent = productsMap.size;
   }
@@ -335,13 +383,14 @@
     searchInput.value=p.isin; renderProduct(p);
   }
 
+  let renderToken=0;
   function renderProduct(p){
     currentProduct=p;
+    const myTok=++renderToken;
     document.getElementById('sp-product-empty').hidden=true;
     const box=document.getElementById('sp-product'); box.hidden=false;
     const status=productStatus(p);
     const uls=(p.uls||[]);
-    const sch=genSchedule(p);
     box.innerHTML = `
       <div class="sp-phead">
         <div class="sp-phead__top">
@@ -374,13 +423,13 @@
           <div class="sp-card sp-chart-card">
             <h4>Évolution des sous-jacents <span class="sp-h4-note">— base 100 au strike${status==='LIVE'?', courbe arrêtée à ce jour':''}</span></h4>
             ${uls.length?`
-            <div class="sp-canvas-box"><canvas id="sp-chart"></canvas><div class="sp-chart-tip" id="sp-tip"></div></div>
+            <div class="sp-canvas-box"><canvas id="sp-chart"></canvas><div class="sp-chart-tip" id="sp-tip"></div><div class="sp-chart-msg" id="sp-chart-msg">Chargement des cours réels…</div></div>
             <div class="sp-chart-legend" id="sp-legend"></div>
             `:'<p class="sp-muted">Aucun sous-jacent renseigné pour ce produit.</p>'}
           </div>
           ${uls.length?`<div class="sp-card sp-bar-card">
             <h4>Niveau vs barrières <span class="sp-h4-note" id="sp-worst-inline"></span></h4>
-            <div id="sp-barriers" class="sp-barriers"></div>
+            <div id="sp-barriers" class="sp-barriers"><p class="sp-muted sm">Chargement…</p></div>
           </div>`:''}
         </div>
 
@@ -390,7 +439,7 @@
         </div>
         <div class="sp-card sp-cal-card">
           <h4>Calendrier</h4>
-          ${scheduleHTML(p, sch)}
+          <div id="sp-cal-host">${scheduleHTML(p,null)}</div>
         </div>
       </div>`;
 
@@ -398,10 +447,16 @@
     const mini=document.getElementById('sp-search-mini');
     if(mini){ mini.addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(mini.value); });
       mini.addEventListener('change',()=>{ if(productsMap.has(mini.value.trim().toUpperCase())) doSearch(mini.value); }); }
-    bindCalTabs();
-    if(uls.length){ setTimeout(()=>{ drawChart(p); renderBarriers(p); syncCalHeight(); },20); }
-    else { setTimeout(syncCalHeight,20); }
     bindAlloc(p);
+    bindCalTabs(); setTimeout(syncCalHeight,20);
+    const calHost=document.getElementById('sp-cal-host');
+    if(uls.length){
+      loadProductSeries(p).then(data=>{
+        if(myTok!==renderToken) return;                 // un autre produit a été ouvert
+        drawChart(p,data); renderBarriers(p,data);
+        if(calHost){ calHost.innerHTML=scheduleHTML(p,data); bindCalTabs(); syncCalHeight(); }
+      });
+    }
   }
 
   /* ---- barre d'allocation (compacte) ---- */
@@ -461,25 +516,23 @@
     return rendement+barrieres+dates+carac;
   }
 
-  function currentLevels(p){
-    const uls=(p.uls||[]); const end=lifeEnd(p);
-    const levels = uls.map(u=>{ const s=rebasedSeries(u.n,p.strike,end,targetLevel(p,u.n)); return s.length?s[s.length-1].v:null; });
-    let worst=null,wi=-1; levels.forEach((l,i)=>{ if(l!=null&&(worst==null||l<worst)){worst=l;wi=i;} });
-    return {levels, worst, wi};
-  }
-
-  /* ---- barrières (compact) ---- */
-  function renderBarriers(p){
+  /* ---- barrières (compact, cours réels) ---- */
+  function renderBarriers(p,data){
     const host=document.getElementById('sp-barriers'); if(!host) return;
-    const cur=currentLevels(p); const uls=(p.uls||[]);
-    const worstName = cur.wi>=0?uls[cur.wi].n:'—';
+    const cur=currentLevelsFrom(data); const uls=(p.uls||[]);
     const inline=document.getElementById('sp-worst-inline');
-    if(inline) inline.textContent = cur.worst!=null?`— pire : ${worstName} ${cur.worst.toFixed(1)}%`:'';
     const bars=[];
     if(p.ac!=null)  bars.push({name:'Autocall', lvl:p.ac*100, color:BARC.ac});
     if(p.bcpn!=null)bars.push({name:'Coupon', lvl:p.bcpn*100, color:BARC.cpn});
     if(p.bcap!=null)bars.push({name:'Capital', lvl:p.bcap*100, color:BARC.cap});
-    const w=cur.worst==null?100:cur.worst;
+    if(!cur.ok){
+      if(inline) inline.textContent='— niveau actuel indisponible';
+      host.innerHTML=`<div class="sp-bar-dist">${bars.map(b=>`<span class="sp-dist"><i style="background:${b.color}"></i>${b.name} <b>${b.lvl.toFixed(0)}%</b></span>`).join('')}</div>
+        <p class="sp-muted sm" style="margin-top:9px">Cours réels indisponibles — niveau vs barrière non calculable.</p>`;
+      return;
+    }
+    const worstName = cur.wi>=0?uls[cur.wi].n:'—', w=cur.worst;
+    if(inline) inline.textContent=`— pire : ${worstName} ${w.toFixed(1)}%`;
     const lo=Math.min(40, ...bars.map(b=>b.lvl-8), w-8), hi=Math.max(125, w+8);
     const posPct=v=>Math.max(2,Math.min(98,(v-lo)/((hi-lo)||1)*100));
     // jauge épurée : ticks colorés sans texte (les valeurs sont dans les chips dessous)
@@ -495,45 +548,55 @@
         return `<span class="sp-dist ${sev}"><i style="background:${b.color}"></i>${b.name} ${b.lvl.toFixed(0)}% <b>${d>=0?'+':''}${d.toFixed(1)} pts</b></span>`; }).join('')}</div>`;
   }
 
-  /* ---- calendrier : coupons + autocalls séparés ---- */
+  /* ---- calendrier : coupons (payé/non payé + mémoire) & autocalls (remboursé/non remboursé) ---- */
   function statusChip(st){
-    if(st==='paid') return '<span class="sp-st st-paid">Constaté</span>';
-    if(st==='called') return '<span class="sp-st st-called">Rappel</span>';
-    if(st==='next') return '<span class="sp-st st-next">Prochaine</span>';
-    return '<span class="sp-st st-future">À venir</span>';
+    return ({ paid:'<span class="sp-st st-paid">Payé</span>',
+      unpaid:'<span class="sp-st st-unpaid">Non payé</span>',
+      called:'<span class="sp-st st-called">Remboursé</span>',
+      notcalled:'<span class="sp-st st-notcalled">Non remb.</span>',
+      next:'<span class="sp-st st-next">Prochaine</span>',
+      future:'<span class="sp-st st-future">À venir</span>',
+      na:'<span class="sp-st st-na">n/d</span>' })[st]||'';
   }
+  function fmtLvl(w){ return w!=null?w.toFixed(1)+'%':'—'; }
   function calTable(rows, kind, p){
-    if(!rows.length) return '';
-    const head = kind==='coupon'
-      ? `<tr><th>Constatation</th><th>Paiement</th><th class="num">Barrière</th><th class="num">Coupon</th><th>Statut</th></tr>`
-      : `<tr><th>Constatation</th><th>Paiement</th><th class="num">Seuil${p.trig?' ↓':''}</th><th>Statut</th></tr>`;
-    const body=rows.map(r=>{
-      const cpn = r.coupon!=null?pct(r.coupon,3):'—';
-      if(kind==='coupon') return `<tr class="r-${r.status}"><td>${fmtShort(r.date)}</td><td>${fmtShort(r.pay)}</td><td class="num">${r.bcpn!=null?pct(r.bcpn,0):'—'}</td><td class="num">${r.status==='paid'||r.status==='called'?cpn:'<span class="muted">'+cpn+'</span>'}</td><td>${statusChip(r.status)}</td></tr>`;
-      return `<tr class="r-${r.status}"><td>${fmtShort(r.date)}</td><td>${fmtShort(r.pay)}</td><td class="num">${r.ac!=null?pct(r.ac,0):'—'}</td><td>${statusChip(r.status)}</td></tr>`;
-    }).join('');
+    if(!rows.length) return '<p class="sp-muted sm">Aucune échéance.</p>';
+    if(kind==='coupon'){
+      const head=`<tr><th>Constat.</th><th>Paiem.</th><th class="num">Barr.</th><th class="num">Pire</th><th class="num">Coupon</th><th>Statut</th></tr>`;
+      const body=rows.map(r=>{
+        const amt = r.status==='paid' ? pct(r.amount,3)
+          : r.status==='unpaid' ? '<span class="muted">reporté</span>'
+          : '<span class="muted">'+pct(r.amount,3)+'</span>';
+        return `<tr class="r-${r.status}"><td>${fmtShort(r.date)}</td><td>${fmtShort(r.pay)}</td><td class="num">${r.bcpn!=null?pct(r.bcpn,0):'—'}</td><td class="num">${fmtLvl(r.w)}</td><td class="num">${amt}</td><td>${statusChip(r.status)}</td></tr>`;
+      }).join('');
+      return `<table class="sp-cal">${head}${body}</table>`;
+    }
+    const head=`<tr><th>Constat.</th><th>Paiem.</th><th class="num">Seuil${p.trig?' ↓':''}</th><th class="num">Pire</th><th>Statut</th></tr>`;
+    const body=rows.map(r=>`<tr class="r-${r.status}"><td>${fmtShort(r.date)}</td><td>${fmtShort(r.pay)}</td><td class="num">${r.trig!=null?pct(r.trig,0):'—'}</td><td class="num">${fmtLvl(r.w)}</td><td>${statusChip(r.status)}</td></tr>`).join('');
     return `<table class="sp-cal">${head}${body}</table>`;
   }
-  function scheduleHTML(p, sch){
-    if(!sch.length) return '<p class="sp-muted">Calendrier indisponible (dates manquantes).</p>';
+  function scheduleHTML(p, data){
+    if(!observationDates(p).length) return '<p class="sp-muted sm">Calendrier indisponible (dates manquantes).</p>';
+    const sch=computeSchedule(p,data);
     const showCoupons = !isAthena(p) && p.coupon!=null;
     const showAutocall = p.ac!=null;
     const tabs=[], panes=[];
     if(showCoupons){
       tabs.push(`<button class="sp-cal-tab is-active" data-pane="cpn">Coupons${p.mem?' · mémoire':''}</button>`);
-      panes.push(`<div class="sp-cal-pane is-active" data-pane="cpn">${calTable(sch,'coupon',p)}</div>`);
+      panes.push(`<div class="sp-cal-pane is-active" data-pane="cpn">${calTable(sch.coupons,'coupon',p)}</div>`);
     }
     if(showAutocall){
       const a=showCoupons?'':' is-active';
       tabs.push(`<button class="sp-cal-tab${a}" data-pane="ac">Autocalls${p.trig?' ↓':''}</button>`);
-      panes.push(`<div class="sp-cal-pane${a}" data-pane="ac">${calTable(sch,'autocall',p)}</div>`);
+      panes.push(`<div class="sp-cal-pane${a}" data-pane="ac">${calTable(sch.autocalls,'autocall',p)}</div>`);
     }
     if(!panes.length){
       tabs.push(`<button class="sp-cal-tab is-active" data-pane="cpn">Coupons</button>`);
-      panes.push(`<div class="sp-cal-pane is-active" data-pane="cpn">${calTable(sch,'coupon',p)}</div>`);
+      panes.push(`<div class="sp-cal-pane is-active" data-pane="cpn">${calTable(sch.coupons,'coupon',p)}</div>`);
     }
+    const note = !sch.hasData ? `<div class="sp-cal-note">Statuts indisponibles — cours réels non récupérés.</div>` : '';
     const bar = tabs.length>1?`<div class="sp-cal-tabs">${tabs.join('')}</div>`:'';
-    return `${bar}<div class="sp-cal-scroll">${panes.join('')}</div>`;
+    return `${bar}${note}<div class="sp-cal-scroll">${panes.join('')}</div>`;
   }
   function bindCalTabs(){
     const card=document.querySelector('.sp-cal-card'); if(!card) return;
@@ -563,16 +626,24 @@
     if(chartState) requestAnimationFrame(paint);
   }
 
-  /* ---- graphique multi-séries ---- */
-  function drawChart(p){
+  /* ---- graphique multi-séries (cours réels) ---- */
+  function drawChart(p,data){
     const canvas=document.getElementById('sp-chart'); if(!canvas) return;
-    const uls=(p.uls||[]);
-    const end=lifeEnd(p);
-    const series = uls.map((u,i)=>({name:u.n, color:ulColor(i), pts:rebasedSeries(u.n,p.strike,end,targetLevel(p,u.n)), on:true}));
-    const obs=observationDates(p).map(d=>d.getTime());
-    chartState={p, series, range:'max', hover:-1, showObs:true, obs};
-
+    const msg=document.getElementById('sp-chart-msg');
     const leg=document.getElementById('sp-legend');
+    if(!data||!data.ok){
+      canvas.style.display='none';
+      const miss=data?data.series.filter(s=>!s.ok).map(s=>s.name):[];
+      if(msg){ msg.style.display='flex';
+        msg.innerHTML='<div class="big">Visualisation indisponible</div><div class="sub">'+(miss.length?'Cours non disponibles : '+esc(miss.join(', ')):'Cours réels non disponibles')+'</div>'; }
+      if(leg) leg.innerHTML=''; chartState=null; return;
+    }
+    canvas.style.display=''; if(msg) msg.style.display='none';
+    const endTs=lifeEndFrom(p,data).getTime();
+    const series=data.series.map(s=>({name:s.name, color:s.color, pts:s.pts.filter(pt=>pt.t<=endTs+6*86400000), on:true}));
+    const obs=observationDates(p).map(d=>d.getTime());
+    chartState={p, data, series, range:'max', hover:-1, showObs:true, obs};
+
     leg.innerHTML = series.map((s,i)=>`<span class="sp-leg" data-i="${i}"><span class="ln" style="background:${s.color}"></span><b>${esc(s.name)}</b></span>`).join('')
       + `<span class="sp-leg" data-i="obs"><span class="ln dotted"></span><b>Observations</b></span>`
       + `<span class="sp-rangebtns">${['1A','3A','Max'].map(r=>`<button data-r="${r}" class="${r==='Max'?'on':''}">${r}</button>`).join('')}</span>`;
@@ -622,7 +693,7 @@
     const tStrike=pd(p.strike)?pd(p.strike).getTime():rs;
     const tmin=Math.max(rs, tStrike);
     const tMat=pd(p.maturity)?pd(p.maturity).getTime():today().getTime();
-    const tEnd=lifeEnd(p).getTime();
+    const tEnd=lifeEndFrom(p,chartState.data).getTime();
     let tmax = status==='DONE' ? tEnd : tMat;
     if(tmax<=tmin) tmax=tmin+86400000;
 
@@ -913,8 +984,8 @@
         <div class="sp-fld"><label>Barrière capital (ex 0.6)</label><input id="e-bcap" type="number" step="0.01" value="${p.bcap!=null?p.bcap:''}"></div>
         <div class="sp-fld sp-check"><label><input type="checkbox" id="e-mem" ${p.mem?'checked':''}> Coupon à mémoire</label></div>
         <div class="sp-fld sp-check"><label><input type="checkbox" id="e-trig" ${p.trig?'checked':''}> Autocall dégressif (Trigger Descending)</label></div>
-        <div class="sp-fld"><label>Décrément autocall (ex 0.05 = −5 %)</label><input id="e-trigstep" type="number" step="0.005" value="${p.trigStep!=null?p.trigStep:''}" placeholder="0.05"></div>
-        <div class="sp-fld"><label>Fréquence de décrément</label><select id="e-trigfreq">${['Annuelle','Semestrielle','Trimestrielle','Mensuelle'].map(f=>`<option ${f===(p.trigFreq||'Annuelle')?'selected':''}>${f}</option>`).join('')}</select></div>
+        <div class="sp-fld"><label>Décrément autocall (ex 0.01 = −1 %)</label><input id="e-trigstep" type="number" step="0.005" value="${p.trigStep!=null?p.trigStep:''}" placeholder="0.01"></div>
+        <div class="sp-fld"><label>Fréquence de décrément</label><select id="e-trigfreq">${['Trimestrielle','Semestrielle','Annuelle','Mensuelle'].map(f=>`<option ${f===(p.trigFreq||'Trimestrielle')?'selected':''}>${f}</option>`).join('')}</select></div>
         <div class="sp-fld"><label>Date de strike</label><input id="e-strike" type="date" value="${p.strike?String(p.strike).slice(0,10):''}"></div>
         <div class="sp-fld"><label>Date d'émission</label><input id="e-emission" type="date" value="${p.emission?String(p.emission).slice(0,10):''}"></div>
         <div class="sp-fld"><label>Prochaine observation</label><input id="e-nextobs" type="date" value="${p.nextObs?String(p.nextObs).slice(0,10):''}"></div>
@@ -1098,13 +1169,12 @@
   }
   function repPosHTML(pos){
     const p=productsMap.get(pos.isin)||{isin:pos.isin}; const status=(pos.statut||'LIVE');
-    const cur=p.uls?currentLevels(p):{worst:null};
-    const sch=p.uls?genSchedule(p):[]; const nx=sch.find(r=>r.status==='next'||r.status==='future');
+    const nx=p.uls?nextObsDate(p):null;
     const bars=[];
+    if(p.coupon!=null) bars.push(`<span class="sp-mini-bar">Coupon <b>${pct(p.coupon,2)}/an</b></span>`);
     if(p.bcap!=null) bars.push(`<span class="sp-mini-bar">Capital <b>${pct(p.bcap,0)}</b></span>`);
-    if(p.bcpn!=null) bars.push(`<span class="sp-mini-bar">Coupon <b>${pct(p.bcpn,0)}</b></span>`);
-    if(p.ac!=null) bars.push(`<span class="sp-mini-bar">Autocall <b>${pct(p.ac,0)}</b></span>`);
-    if(cur.worst!=null) bars.push(`<span class="sp-mini-bar" style="border-color:${cur.worst>=(p.bcap?p.bcap*100:0)?'#bfe3c4':'#f3c0bb'}">Pire ss-jacent <b>${cur.worst.toFixed(1)}%</b></span>`);
+    if(p.bcpn!=null) bars.push(`<span class="sp-mini-bar">Barr. coupon <b>${pct(p.bcpn,0)}</b></span>`);
+    if(p.ac!=null) bars.push(`<span class="sp-mini-bar">Autocall <b>${pct(p.ac,0)}${p.trig?' ↓':''}</b></span>`);
     return `<div class="sp-rep-pos">
       <div class="sp-rep-pos__head">
         <div><div class="sp-rep-pos__name">${esc(p.lib||pos.isin)}</div><div class="sp-rep-pos__isin">${esc(pos.isin)} · ${esc(p.emetteur||'—')}</div></div>
@@ -1116,7 +1186,7 @@
         <span>Sous-jacents <b>${esc((p.uls||[]).map(u=>u.n).join(', ')||'—')}</b></span>
         <span>Strike <b>${fmtShort(p.strike)}</b></span>
         <span>Échéance <b>${fmtShort(p.maturity)}</b></span>
-        ${status==='LIVE'&&nx?`<span>Prochaine obs. <b>${fmtShort(nx.date)}</b></span>`:''}
+        ${status==='LIVE'&&nx?`<span>Prochaine obs. <b>${fmtShort(nx)}</b></span>`:''}
         ${pos.compte?`<span>Compte <b>${esc(pos.compte)}</b></span>`:''}
       </div>
       <div class="sp-rep-pos__bars">${bars.join('')}</div>
@@ -1131,12 +1201,11 @@
     const coupons=items.reduce((s,p)=>s+((p.gc!=null?p.gc:0)*(toEur(p.nominal,p.dev)||0)),0);
     const tday=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
     const rows=items.map(pos=>{ const p=productsMap.get(pos.isin)||{isin:pos.isin}; const status=(pos.statut||'LIVE');
-      const cur=p.uls?currentLevels(p):{worst:null};
       return `<tr><td><b>${esc(p.lib||pos.isin)}</b><div class="mono">${esc(pos.isin)} · ${esc(p.emetteur||'')}</div></td>
         <td>${esc((p.uls||[]).map(u=>u.n).join(', '))}</td>
         <td>${p.coupon!=null?(p.coupon*100).toFixed(2)+'% /an':'—'}</td>
         <td>${p.bcap!=null?(p.bcap*100).toFixed(0)+'%':'—'}</td>
-        <td>${cur.worst!=null?cur.worst.toFixed(1)+'%':'—'}</td>
+        <td>${p.bcpn!=null?(p.bcpn*100).toFixed(0)+'%':'—'}</td>
         <td>${pos.nominal!=null?Math.round(pos.nominal).toLocaleString('fr-FR')+' '+symbol(pos.dev):'—'}</td>
         <td>${fmtShort(p.maturity)}</td><td>${status==='LIVE'?'En cours':'Soldé'}</td></tr>`; }).join('');
     const html=`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Reporting produits structurés — ${esc(name)} — ${tday}</title>
@@ -1165,7 +1234,7 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
   <div class="item"><div class="l">Coupons estimés perçus</div><div class="v">${Math.round(coupons).toLocaleString('fr-FR')} €</div></div>
   <div class="item"><div class="l">Produits</div><div class="v">${items.length}</div></div>
 </div>
-<table><thead><tr><th>Produit</th><th>Sous-jacents</th><th>Coupon</th><th>Barr. capital</th><th>Pire</th><th>Nominal</th><th>Échéance</th><th>Statut</th></tr></thead><tbody>${rows}</tbody></table>
+<table><thead><tr><th>Produit</th><th>Sous-jacents</th><th>Coupon</th><th>Barr. capital</th><th>Barr. coupon</th><th>Nominal</th><th>Échéance</th><th>Statut</th></tr></thead><tbody>${rows}</tbody></table>
 <div class="footer"><p><strong>La Financière de Rochechouart</strong> · 58 rue de Monceau, 75008 Paris</p><p>Document confidentiel — Valorisations et niveaux indicatifs, non contractuels.</p></div>
 </body></html>`;
     const w=window.open('','_blank'); w.document.write(html); w.document.close();
@@ -1210,10 +1279,8 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
     const topEm=Array.from(emMap.entries()).sort((a,b)=>b[1]-a[1]).slice(0,8);
     const topFam=Array.from(famMap.entries()).sort((a,b)=>b[1]-a[1]);
 
-    // worst-of les plus à risque (proximité de la barrière capital)
-    const risk=live.map(u=>{ const cur=(u.p.uls&&u.p.uls.length)?currentLevels(u.p):{worst:null};
-      const cap=u.p.bcap!=null?u.p.bcap*100:null; const dist=(cur.worst!=null&&cap!=null)?cur.worst-cap:null;
-      return {u, worst:cur.worst, cap, dist}; }).filter(r=>r.dist!=null).sort((a,b)=>a.dist-b.dist).slice(0,8);
+    // prochaines observations (factuel, trié par date)
+    const upcoming=live.map(u=>({u, d:nextObsDate(u.p)})).filter(x=>x.d).sort((a,b)=>a.d-b.d).slice(0,9);
 
     const maxUl=topUl.length?topUl[0][1]:1, maxEm=topEm.length?topEm[0][1]:1;
     const bar=(v,max,col)=>`<div class="ov-bar"><div class="ov-bar__fill" style="width:${Math.max(3,v/max*100).toFixed(0)}%;background:${col||'var(--gold)'}"></div></div>`;
@@ -1240,10 +1307,10 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
           <div class="ov-list">${topFam.map(([n,v])=>`<div class="ov-row"><span class="ov-row__n">${esc(n)}</span>${bar(v,encLive||1,'#0891b2')}<span class="ov-row__v">${compact(v)} · ${(v/(encLive||1)*100).toFixed(0)}%</span></div>`).join('')||'<p class="sp-muted sm">—</p>'}</div>
         </div>
         <div class="sp-card">
-          <h4>Worst-of les plus à risque <span class="sp-h4-note">— pire sous-jacent vs barrière capital</span></h4>
-          <div class="ov-risk">${risk.map(r=>{ const sev=r.dist>15?'safe':(r.dist>0?'warn':'danger');
-            return `<div class="ov-risk__row ${sev}" data-isin="${esc(r.u.p.isin)}"><div class="ov-risk__n">${esc(r.u.p.lib||r.u.p.isin)}<small>${esc((r.u.p.uls||[]).map(x=>x.n).join(', '))}</small></div>
-              <div class="ov-risk__fig"><b>${r.worst!=null?r.worst.toFixed(1)+'%':'—'}</b><span>cap ${r.cap!=null?r.cap.toFixed(0)+'%':'—'} · ${r.dist>=0?'+':''}${r.dist.toFixed(1)} pts</span></div></div>`; }).join('')||'<p class="sp-muted sm">—</p>'}</div>
+          <h4>Prochaines observations <span class="sp-h4-note">— dates de constatation à venir</span></h4>
+          <div class="ov-risk">${upcoming.map(x=>{ const p=x.u.p;
+            return `<div class="ov-risk__row safe" data-isin="${esc(p.isin)}"><div class="ov-risk__n">${esc(p.lib||p.isin)}<small>${esc((p.uls||[]).map(y=>y.n).join(', '))}</small></div>
+              <div class="ov-risk__fig"><b>${fmtShort(x.d)}</b><span>${p.ac!=null?'autocall '+pct(p.ac,0):''}${p.bcpn!=null?' · cpn '+pct(p.bcpn,0):''}</span></div></div>`; }).join('')||'<p class="sp-muted sm">—</p>'}</div>
         </div>
       </div>`;
     host.querySelectorAll('.ov-risk__row[data-isin]').forEach(el=>el.addEventListener('click',()=>gotoProduct(el.dataset.isin)));
