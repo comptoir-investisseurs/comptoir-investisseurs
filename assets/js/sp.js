@@ -1396,19 +1396,18 @@ td{padding:9px 8px;border-bottom:1px solid #eae8e1;vertical-align:top}
     if(data && data.ok){ const cd=callDateFrom(p,data); if(cd) return cd; }
     return null;
   }
-  // Observations sur [since, until] : coupons + autocalls rappelables (hors non-call).
+  // Observations sur [since, until] : constatations d'autocall rappelables (hors non-call) uniquement.
   // Un produit déjà remboursé par anticipation ne remonte plus d'observation après son rappel.
   function gatherObs(since, until){
     const out=[];
     productsMap.forEach(p=>{
+      if(p.ac==null) return;
       const obs=observationDates(p); if(!obs.length) return;
-      const fi=firstCallIdx(p), m=freqMonths(p.freq), per=(p.coupon!=null&&m)?p.coupon*m/12:p.coupon;
-      const rd=redeemDateOf(p);
+      const fi=firstCallIdx(p), rd=redeemDateOf(p);
       obs.forEach((d,k)=>{
-        if(d<since || d>until) return;
+        if(d<since || d>until || k<fi) return;
         if(rd && d>rd) return;                              // produit remboursé : plus rien après le rappel
-        if(p.ac!=null && k>=fi) out.push({p,k,date:d,kind:'autocall', barrier:trigAt(p,k)});
-        if(!isAthena(p) && p.coupon!=null && !(rd && d>=rd)) out.push({p,k,date:d,kind:'coupon', barrier:p.bcpn, per});
+        out.push({p,k,date:d,kind:'autocall', barrier:trigAt(p,k)});
       });
     });
     return out;
