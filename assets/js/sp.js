@@ -810,6 +810,7 @@
     const existing=positions.filter(x=>x.isin===p.isin && !x._deleted);
     body.innerHTML=`
       <p class="sp-modal-intro">Allouer <b>${esc(p.lib||p.isin)}</b> à un contact du CRM ou à un détenteur libre.</p>
+      ${(!SB||!sbPositions)?`<div class="sp-cal-note">⚠ Sauvegarde indisponible : la table <code>sp_positions</code> n'est pas accessible dans Supabase (lancez <code>supabase-structures.sql</code>, et connectez-vous avec un compte conseiller). Les allocations resteront limitées à cette session tant que ce n'est pas fait.</div>`:''}
       <div class="sp-alloc-form">
         <div class="sp-fld"><label>Contact CRM</label>
           <select id="al-crm"><option value="">— Sélectionner —</option>${opts}</select></div>
@@ -845,9 +846,12 @@
         trade:document.getElementById('al-trade').value||null,
         client_id:document.getElementById('al-crm').value||null, statut:'LIVE' };
       st.textContent='Enregistrement…'; st.style.color='var(--muted)';
-      savePosition(pos).then(()=>{ st.textContent='✓ Allocation créée'; st.style.color='#2e7d32';
+      savePosition(pos).then((persisted)=>{
         updateStats(); buildReportSelect(); buildOverviewClientSelect();
-        setTimeout(()=>{ allocModal.classList.remove('is-open'); renderProduct(p); },700);
+        if(persisted){ st.textContent='✓ Allocation enregistrée (sauvegardée)'; st.style.color='#2e7d32';
+          setTimeout(()=>{ allocModal.classList.remove('is-open'); renderProduct(p); },700); }
+        else { st.textContent='⚠ Ajoutée pour cette session — non sauvegardée (base non connectée)'; st.style.color='#b06f15';
+          setTimeout(()=>{ allocModal.classList.remove('is-open'); renderProduct(p); },1600); }
       });
     });
     allocModal.classList.add('is-open');
@@ -856,15 +860,16 @@
   /* ===================================================================
      PERSISTANCE
      =================================================================== */
+  // Résout à true si l'allocation a bien été persistée en base, false sinon.
   function savePosition(pos){
     const idx=positions.findIndex(x=>String(x.id)===String(pos.id));
     if(idx>=0) positions[idx]=Object.assign(positions[idx],pos); else positions.push(pos);
-    if(!SB || !sbPositions) return Promise.resolve();
+    if(!SB || !sbPositions) return Promise.resolve(false);
     const payload=toDbPosition(pos);
     if(pos._seed) payload.seed_id=pos.id;
     return fetch(API+'/sp_positions', {method:'POST', headers:headers({'Prefer':'return=representation'}), body:JSON.stringify(payload)})
-      .then(r=>r.ok?r.json():Promise.reject(r.status)).then(rows=>{ if(rows&&rows[0]){ const np=positions.find(x=>String(x.id)===String(pos.id)); if(np){ np.id=rows[0].id; np._db=true; np._seed=false; np.seed_id=rows[0].seed_id; } } })
-      .catch(()=>{ sbPositions=false; });
+      .then(r=>r.ok?r.json():Promise.reject(r.status)).then(rows=>{ if(rows&&rows[0]){ const np=positions.find(x=>String(x.id)===String(pos.id)); if(np){ np.id=rows[0].id; np._db=true; np._seed=false; np.seed_id=rows[0].seed_id; } } return true; })
+      .catch(()=>{ sbPositions=false; return false; });
   }
   function removePosition(pos){
     positions=positions.filter(x=>String(x.id)!==String(pos.id));
