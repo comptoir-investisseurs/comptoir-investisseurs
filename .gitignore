@@ -3,3 +3,7 @@ supabase-invitations.sql
 *.secret
 .env
 .env.*
+
+# Dépendances Node (outils de test ponctuels)
+node_modules/
+package-lock.json
