@@ -75,6 +75,27 @@ paramétrables en haut de `computeValuation()` dans `cession/assets/js/cession.j
 > `build.py`). Les multiples utilisés pour le calcul sont paramétrables en haut de
 > la fonction `computeValuation()` dans `assets/js/cession.js`.
 
+## Cédance — variante infirmiers (`patientele/`)
+
+Deuxième site **indépendant**, **même marque « Cédance »** et **même base** que
+`cession/`, mais dédié à l’**estimation et la cession de patientèle d’infirmier(e)
+libéral(e) (IDEL)**. Domaine cible distinct : **cedance-infirmiers.fr**. Il vit
+dans le dossier [`patientele/`](patientele/), avec ses propres `patientele/assets/`
+(autonome, téléversable tel quel à la racine du domaine).
+
+Tous les onglets sont personnalisés pour les infirmier(e)s :
+
+| Page | Contenu |
+|---|---|
+| `patientele/index.html` | Outil d’estimation en 5 blocs (Identité → Activité & zonage → Nature des actes → Patientèle & tournée → Économie). Calcul selon **3 méthodes IDEL** : **% des recettes** (45–95 %), **valeur par patient actif**, **multiple du bénéfice (BNC)**. Le **zonage ARS** pondère fortement la valeur. |
+| `patientele/vendre.html` | Pourquoi céder · **La fiscalité** (plus-value pro, exonérations art. 151 septies, 238 quindecies, 151 septies A retraite, droits d’enregistrement) · Cessions récentes (anonymisées, noms de projet). |
+| `patientele/reprendre.html` | S’installer · Atouts & points d’attention (zonage, SNIR, clause de non-réinstallation) · Financement (prêt, aides à l’installation/CAIM, crédit-vendeur). |
+| `patientele/contact.html` · `patientele/mentions-legales.html` | Contact (e-mail dédié) & mentions légales propres. |
+
+Le SIREN est contrôlé et vérifié comme sur `cession/` (les IDEL ont un SIREN).
+Les barèmes de calcul sont en haut de `computeValuation()` dans
+`patientele/assets/js/cession.js`.
+
 ## Lancer en local
 
 Ouvrez simplement `index.html` dans un navigateur, ou servez le dossier :

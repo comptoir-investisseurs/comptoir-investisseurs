@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estimer votre patientèle infirmière — Cédance</title>
+<meta name="description" content="Estimez en quelques minutes la valeur de cession de votre patientèle d'infirmier(e) libéral(e). Fourchette indicative calibrée sur les prix de cession réels, affichée immédiatement.">
+<link rel="icon" href="assets/img/cedance-mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/questionnaire.css">
+<link rel="stylesheet" href="assets/css/cession.css">
+</head>
+<body>
+<header class="site-header"><div class="container"><a class="brand brand--word" href="index.html" aria-label="Cédance — accueil"><img class="brand__mk" src="assets/img/cedance-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédance</span></a><nav class="nav" aria-label="Navigation principale"><ul style="display:contents;list-style:none;margin:0;padding:0"><li class="nav__item"><a class="nav__link" href="index.html" aria-current="page">Estimer ma patientèle</a></li><li class="nav__item"><a class="nav__link" href="vendre.html">Vendre</a></li><li class="nav__item"><a class="nav__link" href="reprendre.html">Reprendre</a></li><li class="nav__item"><a class="nav__link" href="contact.html">Nous contacter</a></li></ul><div class="nav__cta"><a class="btn btn--ghost-light" href="#estimer">Estimer ma patientèle</a></div></nav><button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false"><span></span><span></span><span></span></button></div></header>
+
+<main>
+
+<!-- ===== Hero (avec barre de progression intégrée) ===== -->
+<section class="val-hero" id="q-progress">
+  <div class="container">
+    <div class="val-hero__inner" data-reveal>
+      <p class="eyebrow">Cession &amp; transmission de patientèle infirmière libérale</p>
+      <h1>Combien vaut votre patientèle&nbsp;?</h1>
+      <hr class="rule">
+      <p class="lede">En quelques questions, obtenez une <strong>estimation au plus proche du prix de cession réel</strong> de votre patientèle d’infirmier(e) libéral(e). Nos fourchettes sont calibrées sur les <strong>cessions récemment observées</strong> et recoupent les trois méthodes de référence : pourcentage des recettes, valeur par patient actif, multiple du bénéfice (BNC).</p>
+      <div class="val-hero__meta">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg> Au plus près des prix de cession réels</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg> 5 minutes</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16v-4M12 16V9M16 16v-6"/></svg> Calibré sur des cessions réelles</span>
+      </div>
+      <div class="progress">
+        <div class="progress__line"><div class="progress__fill"></div></div>
+        <div class="progress__step is-active"><div class="progress__dot"><span>1</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Identité</div></div>
+        <div class="progress__step"><div class="progress__dot"><span>2</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Activité</div></div>
+        <div class="progress__step"><div class="progress__dot"><span>3</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Actes</div></div>
+        <div class="progress__step"><div class="progress__dot"><span>4</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Patientèle</div></div>
+        <div class="progress__step"><div class="progress__dot"><span>5</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div><div class="progress__label">Économie</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Form ===== -->
+<section class="q-body" id="estimer">
+<div class="q-container">
+<form id="valorisation" novalidate>
+
+  <!-- BLOC 1 -->
+  <div class="q-step is-visible">
+    <span class="q-blockno">Bloc 1 / 5</span>
+    <h2 class="q-step__title">Identité &amp; intention</h2>
+    <p class="q-step__subtitle">Pour ouvrir votre dossier. Le SIREN nous permet d’identifier votre activité libérale avec certitude.</p>
+
+    <div class="q-field"><label for="siren">SIREN de votre activité libérale <span class="req">*</span></label><input type="text" id="siren" name="siren" inputmode="numeric" autocomplete="off" placeholder="9 chiffres — ex : 812 345 678" required><span class="q-error" id="siren-error">Veuillez saisir un SIREN valide à 9 chiffres.</span></div>
+
+    <div class="q-field"><label for="departement">Département d’exercice</label><input type="text" id="departement" name="departement" placeholder="ex : 35, 13, 69…"></div>
+
+    <div class="q-field">
+      <label>Horizon de cession envisagé</label>
+      <div class="q-options q-options--grid">
+        <label class="q-option"><input type="radio" name="horizon" value="Immédiat"><span>Immédiat</span></label>
+        <label class="q-option"><input type="radio" name="horizon" value="1–2 ans"><span>1 – 2 ans</span></label>
+        <label class="q-option"><input type="radio" name="horizon" value="3–5 ans"><span>3 – 5 ans</span></label>
+        <label class="q-option"><input type="radio" name="horizon" value="Exploratoire"><span>Exploratoire</span></label>
+      </div>
+    </div>
+
+    <div class="q-nav"><div></div><button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+  </div>
+
+  <!-- BLOC 2 -->
+  <div class="q-step">
+    <span class="q-blockno">Bloc 2 / 5</span>
+    <h2 class="q-step__title">Activité &amp; cadre d’exercice</h2>
+    <p class="q-step__subtitle">Le zonage et la récurrence des soins sont les premiers déterminants de la valeur.</p>
+
+    <div class="q-field">
+      <label>Mode d’exercice</label>
+      <div class="q-options q-options--grid">
+        <label class="q-option"><input type="radio" name="mode_exercice" value="Seul(e)"><span>Seul(e)</span></label>
+        <label class="q-option"><input type="radio" name="mode_exercice" value="En collaboration"><span>En collaboration</span></label>
+        <label class="q-option"><input type="radio" name="mode_exercice" value="En association (SCM / SCP / SEL)"><span>En association (SCM / SCP / SEL)</span></label>
+        <label class="q-option"><input type="radio" name="mode_exercice" value="Remplaçant(e) régulier(e)"><span>Remplaçant(e) régulier(e)</span></label>
+      </div>
+    </div>
+
+    <div class="q-field">
+      <label>Zonage ARS de votre secteur <span class="muted" style="text-transform:none;letter-spacing:0">— en zone dotée / surdotée, l’installation est restreinte : la patientèle se valorise davantage</span></label>
+      <div class="q-options">
+        <label class="q-option"><input type="radio" name="zonage" value="Très sous-dotée"><span>Très sous-dotée</span></label>
+        <label class="q-option"><input type="radio" name="zonage" value="Sous-dotée"><span>Sous-dotée</span></label>
+        <label class="q-option"><input type="radio" name="zonage" value="Intermédiaire"><span>Intermédiaire</span></label>
+        <label class="q-option"><input type="radio" name="zonage" value="Très dotée"><span>Très dotée</span></label>
+        <label class="q-option"><input type="radio" name="zonage" value="Surdotée"><span>Surdotée (conventionnement sélectif)</span></label>
+      </div>
+    </div>
+
+    <div class="q-field">
+      <label>Recettes annuelles (honoraires) — ordre de grandeur</label>
+      <div class="q-options q-options--grid">
+        <label class="q-option"><input type="radio" name="recettes_band" value="< 60 k€"><span>&lt; 60 k€</span></label>
+        <label class="q-option"><input type="radio" name="recettes_band" value="60 – 90 k€"><span>60 – 90 k€</span></label>
+        <label class="q-option"><input type="radio" name="recettes_band" value="90 – 130 k€"><span>90 – 130 k€</span></label>
+        <label class="q-option"><input type="radio" name="recettes_band" value="> 130 k€"><span>&gt; 130 k€</span></label>
+      </div>
+    </div>
+
+    <div class="q-field"><label for="part_recurrente">Part des soins récurrents <span class="muted" style="text-transform:none;letter-spacing:0">— patients dépendants, soins quotidiens</span></label><div class="q-suffix"><input type="number" id="part_recurrente" name="part_recurrente" min="0" max="100" placeholder="ex : 60"><span class="q-suffix__u">%</span></div></div>
+
+    <div class="q-field">
+      <label>Évolution de l’activité sur 12 mois</label>
+      <div class="q-options q-options--grid">
+        <label class="q-option"><input type="radio" name="evolution" value="Positive"><span>En hausse</span></label>
+        <label class="q-option"><input type="radio" name="evolution" value="Stable"><span>Stable</span></label>
+        <label class="q-option"><input type="radio" name="evolution" value="Négative"><span>En baisse</span></label>
+      </div>
+    </div>
+
+    <div class="q-nav"><button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button><button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+  </div>
+
+  <!-- BLOC 3 -->
+  <div class="q-step">
+    <span class="q-blockno">Bloc 3 / 5</span>
+    <h2 class="q-step__title">Nature des actes</h2>
+    <p class="q-step__subtitle">Répartition approximative de votre activité — le total doit faire 100 %.</p>
+
+    <div class="q-row">
+      <div class="q-field"><label for="alloc_ais">AIS — soins d’hygiène / dépendance</label><div class="q-suffix"><input type="number" id="alloc_ais" name="alloc_ais" data-alloc min="0" max="100" placeholder="0"><span class="q-suffix__u">%</span></div></div>
+      <div class="q-field"><label for="alloc_ami">AMI — actes techniques</label><div class="q-suffix"><input type="number" id="alloc_ami" name="alloc_ami" data-alloc min="0" max="100" placeholder="0"><span class="q-suffix__u">%</span></div></div>
+    </div>
+    <div class="q-row">
+      <div class="q-field"><label for="alloc_pansements">Pansements / plaies</label><div class="q-suffix"><input type="number" id="alloc_pansements" name="alloc_pansements" data-alloc min="0" max="100" placeholder="0"><span class="q-suffix__u">%</span></div></div>
+      <div class="q-field"><label for="alloc_perfusions">Perfusions / soins à domicile</label><div class="q-suffix"><input type="number" id="alloc_perfusions" name="alloc_perfusions" data-alloc min="0" max="100" placeholder="0"><span class="q-suffix__u">%</span></div></div>
+    </div>
+    <div class="q-row">
+      <div class="q-field"><label for="alloc_bsi">BSI / forfaits de prise en charge</label><div class="q-suffix"><input type="number" id="alloc_bsi" name="alloc_bsi" data-alloc min="0" max="100" placeholder="0"><span class="q-suffix__u">%</span></div></div>
+      <div class="q-field"><label for="alloc_prelevements">Prélèvements / vaccinations</label><div class="q-suffix"><input type="number" id="alloc_prelevements" name="alloc_prelevements" data-alloc min="0" max="100" placeholder="0"><span class="q-suffix__u">%</span></div></div>
+    </div>
+    <div class="q-field"><label for="alloc_autres">Autres</label><div class="q-suffix"><input type="number" id="alloc_autres" name="alloc_autres" data-alloc min="0" max="100" placeholder="0"><span class="q-suffix__u">%</span></div></div>
+
+    <div class="alloc-total" id="alloc-total-box"><span>Total renseigné</span><b id="alloc-total-val">0 %</b></div>
+
+    <div class="q-nav"><button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button><button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+  </div>
+
+  <!-- BLOC 4 -->
+  <div class="q-step">
+    <span class="q-blockno">Bloc 4 / 5</span>
+    <h2 class="q-step__title">Patientèle &amp; tournée</h2>
+    <p class="q-step__subtitle">La densité et la fidélité de la file active déterminent la pérennité des revenus.</p>
+
+    <div class="q-field">
+      <label>Secteur de la tournée</label>
+      <div class="q-options q-options--grid">
+        <label class="q-option"><input type="radio" name="secteur" value="Urbain dense"><span>Urbain dense</span></label>
+        <label class="q-option"><input type="radio" name="secteur" value="Urbain"><span>Urbain</span></label>
+        <label class="q-option"><input type="radio" name="secteur" value="Semi-rural"><span>Semi-rural</span></label>
+        <label class="q-option"><input type="radio" name="secteur" value="Rural étendu"><span>Rural étendu</span></label>
+      </div>
+    </div>
+
+    <div class="q-field">
+      <label>Âge moyen des patients</label>
+      <div class="q-options q-options--grid">
+        <label class="q-option"><input type="radio" name="age_moyen" value="< 60 ans"><span>&lt; 60 ans</span></label>
+        <label class="q-option"><input type="radio" name="age_moyen" value="60 – 75 ans"><span>60 – 75 ans</span></label>
+        <label class="q-option"><input type="radio" name="age_moyen" value="75 – 85 ans"><span>75 – 85 ans</span></label>
+        <label class="q-option"><input type="radio" name="age_moyen" value="> 85 ans"><span>&gt; 85 ans</span></label>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-field"><label for="nb_patients">Nombre de patients actifs <span class="muted" style="text-transform:none;letter-spacing:0">— suivis régulièrement</span></label><input type="number" id="nb_patients" name="nb_patients" min="0" placeholder="ex : 180"></div>
+      <div class="q-field"><label for="concentration_top10">Part de l’activité pour vos 10 premiers patients</label><div class="q-suffix"><input type="number" id="concentration_top10" name="concentration_top10" min="0" max="100" placeholder="ex : 25"><span class="q-suffix__u">%</span></div></div>
+    </div>
+
+    <div class="q-nav"><button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button><button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+  </div>
+
+  <!-- BLOC 5 -->
+  <div class="q-step">
+    <span class="q-blockno">Bloc 5 / 5</span>
+    <h2 class="q-step__title">Économie &amp; coordonnées</h2>
+    <p class="q-step__subtitle">Ces chiffres affinent sensiblement l’estimation. Aucune pièce n’est requise à ce stade.</p>
+
+    <div class="q-row">
+      <div class="q-field"><label for="recettes_precis">Recettes annuelles (honoraires) — dernier exercice</label><div class="q-suffix"><input type="number" id="recettes_precis" name="recettes_precis" min="0" step="1000" placeholder="ex : 110 000"><span class="q-suffix__u">€</span></div></div>
+      <div class="q-field"><label for="bnc">Bénéfice (BNC) — dernier exercice</label><div class="q-suffix"><input type="number" id="bnc" name="bnc" step="1000" placeholder="ex : 60 000"><span class="q-suffix__u">€</span></div></div>
+    </div>
+
+    <div class="q-field"><label for="retrocessions">Rétrocessions versées à un(e) remplaçant(e) sur l’année <span class="muted" style="text-transform:none;letter-spacing:0">— facultatif</span></label><div class="q-suffix"><input type="number" id="retrocessions" name="retrocessions" step="500" placeholder="ex : 12 000"><span class="q-suffix__u">€</span></div></div>
+
+    <hr class="q-divider">
+
+    <p class="q-step__subtitle" style="margin-bottom:16px">Vos coordonnées, pour vous communiquer le détail de l’estimation.</p>
+
+    <div class="q-row">
+      <div class="q-field"><label for="email">E-mail professionnel <span class="req">*</span></label><input type="email" id="email" name="email" autocomplete="email" placeholder="prenom.nom@email.fr" required><span class="q-error" id="email-error">Veuillez saisir un e-mail valide.</span></div>
+      <div class="q-field"><label for="telephone">Téléphone <span class="req">*</span></label><input type="tel" id="telephone" name="telephone" autocomplete="tel" required></div>
+    </div>
+
+    <div class="q-rgpd">
+      <p><strong>Confidentialité</strong></p>
+      <p>Les informations transmises sont traitées par Cédance, hébergées dans l’Union européenne. Conformément au RGPD, vous disposez d’un droit d’accès, de rectification et d’effacement : <a href="mailto:contact@cedance-infirmiers.fr">contact@cedance-infirmiers.fr</a>.</p>
+    </div>
+
+    <div class="q-field" style="margin-top:18px">
+      <label class="q-option" style="border-color:var(--gold-soft)">
+        <input type="checkbox" name="consentement" value="oui" required>
+        <span>J’ai lu et j’accepte les conditions particulières, et notamment la transmission de mes informations aux partenaires de Cédance. <span class="req">*</span></span>
+      </label>
+      <p style="margin-top:10px;font-size:.9rem"><button type="button" id="cp-open" class="cp-link cp-trigger">Lire les conditions particulières <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></p>
+      <span class="q-error">Vous devez accepter les conditions particulières pour obtenir l’estimation.</span>
+    </div>
+
+    <div class="q-nav"><button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button><button type="submit" class="btn btn--solid btn--gold">Obtenir mon estimation <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></button></div>
+
+    <div class="q-secure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/></svg> Données confidentielles • Hébergement UE • Estimation indicative</div>
+  </div>
+
+</form>
+</div>
+</section>
+
+<!-- ===== Result (hidden) ===== -->
+<section id="val-result" class="val-result" style="display:none">
+  <div class="container">
+    <div class="val-result__head" data-reveal>
+      <p class="eyebrow">Estimation indicative</p>
+      <h2>La fourchette de valorisation de votre patientèle</h2>
+      <hr class="rule" style="margin-inline:auto">
+    </div>
+
+    <div class="val-range" data-reveal>
+      <div class="val-range__label">Valeur estimée de la patientèle</div>
+      <div class="val-range__figure" id="val-figure">—</div>
+      <div class="val-range__sub">Moyenne des méthodes applicables. Une estimation affinée vous sera proposée après échange et examen de vos justificatifs (relevés SNIR, déclaration 2035…).</div>
+    </div>
+
+    <div class="val-methods" id="val-methods"></div>
+
+    <div class="center" style="max-width:680px;margin:30px auto 0">
+      <p class="form__note" id="val-email-note" style="font-size:.92rem;color:var(--muted)"></p>
+    </div>
+
+    <div style="max-width:720px;margin:34px auto 0">
+      <div class="contact-strip" data-reveal>
+        <div>
+          <p class="cs-title">Affinons cette estimation ensemble</p>
+          <p class="cs-sub">Un échange confidentiel, sans engagement, pour préciser la fourchette et trouver le bon repreneur.</p>
+        </div>
+        <a class="btn btn--solid" href="contact.html">Être recontacté <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </div>
+
+    <p class="center" style="margin-top:34px"><a class="link-arrow" href="vendre.html">Découvrir pourquoi &amp; comment céder <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+  </div>
+</section>
+
+<!-- ===== Method explainer ===== -->
+<section class="section band-cream">
+  <div class="container">
+    <div class="center" style="max-width:680px;margin-inline:auto" data-reveal>
+      <p class="eyebrow">Notre méthode</p>
+      <h2 class="title-lg">Trois lectures croisées de la valeur</h2>
+      <hr class="rule" style="margin-inline:auto">
+      <p class="lede">Nous recoupons systématiquement les trois approches de référence du marché de la cession de patientèle infirmière.</p>
+    </div>
+    <div class="grid grid-3" style="margin-top:50px">
+      <div class="card" data-reveal data-delay="1"><div class="card__num">01</div><h3>Pourcentage des recettes</h3><p>La patientèle valorisée comme une fraction des recettes annuelles (honoraires conventionnels), généralement de <strong>45 % à 95 %</strong> selon le zonage et la qualité de la file active.</p></div>
+      <div class="card" data-reveal data-delay="2"><div class="card__num">02</div><h3>Valeur par patient actif</h3><p>Une valeur unitaire par patient suivi régulièrement, qui reflète la récurrence des soins et la fidélité de votre file active.</p></div>
+      <div class="card" data-reveal data-delay="3"><div class="card__num">03</div><h3>Multiple du bénéfice (BNC)</h3><p>Le bénéfice non commercial, capitalisé entre <strong>1× et 2,5×</strong> selon la pérennité de l’activité.</p></div>
+    </div>
+    <p class="center muted" style="margin-top:34px;font-size:.86rem;max-width:760px;margin-inline:auto">L’estimation produite est strictement indicative et ne constitue ni un conseil, ni une offre, ni un engagement. Le zonage ARS, qui conditionne le droit à l’installation, est un déterminant majeur de la valeur. Seule l’analyse de vos justificatifs permet une valorisation ferme.</p>
+  </div>
+</section>
+
+<!-- ===== Contact band ===== -->
+<section class="cta-band section--tight"><div class="container"><div data-reveal><p class="eyebrow eyebrow--light">Un échange confidentiel</p><h2>Parlons de votre patientèle</h2><p>Cédant ou repreneur, nous vous accompagnons en toute discrétion pour estimer, céder ou reprendre une patientèle infirmière.</p></div><div class="cta-band__actions" data-reveal data-delay="1"><a class="btn btn--light" href="contact.html">Nous contacter <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn--ghost-light" href="mailto:contact@cedance-infirmiers.fr">contact@cedance-infirmiers.fr</a></div></div></section>
+
+</main>
+
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div><a class="brand brand--word" href="index.html" aria-label="Cédance — accueil"><img class="brand__mk" src="assets/img/cedance-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédance</span></a><p style="max-width:34ch;font-size:.95rem;margin-top:14px">Estimation &amp; cession de patientèle d’infirmier(e) libéral(e). Confidentialité, juste valeur, continuité des soins pour vos patients.</p></div><div><h5>Vendre</h5><ul class="footer-links"><li><a href="vendre.html#pourquoi">Pourquoi céder</a></li><li><a href="vendre.html#fiscalite">La fiscalité de la cession</a></li><li><a href="vendre.html#transactions">Cessions récentes</a></li></ul></div><div><h5>Reprendre</h5><ul class="footer-links"><li><a href="reprendre.html#installer">S’installer en libéral</a></li><li><a href="reprendre.html#atouts">Atouts &amp; points d’attention</a></li><li><a href="reprendre.html#financement">Financement</a></li></ul></div><div class="footer-contact"><h5>Nous contacter</h5><p><a href="mailto:contact@cedance-infirmiers.fr">contact@cedance-infirmiers.fr</a></p><p style="margin-top:16px"><a class="link-arrow" href="contact.html">Prendre contact <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p></div></div><p class="disclaimer">L’estimation proposée sur ce site est strictement indicative et ne constitue ni un conseil, ni une offre, ni un engagement de quelque nature que ce soit. Elle repose sur des méthodes de marché et sur les seules déclarations de l’infirmier(e). Seule une analyse des justificatifs (relevés SNIR, comptabilité) permet d’établir une valorisation. Les exemples de cessions présentés sont anonymisés. La fiscalité dépend de la situation individuelle et est susceptible d’évoluer.</p><div class="footer-bottom"><span>© <span id="year">2026</span> Cédance — Tous droits réservés.</span><span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a></span></div></div></footer>
+
+<!-- ===== Conditions particulières (modale) ===== -->
+<div class="cp-overlay" id="cp-modal" hidden>
+  <div class="cp-dialog" role="dialog" aria-modal="true" aria-labelledby="cp-title">
+    <button type="button" class="cp-close" id="cp-close" aria-label="Fermer">&times;</button>
+    <h3 id="cp-title">Conditions particulières</h3>
+    <p>En validant le formulaire d’estimation, vous reconnaissez avoir pris connaissance des présentes conditions et les accepter sans réserve.</p>
+
+    <h4>Objet</h4>
+    <p>Les présentes conditions encadrent l’utilisation de l’outil d’estimation mis à disposition par Cédance et le traitement des informations que vous transmettez (données relatives à votre activité, votre patientèle, vos éléments économiques et vos coordonnées).</p>
+
+    <h4>Nature de l’estimation</h4>
+    <p>L’estimation produite est strictement indicative. Elle repose sur des méthodes de marché et sur vos seules déclarations, et ne constitue ni un conseil, ni une offre, ni un engagement. Seule une analyse approfondie de vos justificatifs permet d’établir une valorisation.</p>
+
+    <h4>Transmission et cession des informations à nos partenaires</h4>
+    <p>Vous reconnaissez et acceptez expressément que Cédance puisse <strong>communiquer, partager, céder ou revendre tout ou partie des informations que vous transmettez</strong> — y compris les caractéristiques de votre patientèle et l’estimation obtenue — à ses partenaires (infirmier(e)s repreneur(euse)s, cabinets, groupements, partenaires financiers et apporteurs d’affaires), en vue de faciliter une éventuelle cession ou mise en relation.</p>
+    <p>Cette transmission peut intervenir à titre onéreux. Elle s’opère dans le respect de la réglementation applicable et des mesures de confidentialité d’usage entre professionnels de santé.</p>
+
+    <h4>Protection des données (RGPD)</h4>
+    <p>Conformément au Règlement général sur la protection des données, vous disposez d’un droit d’accès, de rectification, d’effacement, d’opposition et de portabilité de vos données. Pour exercer ces droits ou vous opposer à la transmission de vos informations à nos partenaires, écrivez à <a href="mailto:contact@cedance-infirmiers.fr">contact@cedance-infirmiers.fr</a>.</p>
+
+    <p style="margin-top:22px"><button type="button" class="btn btn--solid" id="cp-accept">J’ai compris</button></p>
+  </div>
+</div>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/cession.js"></script>
+</body>
+</html>

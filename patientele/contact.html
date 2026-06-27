@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nous contacter — Cession de patientèle infirmière — Cédance</title>
+<meta name="description" content="Contactez Cédance pour votre projet de cession, de reprise ou d'installation en infirmier(e) libéral(e). Échanges strictement confidentiels.">
+<link rel="icon" href="assets/img/cedance-mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/cession.css">
+</head>
+<body>
+<header class="site-header"><div class="container"><a class="brand brand--word" href="index.html" aria-label="Cédance — accueil"><img class="brand__mk" src="assets/img/cedance-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédance</span></a><nav class="nav" aria-label="Navigation principale"><ul style="display:contents;list-style:none;margin:0;padding:0"><li class="nav__item"><a class="nav__link" href="index.html">Estimer ma patientèle</a></li><li class="nav__item"><a class="nav__link" href="vendre.html">Vendre</a></li><li class="nav__item"><a class="nav__link" href="reprendre.html">Reprendre</a></li><li class="nav__item"><a class="nav__link" href="contact.html" aria-current="page">Nous contacter</a></li></ul><div class="nav__cta"><a class="btn btn--ghost-light" href="index.html#estimer">Estimer ma patientèle</a></div></nav><button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false"><span></span><span></span><span></span></button></div></header>
+
+<main>
+<section class="page-hero"><div class="container"><div class="page-hero__inner"><nav class="breadcrumb" aria-label="Fil d’Ariane"><a href="index.html">Estimation</a><span>/</span><span style="color:#fff;opacity:.95">Nous contacter</span></nav><h1 data-reveal>Parlons de votre projet</h1><p class="lede" data-reveal data-delay="1" style="margin-top:18px">Cédant(e), repreneur(euse) ou simplement curieux(se) de la valeur de votre patientèle : écrivez-nous. Tous nos échanges sont strictement confidentiels.</p></div></div></section>
+
+<section class="section">
+  <div class="container">
+    <div class="contact-grid">
+      <div data-reveal>
+        <p class="eyebrow">Prendre contact</p>
+        <h2 class="title-lg">Un interlocuteur dédié</h2>
+        <hr class="rule">
+        <p class="lede">Nous vous répondons sous 48 heures ouvrées, en toute discrétion.</p>
+        <ul class="info-list">
+          <li><span class="ico"><svg class="tile__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg></span><div><h4>Email</h4><a href="mailto:contact@cedance-infirmiers.fr">contact@cedance-infirmiers.fr</a></div></li>
+          <li><span class="ico"><svg class="tile__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><h4>Réactivité</h4><p>Réponse sous 48 heures ouvrées</p></div></li>
+          <li><span class="ico"><svg class="tile__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/></svg></span><div><h4>Confidentialité</h4><p>Échanges traités sous le sceau du secret professionnel</p></div></li>
+        </ul>
+        <div style="margin-top:30px"><span class="anon-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Pas encore d’estimation&nbsp;? <a href="index.html#estimer" style="color:var(--gold);text-decoration:underline">Estimez votre patientèle en 5 minutes</a></span></div>
+      </div>
+
+      <div data-reveal data-delay="1">
+        <form id="contact-form" class="form" novalidate>
+          <div class="row">
+            <div class="field"><label for="f-name">Nom &amp; prénom</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>
+            <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="f-phone">Téléphone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
+            <div class="field"><label for="f-subject">Votre projet</label><select id="f-subject" name="subject">
+              <option>Céder ma patientèle</option>
+              <option>Obtenir une estimation détaillée</option>
+              <option>Reprendre une patientèle</option>
+              <option>M’installer en libéral</option>
+              <option>Financer une reprise</option>
+              <option>Autre demande</option>
+            </select></div>
+          </div>
+          <div class="field"><label for="f-message">Votre message</label><textarea id="f-message" name="message" required placeholder="Quelques mots sur votre patientèle, votre projet et votre horizon…"></textarea></div>
+          <div class="form__status" role="status" aria-live="polite"></div>
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap"><button class="btn btn--solid" type="submit">Envoyer ma demande <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><span class="form__note">Vos informations restent strictement confidentielles.</span></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band section--tight"><div class="container"><div data-reveal><p class="eyebrow eyebrow--light">Sans engagement</p><h2>Commencez par estimer votre patientèle</h2><p>Une fourchette indicative immédiate, avant tout échange.</p></div><div class="cta-band__actions" data-reveal data-delay="1"><a class="btn btn--light" href="index.html#estimer">Estimer ma patientèle <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div></section>
+
+</main>
+
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div><a class="brand brand--word" href="index.html" aria-label="Cédance — accueil"><img class="brand__mk" src="assets/img/cedance-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédance</span></a><p style="max-width:34ch;font-size:.95rem;margin-top:14px">Estimation &amp; cession de patientèle d’infirmier(e) libéral(e). Confidentialité, juste valeur, continuité des soins pour vos patients.</p></div><div><h5>Vendre</h5><ul class="footer-links"><li><a href="vendre.html#pourquoi">Pourquoi céder</a></li><li><a href="vendre.html#fiscalite">La fiscalité de la cession</a></li><li><a href="vendre.html#transactions">Cessions récentes</a></li></ul></div><div><h5>Reprendre</h5><ul class="footer-links"><li><a href="reprendre.html#installer">S’installer en libéral</a></li><li><a href="reprendre.html#atouts">Atouts &amp; points d’attention</a></li><li><a href="reprendre.html#financement">Financement</a></li></ul></div><div class="footer-contact"><h5>Nous contacter</h5><p><a href="mailto:contact@cedance-infirmiers.fr">contact@cedance-infirmiers.fr</a></p><p style="margin-top:16px"><a class="link-arrow" href="index.html#estimer">Estimer ma patientèle <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p></div></div><p class="disclaimer">L’estimation proposée sur ce site est strictement indicative et ne constitue ni un conseil, ni une offre, ni un engagement. Les exemples de cessions présentés sont anonymisés. La fiscalité dépend de la situation individuelle de chaque infirmier(e) et est susceptible d’évoluer.</p><div class="footer-bottom"><span>© <span id="year">2026</span> Cédance — Tous droits réservés.</span><span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a></span></div></div></footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/cession.js"></script>
+</body>
+</html>
