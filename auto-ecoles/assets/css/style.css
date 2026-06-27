@@ -201,11 +201,23 @@ table.ranking tbody tr:last-child td{border-bottom:0}
 
 /* ============================ Carte France ============================ */
 .map-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:1.8rem;align-items:start}
-.map-frame{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow-sm)}
+.map-frame{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow-sm)}
 #france-map{width:100%;height:auto;display:block}
-#france-map path.dep{fill:#e7ddc6;stroke:#fff;stroke-width:.6;cursor:pointer;transition:fill .2s,transform .2s}
+#france-map path.dep{fill:#e7ddc6;stroke:#fff;stroke-width:.6;cursor:pointer;transition:fill .2s,opacity .3s}
 #france-map path.dep:hover{fill:var(--gold-soft);stroke:var(--navy)}
-#france-map path.dep.selected{fill:var(--gold);stroke:var(--navy);stroke-width:1}
+#france-map path.dep.selected{stroke:var(--navy);stroke-width:.8}
+#france-map path.dep.dim{opacity:.32}
+#france-map circle.ae-marker{cursor:pointer;opacity:.9;transition:opacity .15s}
+#france-map circle.ae-marker:hover{opacity:1;stroke:var(--navy)}
+.map-reset{position:absolute;top:1.3rem;right:1.3rem;z-index:5;display:inline-flex;align-items:center;gap:.4rem;
+  background:var(--navy);color:var(--ivory);border:0;border-radius:999px;padding:.5rem 1rem;font-size:.82rem;
+  font-family:var(--sans);font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm)}
+.map-reset:hover{background:var(--navy-2)}
+.data-banner{background:rgba(200,162,76,.1);border:1px solid rgba(200,162,76,.35);border-radius:12px;
+  padding:.9rem 1.1rem;margin-bottom:1.4rem;font-size:.9rem;color:#7a611f}
+.data-banner em{font-style:normal;font-weight:600}
+.reco-note{background:rgba(200,162,76,.14);border:1px solid rgba(200,162,76,.4);color:#e3c885;
+  border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.2rem;font-size:.92rem}
 .map-legend{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.8rem;font-size:.78rem;color:var(--muted)}
 .legend-scale{display:flex;height:10px;width:160px;border-radius:6px;overflow:hidden}
 .legend-scale i{flex:1}

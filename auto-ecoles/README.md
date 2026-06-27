@@ -11,7 +11,7 @@ auto-écoles de France, classées par **département** et **ville**, et triées 
 | Onglet | Contenu |
 |---|---|
 | **Recommandation** (accueil) | Saisissez une ville → l'auto-école recommandée selon le **Score Boussole** (taux de réussite **pondéré par le nombre de présentés** à l'examen pratique du permis B), avec le classement des autres écoles de la ville. |
-| **Carte & Annuaire** | Carte de France interactive (choroplèthe par taux moyen, clic sur un département) + annuaire filtrable (département / ville / recherche) et **triable** par taux, présentés ou score. |
+| **Carte & Annuaire** | Carte de France interactive (choroplèthe par taux moyen). Un clic sur un département **zoome dessus** et affiche toutes ses communes équipées (marqueurs). Annuaire filtrable (département / ville / recherche) et **triable** par taux, présentés ou score. |
 | **Conseils** | Conseils pratiques : choisir son auto-école, réussir le Code, progresser à la conduite, aborder le jour J dans de bonnes conditions, et le parcours pas à pas. |
 | **Nous contacter** | Formulaire de contact (ouverture de la messagerie) et coordonnées. |
 
@@ -36,37 +36,58 @@ python3 -m http.server 8000   # puis http://localhost:8000
 
 ## Données
 
-- **Annuaire** : données *représentatives* (565 auto-écoles, 132 communes, 96 départements)
-  générées de façon déterministe par `build_data.py`, **calquées sur la structure** du jeu
-  de données ouvert officiel de la Sécurité routière (DSR / Ministère de l'Intérieur) —
+Ce qui est **réel** :
+
+- **Communes** — *toutes* les communes de France métropolitaine (36 584), avec nom,
+  département, **coordonnées GPS** et population. Source :
+  [ggouv/Villes-de-France](https://github.com/ggouv/Villes-de-France) (`data/villes_data.sql`).
+- **Départements / carte** — contours réels des 96 départements (Corse 2A/2B incluse).
+  Source : [france-geojson](https://github.com/gregoiredavid/france-geojson)
+  (`data/departements.geojson`).
+
+Ce qui est **estimé** (en attendant le fichier officiel) :
+
+- **Taux de réussite & nombre de présentés** par auto-école. Le jeu officiel de la
+  Sécurité routière (DSR / Ministère de l'Intérieur) —
   [« Liste des auto-écoles et taux de réussite au permis de conduire »](https://www.data.gouv.fr/datasets/liste-des-auto-ecoles-et-taux-de-reussite-au-permis-de-conduire)
-  sur data.gouv.fr. Champs : commune, département, dénomination, adresse, nombre de
-  présentés au permis B, taux de réussite.
-- **Fond de carte** : [france-geojson](https://github.com/gregoiredavid/france-geojson)
-  (version simplifiée des départements), embarqué.
+  — n'est pas redistribué ici. À défaut, `build_data.py` génère un annuaire
+  *représentatif* (≈ 7 500 auto-écoles) **ancré sur les vraies communes** (noms,
+  coordonnées, population réels). Un bandeau le signale clairement dans le site.
+
+### Brancher les vraies auto-écoles (fichier officiel)
+
+Déposez le CSV officiel dans `data/auto-ecoles_officiel.csv` avec les colonnes :
+
+```
+nom,ville,dep,adresse,presentes,taux,lat,lon
+```
+
+puis régénérez. `build_data.py` l'utilise alors **tel quel** (100 % de vraies données)
+au lieu de l'annuaire estimé — rien d'autre ne change.
 
 ### Régénérer les données
 
 ```bash
 cd auto-ecoles
-python3 build_data.py     # régénère assets/js/data.js et departements.js
+python3 build_data.py     # régénère departements.js, communes.js et data.js
 ```
-
-Pour brancher les **vraies** données officielles, il suffit de remplacer le contenu de
-`window.AUTO_ECOLES` dans `assets/js/data.js` par les enregistrements du CSV data.gouv.fr
-(mêmes champs), sans rien changer au reste du site.
 
 ## Structure
 
 ```
 auto-ecoles/
 ├── index.html                 Page unique, 4 onglets
-├── build_data.py              Générateur des données (carte + annuaire)
+├── build_data.py              Générateur des données (carte + communes + annuaire)
+├── data/
+│   ├── villes_data.sql        Toutes les communes réelles (source)
+│   ├── departements.geojson   Contours des départements (source)
+│   └── auto-ecoles_officiel.csv  (optionnel) fichier officiel à déposer
 ├── assets/css/style.css       Design system (bleu nuit + champagne/or)
 └── assets/js/
-    ├── departements.js        GeoJSON des départements (carte)
-    ├── data.js                Annuaire des auto-écoles + départements
-    └── app.js                 Logique : recommandation, carte, annuaire, tri
+    ├── departements.js        Contours + liste des départements
+    ├── communes.js            Toutes les communes (compact : ville,dep,lat,lon,pop)
+    ├── data.js                Annuaire des auto-écoles (compact)
+    └── app.js                 Logique : recommandation, carte+zoom, annuaire, tri
 ```
 
 ## Déploiement

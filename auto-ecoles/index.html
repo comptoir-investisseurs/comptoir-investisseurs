@@ -125,12 +125,13 @@
       <div class="section-head">
         <span class="eyebrow">Explorer le territoire</span>
         <h2>Carte &amp; annuaire des auto-écoles</h2>
-        <p class="muted">Cliquez un département sur la carte, ou filtrez par ville. L'annuaire est
-          trié par défaut du <strong>meilleur au moins bon taux de réussite</strong>.</p>
+        <p class="muted">Cliquez un département : la carte <strong>zoome</strong> et affiche toutes ses
+          communes équipées. L'annuaire est trié du <strong>meilleur au moins bon taux de réussite</strong>.</p>
       </div>
 
       <div class="map-layout">
         <div class="map-frame">
+          <button class="map-reset" id="mapReset" style="display:none">↩ Voir toute la France</button>
           <svg id="france-map" viewBox="0 0 600 560" role="img" aria-label="Carte des départements de France"></svg>
           <div class="map-legend">
             <span>Taux de réussite moyen</span>
@@ -145,6 +146,11 @@
 
   <div class="section alt">
     <div class="wrap">
+      <div class="data-banner" id="dataBanner" style="display:none">
+        <strong>À propos des chiffres.</strong> Les communes, départements et coordonnées sont réels.
+        Les taux de réussite et nombres de présentés affichés sont <em>représentatifs</em> (estimés),
+        en attendant l'intégration du fichier officiel de la Sécurité routière (data.gouv.fr).
+      </div>
       <div class="toolbar">
         <div class="ctrl">
           <label for="fDep">Département</label>
@@ -369,6 +375,7 @@
 <div class="map-tooltip" id="mapTooltip"></div>
 
 <script src="assets/js/departements.js"></script>
+<script src="assets/js/communes.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
