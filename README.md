@@ -53,19 +53,23 @@ dehors de lui. Pour mettre en ligne, **téléversez le contenu du dossier `cessi
 aucun fichier LFDR n’est embarqué. Pensez à réserver le domaine et à compléter les
 mentions légales (`mentions-legales.html`) avant la mise en ligne.
 
-### Envoi de l’estimation par e-mail
+### Parcours de pré-valorisation
 
-L’estimation s’affiche toujours à l’écran. Pour qu’elle parte **par e-mail** sans
-serveur, renseignez une clé dans [`assets/js/cession-config.js`](assets/js/cession-config.js) :
+- **Bloc 1 — Identité** : le **SIREN** (9 chiffres) est obligatoire ; il est
+  contrôlé (format + clé de Luhn) **et son existence est vérifiée** via l’API
+  publique « Recherche d’entreprises » (annuaire-entreprises, DINUM). Un SIREN
+  invalide ou introuvable bloque le passage à l’étape suivante. En cas
+  d’indisponibilité réseau de l’API, le passage reste possible (*fail-open*).
+- **Blocs 2 → 4** : encours, allocation, clientèle.
+- **Bloc 5 — Économie & coordonnées** : chiffres économiques, puis **e-mail
+  (nominatif) et téléphone du dirigeant**. Les adresses contenant « contact »
+  sont refusées (on veut l’e-mail nominatif du dirigeant). La case de
+  consentement renvoie aux **conditions particulières** (modale) qui actent la
+  transmission / revente des informations aux partenaires de Cédance.
 
-- **Web3Forms** (recommandé, gratuit, sans compte serveur) — collez votre *Access
-  Key* dans `CESSION_WEB3FORMS_KEY`. Chaque demande est envoyée à l’adresse liée à
-  la clé ; une copie peut être renvoyée au dirigeant.
-- **Formspree** — collez l’URL du formulaire dans `CESSION_FORMSPREE_URL`.
-
-Sans configuration, le site bascule automatiquement sur l’**ouverture de la
-messagerie du visiteur** (mailto vers `CESSION_NOTIFY_EMAIL`) — l’estimation
-reste affichée à l’écran dans tous les cas.
+À la validation, **l’estimation s’affiche à l’écran** (fourchette + 3 méthodes) —
+il n’y a **pas d’envoi d’e-mail automatique**. Les multiples du calcul sont
+paramétrables en haut de `computeValuation()` dans `cession/assets/js/cession.js`.
 
 > Les fichiers `cession/*.html` sont écrits à la main (et non générés par
 > `build.py`). Les multiples utilisés pour le calcul sont paramétrables en haut de

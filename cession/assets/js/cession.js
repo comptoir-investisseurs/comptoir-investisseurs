@@ -77,9 +77,93 @@
 
   form.querySelectorAll('[data-next]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      if (validateStep(current) && current < total - 1) showStep(current + 1);
+      if (!validateStep(current)) return;
+      // Bloc 1 : le SIREN doit être valide ET exister dans le répertoire officiel
+      if (current === 0) {
+        gateSiren(btn);
+        return;
+      }
+      if (current < total - 1) showStep(current + 1);
     });
   });
+
+  /* ----------------------------------------------------------------------
+     Validation du SIREN (format + clé de Luhn + existence réelle)
+     ---------------------------------------------------------------------- */
+  function luhnOk(s) {
+    var sum = 0, a = s.split('').reverse();
+    for (var i = 0; i < a.length; i++) {
+      var d = parseInt(a[i], 10);
+      if (i % 2 === 1) { d *= 2; if (d > 9) d -= 9; }
+      sum += d;
+    }
+    return sum % 10 === 0;
+  }
+
+  function sirenFormatOk() {
+    var el = document.getElementById('siren');
+    var err = document.getElementById('siren-error');
+    var fieldEl = el.closest('.q-field');
+    var raw = (el.value || '').replace(/\s/g, '');
+    if (!/^\d{9}$/.test(raw) || !luhnOk(raw)) {
+      if (err) err.textContent = 'Veuillez saisir un SIREN valide à 9 chiffres.';
+      fieldEl.classList.add('has-error');
+      return null;
+    }
+    fieldEl.classList.remove('has-error');
+    return raw;
+  }
+
+  // Vérifie l'existence via l'API publique « Recherche d'entreprises » (annuaire-entreprises, DINUM).
+  // En cas d'indisponibilité réseau, on n'empêche pas l'utilisateur d'avancer (fail-open).
+  function sirenExists(raw) {
+    return fetch('https://recherche-entreprises.api.gouv.fr/search?q=' + raw + '&page=1&per_page=5')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j) return 'error';
+        var hit = (j.results || []).some(function (x) { return (x.siren || '').replace(/\s/g, '') === raw; });
+        if (hit) return 'ok';
+        return (j.total_results && j.total_results > 0) ? 'ok' : 'absent';
+      })
+      .catch(function () { return 'error'; });
+  }
+
+  function gateSiren(btn) {
+    var raw = sirenFormatOk();
+    if (!raw) return;
+    var el = document.getElementById('siren');
+    var err = document.getElementById('siren-error');
+    var fieldEl = el.closest('.q-field');
+    var label = btn.innerHTML;
+    btn.disabled = true; btn.textContent = 'Vérification…';
+    sirenExists(raw).then(function (res) {
+      btn.disabled = false; btn.innerHTML = label;
+      if (res === 'absent') {
+        if (err) err.textContent = 'Ce SIREN est introuvable dans le répertoire officiel des entreprises.';
+        fieldEl.classList.add('has-error');
+        return;
+      }
+      fieldEl.classList.remove('has-error');
+      showStep(current + 1);
+    });
+  }
+
+  /* ----------------------------------------------------------------------
+     Conditions particulières (modale)
+     ---------------------------------------------------------------------- */
+  (function initConditionsModal() {
+    var open = document.getElementById('cp-open');
+    var modal = document.getElementById('cp-modal');
+    if (!open || !modal) return;
+    var close = document.getElementById('cp-close');
+    var accept = document.getElementById('cp-accept');
+    function hide() { modal.hidden = true; }
+    open.addEventListener('click', function (e) { e.preventDefault(); modal.hidden = false; });
+    if (close) close.addEventListener('click', hide);
+    if (accept) accept.addEventListener('click', hide);
+    modal.addEventListener('click', function (e) { if (e.target === modal) hide(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+  })();
   form.querySelectorAll('[data-prev]').forEach(function (btn) {
     btn.addEventListener('click', function () { if (current > 0) showStep(current - 1); });
   });
@@ -249,101 +333,37 @@
   }
 
   /* ----------------------------------------------------------------------
-     Collecte + envoi par e-mail
+     Validation de l'e-mail dirigeant (bloc 5)
      ---------------------------------------------------------------------- */
-  function collectPayload(v) {
-    var p = {
-      'SIREN / Raison sociale': field('siren'),
-      'E-mail dirigeant': field('email'),
-      'Téléphone': field('telephone'),
-      'Département': field('departement'),
-      'Horizon de cession': radio('horizon'),
-      'Statuts réglementaires': checks('statuts').join(', '),
-      'Encours (AUM)': field('aum_precis') ? field('aum_precis') + ' M€' : radio('aum'),
-      'Part encours récurrents': field('part_recurrente') ? field('part_recurrente') + ' %' : '',
-      'Collecte nette 12 mois': radio('collecte'),
-      'Allocation': [
-        ['AV/PER France', field('alloc_av_fr')], ['AV Luxembourg', field('alloc_av_lux')],
-        ['SCPI/immobilier', field('alloc_scpi')], ['Produits structurés', field('alloc_structures')],
-        ['Private equity', field('alloc_pe')], ['CTO/PEA', field('alloc_ct_pea')],
-        ['Autres', field('alloc_autres')]
-      ].filter(function (a) { return num(a[1]) > 0; }).map(function (a) { return a[0] + ' ' + a[1] + '%'; }).join(' · '),
-      'Âge moyen clients': radio('age_moyen'),
-      'Concentration top 10': field('concentration_top10') ? field('concentration_top10') + ' %' : '',
-      'Nombre de clients actifs': radio('nb_clients'),
-      'CA HT dernier exercice': field('ca_ht') ? num(field('ca_ht')).toLocaleString('fr-FR') + ' €' : '',
-      'Répartition CA récurrent/non-récurrent': (field('ca_recurrent_pct') || field('ca_non_recurrent_pct'))
-        ? (field('ca_recurrent_pct') || '?') + ' % réc. / ' + (field('ca_non_recurrent_pct') || '?') + ' % non réc.' : '',
-      'EBE estimé': field('ebe') ? num(field('ebe')).toLocaleString('fr-FR') + ' €' : '',
-      'Résultat net': field('resultat_net') ? num(field('resultat_net')).toLocaleString('fr-FR') + ' €' : '',
-      'Rémunération dirigeant(s)': field('remuneration_dirigeant') ? num(field('remuneration_dirigeant')).toLocaleString('fr-FR') + ' €' : '',
-      'ESTIMATION INDICATIVE': v.hasEnough ? (eur(v.lo) + ' – ' + eur(v.hi)) : 'à affiner',
-      'Détail méthodes': v.methods.map(function (m) { return m.label + ' : ' + eur(m.lo) + '–' + eur(m.hi); }).join(' | ')
-    };
-    return p;
-  }
-
-  function payloadToText(p) {
-    return Object.keys(p).filter(function (k) { return p[k]; })
-      .map(function (k) { return k + ' : ' + p[k]; }).join('\n');
-  }
-
-  function sendLead(v, done) {
-    var p = collectPayload(v);
-    var email = field('email');
-
-    // --- Option Web3Forms ---
-    if (typeof CESSION_WEB3FORMS_KEY !== 'undefined' && CESSION_WEB3FORMS_KEY) {
-      var body = Object.assign({
-        access_key: CESSION_WEB3FORMS_KEY,
-        subject: 'Pré-valorisation de cabinet — ' + (p['SIREN / Raison sociale'] || email || 'demande'),
-        from_name: 'Cédance — pré-valorisation',
-        replyto: email
-      }, p);
-      fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(body)
-      }).then(function () { done(true); }).catch(function () { mailtoFallback(p); done(true); });
-      return;
+  function validateEmailField() {
+    var el = form.querySelector('[name="email"]');
+    if (!el) return true;
+    var fieldEl = el.closest('.q-field');
+    var err = document.getElementById('email-error');
+    var v = (el.value || '').trim();
+    var ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+    if (!ok) {
+      if (err) err.textContent = 'Veuillez saisir un e-mail valide.';
+      fieldEl.classList.add('has-error'); return false;
     }
-
-    // --- Option Formspree ---
-    if (typeof CESSION_FORMSPREE_URL !== 'undefined' && CESSION_FORMSPREE_URL) {
-      fetch(CESSION_FORMSPREE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(Object.assign({ _replyto: email, _subject: 'Pré-valorisation de cabinet' }, p))
-      }).then(function () { done(true); }).catch(function () { mailtoFallback(p); done(true); });
-      return;
+    if (/contact/i.test(v)) {
+      if (err) err.textContent = 'Merci d’indiquer l’e-mail nominatif du dirigeant — les adresses « contact@… » ne sont pas acceptées.';
+      fieldEl.classList.add('has-error'); return false;
     }
-
-    // --- Repli : messagerie du visiteur ---
-    mailtoFallback(p);
-    done(false);
-  }
-
-  function mailtoFallback(p) {
-    var to = (typeof CESSION_NOTIFY_EMAIL !== 'undefined' && CESSION_NOTIFY_EMAIL) || 'contact@cedance.fr';
-    var subject = encodeURIComponent('Pré-valorisation de cabinet — ' + (p['SIREN / Raison sociale'] || 'demande'));
-    var body = encodeURIComponent('Bonjour,\n\nVoici les éléments de ma pré-valorisation de cabinet :\n\n' + payloadToText(p) + '\n\nMerci de me communiquer la fourchette détaillée.');
-    window.location.href = 'mailto:' + to + '?subject=' + subject + '&body=' + body;
+    fieldEl.classList.remove('has-error'); return true;
   }
 
   /* ----------------------------------------------------------------------
-     Soumission
+     Soumission — affichage du résultat à l'écran (aucun envoi e-mail)
      ---------------------------------------------------------------------- */
-  function showSuccess(emailed) {
+  function showSuccess() {
     document.querySelector('.q-body').style.display = 'none';
     var hero = document.querySelector('.val-hero'); if (hero) hero.style.display = 'none';
     var prog = document.getElementById('q-progress'); if (prog) prog.style.display = 'none';
-    var res = document.getElementById('val-result');
-    res.style.display = 'block';
+    document.getElementById('val-result').style.display = 'block';
     var note = document.getElementById('val-email-note');
     if (note) {
-      note.textContent = emailed
-        ? 'Une copie de cette estimation vient de vous être envoyée par e-mail. Un échange confidentiel permettra de l’affiner après remise des pièces comptables.'
-        : 'Votre messagerie s’est ouverte pour transmettre votre demande : nous vous renverrons la fourchette détaillée par e-mail. Vous pouvez aussi nous écrire à ' + CESSION_NOTIFY_EMAIL + '.';
+      note.textContent = 'Cette fourchette est indicative et reflète les prix de cession récemment observés sur le marché. Pour l’affiner après remise des pièces comptables, contactez-nous.';
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -351,18 +371,10 @@
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (!validateStep(current)) return;
+    if (!validateEmailField()) return;
     var v = computeValuation();
     renderResult(v);
-
-    var btn = form.querySelector('[type="submit"]');
-    btn.disabled = true;
-    var label = btn.innerHTML;
-    btn.textContent = 'Calcul en cours…';
-
-    sendLead(v, function (emailed) {
-      btn.disabled = false; btn.innerHTML = label;
-      showSuccess(emailed);
-    });
+    showSuccess();
   });
 
   // init
