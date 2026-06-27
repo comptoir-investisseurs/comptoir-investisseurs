@@ -75,6 +75,18 @@ paramétrables en haut de `computeValuation()` dans `cession/assets/js/cession.j
 > `build.py`). Les multiples utilisés pour le calcul sont paramétrables en haut de
 > la fonction `computeValuation()` dans `assets/js/cession.js`.
 
+### Contenu / SEO du site CGP
+
+Mêmes leviers SEO que le site infirmiers, adaptés au CGP (domaine `cedance.fr`) :
+`guide-valorisation-cession-cabinet-cgp.html` (page pilier),
+`fiscalite-cession-cabinet-cgp.html` (apport-cession, art. 150-0 B ter),
+`financer-reprise-cabinet-cgp.html`. Plus une **FAQ** (schema `FAQPage`) sur
+l’accueil, `robots.txt`, `sitemap.xml`, `canonical`, Open Graph et JSON-LD
+(`ProfessionalService`, `WebSite`, `BreadcrumbList`, `Article`). La page
+`acheter.html` est optimisée pour « rachat de cabinet / portefeuille CGP ». Les
+URL `canonical`/sitemap pointent vers `https://cedance.fr/` — **à adapter au
+domaine réel**.
+
 ## Cédance — variante infirmiers (`patientele/`)
 
 Deuxième site **indépendant**, **même marque « Cédance »** et **même base** que
