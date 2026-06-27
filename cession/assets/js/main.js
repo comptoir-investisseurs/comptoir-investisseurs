@@ -124,7 +124,7 @@
   var y = document.getElementById('year');
   if (y) y.textContent = new Date().getFullYear();
 
-  /* ---------- Contact form (client-side, no backend) ---------- */
+  /* ---------- Contact form (envoi e-mail via FormSubmit, sans serveur) ---------- */
   var form = document.getElementById('contact-form');
   if (form) {
     var status = form.querySelector('.form__status');
@@ -140,20 +140,31 @@
         status.textContent = 'Merci de renseigner votre nom, un email valide et votre message.';
         return;
       }
-      var subject = encodeURIComponent('Demande de contact — ' + name.value.trim());
-      var bodyLines = [
-        'Nom : ' + name.value.trim(),
-        'Email : ' + email.value.trim(),
-        (form.querySelector('[name=phone]') ? 'Téléphone : ' + form.querySelector('[name=phone]').value.trim() : ''),
-        (form.querySelector('[name=subject]') ? 'Objet : ' + form.querySelector('[name=subject]').value : ''),
-        '',
-        message.value.trim()
-      ].filter(Boolean);
-      var body = encodeURIComponent(bodyLines.join('\n'));
-      window.location.href = 'mailto:contact@lfd-rochechouart.com?subject=' + subject + '&body=' + body;
-      status.classList.add('is-ok');
-      status.textContent = 'Merci. Votre messagerie va s’ouvrir pour finaliser l’envoi. Vous pouvez aussi nous écrire directement à contact@lfd-rochechouart.com.';
-      form.reset();
+      var btn = form.querySelector('[type=submit]');
+      if (btn) btn.disabled = true;
+      var payload = {
+        _subject: 'Lead Cédance - CGP (contact)',
+        _template: 'table',
+        _captcha: 'false',
+        _replyto: email.value.trim(),
+        Nom: name.value.trim(),
+        Email: email.value.trim(),
+        Telephone: form.querySelector('[name=phone]') ? form.querySelector('[name=phone]').value.trim() : '',
+        Objet: form.querySelector('[name=subject]') ? form.querySelector('[name=subject]').value : '',
+        Message: message.value.trim()
+      };
+      fetch('https://formsubmit.co/ajax/hugoflpp@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function () {
+        status.classList.add('is-ok');
+        status.textContent = 'Merci, votre demande a bien été envoyée. Nous revenons vers vous sous 48 heures ouvrées.';
+        form.reset();
+      }).catch(function () {
+        status.classList.add('is-err');
+        status.textContent = 'Une erreur est survenue. Vous pouvez nous écrire directement à contact@cedance.fr.';
+      }).then(function () { if (btn) btn.disabled = false; });
     });
   }
 })();

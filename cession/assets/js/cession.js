@@ -368,12 +368,68 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  /* ----------------------------------------------------------------------
+     Envoi du lead par e-mail (FormSubmit.co — sans serveur)
+     Destinataire et objet centralisés ici.
+     ---------------------------------------------------------------------- */
+  var LEAD_EMAIL = 'hugoflpp@gmail.com';
+  var LEAD_SUBJECT = 'Lead Cédance - CGP';
+
+  function collectLead(v) {
+    var alloc = [
+      ['AV/PER France', field('alloc_av_fr')], ['AV Luxembourg', field('alloc_av_lux')],
+      ['SCPI/immobilier', field('alloc_scpi')], ['Produits structurés', field('alloc_structures')],
+      ['Private equity', field('alloc_pe')], ['CTO/PEA', field('alloc_ct_pea')],
+      ['Autres', field('alloc_autres')]
+    ].filter(function (a) { return num(a[1]) > 0; }).map(function (a) { return a[0] + ' ' + a[1] + '%'; }).join(' · ');
+    function eurField(n) { return field(n) ? num(field(n)).toLocaleString('fr-FR') + ' €' : ''; }
+    return {
+      'SIREN': field('siren'),
+      'Departement': field('departement'),
+      'Horizon de cession': radio('horizon'),
+      'Statuts reglementaires': checks('statuts').join(', '),
+      'Encours (AUM)': field('aum_precis') ? field('aum_precis') + ' M€' : radio('aum'),
+      'Part encours recurrents': field('part_recurrente') ? field('part_recurrente') + ' %' : '',
+      'Collecte nette 12 mois': radio('collecte'),
+      'Allocation': alloc,
+      'Age moyen clients': radio('age_moyen'),
+      'Concentration top 10': field('concentration_top10') ? field('concentration_top10') + ' %' : '',
+      'Nombre de clients actifs': radio('nb_clients'),
+      'CA HT dernier exercice': eurField('ca_ht'),
+      'Part recurrente du CA': field('ca_recurrent_pct') ? field('ca_recurrent_pct') + ' %' : '',
+      'EBE estime': eurField('ebe'),
+      'Resultat net': eurField('resultat_net'),
+      'Remuneration dirigeant': eurField('remuneration_dirigeant'),
+      'E-mail dirigeant': field('email'),
+      'Telephone': field('telephone'),
+      'ESTIMATION INDICATIVE': v.hasEnough ? (eur(v.lo) + ' – ' + eur(v.hi)) : 'a affiner',
+      'Detail methodes': v.methods.map(function (m) { return m.label + ' : ' + eur(m.lo) + '–' + eur(m.hi); }).join(' | ')
+    };
+  }
+
+  function sendLead(v) {
+    try {
+      var body = JSON.stringify(Object.assign({
+        _subject: LEAD_SUBJECT,
+        _template: 'table',
+        _captcha: 'false',
+        _replyto: field('email') || ''
+      }, collectLead(v)));
+      fetch('https://formsubmit.co/ajax/' + encodeURIComponent(LEAD_EMAIL), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: body
+      }).catch(function () {});
+    } catch (e) { /* non bloquant : le résultat reste affiché */ }
+  }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (!validateStep(current)) return;
     if (!validateEmailField()) return;
     var v = computeValuation();
     renderResult(v);
+    sendLead(v);
     showSuccess();
   });
 
