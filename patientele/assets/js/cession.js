@@ -224,12 +224,9 @@
   /* ----------------------------------------------------------------------
      Cœur du calcul — 3 méthodes de marché
      ---------------------------------------------------------------------- */
-  var RECETTES_MID = { '< 60 k€': 45000, '60 – 90 k€': 75000, '90 – 130 k€': 110000, '> 130 k€': 160000 };
-
   function computeValuation() {
     // --- Recettes annuelles (honoraires, en €) ---
-    var recPrecis = num(field('recettes_precis'));
-    var recettes = recPrecis > 0 ? recPrecis : (RECETTES_MID[radio('recettes_band')] || 0);
+    var recettes = num(field('recettes_precis'));
 
     // --- Bénéfice (BNC) ---
     var bnc = num(field('bnc'));
@@ -242,31 +239,25 @@
     partRec = clamp(partRec, 0, 100);
 
     // --- Score qualité (0..1) ---
+    // NB : le zonage ARS, déterminant majeur, est apprécié séparément à partir
+    // du code postal lors de l'analyse — il n'entre pas dans l'estimation instantanée.
     var q = 0.5;
-    // Zonage ARS : en zone « dotée / surdotée » l'installation est restreinte
-    // (conventionnement sélectif) → la patientèle se valorise davantage.
-    var zone = radio('zonage');
-    if (zone === 'Surdotée') q += 0.18;
-    else if (zone === 'Très dotée') q += 0.12;
-    else if (zone === 'Intermédiaire') q += 0.02;
-    else if (zone === 'Sous-dotée') q -= 0.10;
-    else if (zone === 'Très sous-dotée') q -= 0.16;
     // Récurrence des soins (dépendance, soins quotidiens)
-    q += (partRec - 50) / 100 * 0.5;
+    q += (partRec - 50) / 100 * 0.6;
     // Évolution de l'activité
     var evo = radio('evolution');
-    if (evo === 'Positive') q += 0.10; else if (evo === 'Négative') q -= 0.12;
-    // Concentration
-    var conc = num(field('concentration_top10'));
-    if (conc > 0) { if (conc > 40) q -= 0.10; else if (conc < 20) q += 0.05; }
+    if (evo === 'Positive') q += 0.12; else if (evo === 'Négative') q -= 0.14;
+    // Mode d'exercice (une activité installée et structurée se transmet mieux)
+    var mode = radio('mode_exercice');
+    if (mode === 'Remplaçant(e) régulier(e)') q -= 0.06;
     // Âge moyen des patients
     var age = radio('age_moyen');
     if (age === '< 60 ans') q += 0.05; else if (age === '> 85 ans') q -= 0.06;
     // Secteur / tournée
     var sect = radio('secteur');
-    if (sect === 'Rural étendu') q += 0.04; else if (sect === 'Urbain dense') q -= 0.02;
+    if (sect === 'Rural étendu') q += 0.05; else if (sect === 'Urbain dense') q -= 0.02;
     // Taille de la patientèle
-    if (nbPatients >= 200) q += 0.04; else if (nbPatients > 0 && nbPatients < 60) q -= 0.04;
+    if (nbPatients >= 200) q += 0.05; else if (nbPatients > 0 && nbPatients < 60) q -= 0.04;
     q = clamp(q, 0, 1);
 
     var methods = [];

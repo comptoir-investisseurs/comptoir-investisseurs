@@ -56,7 +56,7 @@
 
     <div class="q-field"><label for="siren">SIREN de votre activité libérale <span class="req">*</span></label><input type="text" id="siren" name="siren" inputmode="numeric" autocomplete="off" placeholder="9 chiffres — ex : 812 345 678" required><span class="q-error" id="siren-error">Veuillez saisir un SIREN valide à 9 chiffres.</span></div>
 
-    <div class="q-field"><label for="departement">Département d’exercice</label><input type="text" id="departement" name="departement" placeholder="ex : 35, 13, 69…"></div>
+    <div class="q-field"><label for="code_postal">Code postal d’exercice</label><input type="text" id="code_postal" name="code_postal" inputmode="numeric" maxlength="5" autocomplete="postal-code" placeholder="ex : 35000"><span class="muted" style="display:block;margin-top:6px;font-size:.82rem">Votre zonage ARS — qui pèse fortement sur la valeur — sera déterminé à partir de ce code postal lors de l’analyse.</span></div>
 
     <div class="q-field">
       <label>Horizon de cession envisagé</label>
@@ -75,7 +75,7 @@
   <div class="q-step">
     <span class="q-blockno">Bloc 2 / 5</span>
     <h2 class="q-step__title">Activité &amp; cadre d’exercice</h2>
-    <p class="q-step__subtitle">Le zonage et la récurrence des soins sont les premiers déterminants de la valeur.</p>
+    <p class="q-step__subtitle">La récurrence des soins et la régularité de l’activité sont des déterminants clés de la valeur.</p>
 
     <div class="q-field">
       <label>Mode d’exercice</label>
@@ -84,27 +84,6 @@
         <label class="q-option"><input type="radio" name="mode_exercice" value="En collaboration"><span>En collaboration</span></label>
         <label class="q-option"><input type="radio" name="mode_exercice" value="En association (SCM / SCP / SEL)"><span>En association (SCM / SCP / SEL)</span></label>
         <label class="q-option"><input type="radio" name="mode_exercice" value="Remplaçant(e) régulier(e)"><span>Remplaçant(e) régulier(e)</span></label>
-      </div>
-    </div>
-
-    <div class="q-field">
-      <label>Zonage ARS de votre secteur <span class="muted" style="text-transform:none;letter-spacing:0">— en zone dotée / surdotée, l’installation est restreinte : la patientèle se valorise davantage</span></label>
-      <div class="q-options">
-        <label class="q-option"><input type="radio" name="zonage" value="Très sous-dotée"><span>Très sous-dotée</span></label>
-        <label class="q-option"><input type="radio" name="zonage" value="Sous-dotée"><span>Sous-dotée</span></label>
-        <label class="q-option"><input type="radio" name="zonage" value="Intermédiaire"><span>Intermédiaire</span></label>
-        <label class="q-option"><input type="radio" name="zonage" value="Très dotée"><span>Très dotée</span></label>
-        <label class="q-option"><input type="radio" name="zonage" value="Surdotée"><span>Surdotée (conventionnement sélectif)</span></label>
-      </div>
-    </div>
-
-    <div class="q-field">
-      <label>Recettes annuelles (honoraires) — ordre de grandeur</label>
-      <div class="q-options q-options--grid">
-        <label class="q-option"><input type="radio" name="recettes_band" value="< 60 k€"><span>&lt; 60 k€</span></label>
-        <label class="q-option"><input type="radio" name="recettes_band" value="60 – 90 k€"><span>60 – 90 k€</span></label>
-        <label class="q-option"><input type="radio" name="recettes_band" value="90 – 130 k€"><span>90 – 130 k€</span></label>
-        <label class="q-option"><input type="radio" name="recettes_band" value="> 130 k€"><span>&gt; 130 k€</span></label>
       </div>
     </div>
 
@@ -173,10 +152,7 @@
       </div>
     </div>
 
-    <div class="q-row">
-      <div class="q-field"><label for="nb_patients">Nombre de patients actifs <span class="muted" style="text-transform:none;letter-spacing:0">— suivis régulièrement</span></label><input type="number" id="nb_patients" name="nb_patients" min="0" placeholder="ex : 180"></div>
-      <div class="q-field"><label for="concentration_top10">Part de l’activité pour vos 10 premiers patients</label><div class="q-suffix"><input type="number" id="concentration_top10" name="concentration_top10" min="0" max="100" placeholder="ex : 25"><span class="q-suffix__u">%</span></div></div>
-    </div>
+    <div class="q-field"><label for="nb_patients">Nombre de patients actifs <span class="muted" style="text-transform:none;letter-spacing:0">— suivis régulièrement</span></label><input type="number" id="nb_patients" name="nb_patients" min="0" placeholder="ex : 180"></div>
 
     <div class="q-nav"><button type="button" class="q-nav__back" data-prev><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Précédent</button><button type="button" class="btn btn--solid" data-next>Suivant <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
   </div>

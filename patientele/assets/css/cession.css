@@ -235,14 +235,5 @@
 /* Écran de résultat : dégager le titre sous l'en-tête fixe */
 .val-result{ padding-top:calc(var(--header-h) + 56px); }
 
-/* Aligner la barre de progression sur la largeur du formulaire (carte) */
+/* Barre de progression : puces à équidistance (cellules égales, puces centrées) */
 .val-hero .progress{ max-width:760px; }
-
-/* Étapes extrêmes alignées sur les bords du formulaire (carte).
-   NB : le 1er enfant de .progress est .progress__line ; la 1re étape est
-   donc :nth-child(2), pas :first-child. */
-.val-hero .progress__step:nth-child(2){ align-items:flex-start; }
-.val-hero .progress__step:last-child{ align-items:flex-end; }
-.val-hero .progress__step:nth-child(2) .progress__label{ text-align:left; }
-.val-hero .progress__step:last-child .progress__label{ text-align:right; }
-.val-hero .progress__line{ left:16px; right:16px; }
