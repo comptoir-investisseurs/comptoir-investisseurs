@@ -1,5 +1,5 @@
 -- =============================================================
--- Supabase — Table des leads « Cédance CGP »
+-- Supabase — Table des leads « Cédence CGP »
 -- À exécuter dans : Supabase Dashboard > SQL Editor
 -- =============================================================
 

@@ -373,7 +373,7 @@
      Destinataire et objet centralisés ici.
      ---------------------------------------------------------------------- */
   var LEAD_EMAIL = 'contact@lfd-rochechouart.com';
-  var LEAD_SUBJECT = 'Lead Cédance - CGP';
+  var LEAD_SUBJECT = 'Lead Cédence - CGP';
 
   function collectLead(v) {
     var alloc = [

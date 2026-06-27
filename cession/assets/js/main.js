@@ -143,7 +143,7 @@
       var btn = form.querySelector('[type=submit]');
       if (btn) btn.disabled = true;
       var payload = {
-        _subject: 'Lead Cédance - CGP (contact)',
+        _subject: 'Lead Cédence - CGP (contact)',
         _template: 'table',
         _captcha: 'false',
         _replyto: email.value.trim(),
