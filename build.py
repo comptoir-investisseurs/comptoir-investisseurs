@@ -228,7 +228,7 @@ def render_footer():
           'capital. La fiscalité dépend de la situation individuelle de chaque client et est susceptible d’évoluer.</p>'
           '<div class="footer-bottom">'
             '<span>© <span id="year">2026</span> %s — Tous droits réservés.</span>'
-            '<span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a></span>'
+            '<span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a> &nbsp;·&nbsp; <a href="nous-rejoindre.html">Nous rejoindre</a></span>'
           '</div>'
         '</div>'
       '</footer>' % (ADDRESS, EMAIL, EMAIL, arrow(), BRAND))
@@ -2980,32 +2980,31 @@ def build_contact():
          icon("mail","tile__ico"), EMAIL, EMAIL,
          icon("clock","tile__ico"),
          lat, lon, lat, lon, arrow()))
-    form = (
-      '<form id="contact-form" class="form" novalidate>'
-        '<div class="row">'
-          '<div class="field"><label for="f-name">Nom &amp; prénom</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>'
-          '<div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>'
-        '</div>'
-        '<div class="row">'
-          '<div class="field"><label for="f-phone">Téléphone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>'
-          '<div class="field"><label for="f-subject">Objet</label>'
-            '<select id="f-subject" name="subject">'
-              '<option>Gestion privée &amp; placements</option>'
-              '<option>Assurance-vie luxembourgeoise</option>'
-              '<option>Produits structurés sur-mesure</option>'
-              '<option>Trésorerie d’entreprise</option>'
-              '<option>Cession / transmission d’entreprise</option>'
-              '<option>Family Office</option>'
-              '<option>Autre demande</option>'
-            '</select></div>'
-        '</div>'
-        '<div class="field"><label for="f-message">Votre message</label><textarea id="f-message" name="message" required></textarea></div>'
-        '<div class="form__status" role="status" aria-live="polite"></div>'
-        '<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">'
-          '<button class="btn btn--solid" type="submit">Envoyer ma demande %s</button>'
-          '<span class="form__note">Vos informations restent strictement confidentielles.</span>'
-        '</div>'
-      '</form>' % arrow())
+    form = ("""<form id="contact-form" class="form" action="https://formsubmit.co/%s" method="POST" novalidate>
+<div class="row">
+<div class="field"><label for="f-name">Nom &amp; prénom</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>
+<div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+</div>
+<div class="row">
+<div class="field"><label for="f-phone">Téléphone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
+<div class="field"><label for="f-subject">Objet</label>
+<select id="f-subject" name="subject">
+<option>Gestion privée &amp; placements</option>
+<option>Assurance-vie luxembourgeoise</option>
+<option>Produits structurés sur-mesure</option>
+<option>Trésorerie d’entreprise</option>
+<option>Cession / transmission d’entreprise</option>
+<option>Family Office</option>
+<option>Autre demande</option>
+</select></div>
+</div>
+<div class="field"><label for="f-message">Votre message</label><textarea id="f-message" name="message" required></textarea></div>
+<div class="form__status" role="status" aria-live="polite"></div>
+<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+<button class="btn btn--solid" type="submit">Envoyer ma demande %s</button>
+<span class="form__note">Vos informations restent strictement confidentielles.</span>
+</div>
+</form>""" % (EMAIL, arrow()))
     body += section(
         '<div class="contact-grid">'
           '<div data-reveal><p class="eyebrow">Prendre contact</p><h2 class="title-lg">Parlons de votre projet</h2><hr class="rule">'
@@ -3035,6 +3034,68 @@ def build_mentions():
     body += cta_band()
     page("mentions-legales.html","Mentions légales","Mentions légales du site La Financière de Rochechouart.", body)
 
+def build_rejoindre():
+    body = page_hero(
+        "Nous rejoindre",
+        "Rejoignez un cabinet indépendant en pleine transformation, où l’exigence du conseil et la qualité de la relation client sont au cœur de tout.",
+        [("Accueil","index.html"),("Nous rejoindre",None)])
+    body += section(
+        sec_head("Opportunité", "Portfolio Manager — Gestion Privée",
+                 "Vous êtes la pierre angulaire de la relation client. Plus qu’un gestionnaire, vous êtes le partenaire stratégique de nos clients. Vous pilotez leur patrimoine dans une logique long terme, en coordonnant expertises, décisions et enjeux familiaux.")
+        + '<div style="max-width:820px;margin-top:48px" data-reveal>'
+          '<p class="eyebrow">I. Vision et stratégie patrimoniale</p>'
+          '<p class="muted" style="margin-top:12px">Construire et piloter des stratégies patrimoniales globales : investissements, structuration juridique et fiscale, retraite, transmission et enjeux intergénérationnels.</p>'
+          '<p class="eyebrow" style="margin-top:36px">II. Conseil de confiance &amp; accompagnement de vie</p>'
+          '<p class="muted" style="margin-top:12px">Accompagner vos clients sur leurs projets structurants et moments clés de vie : succession, mariage, divorce, expatriation, structuration sociale, situations exceptionnelles. Votre valeur : la justesse du conseil et la qualité de la relation.</p>'
+          '<p class="eyebrow" style="margin-top:36px">III. Orchestration d’expertises</p>'
+          '<p class="muted" style="margin-top:12px">Coordonner l’ensemble des parties prenantes — banquiers privés, notaires, avocats, asset managers — pour garantir cohérence, efficacité et sérénité pour les familles.</p>'
+          '<p class="eyebrow" style="margin-top:36px">IV. Développement &amp; rayonnement</p>'
+          '<p class="muted" style="margin-top:12px">Développer votre portefeuille et contribuer activement à la croissance du cabinet grâce à votre réseau, votre posture de conseil et votre capacité à créer des relations durables avec une clientèle exigeante.</p>'
+          '<p class="eyebrow" style="margin-top:36px">V. Family Office &amp; sujets complexes</p>'
+          '<p class="muted" style="margin-top:12px">Intervenir sur des problématiques à forte valeur ajoutée : gouvernance familiale, structuration patrimoniale avancée, stratégies d’investissement sophistiquées, vision long terme du patrimoine.</p>'
+        '</div>')
+    body += section(
+        sec_head("Votre profil", "Pourquoi vous ?")
+        + '<div style="max-width:820px;margin-top:32px" data-reveal>'
+          '<p class="eyebrow">Votre expertise</p>'
+          '<ul class="checklist" style="margin-top:12px">'
+            '<li>Minimum 5 ans d’expérience en Multi-Family Office, Banque Privée ou gestion de patrimoine sur un segment haut de gamme</li>'
+            '<li>Excellente maîtrise des enjeux financiers, fiscaux et juridiques du patrimoine</li>'
+          '</ul>'
+          '<p class="eyebrow" style="margin-top:32px">Vos forces</p>'
+          '<ul class="checklist" style="margin-top:12px">'
+            '<li>Capacité à développer un réseau de confiance et à transformer des opportunités en relations solides</li>'
+            '<li>Très bonne communication, sens de l’écoute et posture de conseil</li>'
+            '<li>Rigueur, autonomie et discrétion absolue</li>'
+          '</ul>'
+          '<p class="eyebrow" style="margin-top:32px">Votre état d’esprit</p>'
+          '<ul class="checklist" style="margin-top:12px">'
+            '<li>Vous recherchez un rôle central, avec de l’impact, de l’autonomie et une vraie reconnaissance de votre expertise</li>'
+            '<li>Vous souhaitez vous inscrire dans un projet de cabinet ambitieux, en évolution, où la qualité prime sur le volume</li>'
+          '</ul>'
+        '</div>', cls="section band-cream")
+    body += section(
+        sec_head("Le cabinet", "Pourquoi nous ?")
+        + '<div style="max-width:820px;margin-top:32px" data-reveal>'
+          '<ul class="checklist" style="margin-top:12px">'
+            '<li>Un projet en pleine transformation, avec une vision claire et des ambitions fortes</li>'
+            '<li>Un rôle clé, au cœur de la relation client et du développement du cabinet</li>'
+            '<li>Des perspectives d’évolution réelles, en lien avec la croissance de la structure</li>'
+            '<li>Un environnement premium : bureaux parisiens d’exception, salle de sport, cours collectifs, rooftop…</li>'
+            '<li>Une rémunération attractive : 120 000 € à 150 000 € de fixe + 20 000 € à 50 000 € de variable</li>'
+          '</ul>'
+        '</div>')
+    body += section(
+        '<div class="quote" data-reveal>'
+          '<p>« Prêt(e) à écrire cette page avec nous ? »</p>'
+          '<cite>La Financière de Rochechouart</cite>'
+        '</div>', cls="section--tight band-dark")
+    body += cta_band(
+        title="Envoyez-nous votre candidature",
+        text="Transmettez votre CV et quelques mots sur votre parcours. Nous vous répondons sous 48 heures.")
+    page("nous-rejoindre.html", "Nous rejoindre — Portfolio Manager",
+         "Rejoignez La Financière de Rochechouart en tant que Portfolio Manager. Gestion privée, Family Office, clientèle exigeante. Paris 8e.", body)
+
 # --------------------------------------------------------------------------
 def main():
     build_home()
@@ -3045,7 +3106,7 @@ def main():
     build_private_equity(); build_private_equity_pages(); build_pe_detail_page()
     build_immobilier(); build_immobilier_pages(); build_scpi_page()
     build_structuration(); build_structuration_pages(); build_family_office(); build_family_office_pages()
-    build_contact(); build_mentions()
+    build_contact(); build_mentions(); build_rejoindre()
     print("Done.")
 
 if __name__ == "__main__":

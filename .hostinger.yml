@@ -1,0 +1,4 @@
+version: 1
+buildCommand: "python3 build.py"
+publicPath: "."
+rootDirectory: "."
