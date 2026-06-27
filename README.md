@@ -87,6 +87,22 @@ l’accueil, `robots.txt`, `sitemap.xml`, `canonical`, Open Graph et JSON-LD
 URL `canonical`/sitemap pointent vers `https://cedance.fr/` — **à adapter au
 domaine réel**.
 
+### Leads du site CGP (e-mail + Supabase)
+
+À la validation de l'estimateur (et via le formulaire de contact), chaque lead
+part **par e-mail** vers `contact@lfd-rochechouart.com` (objet « Lead Cédance -
+CGP », via FormSubmit.co — pensez à **cliquer l'e-mail d'activation** à la 1re
+soumission) **et** est **enregistré dans Supabase** (table `cgp_leads`).
+
+- Destinataire / objet de l'e-mail : constantes `LEAD_EMAIL` / `LEAD_SUBJECT` en
+  haut du bloc d'envoi de `cession/assets/js/cession.js`.
+- Supabase : identifiants dans `cession/assets/js/supabase-config.js` (réutilise
+  le projet existant). **Créez d'abord la table** en exécutant
+  `cession/supabase-cgp-leads.sql` dans Supabase (SQL Editor). La table stocke
+  les coordonnées, quelques repères chiffrés, la fourchette et l'intégralité des
+  questions/réponses (`payload` en `jsonb`). Sans config Supabase valide,
+  l'insertion est simplement ignorée (l'e-mail et l'affichage restent assurés).
+
 ## Cédance — variante infirmiers (`patientele/`)
 
 Deuxième site **indépendant**, **même marque « Cédance »** et **même base** que

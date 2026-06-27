@@ -408,19 +408,50 @@
   }
 
   function sendLead(v) {
+    var payload = collectLead(v);
+    // --- 1) E-mail (FormSubmit) ---
     try {
       var body = JSON.stringify(Object.assign({
         _subject: LEAD_SUBJECT,
         _template: 'table',
         _captcha: 'false',
         _replyto: field('email') || ''
-      }, collectLead(v)));
+      }, payload));
       fetch('https://formsubmit.co/ajax/' + encodeURIComponent(LEAD_EMAIL), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: body
       }).catch(function () {});
-    } catch (e) { /* non bloquant : le résultat reste affiché */ }
+    } catch (e) { /* non bloquant */ }
+
+    // --- 2) Stockage Supabase (table cgp_leads) ---
+    try {
+      if (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL && SUPABASE_URL.indexOf('VOTRE_PROJET') === -1) {
+        var row = {
+          siren: field('siren') || null,
+          email: field('email') || null,
+          telephone: field('telephone') || null,
+          departement: field('departement') || null,
+          horizon: radio('horizon') || null,
+          aum: (field('aum_precis') ? field('aum_precis') + ' M€' : radio('aum')) || null,
+          ca_ht: num(field('ca_ht')) || null,
+          ebe: num(field('ebe')) || null,
+          estimation_basse: v.hasEnough ? Math.round(v.lo) : null,
+          estimation_haute: v.hasEnough ? Math.round(v.hi) : null,
+          payload: payload
+        };
+        fetch(SUPABASE_URL + '/rest/v1/cgp_leads', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(row)
+        }).catch(function () {});
+      }
+    } catch (e) { /* non bloquant */ }
   }
 
   form.addEventListener('submit', function (e) {
