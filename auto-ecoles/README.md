@@ -45,25 +45,21 @@ Ce qui est **réel** :
   Source : [france-geojson](https://github.com/gregoiredavid/france-geojson)
   (`data/departements.geojson`).
 
-Ce qui est **estimé** (en attendant le fichier officiel) :
+- **Auto-écoles : données officielles.** L'annuaire (≈ 7 700 établissements proposant
+  le permis B) provient du fichier officiel de la Sécurité routière (DSR / Ministère de
+  l'Intérieur) — [« Liste des auto-écoles et taux de réussite au permis de conduire »](https://www.data.gouv.fr/datasets/liste-des-auto-ecoles-et-taux-de-reussite-au-permis-de-conduire)
+  (`data/auto-ecoles.csv`). On retient la **raison sociale**, l'adresse, la commune, le
+  **nombre de présentés** (`B_nombre_1pra`) et le **taux de réussite** au permis B en
+  1<sup>re</sup> présentation (`B_taux_1pra`). Les coordonnées sont obtenues en reliant
+  chaque commune à la base réelle des villes (97 % géolocalisés ; sinon centroïde du
+  département).
 
-- **Taux de réussite & nombre de présentés** par auto-école. Le jeu officiel de la
-  Sécurité routière (DSR / Ministère de l'Intérieur) —
-  [« Liste des auto-écoles et taux de réussite au permis de conduire »](https://www.data.gouv.fr/datasets/liste-des-auto-ecoles-et-taux-de-reussite-au-permis-de-conduire)
-  — n'est pas redistribué ici. À défaut, `build_data.py` génère un annuaire
-  *représentatif* (≈ 7 500 auto-écoles) **ancré sur les vraies communes** (noms,
-  coordonnées, population réels). Un bandeau le signale clairement dans le site.
+### Mise à jour des données auto-écoles
 
-### Brancher les vraies auto-écoles (fichier officiel)
-
-Déposez le CSV officiel dans `data/auto-ecoles_officiel.csv` avec les colonnes :
-
-```
-nom,ville,dep,adresse,presentes,taux,lat,lon
-```
-
-puis régénérez. `build_data.py` l'utilise alors **tel quel** (100 % de vraies données)
-au lieu de l'annuaire estimé — rien d'autre ne change.
+Remplacez `data/auto-ecoles.csv` par la dernière version du fichier officiel
+(séparateur `;`, mêmes colonnes), puis régénérez. Si ce fichier est absent,
+`build_data.py` retombe sur un annuaire *représentatif* ancré sur les vraies communes
+(un bandeau le signale alors dans le site).
 
 ### Régénérer les données
 

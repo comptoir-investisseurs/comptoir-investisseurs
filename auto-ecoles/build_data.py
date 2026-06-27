@@ -34,11 +34,20 @@ import json
 import os
 import random
 import re
+import unicodedata
+
+
+def norm(s):
+    """ Minuscule, sans accents ni ponctuation — pour les rapprochements de communes. """
+    s = unicodedata.normalize("NFD", (s or "").lower())
+    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+    return re.sub(r"[^a-z0-9]+", " ", s).strip()
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SQL = os.path.join(HERE, "data", "villes_data.sql")
 GEOJSON = os.path.join(HERE, "data", "departements.geojson")
-OFFICIAL = os.path.join(HERE, "data", "auto-ecoles_officiel.csv")
+OFFICIAL = os.path.join(HERE, "data", "auto-ecoles.csv")
+OFFICIAL_ALT = os.path.join(HERE, "data", "auto-ecoles_officiel.csv")
 OUT_GEO = os.path.join(HERE, "assets", "js", "departements.js")
 OUT_COMMUNES = os.path.join(HERE, "assets", "js", "communes.js")
 OUT_DATA = os.path.join(HERE, "assets", "js", "data.js")
@@ -50,10 +59,12 @@ SCHOOL_DIVISOR = 9000     # ~1 auto-école par tranche de population
 
 # ---------------------------------------------------------------------------
 def norm_dep(dep):
-    """ '1' -> '01', '2A'/'2B' conservés, DOM (>96) écartés plus tard. """
+    """ '1'->'01', '02A'/'2A'->'2A', '02B'/'2B'->'2B', DOM écartés plus tard. """
     dep = dep.strip().upper()
-    if dep in ("2A", "2B"):
-        return dep
+    if dep in ("2A", "02A"):
+        return "2A"
+    if dep in ("2B", "02B"):
+        return "2B"
     if dep.isdigit():
         return dep.zfill(2)
     return dep
@@ -169,24 +180,89 @@ def generate_schools(communes):
     return schools, False  # estimated=True meaning "not official"
 
 
-def load_official():
-    """ Charge un CSV officiel s'il existe (colonnes nom,ville,dep,adresse,presentes,taux). """
-    if not os.path.exists(OFFICIAL):
+def _num(v):
+    """ Parse un nombre du CSV officiel ; '' ou 'NC' -> None. Gère la virgule décimale. """
+    if v is None:
+        return None
+    v = v.strip().replace(",", ".")
+    if v == "" or v.upper() == "NC":
+        return None
+    try:
+        return float(v)
+    except ValueError:
+        return None
+
+
+def title_fr(s):
+    """ Titre français simple : « MARSEILLE » -> « Marseille », « AIRE-SUR-LA-LYS » -> « Aire-sur-la-Lys ». """
+    small = {"sur", "sous", "les", "le", "la", "de", "du", "des", "en", "et", "aux", "au", "lès", "d", "l"}
+    out = []
+    for word in re.split(r"([ \-'])", s.strip().lower()):
+        if word in (" ", "-", "'", ""):
+            out.append(word)
+        elif word in small and out:
+            out.append(word)
+        else:
+            out.append(word[:1].upper() + word[1:])
+    return "".join(out)
+
+
+def load_official(resolver, dep_centroids, valid_deps):
+    """
+    Charge le jeu officiel de la Sécurité routière (data.gouv.fr).
+    Séparateur ';'. On retient les établissements proposant le permis B avec un
+    taux de réussite 1re présentation (B_taux_1pra) et un nombre de présentés
+    (B_nombre_1pra) renseignés. Les coordonnées proviennent de la commune réelle.
+    """
+    path = OFFICIAL if os.path.exists(OFFICIAL) else OFFICIAL_ALT
+    if not os.path.exists(path):
         return None
     out = []
-    with open(OFFICIAL, encoding="utf-8") as fh:
-        for sid, row in enumerate(csv.DictReader(fh), 1):
+    sid = 0
+    matched = 0
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        for row in csv.DictReader(fh, delimiter=";"):
+            dep = norm_dep((row.get("dpt_id") or "").strip())
+            if dep not in valid_deps:
+                continue
+            presentes = _num(row.get("B_nombre_1pra"))
+            taux = _num(row.get("B_taux_1pra"))
+            if presentes is None or taux is None or presentes <= 0:
+                continue
+            taux = taux * 100 if taux <= 1.5 else taux  # fraction -> pourcentage
+            if not (0 < taux <= 100):
+                continue
+            nom = (row.get("aue_raisonsociale") or "").strip()
+            if not nom:
+                continue
+            commune_raw = (row.get("aue_commune") or "").strip()
+            cp = (row.get("aue_codepostal") or "").strip()
+            adr = (row.get("aue_adresse") or "").strip()
+
+            key = norm(commune_raw) + "|" + dep
+            resolved = resolver.get(key)
+            if resolved:
+                ville, lat, lon = resolved
+                matched += 1
+            else:
+                ville = title_fr(commune_raw)
+                lat, lon = dep_centroids.get(dep, (None, None))
+            adresse = ", ".join(p for p in [title_fr(adr), (cp + " " + ville).strip()] if p)
+
+            sid += 1
             out.append({
                 "id": sid,
-                "nom": row["nom"].strip(),
-                "ville": row["ville"].strip(),
-                "dep": norm_dep(row["dep"]),
-                "adresse": row.get("adresse", "").strip(),
-                "taux": round(float(row["taux"]), 1),
-                "presentes": int(float(row["presentes"])),
-                "lat": float(row["lat"]) if row.get("lat") else None,
-                "lon": float(row["lon"]) if row.get("lon") else None,
+                "nom": title_fr(nom) if nom.isupper() else nom,
+                "ville": ville,
+                "dep": dep,
+                "adresse": adresse,
+                "taux": round(taux, 1),
+                "presentes": int(round(presentes)),
+                "lat": round(lat, 4) if lat is not None else None,
+                "lon": round(lon, 4) if lon is not None else None,
             })
+    print("  → établissements officiels retenus :", len(out),
+          "| communes géolocalisées : %.0f%%" % (100.0 * matched / max(1, len(out))))
     return out
 
 
@@ -228,8 +304,17 @@ def main():
         [("window.COMMUNES", communes_packed)],
     )
 
+    # ---- résolution commune -> coordonnées (pour le fichier officiel) ----
+    resolver = {}            # norm(ville)|dep -> (ville, lat, lon)
+    dep_pts = {}             # dep -> [sum_lat, sum_lon, n] (centroïde de repli)
+    for c in communes:
+        resolver.setdefault(norm(c["ville"]) + "|" + c["dep"], (c["ville"], c["lat"], c["lon"]))
+        p = dep_pts.setdefault(c["dep"], [0.0, 0.0, 0])
+        p[0] += c["lat"]; p[1] += c["lon"]; p[2] += 1
+    dep_centroids = {d: (p[0] / p[2], p[1] / p[2]) for d, p in dep_pts.items()}
+
     # ---- auto-écoles ----
-    official = load_official()
+    official = load_official(resolver, dep_centroids, valid_deps)
     if official is not None:
         schools = official
         is_official = True
