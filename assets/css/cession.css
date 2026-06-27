@@ -1,0 +1,160 @@
+/* =========================================================================
+   La Financière de Rochechouart — Pôle « Cession & rapprochement de cabinet »
+   Surcouche spécifique au mini-site de pré-valorisation CGP.
+   S'appuie sur styles.css (design system) + questionnaire.css (formulaire).
+   ========================================================================= */
+
+/* ----- Compact hero for the valuation home ----- */
+.val-hero{
+  position:relative; background:var(--green); color:var(--cream); overflow:hidden;
+  padding-top:calc(var(--header-h) + 64px); padding-bottom:64px;
+}
+.val-hero::before{
+  content:""; position:absolute; inset:0; background:url('../img/img-texture.svg') center/cover;
+  opacity:.06; mix-blend-mode:screen;
+}
+.val-hero .container{ position:relative; z-index:1; }
+.val-hero__inner{ max-width:760px; }
+.val-hero h1{ color:#fff; font-size:clamp(2.1rem,4.6vw,3.4rem); }
+.val-hero p{ color:rgba(246,242,233,.84); max-width:60ch; }
+.val-hero .eyebrow{ color:var(--gold-light); }
+.val-hero__meta{ display:flex; flex-wrap:wrap; gap:14px 28px; margin-top:26px; }
+.val-hero__meta span{
+  display:inline-flex; align-items:center; gap:9px; font-size:.82rem;
+  letter-spacing:.04em; color:rgba(246,242,233,.85);
+}
+.val-hero__meta svg{ width:18px; height:18px; color:var(--gold-light); flex:none; }
+
+/* ----- Block intro inside the form ----- */
+.q-blockno{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--sans); font-size:.72rem; font-weight:500; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--gold); margin-bottom:10px;
+}
+.q-blockno::before{ content:""; width:26px; height:1px; background:var(--gold); display:inline-block; }
+
+/* Live total for the allocation block */
+.alloc-total{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  margin-top:6px; padding:14px 18px; border:1px dashed var(--line); border-radius:6px;
+  background:var(--parchment); font-size:.9rem; color:var(--muted);
+}
+.alloc-total b{ font-family:var(--serif); font-size:1.3rem; color:var(--green); }
+.alloc-total.is-ok b{ color:#1f5a2c; }
+.alloc-total.is-off b{ color:#b23b2e; }
+
+/* small inline-suffix number fields (€, %, M€) */
+.q-suffix{ position:relative; }
+.q-suffix input{ padding-right:46px !important; }
+.q-suffix__u{
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  font-size:.85rem; color:var(--muted); pointer-events:none; letter-spacing:.02em;
+}
+
+/* ----- Result screen ----- */
+.val-result{ padding:64px 0 40px; }
+.val-result__head{ text-align:center; max-width:660px; margin:0 auto 40px; }
+.val-result__head .eyebrow{ color:var(--gold); }
+.val-result__head h2{ color:var(--green); font-size:clamp(1.6rem,3.4vw,2.4rem); }
+
+.val-range{
+  position:relative; max-width:720px; margin:0 auto; text-align:center;
+  background:var(--green); color:var(--cream); border-radius:6px; overflow:hidden;
+  padding:44px clamp(24px,5vw,56px);
+}
+.val-range::before{
+  content:""; position:absolute; inset:0; background:url('../img/img-texture.svg') center/cover;
+  opacity:.06; mix-blend-mode:screen;
+}
+.val-range > *{ position:relative; z-index:1; }
+.val-range__label{ font-size:.74rem; letter-spacing:.24em; text-transform:uppercase; color:var(--gold-light); margin-bottom:14px; }
+.val-range__figure{
+  font-family:var(--serif); font-weight:500; color:#fff; line-height:1.05;
+  font-size:clamp(2.2rem,6vw,3.6rem);
+}
+.val-range__figure .sep{ color:var(--gold-light); margin:0 .25em; font-weight:400; }
+.val-range__sub{ color:rgba(246,242,233,.78); font-size:.92rem; margin-top:14px; }
+
+/* method breakdown */
+.val-methods{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; max-width:920px; margin:30px auto 0; }
+@media(max-width:760px){ .val-methods{ grid-template-columns:1fr; } }
+.val-method{
+  background:#fff; border:1px solid var(--line); border-radius:6px; padding:24px 22px; text-align:center;
+}
+.val-method h4{ font-family:var(--sans); font-weight:500; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; }
+.val-method .v{ font-family:var(--serif); font-size:1.5rem; color:var(--green); line-height:1.1; }
+.val-method .m{ font-size:.82rem; color:var(--gold); margin-top:8px; }
+.val-method.is-na .v{ color:var(--stone); font-size:1.1rem; }
+
+/* ----- Sub-tabs (Vendre / Acheter) ----- */
+.subtabs{
+  display:flex; flex-wrap:wrap; gap:6px; justify-content:center;
+  border:1px solid var(--line); background:#fff; border-radius:48px; padding:6px;
+  max-width:760px; margin:0 auto;
+}
+.subtab{
+  appearance:none; border:0; cursor:pointer; background:transparent;
+  font-family:var(--sans); font-size:.82rem; font-weight:500; letter-spacing:.06em;
+  color:var(--muted); padding:12px 24px; border-radius:40px; white-space:nowrap;
+  transition:background .35s var(--ease), color .35s var(--ease);
+}
+.subtab:hover{ color:var(--green); }
+.subtab.is-active{ background:var(--green); color:#fff; }
+@media(max-width:620px){
+  .subtabs{ border-radius:10px; flex-direction:column; }
+  .subtab{ border-radius:6px; }
+}
+.subpanel{ display:none; animation:fadeUp .45s var(--ease); }
+.subpanel.is-active{ display:block; }
+
+/* ----- Transaction cards (anonymised deals) ----- */
+.deal-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+@media(max-width:820px){ .deal-grid{ grid-template-columns:1fr; } }
+.deal{
+  position:relative; background:#fff; border:1px solid var(--line); border-radius:6px;
+  padding:28px 26px; transition:transform .5s var(--ease), box-shadow .5s var(--ease), border-color .5s var(--ease);
+  overflow:hidden;
+}
+.deal::after{ content:""; position:absolute; left:0; top:0; height:3px; width:0; background:var(--gold); transition:width .5s var(--ease); }
+.deal:hover{ transform:translateY(-6px); box-shadow:0 22px 48px rgba(0,20,0,.10); border-color:transparent; }
+.deal:hover::after{ width:100%; }
+.deal__top{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; }
+.deal__tag{ font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); border:1px solid var(--line); border-radius:40px; padding:5px 12px; }
+.deal__year{ font-family:var(--serif); font-size:1.05rem; color:var(--muted); }
+.deal h3{ font-size:1.35rem; color:var(--green); margin-bottom:6px; }
+.deal__loc{ font-size:.82rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+.deal__stats{ display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; margin:0 0 16px; }
+.deal__stat .k{ font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.deal__stat .val{ font-family:var(--serif); font-size:1.2rem; color:var(--green); }
+.deal__note{ font-size:.9rem; color:var(--muted); margin:0; border-top:1px solid var(--line); padding-top:14px; }
+
+/* small "anonymised" disclaimer ribbon */
+.anon-note{
+  display:inline-flex; align-items:center; gap:9px; font-size:.8rem; color:var(--muted);
+  background:var(--parchment); border:1px solid var(--line); border-radius:40px; padding:9px 18px;
+}
+.anon-note svg{ width:15px; height:15px; color:var(--gold); flex:none; }
+
+/* inline contact strip (lighter than the full cta-band) */
+.contact-strip{
+  display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
+  background:var(--cream); border:1px solid var(--line); border-left:3px solid var(--gold);
+  border-radius:6px; padding:24px 28px;
+}
+.contact-strip p{ margin:0; }
+.contact-strip .cs-title{ font-family:var(--serif); font-size:1.3rem; color:var(--green); }
+.contact-strip .cs-sub{ font-size:.92rem; color:var(--muted); }
+
+/* number badge list (points d'attention / synergies) */
+.numlist{ list-style:none; padding:0; margin:0; display:grid; gap:22px; }
+.numlist li{ display:flex; gap:20px; align-items:flex-start; }
+.numlist .n{
+  flex:none; width:42px; height:42px; border-radius:50%; display:grid; place-items:center;
+  border:1px solid var(--gold); color:var(--gold); font-family:var(--serif); font-size:1.15rem;
+}
+.numlist h4{ font-family:var(--serif); font-weight:600; font-size:1.2rem; color:var(--green); margin:2px 0 6px; }
+.numlist p{ margin:0; color:var(--muted); font-size:.96rem; }
+
+/* mini stat row */
+.mini-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; text-align:center; }
+@media(max-width:620px){ .mini-stats{ grid-template-columns:1fr; gap:30px; } }

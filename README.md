@@ -24,6 +24,42 @@ ainsi que les autres classes de placements. Un appel au contact figure sur chaqu
 
 **Adresse :** 58 rue de Monceau, 75008 Paris — **Email :** contact@lfdr.fr
 
+## Pôle « Cession & rapprochement de cabinet » (pré-valorisation CGP)
+
+Mini-site autonome dédié à la **valorisation et au rapprochement de cabinets de
+CGP**, dans le dossier [`cession/`](cession/). Il réutilise la charte (CSS, logo,
+animations) et se déploie tel quel.
+
+| Page | Rôle |
+|---|---|
+| `cession/index.html` | Accueil + **outil de pré-valorisation** en 5 blocs (Identité → Encours → Allocation → Clientèle → Économie). L’estimation est calculée dans le navigateur selon les **3 méthodes de marché** (multiple du CA récurrent, % des encours, multiple d’EBE retraité), affichée immédiatement et transmise par e-mail. |
+| `cession/vendre.html` | 3 sous-onglets : **Pourquoi vendre · La fiscalité** (apport-cession, art. 150-0 B ter) **· Transactions récentes** (exemples anonymisés). |
+| `cession/acheter.html` | 3 sous-onglets : **Acquérir un cabinet · Points d’attention & synergies · Financement**. |
+| `cession/contact.html` | Formulaire de contact (mailto, via `main.js`). |
+
+Des encarts « Nous contacter » sont répartis sur toutes les pages.
+
+### Envoi de l’estimation par e-mail
+
+L’estimation s’affiche toujours à l’écran. Pour qu’elle parte **par e-mail** sans
+serveur, renseignez une clé dans [`assets/js/cession-config.js`](assets/js/cession-config.js) :
+
+- **Web3Forms** (recommandé, gratuit, sans compte serveur) — collez votre *Access
+  Key* dans `CESSION_WEB3FORMS_KEY`. Chaque demande est envoyée à l’adresse liée à
+  la clé ; une copie peut être renvoyée au dirigeant.
+- **Formspree** — collez l’URL du formulaire dans `CESSION_FORMSPREE_URL`.
+
+Sans configuration, le site bascule automatiquement sur l’**ouverture de la
+messagerie du visiteur** (mailto vers `CESSION_NOTIFY_EMAIL`) — l’estimation
+reste affichée à l’écran dans tous les cas.
+
+> Les fichiers `cession/*.html` sont écrits à la main (et non générés par
+> `build.py`). Les multiples utilisés pour le calcul sont paramétrables en haut de
+> la fonction `computeValuation()` dans `assets/js/cession.js`.
+
+Pour rendre le pôle accessible depuis le site principal, ajoutez un lien vers
+`cession/index.html` (ex. dans la navigation ou le pied de page de `build.py`).
+
 ## Lancer en local
 
 Ouvrez simplement `index.html` dans un navigateur, ou servez le dossier :
