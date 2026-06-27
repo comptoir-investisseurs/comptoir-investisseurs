@@ -96,6 +96,16 @@ Le SIREN est contrôlé et vérifié comme sur `cession/` (les IDEL ont un SIREN
 Les barèmes de calcul sont en haut de `computeValuation()` dans
 `patientele/assets/js/cession.js`.
 
+**Pages de contenu / SEO** (maillage interne vers l’estimateur) :
+`guide-cession-patientele-infirmiere.html` (page pilier),
+`fiscalite-cession-patientele-infirmiere.html`,
+`modele-contrat-cession-patientele-infirmiere.html` (+ modèle téléchargeable
+`assets/modele-contrat-cession-patientele-infirmiere.txt`). Avec
+`robots.txt`, `sitemap.xml`, balises `canonical`, Open Graph et JSON-LD
+(`ProfessionalService`, `WebSite`, `FAQPage`, `BreadcrumbList`, `Article`).
+Les URL des `canonical`/sitemap pointent vers `https://cedance-infirmiers.fr/`
+— **à adapter si vous publiez sur un autre domaine**.
+
 ## Lancer en local
 
 Ouvrez simplement `index.html` dans un navigateur, ou servez le dossier :
