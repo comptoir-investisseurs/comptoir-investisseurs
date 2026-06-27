@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Créer votre produit structuré — Méridian</title>
+<meta name="description" content="Paramétrez votre produit structuré sur-mesure : structure, émetteur, sous-jacent, maturité, barrière, autocall. Lancez un pricing indicatif et recevez votre term sheet.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5' y='5' width='14' height='14' transform='rotate(45 12 12)' fill='none' stroke='%23b3924f' stroke-width='1.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="index.html" aria-label="Méridian — accueil">
+      <span class="brand__mark"><span>M</span></span>
+      <span class="brand__name">Méridian<span class="brand__sub">Structured Products</span></span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a class="nav__link" href="index.html">Accueil</a>
+      <a class="nav__link" href="partenaires.html">Partenaires</a>
+      <a class="nav__link" href="palmares.html">Palmarès 2026</a>
+      <a class="nav__link" href="guide.html">Guide</a>
+      <a class="nav__link is-active" href="creer.html">Créer un produit</a>
+      <a class="nav__link" href="contact.html">Contact</a>
+      <div class="lang" aria-label="Langue">
+        <button data-lang="FR" class="is-active">FR</button>
+        <button data-lang="EN">EN</button>
+        <button data-lang="IT">IT</button>
+        <button data-lang="ES">ES</button>
+        <button data-lang="DE">DE</button>
+      </div>
+      <div class="nav__cta"><a class="btn btn--gold" href="contact.html">Nous contacter</a></div>
+    </nav>
+    <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="page-hero__inner">
+        <nav class="crumb" aria-label="Fil d'Ariane"><a href="index.html">Accueil</a><span>/</span><span style="color:#fff">Créer un produit</span></nav>
+        <h1 class="title-xl" data-reveal data-delay="1">Créez votre produit structuré</h1>
+        <p class="lede" data-reveal data-delay="2">Renseignez les paramètres ci-dessous, lancez un pricing indicatif, puis envoyez votre demande : un structureur revient vers vous avec une term sheet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:980px">
+
+      <form id="product-form" class="form-wrap" data-reveal novalidate>
+
+        <div class="form-head">
+          <div>
+            <p class="eyebrow" style="margin:0 0 6px">Structured Products — One Pager</p>
+            <h2>Paramètres du produit</h2>
+            <p>Tous les champs sont modifiables. Le pricing renvoie un coupon indicatif.</p>
+          </div>
+          <div class="lang" aria-label="Langue du one-pager">
+            <button type="button" data-lang="EN">EN</button>
+            <button type="button" data-lang="IT">IT</button>
+            <button type="button" data-lang="ES">ES</button>
+            <button type="button" data-lang="FR" class="is-active">FR</button>
+            <button type="button" data-lang="DE">DE</button>
+            <button type="button" data-lang="RU">RU</button>
+            <button type="button" data-lang="CN">CN</button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="structure">Structure</label>
+            <select id="structure" name="structure">
+              <option>Autocallable &amp; BRC</option>
+              <option>Phoenix Autocall</option>
+              <option>Athéna Autocall</option>
+              <option>Reverse Convertible (BRC)</option>
+              <option>Capital Protégé</option>
+              <option>Capital Garanti</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="issuer">Émetteur (Issuer)</label>
+            <select id="issuer" name="issuer">
+              <option>Marex Financial</option>
+              <option>Vontobel</option>
+              <option>BNP Paribas</option>
+              <option>Société Générale</option>
+              <option>Goldman Sachs</option>
+              <option>J.P. Morgan</option>
+              <option>Morgan Stanley</option>
+              <option>Citi</option>
+              <option>Barclays</option>
+              <option>Natixis</option>
+              <option>UBS</option>
+              <option>BBVA</option>
+              <option>Leonteq</option>
+              <option>Crédit Agricole CIB</option>
+              <option>HSBC</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="format">Format</label>
+            <select id="format" name="format">
+              <option>Note</option>
+              <option>Certificate</option>
+              <option>EMTN</option>
+              <option>AMC</option>
+              <option>Warrant</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="currency">Devise (Currency)</label>
+            <select id="currency" name="currency">
+              <option>USD</option>
+              <option>EUR</option>
+              <option>GBP</option>
+              <option>CHF</option>
+              <option>JPY</option>
+            </select>
+          </div>
+
+          <div class="field col-span">
+            <label for="underlying">Sous-jacent (Underlying ID)</label>
+            <input id="underlying" name="underlying" type="text" placeholder="Saisissez le nom ou le ticker (ex. AAPL, LVMH, Nvidia)…" autocomplete="off">
+            <span class="hint">Single stock recommandé pour un coupon élevé (ex. Apple, LVMH, TotalEnergies, Nvidia, ASML).</span>
+          </div>
+
+          <div class="field">
+            <label for="maturity">Maturité (Maturity)</label>
+            <select id="maturity" name="maturity">
+              <option value="12">12 mois</option>
+              <option value="18">18 mois</option>
+              <option value="24">24 mois</option>
+              <option value="36" selected>36 mois</option>
+              <option value="48">48 mois</option>
+              <option value="60">60 mois</option>
+              <option value="72">72 mois</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="frequency">Fréquence (Frequency)</label>
+            <select id="frequency" name="frequency">
+              <option>Quarterly</option>
+              <option>Monthly</option>
+              <option>Semi-Annual</option>
+              <option>Annual</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="first-obs">Première observation (First Observation In)</label>
+            <select id="first-obs" name="first-obs">
+              <option value="3">3 mois</option>
+              <option value="6">6 mois</option>
+              <option value="12">12 mois</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="coupon-type">Type de coupon (Coupon Type)</label>
+            <select id="coupon-type" name="coupon-type">
+              <option>Guaranteed</option>
+              <option>Conditional</option>
+              <option>Conditional with Memory</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="coupon-level">Niveau de coupon p.a. (Coupon Level)</label>
+            <input id="coupon-level" name="coupon-level" type="number" step="0.1" value="0">
+            <span class="hint">Laissez 0 pour laisser le pricing proposer un coupon indicatif.</span>
+          </div>
+
+          <div class="field col-span">
+            <label>Type de rappel (Callable Type)</label>
+            <div class="toggle-row" data-toggle-group="callable-type-val">
+              <button type="button" class="chip-toggle is-active" data-value="Autocallable">Autocallable</button>
+              <button type="button" class="chip-toggle" data-value="Issuer Callable">Issuer Callable</button>
+              <button type="button" class="chip-toggle" data-value="None">Non rappelable</button>
+            </div>
+            <input type="hidden" id="callable-type-val" value="Autocallable">
+          </div>
+
+          <div class="field">
+            <label for="issuer-callable">Issuer Callable</label>
+            <select id="issuer-callable" name="issuer-callable">
+              <option>None</option>
+              <option>From 1 Year</option>
+              <option>From 2 Years</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="autocall-trigger">Niveau d'autocall (Autocall Trigger Level) %</label>
+            <input id="autocall-trigger" name="autocall-trigger" type="number" step="1" value="100">
+          </div>
+
+          <div class="field">
+            <label for="step">Step Down / Up (% par observation)</label>
+            <input id="step" name="step" type="number" step="0.5" value="0">
+            <span class="hint">Ex. -2 pour un autocall dégressif de 2 % par période.</span>
+          </div>
+
+          <div class="field">
+            <label for="strike-level">Strike (Strike Level) %</label>
+            <input id="strike-level" name="strike-level" type="number" step="1" value="100">
+          </div>
+
+          <div class="field">
+            <label for="downside-leverage">Downside Leverage %</label>
+            <input id="downside-leverage" name="downside-leverage" type="number" step="1" value="100">
+          </div>
+
+          <div class="field col-span">
+            <label>Type de barrière (Barrier Type)</label>
+            <div class="toggle-row" data-toggle-group="barrier-type-val">
+              <button type="button" class="chip-toggle is-active" data-value="European">European</button>
+              <button type="button" class="chip-toggle" data-value="Continuous">Continuous</button>
+              <button type="button" class="chip-toggle" data-value="Daily">Daily</button>
+              <button type="button" class="chip-toggle" data-value="None">None</button>
+            </div>
+            <input type="hidden" id="barrier-type-val" value="European">
+          </div>
+
+          <div class="field">
+            <label for="barrier-level">Niveau de barrière (Barrier Level) %</label>
+            <input id="barrier-level" name="barrier-level" type="number" step="1" value="75">
+            <span class="hint">Niveau de protection du capital (ex. 60 = protégé jusqu'à -40 %).</span>
+          </div>
+
+          <div class="field">
+            <label for="nominal">Nominal</label>
+            <input id="nominal" name="nominal" type="number" step="1000" placeholder="ex. 100 000">
+            <span class="hint">Montant d'investissement envisagé.</span>
+          </div>
+
+          <div class="field col-span">
+            <label for="email">Adresse e-mail <span class="req">(obligatoire)</span></label>
+            <input id="email" name="email" type="email" required placeholder="vous@exemple.com">
+            <span class="hint">Pour vous adresser le résultat du pricing et la term sheet.</span>
+          </div>
+
+        </div>
+
+        <div class="form-foot">
+          <p class="muted" style="margin:0;font-size:.82rem;max-width:46ch">Pricing indicatif et non contractuel. Aucune donnée n'est transmise tant que vous n'envoyez pas votre demande.</p>
+          <button type="submit" class="btn btn--gold">Lancer le pricing <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3l14 9-14 9V3z"/></svg></button>
+        </div>
+
+      </form>
+
+      <!-- RÉSULTAT DU PRICER -->
+      <div id="pricer-result" class="pricer-result mt-m" aria-live="polite">
+        <p class="eyebrow">Pricing indicatif</p>
+        <div class="pricer-result__big"><span id="res-coupon">—</span></div>
+        <p style="color:rgba(247,243,236,.8);margin:8px 0 0">Coupon indicatif par an — fourchette <span id="res-range">—</span></p>
+        <div class="pricer-result__row">
+          <div><b><span id="res-under">—</span></b><span>Sous-jacent</span></div>
+          <div><b><span id="res-maturity">—</span></b><span>Maturité</span></div>
+          <div><b><span id="res-barrier">—</span></b><span>Barrière capital</span></div>
+          <div><b><span id="res-autocall">—</span></b><span>Autocall</span></div>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:26px">
+          <button type="button" id="send-request" class="btn btn--gold">Envoyer ma demande <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <a class="btn btn--ghost-light" href="contact.html">Parler à un structureur</a>
+        </div>
+        <p style="color:rgba(247,243,236,.55);font-size:.78rem;margin:22px 0 0">Estimation purement illustrative, calculée localement à partir de vos paramètres. Elle ne reflète aucune cotation réelle de marché et n'engage aucun émetteur. Le coupon ferme sera confirmé par la salle de marché sur la term sheet.</p>
+      </div>
+
+      <div class="notice mt-m" data-reveal>Comment ça marche : le <b>niveau de barrière</b>, la <b>volatilité du sous-jacent</b>, la <b>maturité</b> et le <b>type de barrière</b> déterminent le coupon. Plus la barrière est basse et le sous-jacent volatil, plus le coupon indicatif est élevé — au prix d'un risque accru.</div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="brand__name">Méridian</span></a>
+        <p style="max-width:34ch;font-size:.92rem;margin-top:10px">Sélection et ingénierie de produits structurés. Architecture ouverte, mise en concurrence des émetteurs, exécution sur-mesure.</p>
+      </div>
+      <div>
+        <h5>Naviguer</h5>
+        <ul class="footer-links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="partenaires.html">Partenaires</a></li>
+          <li><a href="palmares.html">Palmarès 2026</a></li>
+          <li><a href="guide.html">Guide</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Agir</h5>
+        <ul class="footer-links">
+          <li><a href="creer.html">Créer un produit</a></li>
+          <li><a href="contact.html">Nous contacter</a></li>
+          <li><a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h5>Contact</h5>
+        <p><a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a></p>
+        <p style="margin-top:14px"><a class="link-arrow" href="contact.html">Prendre contact <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+      </div>
+    </div>
+    <p class="disclaimer">Avertissement — Le pricing proposé est une estimation illustrative calculée localement à partir de vos paramètres ; il ne reflète aucune cotation réelle et n'engage aucun émetteur. Les produits structurés comportent un risque de perte en capital et un risque de crédit de l'émetteur. Toute souscription suppose la lecture de la documentation réglementaire (term sheet, prospectus / EMTN, DIC).</p>
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> Méridian — Structured Products.</span>
+      <span><a href="contact.html">Contact</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>

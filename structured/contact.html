@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nous contacter — Méridian Structured Products</title>
+<meta name="description" content="Contactez notre desk produits structurés. Mise en concurrence des émetteurs, structuration sur-mesure, term sheets sur demande.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5' y='5' width='14' height='14' transform='rotate(45 12 12)' fill='none' stroke='%23b3924f' stroke-width='1.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="index.html" aria-label="Méridian — accueil">
+      <span class="brand__mark"><span>M</span></span>
+      <span class="brand__name">Méridian<span class="brand__sub">Structured Products</span></span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a class="nav__link" href="index.html">Accueil</a>
+      <a class="nav__link" href="partenaires.html">Partenaires</a>
+      <a class="nav__link" href="palmares.html">Palmarès 2026</a>
+      <a class="nav__link" href="guide.html">Guide</a>
+      <a class="nav__link" href="creer.html">Créer un produit</a>
+      <a class="nav__link is-active" href="contact.html">Contact</a>
+      <div class="lang" aria-label="Langue">
+        <button data-lang="FR" class="is-active">FR</button>
+        <button data-lang="EN">EN</button>
+        <button data-lang="IT">IT</button>
+        <button data-lang="ES">ES</button>
+        <button data-lang="DE">DE</button>
+      </div>
+      <div class="nav__cta"><a class="btn btn--gold" href="creer.html">Créer un produit</a></div>
+    </nav>
+    <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="page-hero__inner">
+        <nav class="crumb" aria-label="Fil d'Ariane"><a href="index.html">Accueil</a><span>/</span><span style="color:#fff">Contact</span></nav>
+        <h1 class="title-xl" data-reveal data-delay="1">Nous contacter</h1>
+        <p class="lede" data-reveal data-delay="2">Un projet de structuration, une term sheet à obtenir, une question sur un émetteur ? Écrivez-nous, nous revenons rapidement vers vous.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="feature-row" style="align-items:flex-start">
+
+        <div data-reveal>
+          <p class="eyebrow">Desk produits structurés</p>
+          <h2 class="title-md">Parlons de votre projet</h2>
+          <hr class="rule">
+          <p>Notre desk sélectionne, met en concurrence et structure les produits avec les premières salles de marché. Architecture ouverte, suivi en vie du produit, transparence sur les frais.</p>
+
+          <div class="tile" style="margin-top:28px">
+            <p class="eyebrow" style="margin-bottom:10px">E-mail</p>
+            <p style="font-family:var(--serif);font-size:1.5rem;font-weight:600;margin:0">
+              <a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a>
+            </p>
+            <p class="muted" style="margin:14px 0 0;font-size:.9rem">Réponse sous 24 à 48&nbsp;h ouvrées. Pour une demande de pricing, indiquez le sous-jacent, la maturité et le niveau de protection souhaités.</p>
+            <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
+              <a class="btn btn--gold" href="mailto:contact@lfd-rochechouart.com">Écrire un e-mail</a>
+              <a class="btn btn--ghost" href="creer.html">Créer un produit</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-row__media" data-reveal data-delay="1">
+          <form id="contact-form" class="form-wrap">
+            <div class="form-head"><div><h2 style="font-size:1.5rem">Votre message</h2><p>Tous les champs marqués d'un astérisque sont requis.</p></div></div>
+            <div class="form-grid" style="grid-template-columns:1fr">
+              <div class="field">
+                <label for="c-name">Nom <span class="req">*</span></label>
+                <input id="c-name" name="name" type="text" required placeholder="Votre nom">
+              </div>
+              <div class="field">
+                <label for="c-email">E-mail <span class="req">*</span></label>
+                <input id="c-email" name="email" type="email" required placeholder="vous@exemple.com">
+              </div>
+              <div class="field">
+                <label for="c-phone">Téléphone</label>
+                <input id="c-phone" name="phone" type="tel" placeholder="Optionnel">
+              </div>
+              <div class="field">
+                <label for="c-msg">Message <span class="req">*</span></label>
+                <textarea id="c-msg" name="message" rows="5" required placeholder="Votre projet, le sous-jacent envisagé, vos objectifs…" style="font-family:var(--sans);font-size:.96rem;font-weight:300;color:var(--ink);padding:13px 14px;border:1px solid var(--line);border-radius:4px;background:var(--paper);resize:vertical"></textarea>
+              </div>
+            </div>
+            <div class="form-foot">
+              <p class="muted" style="margin:0;font-size:.82rem;max-width:40ch">L'envoi ouvre votre messagerie avec le message pré-rempli.</p>
+              <button type="submit" class="btn btn--gold">Envoyer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight band-dark">
+    <div class="container">
+      <div class="quote" data-reveal>
+        <p>« Dites-nous votre scénario de marché : nous le traduisons en produit, et nous mettons les meilleures salles en concurrence pour vous. »</p>
+        <cite>Méridian — Structured Products</cite>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="brand__name">Méridian</span></a>
+        <p style="max-width:34ch;font-size:.92rem;margin-top:10px">Sélection et ingénierie de produits structurés. Architecture ouverte, mise en concurrence des émetteurs, exécution sur-mesure.</p>
+      </div>
+      <div>
+        <h5>Naviguer</h5>
+        <ul class="footer-links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="partenaires.html">Partenaires</a></li>
+          <li><a href="palmares.html">Palmarès 2026</a></li>
+          <li><a href="guide.html">Guide</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Agir</h5>
+        <ul class="footer-links">
+          <li><a href="creer.html">Créer un produit</a></li>
+          <li><a href="contact.html">Nous contacter</a></li>
+          <li><a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h5>Contact</h5>
+        <p><a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a></p>
+        <p style="margin-top:14px"><a class="link-arrow" href="creer.html">Créer un produit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+      </div>
+    </div>
+    <p class="disclaimer">Avertissement — Les informations de ce site sont fournies à titre illustratif et ne constituent ni un conseil en investissement, ni une offre. Les produits structurés comportent un risque de perte en capital et un risque de crédit de l'émetteur.</p>
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> Méridian — Structured Products.</span>
+      <span><a href="contact.html">Contact</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>
