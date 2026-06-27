@@ -119,8 +119,13 @@ a{color:inherit}
 .suggest button{display:block;width:100%;text-align:left;padding:.7rem 1rem;border:0;background:none;
   cursor:pointer;font-size:.95rem;border-bottom:1px solid var(--line)}
 .suggest button:hover{background:var(--ivory)}
+.suggest .s-tag{display:inline-block;min-width:54px;margin-right:.6rem;font-size:.66rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--gold);}
 .suggest .s-city{font-weight:600}
 .suggest .s-dep{color:var(--muted);font-size:.82rem}
+.dep-chip{display:inline-block;vertical-align:middle;font-family:var(--sans);font-size:.7rem;font-weight:700;
+  letter-spacing:.04em;background:var(--gold);color:var(--navy);border-radius:6px;padding:.1rem .45rem;margin-left:.5rem;
+  transform:translateY(-2px)}
 .chips{margin-top:.9rem;display:flex;gap:.5rem;flex-wrap:wrap}
 .chips span{font-size:.78rem;color:#aeb9c8;margin-right:.2rem}
 .chips button{background:rgba(255,255,255,.07);border:1px solid var(--line-light);color:#dbe2ec;

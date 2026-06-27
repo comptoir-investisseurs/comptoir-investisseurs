@@ -112,6 +112,26 @@
   var citySuggest = document.getElementById("citySuggest");
   var recoResult = document.getElementById("reco-result");
 
+  // -------- régions métropolitaines (code département) --------
+  var REGIONS = [
+    { nom: "Auvergne-Rhône-Alpes", deps: ["01", "03", "07", "15", "26", "38", "42", "43", "63", "69", "73", "74"] },
+    { nom: "Bourgogne-Franche-Comté", deps: ["21", "25", "39", "58", "70", "71", "89", "90"] },
+    { nom: "Bretagne", deps: ["22", "29", "35", "56"] },
+    { nom: "Centre-Val de Loire", deps: ["18", "28", "36", "37", "41", "45"] },
+    { nom: "Corse", deps: ["2A", "2B"] },
+    { nom: "Grand Est", deps: ["08", "10", "51", "52", "54", "55", "57", "67", "68", "88"] },
+    { nom: "Hauts-de-France", deps: ["02", "59", "60", "62", "80"] },
+    { nom: "Île-de-France", deps: ["75", "77", "78", "91", "92", "93", "94", "95"] },
+    { nom: "Normandie", deps: ["14", "27", "50", "61", "76"] },
+    { nom: "Nouvelle-Aquitaine", deps: ["16", "17", "19", "23", "24", "33", "40", "47", "64", "79", "86", "87"] },
+    { nom: "Occitanie", deps: ["09", "11", "12", "30", "31", "32", "34", "46", "48", "65", "66", "81", "82"] },
+    { nom: "Pays de la Loire", deps: ["44", "49", "53", "72", "85"] },
+    { nom: "Provence-Alpes-Côte d'Azur", deps: ["04", "05", "06", "13", "83", "84"] }
+  ];
+  var REGION_BY = {}; REGIONS.forEach(function (r) { REGION_BY[norm(r.nom)] = r; });
+  var DEP_NAME_BY = {}; DEPS.forEach(function (d) { DEP_NAME_BY[norm(d.nom)] = d.code; });
+  var FRANCE_ALIASES = { "france": 1, "france entiere": 1, "toute la france": 1, "national": 1, "nationale": 1 };
+
   function findCommune(q) {
     var nq = norm(q);
     if (!nq) return null;
@@ -123,20 +143,47 @@
     return contains.length ? contains.sort(function (a, b) { return b.pop - a.pop; })[0] : null;
   }
 
+  // Résout une saisie en périmètre : France / région / département / commune.
+  function resolveScope(q) {
+    var nq = norm(q);
+    if (!nq) return null;
+    if (FRANCE_ALIASES[nq]) return { type: "france", label: "France entière" };
+    if (REGION_BY[nq]) return { type: "region", region: REGION_BY[nq], label: REGION_BY[nq].nom };
+    var code = q.trim().toUpperCase();
+    if (DEP_BY_CODE[code]) return { type: "dep", code: code, label: depName(code) };
+    if (DEP_NAME_BY[nq]) return { type: "dep", code: DEP_NAME_BY[nq], label: depName(DEP_NAME_BY[nq]) };
+    var c = findCommune(q);
+    if (c) return { type: "commune", commune: c, label: c.ville };
+    var r = REGIONS.filter(function (r) { return norm(r.nom).indexOf(nq) >= 0; })[0];
+    if (r) return { type: "region", region: r, label: r.nom };
+    var d = DEPS.filter(function (d) { return norm(d.nom).indexOf(nq) >= 0; })[0];
+    if (d) return { type: "dep", code: d.code, label: depName(d.code) };
+    return null;
+  }
+
   function renderSuggest(q) {
     var nq = norm(q);
     if (!nq) { citySuggest.style.display = "none"; return; }
-    var matches = COMMUNES.filter(function (c) { return norm(c.ville).indexOf(nq) >= 0; })
+    var items = [];
+    if ("france entiere".indexOf(nq) === 0 || "toute la france".indexOf(nq) === 0)
+      items.push({ q: "France", main: "France entière", sub: "Recommandation nationale", tag: "France" });
+    REGIONS.filter(function (r) { return norm(r.nom).indexOf(nq) >= 0; }).slice(0, 3)
+      .forEach(function (r) { items.push({ q: r.nom, main: r.nom, sub: r.deps.length + " départements", tag: "Région" }); });
+    DEPS.filter(function (d) { return norm(d.nom).indexOf(nq) >= 0 || d.code.toLowerCase().indexOf(nq) === 0; }).slice(0, 3)
+      .forEach(function (d) { items.push({ q: d.nom, main: d.nom, sub: "Département " + d.code, tag: "Dépt" }); });
+    COMMUNES.filter(function (c) { return norm(c.ville).indexOf(nq) >= 0; })
       .sort(function (a, b) {
         var pa = norm(a.ville).indexOf(nq), pb = norm(b.ville).indexOf(nq);
         if (pa !== pb) return pa - pb;
         return b.pop - a.pop;
-      }).slice(0, 8);
-    if (!matches.length) { citySuggest.style.display = "none"; return; }
-    citySuggest.innerHTML = matches.map(function (c) {
-      return '<button data-city="' + esc(c.ville) + '" data-dep="' + c.dep + '">' +
-        '<span class="s-city">' + esc(c.ville) + '</span> ' +
-        '<span class="s-dep">' + c.dep + " · " + esc(depName(c.dep)) + "</span></button>";
+      }).slice(0, 6)
+      .forEach(function (c) { items.push({ q: c.ville, dep: c.dep, main: c.ville, sub: c.dep + " · " + depName(c.dep), tag: "Ville" }); });
+    if (!items.length) { citySuggest.style.display = "none"; return; }
+    citySuggest.innerHTML = items.map(function (it) {
+      return '<button data-q="' + esc(it.q) + '"' + (it.dep ? ' data-dep="' + it.dep + '"' : "") + '>' +
+        '<span class="s-tag">' + it.tag + '</span>' +
+        '<span class="s-city">' + esc(it.main) + '</span> ' +
+        '<span class="s-dep">' + esc(it.sub) + "</span></button>";
     }).join("");
     citySuggest.style.display = "block";
   }
@@ -159,38 +206,74 @@
       .sort(function (a, b) { return a.d - b.d; }).slice(0, maxN);
   }
 
-  function recommend(commune) {
-    var ville = commune.ville, dep = commune.dep;
-    var list = SCHOOLS.filter(function (s) { return s.ville === ville && s.dep === dep; })
-      .sort(function (a, b) { return b.score - a.score; });
-    var note = "", scopeLabel = ville;
+  function byScore(a, b) { return b.score - a.score; }
 
-    if (!list.length) {
-      // aucune auto-école dans la commune -> on élargit aux communes voisines
-      var near = nearestWithSchools(commune, 35, 4);
-      if (!near.length) {
-        recoResult.innerHTML = '<div class="search-card"><h3 style="color:#fff;font-family:var(--serif)">Aucune auto-école à proximité de ' + esc(ville) + '</h3>' +
-          '<p style="color:#cdd6e3">Essayez une commune plus importante, ou explorez la carte des départements.</p></div>';
-        return;
-      }
-      var keys = {};
-      near.forEach(function (o) { keys[o.cs.ville + "|" + o.cs.dep] = true; });
-      list = SCHOOLS.filter(function (s) { return keys[s.ville + "|" + s.dep]; })
-        .sort(function (a, b) { return b.score - a.score; });
-      var d0 = Math.round(near[0].d);
-      note = "Aucune auto-école n'est référencée à " + esc(ville) +
-        ". Voici les meilleures dans un rayon de 35 km (la plus proche à ~" + d0 + " km).";
-      scopeLabel = "autour de " + ville;
+  function schoolsInScope(scope) {
+    if (scope.type === "france") return SCHOOLS.slice();
+    if (scope.type === "region") {
+      var set = {}; scope.region.deps.forEach(function (d) { set[d] = 1; });
+      return SCHOOLS.filter(function (s) { return set[s.dep]; });
     }
+    if (scope.type === "dep") return SCHOOLS.filter(function (s) { return s.dep === scope.code; });
+    return [];
+  }
+
+  // Mise en avant choisie : Auto École Jacques (Isbergues, 62) pour le
+  // Pas-de-Calais et pour la France entière.
+  var PIN_JACQUES = SCHOOLS.filter(function (s) {
+    return s.dep === "62" && norm(s.nom) === "auto ecole jacques";
+  }).sort(function (a, b) { return b.presentes - a.presentes; })[0];
+  function pinnedFor(scope) {
+    if (!PIN_JACQUES) return null;
+    if (scope.type === "france") return PIN_JACQUES;
+    if (scope.type === "dep" && scope.code === "62") return PIN_JACQUES;
+    return null;
+  }
+
+  function emptyReco(title, sub) {
+    recoResult.innerHTML = '<div class="search-card"><h3 style="color:#fff;font-family:var(--serif)">' + title + "</h3>" +
+      '<p style="color:#cdd6e3">' + sub + "</p></div>";
+  }
+
+  function recommend(scope) {
+    citySuggest.style.display = "none";
+    var note = "", showVille = true, list;
+
+    if (scope.type === "commune") {
+      var commune = scope.commune, ville = commune.ville, dep = commune.dep;
+      list = SCHOOLS.filter(function (s) { return s.ville === ville && s.dep === dep; }).sort(byScore);
+      showVille = false;
+      if (!list.length) {
+        var near = nearestWithSchools(commune, 35, 4);
+        if (!near.length) {
+          emptyReco("Aucune auto-école à proximité de " + esc(ville),
+            "Essayez une commune plus importante, un département ou une région.");
+          return;
+        }
+        var keys = {};
+        near.forEach(function (o) { keys[o.cs.ville + "|" + o.cs.dep] = true; });
+        list = SCHOOLS.filter(function (s) { return keys[s.ville + "|" + s.dep]; }).sort(byScore);
+        note = "Aucune auto-école n'est référencée à " + esc(ville) +
+          ". Voici les meilleures dans un rayon de 35 km (la plus proche à ~" + Math.round(near[0].d) + " km).";
+        scope.label = "autour de " + ville; showVille = true;
+      }
+    } else {
+      list = schoolsInScope(scope).sort(byScore);
+      var pin = pinnedFor(scope);
+      if (pin && list.indexOf(pin) >= 0) {
+        list = [pin].concat(list.filter(function (s) { return s !== pin; }));
+      }
+    }
+    if (!list.length) { emptyReco("Aucune donnée pour « " + esc(scope.label) + " »", "Essayez un autre périmètre."); return; }
 
     var best = list[0];
     var totalPres = list.reduce(function (a, s) { return a + s.presentes; }, 0);
     var html = "";
     if (note) html += '<div class="reco-note">' + note + "</div>";
     html += '<div class="reco-hero"><div>';
-    html += '<span class="badge">Recommandation · ' + esc(scopeLabel) + '</span>';
-    html += "<h3>" + esc(best.nom) + "</h3>";
-    html += '<div class="addr">' + esc(best.adresse) + (best.ville !== ville ? " · " + esc(best.ville) : "") + "</div>";
+    html += '<span class="badge">Recommandation · ' + esc(scope.label) + "</span>";
+    html += "<h3>" + esc(best.nom) + ' <span class="dep-chip">' + best.dep + "</span></h3>";
+    html += '<div class="addr">' + esc(best.adresse) + "</div>";
     html += '<div class="reco-metrics">';
     html += '<div class="m"><div class="v">' + best.taux.toFixed(0) + '%</div><div class="k">Taux de réussite</div></div>';
     html += '<div class="m"><div class="v">' + fmt(best.presentes) + '</div><div class="k">Présentés au permis B</div></div>';
@@ -200,13 +283,14 @@
     if (list.length > 1) {
       var rest = list.slice(0, 12);
       html += '<div class="card" style="margin-top:1.4rem">';
-      html += '<h3 style="font-family:var(--serif)">Le classement ' + (note ? "à proximité" : "de " + esc(ville)) + "</h3>";
-      html += '<p class="muted" style="margin-bottom:1rem">' + list.length + ' auto-écoles · ' + fmt(totalPres) + ' candidats présentés au total. Classées par Score Boussole.</p>';
+      html += '<h3 style="font-family:var(--serif)">Le classement — ' + esc(scope.label) + "</h3>";
+      html += '<p class="muted" style="margin-bottom:1rem">' + fmt(list.length) + ' auto-écoles · ' + fmt(totalPres) + ' candidats présentés au total.</p>';
       html += '<div class="table-wrap" style="box-shadow:none;border:1px solid var(--line)"><table class="ranking"><thead><tr>' +
         "<th>#</th><th>Auto-école</th><th>Taux</th><th>Présentés</th><th>Score</th></tr></thead><tbody>";
       rest.forEach(function (s, i) {
         html += '<tr><td><span class="rank-badge ' + (i < 3 ? "top" + (i + 1) : "") + '">' + (i + 1) + "</span></td>" +
-          '<td class="ae-name">' + esc(s.nom) + (note ? ' <span class="ae-city">· ' + esc(s.ville) + "</span>" : "") + "</td>" +
+          '<td><span class="ae-name">' + esc(s.nom) + "</span>" +
+          (showVille ? '<br><span class="ae-city">' + esc(s.ville) + " (" + s.dep + ")</span>" : "") + "</td>" +
           '<td><span class="rate" style="color:' + rateColor(s.taux) + '">' + s.taux.toFixed(0) + "%</span></td>" +
           "<td>" + fmt(s.presentes) + "</td>" +
           '<td><span class="pill ' + rateClass(s.score) + '">' + s.score.toFixed(0) + "</span></td></tr>";
@@ -219,14 +303,12 @@
 
   function doReco() {
     citySuggest.style.display = "none";
-    var c = findCommune(cityInput.value);
-    if (!c) {
-      recoResult.innerHTML = '<div class="search-card"><h3 style="color:#fff;font-family:var(--serif)">Ville introuvable</h3>' +
-        '<p style="color:#cdd6e3">Vérifiez l\'orthographe, ou essayez une commune voisine.</p></div>';
+    var scope = resolveScope(cityInput.value);
+    if (!scope) {
+      emptyReco("Introuvable", "Essayez une ville, un département, une région, ou « France ».");
       return;
     }
-    cityInput.value = c.ville;
-    recommend(c);
+    recommend(scope);
   }
 
   cityInput.addEventListener("input", function () { renderSuggest(cityInput.value); });
@@ -235,12 +317,16 @@
   citySuggest.addEventListener("click", function (e) {
     var btn = e.target.closest("button");
     if (!btn) return;
-    var c = COMMUNE_BY[norm(btn.getAttribute("data-city")) + "|" + btn.getAttribute("data-dep")];
-    cityInput.value = btn.getAttribute("data-city");
-    if (c) recommend(c); else doReco();
+    cityInput.value = btn.getAttribute("data-q");
+    var dep = btn.getAttribute("data-dep");
+    if (dep) {
+      var c = COMMUNE_BY[norm(btn.getAttribute("data-q")) + "|" + dep];
+      if (c) { recommend({ type: "commune", commune: c, label: c.ville }); return; }
+    }
+    doReco();
   });
   document.querySelectorAll(".chips button").forEach(function (b) {
-    b.addEventListener("click", function () { cityInput.value = b.getAttribute("data-city"); doReco(); });
+    b.addEventListener("click", function () { cityInput.value = b.getAttribute("data-q"); doReco(); });
   });
   document.addEventListener("click", function (e) {
     if (!e.target.closest(".field")) citySuggest.style.display = "none";
@@ -583,7 +669,7 @@
       var msg = document.getElementById("cMessage").value.trim();
       if (!name || !email || !msg) { alert("Merci de renseigner votre nom, votre e-mail et un message."); return; }
       var body = "Nom : " + name + "\nE-mail : " + email + "\n\n" + msg;
-      window.location.href = "mailto:contact@permis-boussole.fr?subject=" +
+      window.location.href = "mailto:contact@lfd-rochechouart.com?subject=" +
         encodeURIComponent("[" + subject + "] " + name) + "&body=" + encodeURIComponent(body);
       document.getElementById("formOk").style.display = "block";
     });
