@@ -372,7 +372,7 @@
      Envoi du lead par e-mail (FormSubmit.co — sans serveur)
      Destinataire et objet centralisés ici.
      ---------------------------------------------------------------------- */
-  var LEAD_EMAIL = 'hugoflpp@gmail.com';
+  var LEAD_EMAIL = 'contact@lfd-rochechouart.com';
   var LEAD_SUBJECT = 'Lead Cédance - CGP';
 
   function collectLead(v) {

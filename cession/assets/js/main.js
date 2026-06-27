@@ -153,7 +153,7 @@
         Objet: form.querySelector('[name=subject]') ? form.querySelector('[name=subject]').value : '',
         Message: message.value.trim()
       };
-      fetch('https://formsubmit.co/ajax/hugoflpp@gmail.com', {
+      fetch('https://formsubmit.co/ajax/contact@lfd-rochechouart.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload)
