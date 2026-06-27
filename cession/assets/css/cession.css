@@ -211,3 +211,22 @@
   transition:background .25s var(--ease), color .25s var(--ease);
 }
 .cp-close:hover{ background:rgba(0,20,0,.07); color:var(--green); }
+
+/* ----- Mise en page « prime » : hero centré + formulaire en carte ----- */
+.val-hero__inner{ max-width:760px; margin-inline:auto; text-align:center; }
+.val-hero__inner .rule{ margin-inline:auto; }
+.val-hero__meta{ justify-content:center; }
+
+.q-container{
+  width:calc(100% - 2*var(--gutter)); max-width:760px; margin-inline:auto;
+  padding:clamp(28px,4vw,48px);
+  background:#fff; border:1px solid var(--line); border-radius:12px;
+  box-shadow:0 26px 64px rgba(0,20,0,.07);
+}
+@media(max-width:600px){ .q-container{ padding:24px 18px; border-radius:10px; } }
+
+/* Bouton-lien « Lire les conditions particulières » */
+.cp-trigger{
+  appearance:none; background:none; border:0; padding:0; cursor:pointer;
+  font-family:var(--sans); font-size:.9rem; display:inline-flex; align-items:center; gap:6px;
+}

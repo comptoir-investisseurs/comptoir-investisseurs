@@ -2,7 +2,7 @@
    Pôle Cession & rapprochement de cabinet — logique du mini-site
    - Formulaire de pré-valorisation multi-blocs (navigation + validation)
    - Calcul d'une fourchette indicative selon 3 méthodes de marché
-   - Envoi de l'estimation par e-mail (Web3Forms / Formspree / mailto)
+   - Affichage de l'estimation à l'écran (aucun envoi e-mail)
    - Sous-onglets (Vendre / Acheter)
    ========================================================================= */
 (function () {

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pré-valorisation de votre cabinet — Cédance</title>
-<meta name="description" content="Estimez en quelques minutes la valeur de votre cabinet de conseil en gestion de patrimoine. Estimation indicative confidentielle selon les méthodes de marché, transmise par e-mail.">
+<meta name="description" content="Estimez en quelques minutes la valeur de cession de votre cabinet de conseil en gestion de patrimoine. Fourchette indicative calibrée sur les prix de cession réels, affichée immédiatement.">
 <link rel="icon" href="assets/img/cedance-mark.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -179,10 +179,7 @@
 
     <div class="q-field"><label for="ca_ht">Chiffre d’affaires HT du dernier exercice clos</label><div class="q-suffix"><input type="number" id="ca_ht" name="ca_ht" min="0" step="1000" placeholder="ex : 850 000"><span class="q-suffix__u">€</span></div></div>
 
-    <div class="q-row">
-      <div class="q-field"><label for="ca_recurrent_pct">dont récurrent</label><div class="q-suffix"><input type="number" id="ca_recurrent_pct" name="ca_recurrent_pct" min="0" max="100" placeholder="ex : 70"><span class="q-suffix__u">%</span></div></div>
-      <div class="q-field"><label for="ca_non_recurrent_pct">dont non-récurrent</label><div class="q-suffix"><input type="number" id="ca_non_recurrent_pct" name="ca_non_recurrent_pct" min="0" max="100" placeholder="ex : 30"><span class="q-suffix__u">%</span></div></div>
-    </div>
+    <div class="q-field"><label for="ca_recurrent_pct">dont part récurrente <span class="muted" style="text-transform:none;letter-spacing:0">— le non-récurrent en est déduit automatiquement</span></label><div class="q-suffix"><input type="number" id="ca_recurrent_pct" name="ca_recurrent_pct" min="0" max="100" placeholder="ex : 70"><span class="q-suffix__u">%</span></div></div>
 
     <div class="q-row">
       <div class="q-field"><label for="ebe">EBE estimé <span class="muted" style="text-transform:none;letter-spacing:0">— excédent brut d’exploitation</span></label><div class="q-suffix"><input type="number" id="ebe" name="ebe" step="1000" placeholder="ex : 280 000"><span class="q-suffix__u">€</span></div></div>
@@ -208,8 +205,9 @@
     <div class="q-field" style="margin-top:18px">
       <label class="q-option" style="border-color:var(--gold-soft)">
         <input type="checkbox" name="consentement" value="oui" required>
-        <span>J’ai lu et j’accepte les <a href="#" id="cp-open" class="cp-link">conditions particulières</a>, et notamment la transmission de mes informations aux partenaires de Cédance. <span class="req">*</span></span>
+        <span>J’ai lu et j’accepte les conditions particulières, et notamment la transmission de mes informations aux partenaires de Cédance. <span class="req">*</span></span>
       </label>
+      <p style="margin-top:10px;font-size:.9rem"><button type="button" id="cp-open" class="cp-link cp-trigger">Lire les conditions particulières <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></p>
       <span class="q-error">Vous devez accepter les conditions particulières pour obtenir l’estimation.</span>
     </div>
 
@@ -307,7 +305,6 @@
 </div>
 
 <script src="assets/js/main.js"></script>
-<script src="assets/js/cession-config.js"></script>
 <script src="assets/js/cession.js"></script>
 </body>
 </html>
