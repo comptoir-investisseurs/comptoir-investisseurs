@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Permis Boussole — Le classement des auto-écoles de France</title>
+<meta name="description" content="Trouvez la meilleure auto-école près de chez vous. Classement par département et ville, trié par taux de réussite au permis B, pondéré par le nombre de candidats présentés.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230f1c30'/%3E%3Cpath d='M16 6l3 8 8 2-8 2-3 8-3-8-8-2 8-2z' fill='%23c8a24c'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ======================= HEADER ======================= -->
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="#" data-tab="accueil">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="15" fill="none" stroke="#c8a24c" stroke-width="1.4"/>
+        <path d="M16 5l3.2 8.8L28 17l-8.8 3.2L16 29l-3.2-8.8L4 17l8.8-3.2z" fill="#c8a24c"/>
+        <circle cx="16" cy="17" r="2.4" fill="#0f1c30"/>
+      </svg>
+      <span class="name">Permis <b>Boussole</b></span>
+    </a>
+    <nav>
+      <ul class="nav-links" id="navLinks">
+        <li><button data-tab="accueil" class="active">Recommandation</button></li>
+        <li><button data-tab="carte">Carte &amp; Annuaire</button></li>
+        <li><button data-tab="conseils">Conseils</button></li>
+        <li><button data-tab="contact">Nous contacter</button></li>
+      </ul>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ======================= TAB : ACCUEIL / RECOMMANDATION ======================= -->
+<section class="tab active" id="tab-accueil">
+  <div class="hero">
+    <div class="wrap hero-inner">
+      <span class="eyebrow">Le bon choix pour votre permis B</span>
+      <h1>Quelle est la <em>meilleure auto-école</em> près de chez vous&nbsp;?</h1>
+      <p class="lead">Entrez votre ville : nous vous recommandons l'auto-école qui combine
+        le meilleur taux de réussite <strong>et</strong> un volume de candidats suffisant pour
+        que ce taux soit fiable. Pas de hasard, juste la donnée.</p>
+
+      <div class="search-card">
+        <label for="cityInput">Votre ville</label>
+        <div class="search-row">
+          <div class="field">
+            <input type="text" id="cityInput" placeholder="Ex. : Lyon, Bordeaux, Rennes…" autocomplete="off">
+            <div class="suggest" id="citySuggest"></div>
+          </div>
+          <button class="btn" id="recoBtn">Voir la recommandation</button>
+        </div>
+        <div class="chips">
+          <span>Populaire :</span>
+          <button data-city="Paris">Paris</button>
+          <button data-city="Marseille">Marseille</button>
+          <button data-city="Lyon">Lyon</button>
+          <button data-city="Toulouse">Toulouse</button>
+          <button data-city="Nantes">Nantes</button>
+          <button data-city="Strasbourg">Strasbourg</button>
+        </div>
+      </div>
+
+      <div id="reco-result"></div>
+    </div>
+  </div>
+
+  <!-- méthodologie -->
+  <div class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Notre méthode</span>
+        <h2>Un score qui ne se laisse pas tromper</h2>
+        <p class="muted">Une auto-école affichant 100&nbsp;% de réussite sur 4 candidats n'est pas
+          plus sûre qu'une école à 72&nbsp;% sur 300 candidats — au contraire. Notre
+          <strong>Score Boussole</strong> pondère le taux de réussite par le nombre de présentés
+          à l'examen pratique du permis B, pour neutraliser les statistiques trompeuses.</p>
+      </div>
+      <div class="grid cols-3">
+        <div class="card">
+          <div class="num">1</div>
+          <h3>Taux de réussite</h3>
+          <p class="muted">Le pourcentage de candidats reçus à l'épreuve pratique du permis B,
+            première présentation, par établissement.</p>
+        </div>
+        <div class="card">
+          <div class="num">2</div>
+          <h3>Volume de candidats</h3>
+          <p class="muted">Le nombre de présentés. Plus il est élevé, plus le taux est statistiquement
+            fiable — et plus l'école a d'expérience.</p>
+        </div>
+        <div class="card">
+          <div class="num">3</div>
+          <h3>Score Boussole</h3>
+          <p class="muted">Une moyenne pondérée bayésienne&nbsp;: les petits volumes sont ramenés
+            vers la moyenne du département, les gros volumes confirment leur taux.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- highlights nationaux -->
+  <div class="section alt">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">En un coup d'œil</span>
+        <h2>La France du permis, en chiffres</h2>
+      </div>
+      <div class="grid cols-4" id="nationalStats"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= TAB : CARTE & ANNUAIRE ======================= -->
+<section class="tab" id="tab-carte">
+  <div class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Explorer le territoire</span>
+        <h2>Carte &amp; annuaire des auto-écoles</h2>
+        <p class="muted">Cliquez un département sur la carte, ou filtrez par ville. L'annuaire est
+          trié par défaut du <strong>meilleur au moins bon taux de réussite</strong>.</p>
+      </div>
+
+      <div class="map-layout">
+        <div class="map-frame">
+          <svg id="france-map" viewBox="0 0 600 560" role="img" aria-label="Carte des départements de France"></svg>
+          <div class="map-legend">
+            <span>Taux de réussite moyen</span>
+            <div class="legend-scale" id="legendScale"></div>
+            <span id="legendLow">faible</span> → <span id="legendHigh">élevé</span>
+          </div>
+        </div>
+        <div class="map-side" id="mapSide"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section alt">
+    <div class="wrap">
+      <div class="toolbar">
+        <div class="ctrl">
+          <label for="fDep">Département</label>
+          <select id="fDep"></select>
+        </div>
+        <div class="ctrl">
+          <label for="fVille">Ville</label>
+          <select id="fVille"></select>
+        </div>
+        <div class="ctrl grow">
+          <label for="fSearch">Rechercher une auto-école</label>
+          <input type="text" id="fSearch" placeholder="Nom de l'auto-école…">
+        </div>
+        <div class="result-count" id="resultCount"></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="ranking" id="rankTable">
+          <thead>
+            <tr>
+              <th data-sort="rank" style="width:54px">#</th>
+              <th data-sort="nom">Auto-école</th>
+              <th data-sort="dep">Dépt</th>
+              <th data-sort="taux" class="sorted">Taux de réussite</th>
+              <th data-sort="presentes">Présentés (permis B)</th>
+              <th data-sort="score">Score Boussole</th>
+            </tr>
+          </thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= TAB : CONSEILS ======================= -->
+<section class="tab" id="tab-conseils">
+  <div class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Préparez-vous sereinement</span>
+        <h2>Conseils pratiques pour décrocher le permis</h2>
+        <p class="muted">Du choix de l'auto-école au jour de l'examen, les bons réflexes pour mettre
+          toutes les chances de votre côté et aborder l'épreuve dans de bonnes conditions.</p>
+      </div>
+
+      <div class="advice-grid">
+        <div class="advice">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg></div>
+          <h3>Bien choisir son auto-école</h3>
+          <ul>
+            <li>Comparez le <strong>taux de réussite</strong> ET le nombre de présentés (notre Score Boussole).</li>
+            <li>Exigez un <strong>devis détaillé</strong> : forfait, heures supplémentaires, frais de présentation.</li>
+            <li>Vérifiez les <strong>délais</strong> moyens d'obtention d'une place à l'examen.</li>
+            <li>Visitez les locaux, rencontrez les moniteurs, lisez les avis récents.</li>
+          </ul>
+        </div>
+        <div class="advice">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 8h18M3 16h18"/></svg></div>
+          <h3>Réussir le Code</h3>
+          <ul>
+            <li>Travaillez <strong>un peu chaque jour</strong> plutôt que tout d'un coup.</li>
+            <li>Faites des <strong>séries blanches</strong> dans les conditions de l'examen.</li>
+            <li>Analysez vos erreurs : comprenez la règle, ne retenez pas par cœur.</li>
+            <li>Visez régulièrement <strong>35/40</strong> avant de réserver l'examen.</li>
+          </ul>
+        </div>
+        <div class="advice">
+          <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <h3>Progresser à la conduite</h3>
+          <ul>
+            <li>Privilégiez des <strong>leçons rapprochées</strong> pour ne pas perdre les acquis.</li>
+            <li>Envisagez la <strong>conduite accompagnée (AAC)</strong> : meilleur taux de réussite.</li>
+            <li>Travaillez tôt les <strong>manœuvres</strong> et le regard loin devant.</li>
+            <li>Demandez un <strong>bilan régulier</strong> sur la grille d'évaluation officielle.</li>
+          </ul>
+        </div>
+        <div class="advice">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+          <h3>Le jour J, en bonnes conditions</h3>
+          <ul>
+            <li><strong>Dormez bien</strong> la veille, mangez avant l'épreuve, hydratez-vous.</li>
+            <li>Arrivez <strong>en avance</strong> avec votre pièce d'identité et convocation.</li>
+            <li>Réglez siège, rétros et ceinture : <strong>installez-vous calmement</strong>.</li>
+            <li>Respirez, verbalisez vos contrôles, gardez une conduite <strong>souple et sûre</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:3rem">
+        <span class="eyebrow">Pas à pas</span>
+        <h2>Votre parcours jusqu'au permis</h2>
+      </div>
+      <div class="steps">
+        <div class="step"><div><h4>Inscription &amp; dossier (ANTS)</h4><p>Choisissez votre auto-école, constituez votre dossier et obtenez votre numéro NEPH.</p></div></div>
+        <div class="step"><div><h4>Formation au Code de la route</h4><p>Cours, entraînements et examen théorique général (ETG) — 35/40 minimum pour réussir.</p></div></div>
+        <div class="step"><div><h4>Leçons de conduite</h4><p>20 h minimum (ou conduite accompagnée), évaluées sur la grille des compétences officielles.</p></div></div>
+        <div class="step"><div><h4>Examen pratique du permis B</h4><p>32 minutes de conduite, manœuvre, questions sécurité — 20 points requis sur 31.</p></div></div>
+        <div class="step"><div><h4>Permis probatoire</h4><p>Résultat sous 48 h. Permis valide, période probatoire de 3 ans (2 ans en AAC).</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section navy">
+    <div class="wrap center">
+      <span class="eyebrow">Bon à savoir</span>
+      <h2>Le saviez-vous&nbsp;?</h2>
+      <div class="grid cols-3" style="margin-top:2rem;text-align:left">
+        <div class="card" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:var(--ivory)">
+          <div class="num">~57 %</div><h3 style="color:#fff">Taux national</h3>
+          <p style="color:#9fabbd">C'est le taux de réussite moyen au permis B en première présentation en France.</p>
+        </div>
+        <div class="card" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:var(--ivory)">
+          <div class="num">+8 pts</div><h3 style="color:#fff">Conduite accompagnée</h3>
+          <p style="color:#9fabbd">Les candidats en AAC réussissent en moyenne nettement mieux que la filière classique.</p>
+        </div>
+        <div class="card" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:var(--ivory)">
+          <div class="num">20/31</div><h3 style="color:#fff">Le seuil</h3>
+          <p style="color:#9fabbd">Il faut au moins 20 points et aucune faute éliminatoire pour valider l'épreuve.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= TAB : CONTACT ======================= -->
+<section class="tab" id="tab-contact">
+  <div class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Une question, une suggestion&nbsp;?</span>
+        <h2>Nous contacter</h2>
+        <p class="muted">Une auto-école à signaler, une donnée à corriger, un partenariat&nbsp;?
+          Écrivez-nous, nous répondons sous 48 h ouvrées.</p>
+      </div>
+
+      <div class="contact-grid">
+        <div>
+          <div class="form-ok" id="formOk">Merci&nbsp;! Votre message est prêt à être envoyé depuis votre logiciel de messagerie.</div>
+          <form id="contactForm" novalidate>
+            <div class="form-field">
+              <label for="cName">Nom complet</label>
+              <input type="text" id="cName" name="name" required>
+            </div>
+            <div class="form-field">
+              <label for="cEmail">Adresse e-mail</label>
+              <input type="email" id="cEmail" name="email" required>
+            </div>
+            <div class="form-field">
+              <label for="cSubject">Sujet</label>
+              <select id="cSubject" name="subject">
+                <option>Recommandation d'auto-école</option>
+                <option>Signaler / corriger une donnée</option>
+                <option>Partenariat auto-école</option>
+                <option>Presse</option>
+                <option>Autre</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="cMessage">Votre message</label>
+              <textarea id="cMessage" name="message" required></textarea>
+            </div>
+            <button type="submit" class="btn dark">Envoyer le message</button>
+            <p class="form-note">En envoyant ce formulaire, votre messagerie s'ouvre avec le message pré-rempli.</p>
+          </form>
+        </div>
+
+        <aside class="contact-info">
+          <h3>Permis Boussole</h3>
+          <p style="color:#aeb9c8">L'observatoire indépendant des auto-écoles de France.</p>
+          <div class="row">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 4l8 7 8-7"/></svg>
+            <div><strong>E-mail</strong><br><a href="mailto:contact@permis-boussole.fr">contact@permis-boussole.fr</a></div>
+          </div>
+          <div class="row">
+            <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 005 5l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg>
+            <div><strong>Téléphone</strong><br><a href="tel:+33180000000">01 80 00 00 00</a></div>
+          </div>
+          <div class="row">
+            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            <div><strong>Adresse</strong><br>12 rue de la Conduite<br>75011 Paris, France</div>
+          </div>
+          <div class="row">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <div><strong>Horaires</strong><br>Lun – Ven, 9h – 18h</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <a class="brand" href="#" data-tab="accueil">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="15" fill="none" stroke="#c8a24c" stroke-width="1.4"/>
+          <path d="M16 5l3.2 8.8L28 17l-8.8 3.2L16 29l-3.2-8.8L4 17l8.8-3.2z" fill="#c8a24c"/>
+        </svg>
+        <span class="name">Permis <b>Boussole</b></span>
+      </a>
+      <div class="footer-links">
+        <button data-tab="accueil">Recommandation</button>
+        <button data-tab="carte">Carte &amp; Annuaire</button>
+        <button data-tab="conseils">Conseils</button>
+        <button data-tab="contact">Contact</button>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Données représentatives calquées sur la structure du jeu de données ouvert
+        <a href="https://www.data.gouv.fr/datasets/liste-des-auto-ecoles-et-taux-de-reussite-au-permis-de-conduire" target="_blank" rel="noopener">« Liste des auto-écoles et taux de réussite au permis de conduire »</a>
+        (Sécurité routière — DSR / Ministère de l'Intérieur, data.gouv.fr). Fond de carte&nbsp;: france-geojson.</p>
+      <p>© <span id="year"></span> Permis Boussole — Observatoire indépendant. Service d'information à but pédagogique.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="map-tooltip" id="mapTooltip"></div>
+
+<script src="assets/js/departements.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
