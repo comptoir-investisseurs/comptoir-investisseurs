@@ -297,7 +297,7 @@
       var body = Object.assign({
         access_key: CESSION_WEB3FORMS_KEY,
         subject: 'Pré-valorisation de cabinet — ' + (p['SIREN / Raison sociale'] || email || 'demande'),
-        from_name: 'Pré-valorisation LFDR',
+        from_name: 'Cédance — pré-valorisation',
         replyto: email
       }, p);
       fetch('https://api.web3forms.com/submit', {
@@ -324,7 +324,7 @@
   }
 
   function mailtoFallback(p) {
-    var to = (typeof CESSION_NOTIFY_EMAIL !== 'undefined' && CESSION_NOTIFY_EMAIL) || 'contact@lfd-rochechouart.com';
+    var to = (typeof CESSION_NOTIFY_EMAIL !== 'undefined' && CESSION_NOTIFY_EMAIL) || 'contact@cedance.fr';
     var subject = encodeURIComponent('Pré-valorisation de cabinet — ' + (p['SIREN / Raison sociale'] || 'demande'));
     var body = encodeURIComponent('Bonjour,\n\nVoici les éléments de ma pré-valorisation de cabinet :\n\n' + payloadToText(p) + '\n\nMerci de me communiquer la fourchette détaillée.');
     window.location.href = 'mailto:' + to + '?subject=' + subject + '&body=' + body;

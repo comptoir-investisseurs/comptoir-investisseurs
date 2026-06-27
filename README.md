@@ -24,11 +24,14 @@ ainsi que les autres classes de placements. Un appel au contact figure sur chaqu
 
 **Adresse :** 58 rue de Monceau, 75008 Paris — **Email :** contact@lfdr.fr
 
-## Pôle « Cession & rapprochement de cabinet » (pré-valorisation CGP)
+## Cédance — site indépendant (pré-valorisation CGP)
 
-Mini-site autonome dédié à la **valorisation et au rapprochement de cabinets de
-CGP**, dans le dossier [`cession/`](cession/). Il réutilise la charte (CSS, logo,
-animations) et se déploie tel quel.
+**Cédance** (domaine cible `cedance.fr`) est un **site indépendant**, sans aucun
+lien ni mention de La Financière de Rochechouart, dédié à la **valorisation et au
+rapprochement de cabinets de CGP**. Il vit dans le dossier [`cession/`](cession/),
+possède sa propre identité (logo `assets/img/cedance-mark.svg`, e-mail
+`contact@cedance.fr`, mentions légales propres) et réutilise uniquement le moteur
+graphique partagé (`assets/css/styles.css`, animations) — neutre et non marqué LFDR.
 
 | Page | Rôle |
 |---|---|
@@ -36,8 +39,19 @@ animations) et se déploie tel quel.
 | `cession/vendre.html` | 3 sous-onglets : **Pourquoi vendre · La fiscalité** (apport-cession, art. 150-0 B ter) **· Transactions récentes** (exemples anonymisés). |
 | `cession/acheter.html` | 3 sous-onglets : **Acquérir un cabinet · Points d’attention & synergies · Financement**. |
 | `cession/contact.html` | Formulaire de contact (mailto, via `main.js`). |
+| `cession/mentions-legales.html` | Mentions légales indépendantes (champs à compléter : éditeur, hébergeur). |
 
-Des encarts « Nous contacter » sont répartis sur toutes les pages.
+Des encarts « Nous contacter » sont répartis sur toutes les pages. Le contact est
+un **e-mail dédié seul** (`contact@cedance.fr`), sans adresse postale.
+
+### Publier sur un domaine propre (Hostinger)
+
+Le dossier [`cession/`](cession/) est **totalement autonome** : il embarque ses
+propres `cession/assets/` (CSS, JS, images, logo) et ne référence aucun fichier en
+dehors de lui. Pour mettre en ligne, **téléversez le contenu du dossier `cession/`
+à la racine** (`public_html`) du domaine `cedance.fr` — rien d’autre n’est requis,
+aucun fichier LFDR n’est embarqué. Pensez à réserver le domaine et à compléter les
+mentions légales (`mentions-legales.html`) avant la mise en ligne.
 
 ### Envoi de l’estimation par e-mail
 
@@ -56,9 +70,6 @@ reste affichée à l’écran dans tous les cas.
 > Les fichiers `cession/*.html` sont écrits à la main (et non générés par
 > `build.py`). Les multiples utilisés pour le calcul sont paramétrables en haut de
 > la fonction `computeValuation()` dans `assets/js/cession.js`.
-
-Pour rendre le pôle accessible depuis le site principal, ajoutez un lien vers
-`cession/index.html` (ex. dans la navigation ou le pied de page de `build.py`).
 
 ## Lancer en local
 

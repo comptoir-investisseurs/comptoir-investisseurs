@@ -9,7 +9,7 @@
    ========================================================================= */
 
 /* Adresse qui reçoit les demandes de pré-valorisation. */
-const CESSION_NOTIFY_EMAIL = 'contact@lfd-rochechouart.com';
+const CESSION_NOTIFY_EMAIL = 'contact@cedance.fr';
 
 /* --- Option 1 (recommandée) : Web3Forms — https://web3forms.com ---------
    Gratuit, sans compte serveur. Créez une clé d'accès (Access Key) et

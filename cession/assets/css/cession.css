@@ -1,8 +1,20 @@
 /* =========================================================================
-   La Financière de Rochechouart — Pôle « Cession & rapprochement de cabinet »
+   Cédance — Pôle « Cession & rapprochement de cabinet »
    Surcouche spécifique au mini-site de pré-valorisation CGP.
    S'appuie sur styles.css (design system) + questionnaire.css (formulaire).
    ========================================================================= */
+
+/* ----- Brand wordmark (logo propre, indépendant) ----- */
+.brand--word{ gap:11px; align-items:center; }
+.brand__mk{ width:30px; height:30px; flex:none; display:block; transition:width .45s var(--ease), height .45s var(--ease); }
+.site-header.is-solid .brand__mk{ width:27px; height:27px; }
+.brand__wm{
+  font-family:var(--serif); font-weight:600; font-size:1.42rem; letter-spacing:.06em;
+  line-height:1; color:currentColor;
+}
+.site-footer .brand__mk{ width:32px; height:32px; }
+.site-footer .brand__wm{ font-size:1.5rem; }
+@media (max-width:560px){ .brand__wm{ font-size:1.2rem; } }
 
 /* ----- Compact hero for the valuation home ----- */
 .val-hero{
