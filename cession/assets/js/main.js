@@ -163,7 +163,7 @@
         form.reset();
       }).catch(function () {
         status.classList.add('is-err');
-        status.textContent = 'Une erreur est survenue. Vous pouvez nous écrire directement à contact@cedance.fr.';
+        status.textContent = 'Une erreur est survenue. Vous pouvez nous écrire directement à contact@lfd-rochechouart.com.';
       }).then(function () { if (btn) btn.disabled = false; });
     });
   }
