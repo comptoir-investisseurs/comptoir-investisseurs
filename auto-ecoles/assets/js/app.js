@@ -657,21 +657,56 @@
   });
 
   // ====================================================================
-  // Contact — mailto
+  // Contact — envoi direct (sans ouvrir de logiciel de messagerie)
+  // Le formulaire est transmis en arrière-plan au service FormSubmit,
+  // qui relaie le message vers contact@lfd-rochechouart.com.
   // ====================================================================
+  var FORM_ENDPOINT = "https://formsubmit.co/ajax/contact@lfd-rochechouart.com";
   var form = document.getElementById("contactForm");
   if (form) {
+    var formOk = document.getElementById("formOk");
+    var formErr = document.getElementById("formErr");
+    var submitBtn = form.querySelector('button[type="submit"]');
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      formOk.style.display = "none"; formErr.style.display = "none";
       var name = document.getElementById("cName").value.trim();
       var email = document.getElementById("cEmail").value.trim();
       var subject = document.getElementById("cSubject").value;
       var msg = document.getElementById("cMessage").value.trim();
-      if (!name || !email || !msg) { alert("Merci de renseigner votre nom, votre e-mail et un message."); return; }
-      var body = "Nom : " + name + "\nE-mail : " + email + "\n\n" + msg;
-      window.location.href = "mailto:contact@lfd-rochechouart.com?subject=" +
-        encodeURIComponent("[" + subject + "] " + name) + "&body=" + encodeURIComponent(body);
-      document.getElementById("formOk").style.display = "block";
+      if (!name || !email || !msg) {
+        formErr.textContent = "Merci de renseigner votre nom, votre e-mail et un message.";
+        formErr.style.display = "block"; return;
+      }
+      var label = submitBtn.textContent;
+      submitBtn.disabled = true; submitBtn.textContent = "Envoi en cours…";
+
+      fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          Nom: name, Email: email, Sujet: subject, Message: msg,
+          _subject: "[Permis Boussole] " + subject + " — " + name,
+          _template: "table", _captcha: "false"
+        })
+      }).then(function (r) { return r.json().catch(function () { return {}; }); })
+        .then(function (d) {
+          if (d && (d.success === true || d.success === "true")) {
+            form.reset();
+            formOk.style.display = "block";
+            formOk.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          } else {
+            formErr.textContent = (d && d.message) ? d.message :
+              "L'envoi a échoué. Merci de réessayer dans un instant.";
+            formErr.style.display = "block";
+          }
+        }).catch(function () {
+          formErr.textContent = "Connexion impossible. Vérifiez votre réseau et réessayez.";
+          formErr.style.display = "block";
+        }).then(function () {
+          submitBtn.disabled = false; submitBtn.textContent = label;
+        });
     });
   }
 

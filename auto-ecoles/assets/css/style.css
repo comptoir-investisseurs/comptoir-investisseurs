@@ -279,6 +279,8 @@ table.ranking tbody tr:last-child td{border-bottom:0}
 .form-note{font-size:.85rem;color:var(--muted)}
 .form-ok{display:none;background:rgba(46,125,91,.1);color:var(--good);border:1px solid rgba(46,125,91,.3);
   padding:.9rem 1.1rem;border-radius:11px;margin-bottom:1rem}
+.form-err{display:none;background:rgba(177,74,60,.1);color:var(--low);border:1px solid rgba(177,74,60,.3);
+  padding:.9rem 1.1rem;border-radius:11px;margin-bottom:1rem}
 
 /* ============================ Footer ============================ */
 .site-footer{background:#0b1524;color:#9fabbd;padding:2.6rem 0 2rem;border-top:1px solid var(--line-light)}
