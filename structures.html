@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/questionnaire.css">
 <link rel="stylesheet" href="assets/css/admin.css?v=6">
-<link rel="stylesheet" href="assets/css/sp.css?v=18">
+<link rel="stylesheet" href="assets/css/sp.css?v=17">
 </head>
 <body class="admin-body">
 
@@ -49,6 +49,7 @@
     <img src="assets/img/logo-light.png" alt="LFDR">
     <div class="dash-header__right">
       <a href="admin.html" class="btn--logout" style="text-decoration:none">CRM</a>
+      <a href="cockpit.html" class="btn--logout" style="text-decoration:none">Cockpit client</a>
       <span class="dash-header__user" id="dash-user-email"></span>
       <button class="btn--logout" id="btn-logout">Déconnexion</button>
     </div>
@@ -67,7 +68,6 @@
     <!-- Tabs -->
     <div class="dash-tabs">
       <button class="dash-tab is-active" data-tab="apercu">Vue d'ensemble</button>
-      <button class="dash-tab" data-tab="cockpit">Cockpit client</button>
       <button class="dash-tab" data-tab="observations">Observations <span class="count" id="tab-count-obs">0</span></button>
       <button class="dash-tab" data-tab="suivi">Suivi produit</button>
       <button class="dash-tab" data-tab="portefeuille">Portefeuille <span class="count" id="tab-count-pf">0</span></button>
@@ -127,19 +127,6 @@
         </div>
       </div>
       <div id="ov-body" class="sp-ov"></div>
-    </div>
-
-    <!-- ===== VIEW: COCKPIT CLIENT / BRIEF PRÉ-RDV ===== -->
-    <div class="dash-view" id="view-cockpit">
-      <div class="ov-toolbar">
-        <span class="ov-toolbar__lbl">Client</span>
-        <div class="ov-select">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13A4 4 0 0119 7"/></svg>
-          <select id="ck-client"></select>
-        </div>
-        <button class="dash-btn-add" id="ck-brief-btn">＋ Générer le brief pré-RDV</button>
-      </div>
-      <div id="ck-body" class="sp-ov"></div>
     </div>
 
     <!-- ===== VIEW: OBSERVATIONS (validation quotidienne) ===== -->
@@ -207,6 +194,6 @@
 <script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/sp-data.js?v=2"></script>
-<script src="assets/js/sp.js?v=18"></script>
+<script src="assets/js/sp.js?v=17"></script>
 </body>
 </html>
