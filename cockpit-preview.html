@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Cockpit client — Prévisualisation — LFDR</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/monogram.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/questionnaire.css">
+<link rel="stylesheet" href="assets/css/admin.css?v=6">
+<link rel="stylesheet" href="assets/css/sp.css?v=18">
+</head>
+<body class="admin-body">
+
+<!-- ========== LOGIN ========== -->
+<div class="login-wrap">
+  <div class="login-card">
+    <img src="assets/img/logo.png" alt="LFDR">
+    <h2>Suivi des produits structurés</h2>
+    <p>Connectez-vous pour accéder au book et au suivi des produits.</p>
+    <form id="login-form">
+      <div class="q-field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" autocomplete="email" required>
+      </div>
+      <div class="q-field">
+        <label for="login-password">Mot de passe</label>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn--solid" type="submit">Se connecter</button>
+      <p class="login-error"></p>
+    </form>
+    <p style="margin-top:18px;font-size:.78rem"><a href="admin.html" style="color:var(--gold)">← Retour au CRM</a></p>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD ========== -->
+<div class="dash">
+
+  <!-- Header -->
+  <div class="dash-header"><div class="container">
+    <img src="assets/img/logo-light.png" alt="LFDR">
+    <div class="dash-header__right">
+      <a href="admin.html" class="btn--logout" style="text-decoration:none">CRM</a>
+      <span class="dash-header__user" id="dash-user-email"></span>
+      <button class="btn--logout" id="btn-logout">Déconnexion</button>
+    </div>
+  </div></div>
+
+  <div class="container" style="padding-top:24px;padding-bottom:60px">
+
+    <!-- Stats -->
+    <div class="dash-stats">
+      <div class="dash-stat"><div class="dash-stat__num" id="stat-products">—</div><div class="dash-stat__lbl">Produits</div></div>
+      <div class="dash-stat"><div class="dash-stat__num" id="stat-live">—</div><div class="dash-stat__lbl">En cours</div></div>
+      <div class="dash-stat"><div class="dash-stat__num" id="stat-encours">—</div><div class="dash-stat__lbl">Encours nominal</div></div>
+      <div class="dash-stat"><div class="dash-stat__num" id="stat-obs">—</div><div class="dash-stat__lbl">Observations 30 j</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="dash-tabs">
+      <button class="dash-tab is-active" data-tab="apercu">Vue d'ensemble</button>
+      <button class="dash-tab" data-tab="cockpit">Cockpit client</button>
+      <button class="dash-tab" data-tab="observations">Observations <span class="count" id="tab-count-obs">0</span></button>
+      <button class="dash-tab" data-tab="suivi">Suivi produit</button>
+      <button class="dash-tab" data-tab="portefeuille">Portefeuille <span class="count" id="tab-count-pf">0</span></button>
+      <button class="dash-tab" data-tab="reporting">Reporting client</button>
+    </div>
+
+    <!-- ===== VIEW: SUIVI PRODUIT ===== -->
+    <div class="dash-view" id="view-suivi">
+
+      <div class="sp-searchbar">
+        <div class="sp-search-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="7"/><path d="M21 21l-5-5"/></svg>
+          <input type="text" id="sp-search" list="sp-isin-list" placeholder="Collez un ISIN ou tapez un nom de produit / sous-jacent…" autocomplete="off">
+          <datalist id="sp-isin-list"></datalist>
+        </div>
+        <button class="dash-btn-add" id="sp-search-btn">Afficher</button>
+      </div>
+
+      <div id="sp-product-empty" class="sp-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        <h3>Recherchez un produit</h3>
+        <p>Collez un code ISIN dans la barre ci-dessus pour afficher les caractéristiques, le graphique des sous-jacents et le calendrier d'observations.</p>
+        <div class="sp-suggest" id="sp-suggest"></div>
+      </div>
+
+      <div id="sp-product" class="sp-product" hidden></div>
+    </div>
+
+    <!-- ===== VIEW: PORTEFEUILLE ===== -->
+    <div class="dash-view" id="view-portefeuille">
+      <div class="dash-toolbar">
+        <input type="search" class="dash-search" id="pf-search" placeholder="Rechercher (ISIN, produit, sous-jacent, émetteur, famille)…">
+        <select class="sp-filter" id="pf-filter-statut"><option value="">Tous statuts</option></select>
+        <select class="sp-filter" id="pf-filter-fam"><option value="">Toutes familles</option></select>
+        <select class="sp-filter" id="pf-filter-emetteur"><option value="">Tous émetteurs</option></select>
+        <button class="dash-btn-add" id="pf-import-ts">＋ Importer une TS</button>
+        <button class="dash-btn-export" id="pf-add-manual">Saisie manuelle</button>
+      </div>
+      <div class="sp-pf-summary" id="pf-summary"></div>
+      <div class="dash-table-wrap">
+        <table class="dash-table sp-pf-table"><thead><tr>
+          <th>Produit</th><th>Émetteur</th><th>Sous-jacents</th><th class="num">Coupon</th>
+          <th class="num">Barrières</th><th>Strike → Éch.</th><th class="num">Encours</th>
+          <th class="num">Coupons perçus</th><th>Statut</th><th></th>
+        </tr></thead><tbody id="pf-list"></tbody></table>
+      </div>
+      <div class="sp-pf-more" id="pf-more" hidden></div>
+    </div>
+
+    <!-- ===== VIEW: VUE D'ENSEMBLE ===== -->
+    <div class="dash-view is-active" id="view-apercu">
+      <div class="ov-toolbar">
+        <span class="ov-toolbar__lbl">Périmètre</span>
+        <div class="ov-select">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13A4 4 0 0119 7"/></svg>
+          <select id="ov-client"></select>
+        </div>
+      </div>
+      <div id="ov-body" class="sp-ov"></div>
+    </div>
+
+    <!-- ===== VIEW: COCKPIT CLIENT / BRIEF PRÉ-RDV ===== -->
+    <div class="dash-view" id="view-cockpit">
+      <div class="ov-toolbar">
+        <span class="ov-toolbar__lbl">Client</span>
+        <div class="ov-select">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13A4 4 0 0119 7"/></svg>
+          <select id="ck-client"></select>
+        </div>
+        <button class="dash-btn-add" id="ck-brief-btn">＋ Générer le brief pré-RDV</button>
+      </div>
+      <div id="ck-body" class="sp-ov"></div>
+    </div>
+
+    <!-- ===== VIEW: OBSERVATIONS (validation quotidienne) ===== -->
+    <div class="dash-view" id="view-observations">
+      <div class="dash-toolbar obs-toolbar">
+        <span class="ov-toolbar__lbl">À valider depuis</span>
+        <input type="date" id="obs-since" class="sp-filter">
+        <button class="dash-btn-add" id="obs-validate-all">✓ Valider tout le proposé</button>
+        <span id="obs-summary" class="obs-summary"></span>
+      </div>
+      <div id="obs-body" class="sp-ov"></div>
+    </div>
+
+    <!-- ===== VIEW: REPORTING CLIENT ===== -->
+    <div class="dash-view" id="view-reporting">
+      <div class="dash-toolbar">
+        <select class="dash-search" id="rep-client" style="flex:1;min-width:240px;padding-left:14px"></select>
+        <button class="dash-btn-export" id="rep-export">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Éditer le reporting
+        </button>
+      </div>
+      <div id="rep-body" class="sp-rep"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== ALLOCATION MODAL ========== -->
+<div class="dash-modal" id="alloc-modal">
+  <div class="dash-modal__card" style="max-width:520px">
+    <div class="dash-modal__head">
+      <h3>Allouer le produit</h3>
+      <button class="dash-modal__close" id="alloc-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dash-modal__body" id="alloc-body"></div>
+  </div>
+</div>
+
+<!-- ========== IMPORT (TS / KID) MODAL ========== -->
+<div class="dash-modal" id="import-modal">
+  <div class="dash-modal__card" style="max-width:820px">
+    <div class="dash-modal__head">
+      <h3 id="import-title">Importer une Term Sheet</h3>
+      <button class="dash-modal__close" id="import-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dash-modal__body" id="import-body"></div>
+  </div>
+</div>
+
+<!-- ========== EDIT PRODUCT / POSITION MODAL ========== -->
+<div class="dash-modal" id="edit-modal">
+  <div class="dash-modal__card" style="max-width:820px">
+    <div class="dash-modal__head">
+      <h3 id="edit-title">Modifier le produit</h3>
+      <button class="dash-modal__close" id="edit-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dash-modal__body" id="edit-body"></div>
+  </div>
+</div>
+
+<div id="sp-toast" class="sp-toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
+<!-- ============ PRÉVISUALISATION : données fictives, sans connexion ============ -->
+<script>
+(function(){
+  sessionStorage.setItem('sb_access_token','preview');
+  sessionStorage.setItem('sb_user_email','demo@lfdr.fr');
+  var clients=[
+    {id:'c1',nom:'Durand',prenom:'Marie',email:'marie.durand@example.fr',telephone:'06 12 34 56 78',type:'client',stage:'Client',
+     consentement_rgpd:true,couple_rendement_risque:'Équilibré',niveau_connaissance:'Confirmé',
+     experience_produits:['Actions','Produits structurés','OPCVM'],experience_duree:'> 5 ans',horizon:'8 ans',
+     date_naissance:'1968-04-12',adresse:'24 av. Foch, 75116 Paris',nationalite:'Française',
+     objectifs:['Revenus complémentaires','Transmission'],patrimoine_financier:'1 à 3 M€',
+     next_action:'Valider la réallocation Athéna',next_action_date:'2026-06-10',
+     notes_internes:'Sensible à la protection du capital. Épouse co-souscriptrice sur l\'AV Lux.'},
+    {id:'c2',nom:'Lefèvre',prenom:'Antoine',email:'a.lefevre@example.fr',telephone:'',type:'client',stage:'Proposition',
+     consentement_rgpd:false,couple_rendement_risque:'',niveau_connaissance:'Débutant',experience_produits:[],
+     horizon:'',date_naissance:'',adresse:'',nationalite:''}
+  ];
+  var activities=[
+    {id:'a1',client_id:'c1',type:'rdv',titre:'Bilan patrimonial annuel',date_activite:'2024-11-18T10:00:00Z',done:true},
+    {id:'a2',client_id:'c1',type:'appel',titre:'Point coupon T1',date_activite:'2026-03-12T09:30:00Z',done:true},
+    {id:'a3',client_id:'c1',type:'tache',titre:'Envoyer le reporting structurés',date_activite:'2026-05-20T09:00:00Z',done:false},
+    {id:'a4',client_id:'c2',type:'note',titre:'Prospect tiède',date_activite:'2026-02-01T09:00:00Z',done:true}
+  ];
+  // Positions fictives : 2 enveloppes, 4 familles, montants variés
+  var positions=[
+    {id:'p1',isin:'DE000VK6N2Y4',prenom:'Marie',nom:'Durand',compte:'AV Luxembourg — Generali',nominal:300000,dev:'EUR',gc:0.093,statut:'LIVE',client_id:'c1',trade_date:'2025-07-03'},
+    {id:'p2',isin:'XS2697210909',prenom:'Marie',nom:'Durand',compte:'AV Luxembourg — Generali',nominal:200000,dev:'EUR',gc:0.07,statut:'LIVE',client_id:'c1',trade_date:'2024-09-15'},
+    {id:'p3',isin:'FR001400J6C7',prenom:'Marie',nom:'Durand',compte:'Compte-titres — Saxo',nominal:150000,dev:'EUR',gc:0.045,statut:'LIVE',client_id:'c1',trade_date:'2024-03-01'},
+    {id:'p4',isin:'CH1384261561',prenom:'Marie',nom:'Durand',compte:'Compte-titres — Saxo',nominal:120000,dev:'EUR',gc:0.06,statut:'LIVE',client_id:'c1',trade_date:'2025-01-20'},
+    {id:'p5',isin:'XS2748037624',prenom:'Antoine',nom:'Lefèvre',compte:'Compte-titres',nominal:80000,dev:'EUR',gc:0.05,statut:'LIVE',client_id:'c2',trade_date:'2025-06-10'}
+  ];
+  function J(o){ return Promise.resolve(new Response(JSON.stringify(o),{status:200,headers:{'Content-Type':'application/json'}})); }
+  var realFetch=window.fetch.bind(window);
+  window.fetch=function(url,opt){
+    var u=String(url);
+    if(u.indexOf('/auth/v1/token')>=0) return J({access_token:'preview',user:{email:'demo@lfdr.fr'}});
+    if(u.indexOf('/rest/v1/clients')>=0) return J(clients);
+    if(u.indexOf('/rest/v1/activities')>=0) return J(activities);
+    if(u.indexOf('/rest/v1/sp_positions')>=0) return J(positions);
+    if(u.indexOf('/rest/v1/sp_')>=0) return J([]);
+    return realFetch(url,opt);
+  };
+  window.addEventListener('load',function(){
+    setTimeout(function(){
+      var banner=document.createElement('div');
+      banner.textContent='Prévisualisation — données fictives, hors connexion';
+      banner.style.cssText='position:fixed;bottom:14px;left:14px;z-index:300;background:#A9853F;color:#fff;font:500 12px/1 Jost,sans-serif;padding:8px 14px;border-radius:8px;box-shadow:0 6px 18px rgba(0,27,0,.25)';
+      document.body.appendChild(banner);
+      var tab=document.querySelector('.dash-tab[data-tab="cockpit"]'); if(tab) tab.click();
+      setTimeout(function(){
+        var sel=document.getElementById('ck-client');
+        if(sel && sel.options.length>1){ sel.value=sel.options[1].value; sel.dispatchEvent(new Event('change')); }
+      },600);
+    },700);
+  });
+})();
+</script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/sp-data.js?v=2"></script>
+<script src="assets/js/sp.js?v=18"></script>
+</body>
+</html>
