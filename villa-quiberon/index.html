@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Villa Quiberon — Demeure d’exception face à l’océan</title>
+  <meta name="description" content="Villa contemporaine à Quiberon : 6 chambres, 8 lits, 4 salles de bain, piscine chauffée et vue mer. Parcours immersif, disponibilités en temps réel, réservation directe.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap"></noscript>
+  <link rel="stylesheet" href="assets/css/villa.css">
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader__mark">
+      <div class="monogram">VQ</div>
+      <div class="loader__bar"><i></i></div>
+    </div>
+  </div>
+
+  <div class="journey__progress" id="journeyProgress"></div>
+
+  <!-- Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="container">
+      <a class="brand" data-goto="decouverte">
+        <span class="brand__name">Villa&nbsp;Quiberon</span>
+        <span class="brand__loc">Presqu’île · Morbihan</span>
+      </a>
+      <nav class="tabs" id="tabs">
+        <button class="tab" data-tab="decouverte"><span class="tab__num">I</span>Découvrir</button>
+        <button class="tab" data-tab="disponibilites"><span class="tab__num">II</span>Disponibilités</button>
+        <button class="tab" data-tab="contact"><span class="tab__num">III</span>Nous contacter</button>
+      </nav>
+      <button class="header__cta" data-goto="disponibilites">Réserver</button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <!-- ============================ TAB 1 ============================ -->
+  <section class="view" id="view-decouverte">
+
+    <!-- Rail des chapitres (parallaxe) -->
+    <div class="journey__rail" id="journeyRail"></div>
+
+    <div class="journey" id="journey">
+      <div class="journey__stage">
+        <div class="stage__bob" id="stageBob"></div>
+
+        <!-- Intro plein écran (premier plan du parcours) -->
+        <div class="journey__intro" id="journeyIntro">
+          <div>
+            <span class="eyebrow">Quiberon · Côte sauvage</span>
+            <h1>Villa Quiberon</h1>
+            <p class="sub">Faites défiler pour entrer — et traversez la demeure, pièce après pièce.</p>
+          </div>
+        </div>
+
+        <div class="scroll-cue" id="scrollCue">
+          <span>Défiler</span>
+          <span class="mouse"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outro après le parcours -->
+    <div class="journey-outro">
+      <div class="container" data-reveal>
+        <span class="eyebrow">Le bien en bref</span>
+        <h2>Six chambres, huit lits, quatre salles de bain</h2>
+        <p>Une villa de caractère pensée pour les grandes tablées et les séjours en tribu,
+           à deux pas des plages de la presqu’île de Quiberon.</p>
+        <div class="btn-row">
+          <button class="btn btn--solid" data-goto="disponibilites">Voir les disponibilités</button>
+          <button class="btn btn--ghost" data-goto="contact">Nous contacter</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Caractéristiques -->
+    <div class="features">
+      <div class="container">
+        <div class="features__grid">
+          <div class="feature" data-reveal>
+            <div class="ico">◷</div><h3>Jusqu’à 12 voyageurs</h3>
+            <p>6 chambres et 8 couchages, literie hôtelière et linge premium fourni.</p>
+          </div>
+          <div class="feature" data-reveal>
+            <div class="ico">≋</div><h3>Piscine chauffée</h3>
+            <p>Terrasse plein sud de 120 m², cuisine d’été et bains de soleil face au large.</p>
+          </div>
+          <div class="feature" data-reveal>
+            <div class="ico">⌂</div><h3>Vue océan</h3>
+            <p>Baies vitrées toute hauteur sur l’Atlantique, à 200 m des plages.</p>
+          </div>
+          <div class="feature" data-reveal>
+            <div class="ico">✦</div><h3>Prestations premium</h3>
+            <p>Cuisine d’architecte équipée, cheminée, salles de bain en pierre, Wi-Fi fibre.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ TAB 2 ============================ -->
+  <section class="view" id="view-disponibilites">
+    <div class="page">
+      <div class="container">
+        <div class="page__head" data-reveal>
+          <span class="eyebrow">Onglet II</span>
+          <h1>Disponibilités en temps réel</h1>
+          <p class="lede">Un calendrier unique, synchronisé avec Airbnb et Booking.com.
+             Réservez en direct, sans double réservation.</p>
+        </div>
+
+        <div class="avail">
+          <!-- Calendrier -->
+          <div class="panel" data-reveal>
+            <div class="cal__head">
+              <div class="cal__title" id="calTitle">Calendrier</div>
+              <div class="cal__nav">
+                <button id="calPrev" aria-label="Mois précédent">‹</button>
+                <button id="calNext" aria-label="Mois suivant">›</button>
+              </div>
+            </div>
+            <div class="cal__months" id="calMonths"></div>
+            <div class="cal__legend">
+              <span><i class="lg-free"></i>Disponible</span>
+              <span><i class="lg-busy"></i>Réservé</span>
+            </div>
+
+            <div class="sync">
+              <div class="sync__title">Canaux synchronisés · iCal</div>
+              <div class="sync__sources" id="syncSources"></div>
+            </div>
+          </div>
+
+          <!-- Réservation -->
+          <aside class="panel panel--book" data-reveal>
+            <div class="book__price">
+              <span class="amt">Sur demande</span>
+            </div>
+            <p class="book__note">Tarif selon la saison et la durée. Réservation directe ou via vos plateformes habituelles.</p>
+
+            <div class="book__widget">
+              <div id="airbnbWidget"><div class="book__fallback">Widget Airbnb…</div></div>
+            </div>
+
+            <div class="book__platforms">
+              <a class="plat" href="https://www.airbnb.fr/rooms/1441102902853230034" target="_blank" rel="noopener">
+                <span class="plat__name">Airbnb <span class="badge">Direct</span></span><span class="arrow">→</span>
+              </a>
+              <a class="plat" href="#" data-goto="contact" target="_self">
+                <span class="plat__name">Booking.com <span class="badge">Sur demande</span></span><span class="arrow">→</span>
+              </a>
+              <a class="plat" href="#contact" data-goto="contact">
+                <span class="plat__name">Réservation directe <span class="badge">Meilleur tarif</span></span><span class="arrow">→</span>
+              </a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ TAB 3 ============================ -->
+  <section class="view" id="view-contact">
+    <div class="page">
+      <div class="container">
+        <div class="page__head" data-reveal>
+          <span class="eyebrow">Onglet III</span>
+          <h1>Nous contacter</h1>
+          <p class="lede">Une question, une demande sur-mesure ? Nous vous répondons sous 24 h.</p>
+        </div>
+
+        <div class="contact">
+          <div class="contact__info" data-reveal>
+            <div class="item"><div class="lbl">Adresse</div><div class="val">Presqu’île de Quiberon, 56170 Morbihan</div></div>
+            <div class="item"><div class="lbl">Email</div><div class="val"><a href="mailto:contact@villa-quiberon.fr">contact@villa-quiberon.fr</a></div></div>
+            <div class="item"><div class="lbl">Téléphone</div><div class="val"><a href="tel:+33600000000">+33 6 00 00 00 00</a></div></div>
+
+            <div class="host">
+              <div class="host__avatar">H</div>
+              <div class="host__meta">
+                <div class="n">Votre hôte</div>
+                <div class="r">Réponses rapides · Accueil personnalisé · Conciergerie sur demande</div>
+              </div>
+            </div>
+          </div>
+
+          <form class="contact__form" id="contactForm" novalidate>
+            <div class="form__ok" id="formOk">Merci ! Votre messagerie va s’ouvrir pour envoyer la demande. Nous revenons vers vous sous 24 h.</div>
+            <div class="field two">
+              <div class="field"><label for="nom">Nom</label><input id="nom" name="nom" required></div>
+              <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required></div>
+            </div>
+            <div class="field two">
+              <div class="field"><label for="tel">Téléphone</label><input id="tel" name="tel" type="tel"></div>
+              <div class="field"><label for="voyageurs">Voyageurs</label>
+                <select id="voyageurs" name="voyageurs">
+                  <option>1–2</option><option>3–4</option><option>5–6</option><option>7–8</option><option>9–12</option>
+                </select>
+              </div>
+            </div>
+            <div class="field two">
+              <div class="field"><label for="arrivee">Arrivée</label><input id="arrivee" name="arrivee" type="date"></div>
+              <div class="field"><label for="depart">Départ</label><input id="depart" name="depart" type="date"></div>
+            </div>
+            <div class="field"><label for="message">Votre message</label><textarea id="message" name="message" rows="4"></textarea></div>
+            <button class="btn btn--solid" type="submit">Envoyer la demande</button>
+            <p class="form__note">En envoyant ce formulaire, votre logiciel de messagerie s’ouvre avec votre demande pré-remplie.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <a class="brand" data-goto="decouverte"><span class="brand__name">Villa&nbsp;Quiberon</span></a>
+      <nav class="foot__links">
+        <a data-goto="decouverte">Découvrir</a>
+        <a data-goto="disponibilites">Disponibilités</a>
+        <a data-goto="contact">Contact</a>
+      </nav>
+      <div class="foot__copy">© <span id="year">2026</span> Villa Quiberon — Tous droits réservés</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/scenes.js"></script>
+  <script src="assets/js/walkthrough.js"></script>
+  <script src="assets/js/calendar.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
