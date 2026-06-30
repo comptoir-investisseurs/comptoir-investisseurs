@@ -66,3 +66,60 @@
 .ck-brief p{margin:0 0 7px}
 .ck-brief ul{margin:0 0 8px;padding-left:18px}
 .ck-brief li{margin-bottom:3px}
+
+/* ---------- KPI perf couleur ---------- */
+.ov-kpi .v.positive{color:#8fe2a6}
+.ov-kpi .v.negative{color:#f0a6a0}
+
+/* ---------- en-tête de carte avec action ---------- */
+.ck-card-act{margin-left:auto}
+.sp-card h4{align-items:center}
+
+/* ---------- ENVELOPPES ---------- */
+.ck-envs{display:flex;flex-direction:column;gap:11px}
+.ck-env{border:1px solid var(--line);border-radius:11px;padding:11px 13px;background:#fff}
+.ck-env__head{display:flex;align-items:center;gap:10px}
+.ck-env__id{min-width:0;flex:1}
+.ck-env__id b{color:var(--green);font-size:.9rem;font-weight:600}
+.ck-env__id small{display:block;color:var(--muted);font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ck-env__fig{text-align:right;white-space:nowrap}
+.ck-env__valo{display:block;font-weight:700;color:var(--green);font-size:.95rem}
+.ck-env__perf{font-size:.76rem;font-weight:600}
+.ck-env__perf.positive{color:#2e7d32}.ck-env__perf.negative{color:#c0392b}
+.ck-env__act{display:flex;gap:2px;flex-shrink:0}
+.ck-icon{border:0;background:none;cursor:pointer;color:#b0aca0;width:26px;height:26px;border-radius:6px;font-size:.95rem;line-height:1;transition:all .15s}
+.ck-icon:hover{color:var(--green);background:var(--parchment)}
+.ck-env__mix{margin-top:9px}
+.ck-mixbar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--parchment)}
+.ck-seg{height:100%}
+.ck-env__sup{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:6px}
+.ck-sup{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:9px;align-items:center;font-size:.8rem}
+.ck-sup__dot{width:9px;height:9px;border-radius:50%}
+.ck-sup__n{min-width:0;color:var(--green);font-weight:500}
+.ck-sup__n small{display:block;color:var(--muted);font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ck-sup__v{font-weight:600;color:var(--green);white-space:nowrap}
+.ck-sup__p{font-size:.74rem;font-weight:600;white-space:nowrap;min-width:46px;text-align:right}
+.ck-sup__p.positive{color:#2e7d32}.ck-sup__p.negative{color:#c0392b}
+
+/* ---------- ALLOCATION ---------- */
+.ck-alloc__n{display:flex;align-items:center;gap:6px}
+.ck-alloc__n i{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.ck-alloc-detail{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.ck-alloc-env{margin-bottom:9px}
+.ck-alloc-env__n{font-size:.78rem;color:var(--green);font-weight:500;display:block;margin-bottom:4px}
+.ck-reg__h{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);font-weight:600;margin-bottom:7px}
+
+/* ---------- REGISTRE DOCUMENTAIRE ---------- */
+.ck-reg{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.ck-reg__row{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;font-size:.8rem;padding:5px 0;border-bottom:1px solid var(--parchment)}
+.ck-reg__row:last-child{border-bottom:0}
+.ck-reg__t{color:var(--green);font-weight:500;min-width:0}
+.ck-reg__d{color:var(--muted);font-size:.74rem;white-space:nowrap}
+.ck-reg__s{font-size:.64rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.ck-reg__s.signed{background:#e8f5e9;color:#2e7d32}
+.ck-reg__s.pending{background:#fff0d9;color:#b06f15}
+.ck-reg__s.expired{background:#fdecea;color:#c0392b}
+
+/* ---------- FORMULAIRES (modale) ---------- */
+#ck-modal .sp-fld textarea{padding:9px 12px;border:1px solid var(--line);border-radius:7px;font-family:var(--sans);font-size:.88rem;outline:none;background:#fff;color:var(--ink);resize:vertical}
+#ck-modal .sp-fld textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,133,63,.1)}

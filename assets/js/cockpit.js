@@ -1,14 +1,18 @@
 /* ===========================================================================
    Cockpit client / brief pré-RDV — La Financière de Rochechouart
-   Module 360 autonome : agrège le CRM (clients + activités) et le book
-   produits structurés (positions + produits + observations) pour préparer
-   un rendez-vous sans rien compiler à la main.
-   Persistance optionnelle via Supabase ; données embarquées via sp-data.js.
+   Module 360 autonome. Vue patrimoniale consolidée par client :
+   toutes les enveloppes (AV, AV Lux, CTO, PER, capi…) et tous leurs supports
+   (fonds €, ETF, OPCVM, SCPI, obligations, actions, produits structurés,
+   liquidités…), allocation par classe d'actif actuelle vs cible, performance,
+   échéances, conformité documentaire datée, et brief pré-RDV auto-généré.
+   Données : CRM (clients + activités) + tables enveloppes/supports/documents.
+   Les produits structurés sont enrichis (échéances) via l'ISIN (sp-data.js).
+   Persistance Supabase optionnelle ; dégradé proprement hors connexion.
    =========================================================================== */
 (function(){
   'use strict';
 
-  /* ---------------- Supabase (optionnel, dégradé proprement) ---------------- */
+  /* ---------------- Supabase ---------------- */
   const SB = (typeof SUPABASE_URL !== 'undefined') ? SUPABASE_URL : '';
   const SB_KEY = (typeof SUPABASE_ANON_KEY !== 'undefined') ? SUPABASE_ANON_KEY : '';
   const API = SB + '/rest/v1';
@@ -52,54 +56,40 @@
   });
   document.getElementById('btn-logout').addEventListener('click', showLogin);
 
-  /* ---------------- STATE ---------------- */
-  const productsMap = new Map();   // isin -> produit (agrégé)
-  let positions = [];              // allocations détenteurs
-  let crmClients = [];             // fiches CRM complètes (KYC, profil, suivi)
-  let crmActivities = [];          // activités CRM (appels, RDV, tâches…)
-  const obsValid = new Map();      // observations validées : "isin|kind|YYYY-MM-DD" -> {result,...}
-  const obsDataCache = new Map();  // isin -> cours (session)
-  function obsKey(isin,kind,d){ const iso=(d instanceof Date)?d.toISOString().slice(0,10):String(d).slice(0,10); return isin+'|'+kind+'|'+iso; }
+  /* ---------------- RÉFÉRENTIELS ---------------- */
+  const ENV_TYPES = ['Assurance-vie','Assurance-vie luxembourgeoise','Contrat de capitalisation','PER','Compte-titres (CTO)','PEA','PEA-PME','Autre'];
+  const ASSET_CLASSES = ['Fonds euro','Actions','ETF','OPCVM','Obligations','Produit structuré','Immobilier','Private Equity','Liquidités','Autre'];
+  const CLASS_COLORS = {'Fonds euro':'#558b2f','Actions':'#1565c0','ETF':'#2e7d32','OPCVM':'#6a1b9a','Obligations':'#e65100','Produit structuré':'#A9853F','Immobilier':'#00838f','Private Equity':'#5d4037','Liquidités':'#9e9e9e','Autre':'#7a8a99'};
+  const DOC_TYPES = ['Convention de conseil','Document d\'entrée en relation (DER)','Questionnaire / Profil de risque (MIF)','KYC / Pièce d\'identité','Origine des fonds (LCB-FT)','Consentement RGPD','Bulletin de souscription','Rapport de mission (arbitrage)','Avenant','Autre'];
+  // Pièces socle attendues au niveau client (alimentent la checklist conformité)
+  const REQUIRED_CLIENT_DOCS = ['Convention de conseil','Document d\'entrée en relation (DER)','Questionnaire / Profil de risque (MIF)','KYC / Pièce d\'identité','Origine des fonds (LCB-FT)','Consentement RGPD'];
 
-  function seedState(){
-    (window.SP_PRODUCTS||[]).forEach(p => { p.uls = p.uls||[]; productsMap.set(p.isin, Object.assign({}, p)); });
-    positions = (window.SP_POSITIONS||[]).map(p => Object.assign({_seed:true}, p));
-  }
+  /* ---------------- STATE ---------------- */
+  const productsMap = new Map();   // isin -> produit structuré (pour enrichir les échéances)
+  let crmClients = [];
+  let crmActivities = [];
+  let enveloppes = [];
+  let supports = [];
+  let documents = [];
+  let localId = 900000;
+
+  function seedState(){ (window.SP_PRODUCTS||[]).forEach(p => { p.uls = p.uls||[]; productsMap.set(p.isin, Object.assign({}, p)); }); }
 
   function init(){
     seedState();
     Promise.resolve()
       .then(loadSbProducts)
-      .then(loadSbPositions)
-      .then(loadSbObservations)
       .then(loadCrm)
+      .then(loadPortfolio)
       .then(afterLoad)
       .catch(e => { console.warn(e); afterLoad(); });
   }
   function loadSbProducts(){
     if(!SB) return;
-    return fetch(API + '/sp_products?select=*', {headers:headers()})
+    return fetch(API + '/sp_products?select=isin,lib,emetteur,fam,coupon,freq,ac,bcpn,bcap,strike,maturity,next_obs,uls,deleted', {headers:headers()})
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
-      .then(rows => { (rows||[]).forEach(r => {
-        if(r.deleted){ productsMap.delete(r.isin); return; }
-        const p = fromDbProduct(r); productsMap.set(p.isin, Object.assign(productsMap.get(p.isin)||{}, p));
-      }); }).catch(()=>{});
-  }
-  function loadSbPositions(){
-    if(!SB) return;
-    return fetch(API + '/sp_positions?select=*', {headers:headers()})
-      .then(r => r.ok ? r.json() : Promise.reject(r.status))
-      .then(rows => { (rows||[]).forEach(r => {
-        const pos = fromDbPosition(r);
-        if(pos.seed_id){ positions = positions.filter(x => !(x._seed && x.id===pos.seed_id)); if(pos._deleted) return; }
-        positions.push(pos);
-      }); }).catch(()=>{});
-  }
-  function loadSbObservations(){
-    if(!SB) return;
-    return fetch(API + '/sp_observations?select=*', {headers:headers()})
-      .then(r => r.ok ? r.json() : Promise.reject(r.status))
-      .then(rows => { (rows||[]).forEach(r => { obsValid.set(obsKey(r.isin,r.kind,r.obs_date), {result:r.result, amount:r.amount, note:r.note, by:r.validated_by, at:r.updated_at||r.created_at}); }); })
+      .then(rows => { (rows||[]).forEach(r => { if(r.deleted){ productsMap.delete(r.isin); return; }
+        productsMap.set(r.isin, Object.assign(productsMap.get(r.isin)||{}, {isin:r.isin, lib:r.lib, emetteur:r.emetteur, fam:r.fam||'Autre', coupon:r.coupon, freq:r.freq, ac:r.ac, bcpn:r.bcpn, bcap:r.bcap, strike:r.strike, maturity:r.maturity, nextObs:r.next_obs, uls:r.uls||[]})); }); })
       .catch(()=>{});
   }
   function loadCrm(){
@@ -109,213 +99,145 @@
       fetch(API + '/activities?select=*&order=date_activite.desc', {headers:headers()}).then(r => r.ok ? r.json() : [])
     ]).then(([cs, as]) => { crmClients = cs||[]; crmActivities = as||[]; }).catch(()=>{});
   }
-  function afterLoad(){ buildCockpitClientSelect(); renderStats(); renderCockpit(); }
-
-  /* ---------------- DB <-> objet ---------------- */
-  function fromDbProduct(r){
-    return { isin:r.isin, lib:r.lib, emetteur:r.emetteur, dev:r.dev||'EUR', coupon:r.coupon, freq:r.freq,
-      ac:r.ac, bcap:r.bcap, bcpn:r.bcpn, strike:r.strike, emission:r.emission, nextObs:r.next_obs, nextCpn:r.next_cpn,
-      finalObs:r.final_obs, maturity:r.maturity, trade:r.trade_date, nominalRef:r.nominal_ref,
-      fam:r.fam||'Autre', mem:r.mem, trig:r.trig, trigStep:r.trig_step, trigFreq:r.trig_freq, nonCall:r.non_call, uls:r.uls||[], _db:true };
+  function loadPortfolio(){
+    if(!SB) return;
+    return Promise.all([
+      fetch(API + '/enveloppes?select=*', {headers:headers()}).then(r => r.ok ? r.json() : []),
+      fetch(API + '/supports?select=*', {headers:headers()}).then(r => r.ok ? r.json() : []),
+      fetch(API + '/documents?select=*', {headers:headers()}).then(r => r.ok ? r.json() : [])
+    ]).then(([e,s,d]) => { enveloppes = e||[]; supports = s||[]; documents = d||[]; }).catch(()=>{});
   }
-  function fromDbPosition(r){
-    return { id:r.id, seed_id:r.seed_id, isin:r.isin, prenom:r.prenom, nom:r.nom, pole:r.pole, compte:r.compte,
-      vendeur:r.vendeur, nominal:r.nominal, dev:r.dev||'EUR', pxa:r.pxa, pxv:r.pxv, gc:r.gc, gk:r.gk, gt:r.gt,
-      gain:r.gain, statut:r.statut, trade:r.trade_date, client_id:r.client_id, _deleted:r.deleted, _db:true };
+  function afterLoad(){
+    // repli démo (preview / hors base) : injecté via window.CK_DEMO
+    if(window.CK_DEMO){ if(!crmClients.length) crmClients = window.CK_DEMO.clients||[]; if(!crmActivities.length) crmActivities = window.CK_DEMO.activities||[];
+      if(!enveloppes.length) enveloppes = window.CK_DEMO.enveloppes||[]; if(!supports.length) supports = window.CK_DEMO.supports||[]; if(!documents.length) documents = window.CK_DEMO.documents||[]; }
+    buildClientSelect(); renderStats(); renderCockpit();
   }
 
   /* ---------------- HELPERS ---------------- */
   function esc(s){ const d=document.createElement('div'); d.textContent=(s==null)?'':s; return d.innerHTML; }
   function pd(s){ if(!s) return null; if(s instanceof Date) return s; const m=String(s).slice(0,10).split('-'); return m.length===3?new Date(+m[0],+m[1]-1,+m[2]):null; }
-  const MONTHS=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
   function fmtShort(d){ d=pd(d); return d?`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`:'—'; }
   function pct(v,nd){ if(v==null) return '—'; let s=(v*100).toFixed(nd==null?2:nd); if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,''); return s+'%'; }
-  function money(n,dev){ if(n==null) return '—'; return Math.round(n).toLocaleString('fr-FR')+' '+(symbol(dev)); }
-  function symbol(d){ return {EUR:'€',USD:'$',CHF:'CHF',GBP:'£'}[d]||'€'; }
+  function perfPct(v){ if(v==null) return '—'; const s=v*100; return (s>=0?'+':'')+s.toFixed(1).replace('.',',')+' %'; }
+  function fmtEur(n){ if(n==null) return '—'; return Math.round(n).toLocaleString('fr-FR')+' €'; }
   function compact(n){ if(n==null) return '—'; const a=Math.abs(n);
-    if(a>=1e6) return (n/1e6).toFixed(1).replace('.',',')+' M€';
+    if(a>=1e6) return (n/1e6).toFixed(2).replace(/0$/,'').replace('.',',')+' M€';
     if(a>=1e3) return Math.round(n/1e3)+' k€'; return Math.round(n)+' €'; }
   function today(){ const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
   function addMonths(d,m){ return new Date(d.getFullYear(),d.getMonth()+m,d.getDate()); }
   function addDays(d,n){ const x=pd(d); return new Date(x.getFullYear(),x.getMonth(),x.getDate()+n); }
-  function yearsBetween(a,b){ return (pd(b)-pd(a))/(365.25*86400000); }
-  function fullName(p){ return ((p.prenom||'')+' '+(p.nom||'')).trim()||'—'; }
-  function toast(msg, err){ const t=document.getElementById('ck-toast'); if(!t) return; t.textContent=msg; t.className='sp-toast show'+(err?' err':''); setTimeout(()=>t.className='sp-toast',2600); }
-  function normName(s){ return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim(); }
   function todayStrSp(){ const d=today(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-  function ovBar(v,max,col){ return `<div class="ov-bar"><div class="ov-bar__fill" style="width:${Math.max(3,v/(max||1)*100).toFixed(0)}%;background:${col||'var(--gold)'}"></div></div>`; }
+  function toast(msg, err){ const t=document.getElementById('ck-toast'); if(!t) return; t.textContent=msg; t.className='sp-toast show'+(err?' err':''); setTimeout(()=>t.className='sp-toast',2800); }
+  function normName(s){ return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim(); }
+  function clientName(c){ return ((c.prenom||'')+' '+(c.nom||'')).trim()||'(sans nom)'; }
+  function ovBar(v,max,col){ return `<div class="ov-bar"><div class="ov-bar__fill" style="width:${Math.max(2,v/(max||1)*100).toFixed(0)}%;background:${col||'var(--gold)'}"></div></div>`; }
 
   const FREQ_M = {'Trimestrielle':3,'Mensuelle':1,'Semestrielle':6,'Annuelle':12,'Bimestrielle':2,'Journalière':null,'Bullet':null};
   function freqMonths(f){ return (f in FREQ_M)?FREQ_M[f]:3; }
-  function productStatus(p){ if(typeof p==='string') p=productsMap.get(p);
-    if(!p) return 'LIVE'; if(p.statut) return p.statut;
-    if(p.maturity) return pd(p.maturity) >= today()?'LIVE':'DONE'; return 'LIVE'; }
-  function isAthena(p){ return p && (p.fam==='Athéna' || p.fam==='Athénix'); }
-
-  const FX={EUR:1,USD:0.92,CHF:1.04,GBP:1.17};
-  function toEur(n,dev){ return n==null?null:n*(FX[dev]||1); }
-  const UL_COLORS=['#1f4d2e','#A9853F','#5b7d6a','#356a78','#9c6b3f'];
-  function ulColor(i){ return UL_COLORS[i%UL_COLORS.length]; }
-
-  /* ---------------- COURS RÉELS (Yahoo Finance via proxy CORS) ---------------- */
-  const EPOCH = new Date(2015,0,1);
-  const TICKERS = {
-    'TotalEnergies':'TTE.PA','Total':'TTE.PA','BNP Paribas':'BNP.PA','BNP':'BNP.PA',
-    'Société Générale':'GLE.PA','Société générale':'GLE.PA','Airbus':'AIR.PA','Stellantis':'STLAP.PA',
-    'Unibail':'URW.PA','Carrefour':'CA.PA','Orange':'ORA.PA','Crédit Agricole':'ACA.PA',
-    'Credit agricole':'ACA.PA','Crédit Agricole 1.05':'ACA.PA','Bouygues':'EN.PA','LVMH':'MC.PA',
-    'Engie':'ENGI.PA','Sanofi':'SAN.PA','Saint-Gobain':'SGO.PA','Saint Gobain':'SGO.PA',
-    'Veolia':'VIE.PA','Alstom':'ALO.PA','Axa':'CS.PA','Schneider Electric':'SU.PA','Schneider':'SU.PA',
-    'Vivendi':'VIV.PA','Pernod-Ricard':'RI.PA','Pernod Ricard':'RI.PA','Publicis':'PUB.PA',
-    'Vinci':'DG.PA','Danone':'BN.PA','Accor':'AC.PA','Air France':'AF.PA','Renault':'RNO.PA',
-    'Valeo':'FR.PA','Michelin':'ML.PA','Safran':'SAF.PA','Klepierre':'LI.PA','Klépierre':'LI.PA',
-    'Dassault System':'DSY.PA',"L'Oréal":'OR.PA','Ubisoft':'UBI.PA','Air Liquide':'AI.PA',
-    'Legrand':'LR.PA','EssilorLuxottica':'EL.PA','Capgemini':'CAP.PA','Eiffage':'FGR.PA',
-    'Arkema':'AKE.PA','Thales':'HO.PA','Thalès':'HO.PA','Worldline':'WLN.PA','Sodexo':'SW.PA',
-    'Atos':'ATO.PA','Hermès':'RMS.PA','Forvia':'FRVIA.PA','Cointreau':'RCO.PA','Technip':'TE.PA',
-    'Richemont':'CFR.SW','ASML':'ASML.AS','ING Groep':'INGA.AS','UMG':'UMG.AS',
-    'Banco Santander':'SAN.MC','BBVA':'BBVA.MC','Intesa':'ISP.MI','Eni':'ENI.MI','ENI':'ENI.MI',
-    'Barclays':'BARC.L','Rolls-Royce':'RR.L','Nestlé':'NESN.SW','ArcelorMittal':'MT.AS',
-    'Mercedes-benz':'MBG.DE','Volkswagen':'VOW3.DE','Volkswagen 6.36':'VOW3.DE','Adidas':'ADS.DE',
-    'Allianz':'ALV.DE','Rheinmetall':'RHM.DE','Novo Nordisk':'NVO',
-    'Amazon':'AMZN','Microsoft':'MSFT','Alphabet':'GOOGL','Apple':'AAPL','Nvidia':'NVDA',
-    'Tesla':'TSLA','Chevron':'CVX','Salesforce':'CRM','Visa':'V','Broadcom':'AVGO','Abbvie':'ABBV',
-    'Facebook':'META','Meta':'META','Intel':'INTC','NextEra':'NEE','Nextera':'NEE','Morgan Stanley':'MS',
-    'UnitedHealth Group':'UNH','UnitedHealth':'UNH','Citi':'C','Conocophillips':'COP','ConocoPhilips':'COP',
-    'Air Product':'APD','AppLovin':'APP','Eli Lilly':'LLY','Moderna':'MRNA','Brookfield Corp.':'BN',
-    'Uber':'UBER','Mercadolibre':'MELI','MercadoLibre':'MELI',
-    'Alibaba':'BABA','Baidu':'BIDU','Tencent':'0700.HK','TSMC':'TSM',
-    'SPX':'^GSPC','SX5E':'^STOXX50E','CAC 40':'^FCHI'
-  };
-  function tickerFor(name){ if(!name) return null; if(TICKERS[name]) return TICKERS[name];
-    const lk=String(name).toLowerCase().trim(); const k=Object.keys(TICKERS).find(x=>x.toLowerCase()===lk); return k?TICKERS[k]:null; }
-  function fetchYahoo(ticker, fromTs){
-    const day=new Date().toISOString().slice(0,10), ck='sppx:'+ticker;
-    let cached=null; try{ cached=JSON.parse(localStorage.getItem(ck)||'null'); }catch(e){}
-    if(cached && cached.day===day && cached.pts && cached.pts.length) return Promise.resolve(cached.pts);
-    const p1=Math.floor((Math.min(fromTs,Date.now())-31*86400000)/1000), p2=Math.floor(Date.now()/1000);
-    const qs='?period1='+p1+'&period2='+p2+'&interval=1wk';
-    const hosts=['https://query1.finance.yahoo.com/v8/finance/chart/','https://query2.finance.yahoo.com/v8/finance/chart/'];
-    const wraps=[ u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
-                  u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
-                  u=>'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u),
-                  u=>'https://thingproxy.freeboard.io/fetch/'+u ];
-    const urls=[]; hosts.forEach(h=>wraps.forEach(w=>urls.push(w(h+encodeURIComponent(ticker)+qs))));
-    let chain=Promise.reject(0);
-    urls.forEach(u=>{ chain=chain.catch(()=>fetch(u).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{
-      const res=j&&j.chart&&j.chart.result&&j.chart.result[0]; if(!res||!res.timestamp) throw 0;
-      const cl=res.indicators.quote[0].close, pts=[];
-      for(let i=0;i<res.timestamp.length;i++) if(cl[i]!=null) pts.push({t:res.timestamp[i]*1000,p:cl[i]});
-      if(pts.length<3) throw 0;
-      try{ localStorage.setItem(ck,JSON.stringify({day,pts})); }catch(e){}
-      return pts; })); });
-    return chain.catch(()=>(cached&&cached.pts&&cached.pts.length)?cached.pts:null);
-  }
-  function loadProductSeries(p){
-    const uls=p.uls||[], s0=(pd(p.strike)||EPOCH).getTime();
-    return Promise.all(uls.map((u,i)=>{
-      const t=tickerFor(u.n);
-      if(!t) return Promise.resolve({name:u.n, color:ulColor(i), ticker:null, ok:false});
-      return fetchYahoo(t,s0).then(pts=>{
-        if(!pts||!pts.length) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
-        let base=null, bi=0;
-        for(let k=0;k<pts.length;k++){ if(pts[k].t<=s0){ base=pts[k].p; bi=k; } else break; }
-        if(base==null||base<=0){ base=pts[0].p; bi=0; }
-        const reb=[]; for(let k=bi;k<pts.length;k++) reb.push({t:pts[k].t, v:pts[k].p/base*100});
-        if(reb.length<2) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
-        reb[0]={t:s0, v:100};
-        return {name:u.n,color:ulColor(i),ticker:t,ok:true,pts:reb};
-      });
-    })).then(series=>({ok:series.length>0 && series.every(s=>s.ok), series}));
-  }
-  function levelAt(pts, t){ if(!pts||!pts.length) return null; let v=pts[0].v; for(const pt of pts){ if(pt.t<=t) v=pt.v; else break; } return v; }
-  function worstAt(data, t){ if(!data||!data.ok) return null; let w=null; data.series.forEach(s=>{ const v=levelAt(s.pts,t); if(v!=null&&(w==null||v<w)) w=v; }); return w; }
-
-  /* ---------------- CALENDRIER D'OBSERVATIONS ---------------- */
+  function productStatus(p){ if(!p) return 'LIVE'; if(p.statut) return p.statut; if(p.maturity) return pd(p.maturity)>=today()?'LIVE':'DONE'; return 'LIVE'; }
   function observationDates(p){
     const sd=pd(p.strike), mat=pd(p.maturity); const m=freqMonths(p.freq);
     if(!sd||!mat||!m) return mat?[mat]:[];
     const out=[]; let d=addMonths(sd,m), guard=0;
     while(d<=addDays(mat,4) && guard<400){ out.push(new Date(d)); d=addMonths(d,m); guard++; }
-    if(!out.length) out.push(new Date(mat));
-    return out;
+    if(!out.length) out.push(new Date(mat)); return out;
   }
   function nextObsDate(p){ const tod=today(); const o=observationDates(p).find(d=>d>tod); return o||pd(p.nextObs); }
-  function nonCallMonths(p){ return p.nonCall!=null?p.nonCall:12; }
-  function firstCallIdx(p){
-    const obs=observationDates(p), sd=pd(p.strike); if(!sd||!obs.length) return 0;
-    const fc=addMonths(sd, nonCallMonths(p)).getTime();
-    const idx=obs.findIndex(d=>d.getTime()>=fc-4*86400000); return idx<0?obs.length:idx;
+
+  /* ---------------- DONNÉES PAR CLIENT ---------------- */
+  function clientEnvs(id){ return enveloppes.filter(e=>String(e.client_id)===String(id)); }
+  function envSupports(eid){ return supports.filter(s=>String(s.enveloppe_id)===String(eid)); }
+  function clientDocs(id){ return documents.filter(d=>String(d.client_id)===String(id)); }
+  function envValo(e){ const sup=envSupports(e.id); if(sup.length) return sup.reduce((s,x)=>s+(+x.valorisation||0),0); return e.valorisation!=null?+e.valorisation:(e.montant_investi!=null?+e.montant_investi:0); }
+  function envInvesti(e){ const sup=envSupports(e.id); if(sup.length && sup.some(x=>x.montant_investi!=null)) return sup.reduce((s,x)=>s+(+x.montant_investi||0),0); return e.montant_investi!=null?+e.montant_investi:envValo(e); }
+
+  function ckActsOf(id){ return crmActivities.filter(a=>String(a.client_id)===String(id)); }
+  function lastContact(id){ const a=ckActsOf(id).map(x=>x.date_activite).filter(Boolean).sort(); return a.length?a[a.length-1]:null; }
+  function lastRdv(id){ const a=ckActsOf(id).filter(x=>x.type==='rdv').map(x=>x.date_activite).filter(Boolean).sort(); return a.length?a[a.length-1]:null; }
+  function nextRdv(id){ const t=todayStrSp(); const a=ckActsOf(id).filter(x=>x.type==='rdv'&&!x.done&&x.date_activite&&x.date_activite.slice(0,10)>=t).map(x=>x.date_activite).sort(); return a.length?a[0]:null; }
+
+  function docStatus(d){ if(!d.date_signature) return 'pending'; if(d.date_echeance && pd(d.date_echeance)<today()) return 'expired'; return 'signed'; }
+
+  /* ---------------- CONFORMITÉ ---------------- */
+  function complianceItems(client, envs, docs){
+    const out=[]; const add=(sev,label,detail)=>out.push({sev,label,detail:detail||''});
+    if(!client){ add('warn','Fiche CRM non reliée',''); return out; }
+    // Pièces socle attendues (checklist présent / manquant / expiré)
+    REQUIRED_CLIENT_DOCS.forEach(type=>{
+      const ds=docs.filter(d=>d.type===type).sort((a,b)=>String(b.date_signature||'').localeCompare(String(a.date_signature||'')));
+      const signed=ds.find(d=>docStatus(d)==='signed');
+      if(signed) return;
+      const expired=ds.find(d=>docStatus(d)==='expired');
+      // repli sur les champs CRM pour RGPD / origine des fonds si pas de document
+      if(type==='Consentement RGPD' && client.consentement_rgpd===true) return;
+      if(type==='Origine des fonds (LCB-FT)' && client.origine_fonds) return;
+      if(type==='Questionnaire / Profil de risque (MIF)' && client.couple_rendement_risque && client.niveau_connaissance) return;
+      if(expired) add('warn', type+' expiré', 'Signé le '+fmtShort(expired.date_signature)+', échéance '+fmtShort(expired.date_echeance)+' — à renouveler.');
+      else if(ds.length) add('todo', type+' à signer', 'Document créé, signature non enregistrée.');
+      else add('todo', type+' manquant', 'Pièce socle attendue.');
+    });
+    // Bulletin de souscription attendu par enveloppe
+    envs.forEach(e=>{
+      const has=docs.some(d=>d.type==='Bulletin de souscription' && String(d.enveloppe_id)===String(e.id) && docStatus(d)!=='pending');
+      if(!has) add('todo','Bulletin de souscription manquant', (e.libelle||e.type||'Contrat'));
+    });
+    // Documents arrivant à échéance / expirés (tous types)
+    docs.forEach(d=>{ const st=docStatus(d); if(st==='expired' && REQUIRED_CLIENT_DOCS.indexOf(d.type)<0) add('warn', (d.type||'Document')+' expiré', (d.libelle||'')+' — échéance '+fmtShort(d.date_echeance)); });
+    // Actions / tâches CRM en retard
+    if(client.next_action && client.next_action_date && client.next_action_date.slice(0,10)<todayStrSp()) add('todo','Action en retard : '+client.next_action, 'Échéance '+fmtShort(client.next_action_date));
+    const od=ckActsOf(client.id).filter(a=>!a.done && a.date_activite && a.date_activite.slice(0,10)<todayStrSp());
+    if(od.length) add('todo', od.length+' tâche(s) en retard', od.slice(0,3).map(a=>a.titre||a.type).join(', '));
+    // Revue annuelle
+    const lr=lastRdv(client.id);
+    if(!lr) add('warn','Aucun RDV enregistré','Planifier une première revue.');
+    else { const months=(today()-new Date(lr))/(30.44*864e5); if(months>=12) add('warn','Revue annuelle à planifier','Dernier RDV il y a '+Math.round(months)+' mois.'); }
+    if(!out.length) add('ok','Dossier conforme','Aucun point bloquant identifié.');
+    return out;
   }
-  function trigStepOf(p){ return p.trigStep!=null?p.trigStep:0.01; }
-  function trigFreqOf(p){ return p.trigFreq||'Trimestrielle'; }
-  function trigAt(p,k){
-    if(p.ac==null) return null;
-    if(!p.trig) return p.ac;
-    const fi=firstCallIdx(p); if(k<fi) return p.ac;
-    const obsM=freqMonths(p.freq)||3, decM=freqMonths(trigFreqOf(p))||12;
-    const nDec=Math.floor(((k-fi)*obsM)/decM);
-    const floor=(p.bcpn!=null?p.bcpn:0.6);
-    return Math.max(floor, +(p.ac - trigStepOf(p)*nDec).toFixed(4));
-  }
-  function callDateFrom(p,data){
-    if(!data||!data.ok || p.ac==null) return null;
-    const obs=observationDates(p), tod=today(), fi=firstCallIdx(p);
-    for(let k=fi;k<obs.length;k++){ const d=obs[k]; if(d>tod) break;
-      const w=worstAt(data,d.getTime()); if(w!=null && w>=trigAt(p,k)*100) return d; }
-    return null;
-  }
-  // Calendrier coupons / autocalls à partir des cours réels (+ observations validées).
-  function computeSchedule(p,data){
-    const obs=observationDates(p), m=freqMonths(p.freq);
-    const per=(p.coupon!=null&&m)?p.coupon*m/12:p.coupon;
-    const tod=today(), ok=!!(data&&data.ok), fi=firstCallIdx(p);
-    const coupons=[], autocalls=[]; let carry=0, called=false, redeemDate=null;
-    for(let k=0;k<obs.length;k++){
-      const date=obs[k], past=date<=tod, pay=addDays(date,7), w=ok?worstAt(data,date.getTime()):null;
-      if(p.ac!=null){
-        const trig=trigAt(p,k), callable=k>=fi; const aov=obsValid.get(obsKey(p.isin,'autocall',date)); let st;
-        if(called) st='after';
-        else if(aov){ st = aov.result==='called'?'called':'notcalled'; if(st==='called'){ called=true; redeemDate=date; } }
-        else if(!past) st='future';
-        else if(!callable) st='notcalled';
-        else if(ok){ if(w!=null && w>=trig*100){ st='called'; called=true; redeemDate=date; } else st='notcalled'; }
-        else st='na';
-        if(st!=='after') autocalls.push({date,pay,trig,status:st,w,nonCall:!callable,valid:!!aov});
-      }
-      if(!isAthena(p) && p.coupon!=null){
-        if(called){ /* après rappel : plus de coupon */ }
-        else {
-          const cov=obsValid.get(obsKey(p.isin,'coupon',date));
-          if(cov){
-            if(cov.result==='paid'){ const amt=cov.amount!=null?cov.amount:per*(p.mem?(1+carry):1); carry=0; coupons.push({date,pay,bcpn:p.bcpn,amount:amt,status:'paid',w,valid:true}); }
-            else { if(p.mem) carry+=1; coupons.push({date,pay,bcpn:p.bcpn,amount:0,status:'unpaid',w,valid:true}); }
-          }
-          else if(!past) coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'future',w});
-          else if(ok){
-            const paid = (p.bcpn!=null) ? (w!=null && w>=p.bcpn*100) : (w!=null);
-            if(paid){ const amt=per*(p.mem?(1+carry):1); carry=0; coupons.push({date,pay,bcpn:p.bcpn,amount:amt,status:'paid',w}); }
-            else { if(p.mem) carry+=1; coupons.push({date,pay,bcpn:p.bcpn,amount:0,status:'unpaid',w}); }
-          }
-          else coupons.push({date,pay,bcpn:p.bcpn,amount:per,status:'na',w});
-        }
-      }
-    }
-    const matured = pd(p.maturity)&&pd(p.maturity)<tod;
-    return {coupons, autocalls, hasData:ok, redeemed:called, redeemDate, matured,
-            status:(called||matured)?'DONE':'LIVE'};
+  // Registre documentaire (toutes pièces datées), trié.
+  function docRegister(docs){
+    return docs.slice().sort((a,b)=>{
+      const sa=a.date_signature||a.created_at||'', sb=b.date_signature||b.created_at||''; return String(sb).localeCompare(String(sa));
+    });
   }
 
-  /* ---------------- DÉTENTEURS ---------------- */
-  function holders(){
-    const map=new Map();
-    positions.filter(p=>!p._deleted).forEach(p=>{ const k=fullName(p); if(k==='—')return; if(!map.has(k)) map.set(k,{name:k,client_id:p.client_id,items:[]}); map.get(k).items.push(p); });
-    return Array.from(map.values()).sort((a,b)=>b.items.length-a.items.length);
+  /* ---------------- AGRÉGATION 360 ---------------- */
+  function buildCockpitData(client){
+    const envs=clientEnvs(client.id);
+    const docs=clientDocs(client.id);
+    const valoTotal=envs.reduce((s,e)=>s+envValo(e),0);
+    const investiTotal=envs.reduce((s,e)=>s+envInvesti(e),0);
+    const plusValue=valoTotal-investiTotal;
+    const perf=investiTotal?plusValue/investiTotal:null;
+    // YTD (sur les enveloppes disposant d'une valo début d'année)
+    let ytdRef=0, ytdHas=false;
+    envs.forEach(e=>{ if(e.valo_debut_annee!=null){ ytdRef+=+e.valo_debut_annee; ytdHas=true; } });
+    const ytd = ytdHas && ytdRef ? (valoTotal-ytdRef)/ytdRef : null;
+    // allocation par classe d'actif (global)
+    const classMap=new Map();
+    envs.forEach(e=>{ const sup=envSupports(e.id);
+      if(sup.length){ sup.forEach(s=>{ const c=s.classe||'Autre'; classMap.set(c,(classMap.get(c)||0)+(+s.valorisation||0)); }); }
+      else { classMap.set('Autre',(classMap.get('Autre')||0)+envValo(e)); }
+    });
+    const classes=Array.from(classMap.entries()).sort((a,b)=>b[1]-a[1]);
+    // enveloppes enrichies (valo, perf, classes)
+    const envRows=envs.map(e=>{ const sup=envSupports(e.id); const v=envValo(e), inv=envInvesti(e);
+      return {e, sup, valo:v, investi:inv, perf:inv?(v-inv)/inv:null}; }).sort((a,b)=>b.valo-a.valo);
+    // prochaines échéances : structurés (via ISIN) + documents
+    const tod=today(); const upcoming=[];
+    envs.forEach(e=>{ envSupports(e.id).forEach(s=>{ if(s.classe==='Produit structuré' && s.isin && productsMap.has(s.isin)){
+      const p=productsMap.get(s.isin); if(productStatus(p)!=='LIVE') return; const d=nextObsDate(p); if(!d||d<tod) return;
+      upcoming.push({date:d, kind:'Observation structuré', label:p.lib||s.libelle||s.isin, env:e.libelle||e.type,
+        detail:[p.ac!=null?'autocall '+pct(p.ac,0):'', p.bcpn!=null?'cpn '+pct(p.bcpn,0):''].filter(Boolean).join(' · ')}); } }); });
+    docs.forEach(d=>{ if(d.date_echeance){ const de=pd(d.date_echeance); if(de>=tod) upcoming.push({date:de, kind:'Échéance documentaire', label:(d.type||'Document')+(d.libelle?' — '+d.libelle:''), env:'', detail:'renouvellement'}); } });
+    upcoming.sort((a,b)=>a.date-b.date);
+    const compliance=complianceItems(client, envs, docs);
+    return {client, envs, envRows, docs, valoTotal, investiTotal, plusValue, perf, ytd, classes, upcoming:upcoming.slice(0,8), compliance, register:docRegister(docs)};
   }
-  function clientPositions(name){ return positions.filter(p=>!p._deleted && fullName(p)===name); }
 
   /* ===================================================================
-     COCKPIT 360
+     SÉLECTION CLIENT + RENDU
      =================================================================== */
   const ckSel = document.getElementById('ck-client');
   if(ckSel) ckSel.addEventListener('change', renderCockpit);
@@ -323,130 +245,45 @@
   if(ckBriefBtn) ckBriefBtn.addEventListener('click', ()=>{ if(currentCockpit) openBrief(currentCockpit); else toast('Sélectionnez un client.', true); });
   let currentCockpit = null;
 
-  function ckCrmName(c){ return ((c.prenom||'')+' '+(c.nom||'')).trim(); }
-  function cockpitList(){
-    return holders().map(h=>{
-      let crm = h.client_id ? crmClients.find(c=>String(c.id)===String(h.client_id)) : null;
-      if(!crm) crm = crmClients.find(c=>normName(ckCrmName(c))===normName(h.name));
-      return Object.assign({}, h, {crm});
+  function clientsWithData(){
+    // Tous les clients CRM, triés ; ceux avec portefeuille d'abord.
+    return crmClients.slice().sort((a,b)=>{
+      const na=clientEnvs(a.id).length>0?0:1, nb=clientEnvs(b.id).length>0?0:1;
+      if(na!==nb) return na-nb; return clientName(a).localeCompare(clientName(b));
     });
   }
-  function buildCockpitClientSelect(){
-    if(!ckSel) return; const prev=ckSel.value; const list=cockpitList();
-    ckSel.innerHTML='<option value="">— Sélectionner un client —</option>'+list.map(h=>`<option value="${esc(h.name)}">${esc(h.name)} (${h.items.length})</option>`).join('');
+  function buildClientSelect(){
+    if(!ckSel) return; const prev=ckSel.value; const list=clientsWithData();
+    ckSel.innerHTML='<option value="">— Sélectionner un client —</option>'+list.map(c=>{ const n=clientEnvs(c.id).length; return `<option value="${esc(c.id)}">${esc(clientName(c))}${n?' ('+n+' enveloppe'+(n>1?'s':'')+')':''}</option>`; }).join('');
     if(prev) ckSel.value=prev;
-  }
-
-  function ckActsOf(crm){ return crm ? crmActivities.filter(a=>String(a.client_id)===String(crm.id)) : []; }
-  function lastContact(crm){ const a=ckActsOf(crm).map(x=>x.date_activite).filter(Boolean).sort(); return a.length?a[a.length-1]:null; }
-  function lastRdv(crm){ const a=ckActsOf(crm).filter(x=>x.type==='rdv').map(x=>x.date_activite).filter(Boolean).sort(); return a.length?a[a.length-1]:null; }
-  function nextRdv(crm){ const t=todayStrSp(); const a=ckActsOf(crm).filter(x=>x.type==='rdv'&&!x.done&&x.date_activite&&x.date_activite.slice(0,10)>=t).map(x=>x.date_activite).sort(); return a.length?a[0]:null; }
-
-  /* --- Cible d'allocation (modèle), ajustable, persistée localement par client --- */
-  function ckTargetKey(d){ return 'lfdr:ck:target:'+(d.crm?('id'+d.crm.id):normName(d.name)); }
-  function loadTarget(d){ try{ return JSON.parse(localStorage.getItem(ckTargetKey(d))||'null')||{}; }catch(e){ return {}; } }
-  function saveTarget(d,map){ try{ if(map) localStorage.setItem(ckTargetKey(d),JSON.stringify(map)); else localStorage.removeItem(ckTargetKey(d)); }catch(e){} }
-
-  /* --- Points de conformité (KYC, profil DDA/MIF, RGPD, LCB-FT, revue, actions) --- */
-  function complianceItems(crm, items){
-    const out=[]; const add=(sev,label,detail)=>out.push({sev,label,detail:detail||''});
-    if(!crm){ add('warn','Fiche CRM non reliée','Aucun contact CRM rattaché à ce détenteur — reliez l\'allocation à une fiche (Produits structurés › Suivi produit › Allouer › Contact CRM).'); return out; }
-    const miss=[];
-    if(!crm.date_naissance) miss.push('date de naissance');
-    if(!crm.adresse) miss.push('adresse');
-    if(!crm.nationalite) miss.push('nationalité');
-    if(!crm.telephone) miss.push('téléphone');
-    if(miss.length) add('todo','Identité / KYC à compléter', miss.join(', '));
-    const profMiss=[];
-    if(!crm.couple_rendement_risque) profMiss.push('profil rendement/risque');
-    if(!crm.niveau_connaissance) profMiss.push('niveau de connaissance');
-    if(!crm.experience_produits || !crm.experience_produits.length) profMiss.push('expérience produits');
-    if(!crm.horizon) profMiss.push('horizon');
-    if(profMiss.length) add('todo','Profil investisseur (DDA / MIF) incomplet', profMiss.join(', '));
-    const exp=(crm.experience_produits||[]).map(x=>normName(x));
-    const knowsStruct=exp.some(x=>x.indexOf('struct')>=0);
-    const lowKnow=/debut|faible|aucun|novice|limit/.test(normName(crm.niveau_connaissance||''));
-    if(items.length && (!knowsStruct || lowKnow)) add('warn','Adéquation produits structurés à tracer','Le client détient des produits structurés — documenter connaissance/expérience et justifier le conseil.');
-    if(crm.consentement_rgpd!==true) add('todo','Consentement RGPD à recueillir');
-    if(!crm.origine_fonds) add('todo','Origine des fonds (LCB-FT) à renseigner');
-    const lr=lastRdv(crm);
-    if(!lr) add('warn','Aucun RDV enregistré','Planifier une première revue de portefeuille.');
-    else { const months=(today()-new Date(lr))/(30.44*864e5); if(months>=12) add('warn','Revue annuelle à planifier','Dernier RDV il y a '+Math.round(months)+' mois.'); }
-    if(crm.next_action && crm.next_action_date && crm.next_action_date.slice(0,10)<todayStrSp()) add('todo','Action en retard : '+crm.next_action, 'Échéance '+fmtShort(crm.next_action_date));
-    const od=ckActsOf(crm).filter(a=>!a.done && a.date_activite && a.date_activite.slice(0,10)<todayStrSp());
-    if(od.length) add('todo', od.length+' tâche(s) en retard', od.slice(0,3).map(a=>a.titre||a.type).join(', '));
-    if(!out.length) add('ok','Dossier conforme','Aucun point bloquant identifié à ce stade.');
-    return out;
-  }
-
-  /* --- Agrégation 360 d'un client --- */
-  function buildCockpitData(entry, items){
-    const crm=entry.crm||null;
-    const schedules=new Map();
-    items.forEach(pos=>{ const p=productsMap.get(pos.isin); if(!p) return; const data=obsDataCache.get(pos.isin); schedules.set(pos.isin, computeSchedule(p, data||{ok:false,series:[]})); });
-    const live=items.filter(p=>(p.statut||'LIVE')==='LIVE');
-    const encours=live.reduce((s,p)=>s+(toEur(p.nominal,p.dev)||0),0);
-    const investedNom=items.reduce((s,p)=>s+(toEur(p.nominal,p.dev)||0),0);
-    const envMap=new Map();
-    live.forEach(p=>{ const k=(p.compte||'').trim()||'Enveloppe non précisée'; envMap.set(k,(envMap.get(k)||0)+(toEur(p.nominal,p.dev)||0)); });
-    const envelopes=Array.from(envMap.entries()).sort((a,b)=>b[1]-a[1]);
-    const famMap=new Map();
-    live.forEach(p=>{ const pr=productsMap.get(p.isin)||{}; const f=pr.fam||'Autre'; famMap.set(f,(famMap.get(f)||0)+(toEur(p.nominal,p.dev)||0)); });
-    const families=Array.from(famMap.entries()).sort((a,b)=>b[1]-a[1]);
-    const yearStart=new Date(today().getFullYear(),0,1);
-    let coupTot=0, coupYtd=0;
-    items.forEach(pos=>{ const pr=productsMap.get(pos.isin); const nomEur=toEur(pos.nominal,pos.dev)||0; const sch=schedules.get(pos.isin);
-      if(sch && sch.hasData){
-        sch.coupons.forEach(c=>{ if(c.status==='paid'){ const e=c.amount*nomEur; coupTot+=e; if(pd(c.date)>=yearStart) coupYtd+=e; } });
-        if(sch.redeemed && pr && isAthena(pr) && pr.coupon!=null){ const yrs=Math.max(0,yearsBetween(pr.strike,sch.redeemDate)); const e=pr.coupon*yrs*nomEur; coupTot+=e; if(pd(sch.redeemDate)>=yearStart) coupYtd+=e; }
-      } else if(pos.gc!=null){ coupTot+=pos.gc*nomEur; }
-    });
-    const hasData=items.some(p=>{ const dd=obsDataCache.get(p.isin); return dd&&dd.ok; });
-    const upcoming=live.map(pos=>{ const p=productsMap.get(pos.isin); if(!p) return null; const d=nextObsDate(p); if(!d) return null;
-      const data=obsDataCache.get(pos.isin); const w=(data&&data.ok)?worstAt(data,d.getTime()):null;
-      return {pos,p,date:d,worst:w}; }).filter(Boolean).sort((a,b)=>a.date-b.date).slice(0,8);
-    let cw=0,cs=0; live.forEach(p=>{ const pr=productsMap.get(p.isin); if(pr&&pr.coupon!=null){ const n=toEur(p.nominal,p.dev)||0; cs+=pr.coupon*n; cw+=n; } });
-    const avgCoupon=cw?cs/cw:null;
-    const compliance=complianceItems(crm, items);
-    return {name:entry.name, crm, items, live, encours, investedNom, envelopes, families, coupTot, coupYtd, hasData, upcoming, compliance, avgCoupon, schedules};
   }
 
   function renderCockpit(){
     const host=document.getElementById('ck-body'); if(!host) return;
-    const name = ckSel ? ckSel.value : '';
-    if(!name){ currentCockpit=null; host.innerHTML='<div class="sp-rep-empty"><p>Sélectionnez un client pour afficher son cockpit 360° et générer le brief pré-RDV. Les clients apparaissent ici dès qu\'un produit leur est alloué (module Produits structurés › Suivi produit › Allouer).</p></div>'; return; }
-    const entry = cockpitList().find(h=>h.name===name) || {name, items:clientPositions(name), crm:null};
-    const items = clientPositions(name);
-    const render=(loading)=>{ const d=buildCockpitData(entry, items); currentCockpit=d; host.innerHTML=cockpitHTML(d, loading); bindCockpit(d); };
-    render(true);
-    const liveIsins=[...new Set(items.filter(p=>(p.statut||'LIVE')==='LIVE').map(p=>p.isin))]
-      .filter(isin=>{ const p=productsMap.get(isin); return p&&p.uls&&p.uls.length; }).slice(0,40);
-    const need=liveIsins.filter(isin=>!obsDataCache.has(isin));
-    if(!need.length){ render(false); return; }
-    Promise.all(need.map(isin=>{ const p=productsMap.get(isin); return loadProductSeries(p).then(dd=>obsDataCache.set(isin,dd)); }))
-      .then(()=>{ if(ckSel && ckSel.value!==name) return; render(false); });
+    const id = ckSel ? ckSel.value : '';
+    if(!id){ currentCockpit=null; host.innerHTML='<div class="sp-rep-empty"><p>Sélectionnez un client pour afficher son cockpit patrimonial 360° et générer le brief pré-RDV.</p></div>'; return; }
+    const client = crmClients.find(c=>String(c.id)===String(id)); if(!client){ host.innerHTML='<div class="sp-rep-empty"><p>Client introuvable.</p></div>'; return; }
+    const d = buildCockpitData(client); currentCockpit=d;
+    host.innerHTML = cockpitHTML(d); bindCockpit(d);
   }
 
-  function cockpitHTML(d, loading){
-    const crm=d.crm;
-    const totPct = d.investedNom? d.coupTot/d.investedNom : null;
-    const ytdPct = d.investedNom? d.coupYtd/d.investedNom : null;
-    const maxEnv = d.envelopes.length? d.envelopes[0][1] : 1;
-    const famTotal = d.families.reduce((s,f)=>s+f[1],0)||1;
-    const target = loadTarget(d);
-    const todo = d.compliance.filter(c=>c.sev==='todo').length;
-    const warn = d.compliance.filter(c=>c.sev==='warn').length;
-    const lc=crm?lastContact(crm):null, nr=crm?nextRdv(crm):null;
-    const perfCell=(p)=> p!=null ? pct(p,2) : (loading?'<span class="ck-loading">…</span>':'—');
+  function cockpitHTML(d){
+    const c=d.client;
+    const maxEnv=d.envRows.length?d.envRows[0].valo:1;
+    const classTotal=d.classes.reduce((s,x)=>s+x[1],0)||1;
+    const target=loadTarget(c.id);
+    const todo=d.compliance.filter(x=>x.sev==='todo').length, warn=d.compliance.filter(x=>x.sev==='warn').length;
+    const lc=lastContact(c.id), nr=nextRdv(c.id);
+    const perfCls=d.perf==null?'':(d.perf>=0?'positive':'negative');
+    const ytdCls=d.ytd==null?'':(d.ytd>=0?'positive':'negative');
     return `
       <div class="ck-head">
         <div class="ck-head__l">
-          <h3>${esc(d.name)}</h3>
+          <h3>${esc(clientName(c))}</h3>
           <div class="ck-head__meta">
-            ${crm?'':'<span class="ck-warn-inline">⚠ Fiche CRM non reliée</span>'}
-            ${crm&&crm.email?`<span>✉ ${esc(crm.email)}</span>`:''}
-            ${crm&&crm.telephone?`<span>☎ ${esc(crm.telephone)}</span>`:''}
-            ${crm&&crm.stage?`<span class="ck-tag">${esc(crm.stage)}</span>`:''}
+            ${c.email?`<span>✉ ${esc(c.email)}</span>`:''}
+            ${c.telephone?`<span>☎ ${esc(c.telephone)}</span>`:''}
+            ${c.couple_rendement_risque?`<span class="ck-tag">Profil ${esc(c.couple_rendement_risque)}</span>`:''}
             <span>Dernier contact&nbsp;: <b>${lc?fmtShort(lc):'—'}</b></span>
             ${nr?`<span class="ck-tag gold">RDV ${fmtShort(nr)}</span>`:''}
           </div>
@@ -455,28 +292,29 @@
       </div>
 
       <div class="ov-kpis">
-        <div class="ov-kpi"><div class="v">${compact(d.encours)}</div><div class="l">Encours en cours</div></div>
-        <div class="ov-kpi"><div class="v">${d.live.length}<span class="sub">/ ${d.items.length}</span></div><div class="l">Produits vivants</div></div>
-        <div class="ov-kpi"><div class="v">${perfCell(ytdPct)}</div><div class="l">Perf. YTD (coupons)</div></div>
-        <div class="ov-kpi"><div class="v">${perfCell(totPct)}</div><div class="l">Depuis origine (coupons)</div></div>
+        <div class="ov-kpi"><div class="v">${compact(d.valoTotal)}</div><div class="l">Valorisation totale</div></div>
+        <div class="ov-kpi"><div class="v ${perfCls}">${perfPct(d.perf)}</div><div class="l">Perf. depuis souscription</div></div>
+        <div class="ov-kpi"><div class="v ${ytdCls}">${d.ytd!=null?perfPct(d.ytd):'—'}</div><div class="l">Performance YTD</div></div>
+        <div class="ov-kpi"><div class="v">${d.envs.length}<span class="sub"> env.</span></div><div class="l">Plus/moins-value ${d.plusValue>=0?'+':''}${compact(d.plusValue)}</div></div>
       </div>
 
       <div class="ck-grid">
         <div class="sp-card">
-          <h4>Encours par enveloppe</h4>
-          <div class="ov-list">${d.envelopes.map(([n,v])=>`<div class="ov-row"><span class="ov-row__n">${esc(n)}</span>${ovBar(v,maxEnv,'#A9853F')}<span class="ov-row__v">${compact(v)} · ${(v/(d.encours||1)*100).toFixed(0)}%</span></div>`).join('')||'<p class="sp-muted sm">Aucun produit vivant alloué.</p>'}</div>
+          <h4>Encours par enveloppe <span class="ck-card-act"><button class="ck-mini-btn" id="ck-add-env">＋ Enveloppe</button></span></h4>
+          <div class="ck-envs">${d.envRows.map(r=>envRowHTML(r)).join('')||'<p class="sp-muted sm">Aucune enveloppe. Cliquez sur « ＋ Enveloppe » pour démarrer.</p>'}</div>
         </div>
         <div class="sp-card">
-          <h4>Allocation actuelle vs cible <span class="sp-h4-note">— par famille, % de l'encours · cible ajustable</span></h4>
-          <div class="ck-alloc" id="ck-alloc">${allocVsTargetHTML(d, target, famTotal)}</div>
+          <h4>Allocation par classe d'actif <span class="sp-h4-note">— actuelle vs cible · cible ajustable</span></h4>
+          <div class="ck-alloc" id="ck-alloc">${allocVsTargetHTML(d, target, classTotal)}</div>
         </div>
         <div class="sp-card">
-          <h4>Prochaines échéances <span class="sp-h4-note">— constatations à venir${loading?' · chargement des cours…':''}</span></h4>
-          <div class="ov-risk">${d.upcoming.map(cockpitDueRow).join('')||'<p class="sp-muted sm">Aucune échéance à venir.</p>'}</div>
+          <h4>Prochaines échéances <span class="sp-h4-note">— structurés &amp; documents</span></h4>
+          <div class="ov-risk">${d.upcoming.map(dueRowHTML).join('')||'<p class="sp-muted sm">Aucune échéance à venir.</p>'}</div>
         </div>
         <div class="sp-card">
-          <h4>Points de conformité <span class="sp-h4-note">— ${todo} à traiter · ${warn} à surveiller</span></h4>
-          <div class="ck-comp">${d.compliance.map(c=>`<div class="ck-comp__row ${c.sev}"><span class="ck-dot"></span><div><b>${esc(c.label)}</b>${c.detail?`<small>${esc(c.detail)}</small>`:''}</div></div>`).join('')}</div>
+          <h4>Conformité <span class="sp-h4-note">— ${todo} à traiter · ${warn} à surveiller</span><span class="ck-card-act"><button class="ck-mini-btn" id="ck-add-doc">＋ Document</button></span></h4>
+          <div class="ck-comp">${d.compliance.map(x=>`<div class="ck-comp__row ${x.sev}"><span class="ck-dot"></span><div><b>${esc(x.label)}</b>${x.detail?`<small>${esc(x.detail)}</small>`:''}</div></div>`).join('')}</div>
+          ${d.register.length?`<div class="ck-reg"><div class="ck-reg__h">Registre documentaire</div>${d.register.map(docRowHTML).join('')}</div>`:''}
         </div>
       </div>
 
@@ -488,116 +326,296 @@
       </div>`;
   }
 
-  function allocVsTargetHTML(d, target, famTotal){
-    if(!d.families.length) return '<p class="sp-muted sm">Aucun produit vivant alloué — pas d\'allocation à comparer.</p>';
-    const rows=d.families.map(([f,v])=>{
-      const act=v/famTotal*100;
-      const tgt=target[f]!=null?target[f]:Math.round(act);
-      const gap=act-tgt, gcls=Math.abs(gap)<5?'ok':(gap>0?'over':'under');
+  function envRowHTML(r){
+    const e=r.e; const pcls=r.perf==null?'':(r.perf>=0?'positive':'negative');
+    const mix=classMixHTML(r.sup);
+    return `<div class="ck-env" data-env="${esc(e.id)}">
+      <div class="ck-env__head">
+        <div class="ck-env__id"><b>${esc(e.type||'Enveloppe')}</b><small>${esc(e.etablissement||'')}${e.numero?' · '+esc(e.numero):''}${e.date_souscription?' · depuis '+fmtShort(e.date_souscription):''}</small></div>
+        <div class="ck-env__fig"><span class="ck-env__valo">${compact(r.valo)}</span><span class="ck-env__perf ${pcls}">${perfPct(r.perf)}</span></div>
+        <div class="ck-env__act">
+          <button class="ck-icon ck-add-sup" title="Ajouter un support">＋</button>
+          <button class="ck-icon ck-edit-env" title="Modifier l'enveloppe">✎</button>
+          <button class="ck-icon ck-toggle-sup" title="Voir les supports">▾</button>
+        </div>
+      </div>
+      ${mix?`<div class="ck-env__mix">${mix}</div>`:''}
+      <div class="ck-env__sup" hidden>
+        ${r.sup.length?r.sup.map(supRowHTML).join(''):'<p class="sp-muted sm">Aucun support. Cliquez sur ＋ pour en ajouter.</p>'}
+      </div>
+    </div>`;
+  }
+  function classMixHTML(sup){
+    if(!sup.length) return '';
+    const total=sup.reduce((s,x)=>s+(+x.valorisation||0),0)||1;
+    const m=new Map(); sup.forEach(s=>{ const c=s.classe||'Autre'; m.set(c,(m.get(c)||0)+(+s.valorisation||0)); });
+    const seg=Array.from(m.entries()).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<span class="ck-seg" style="width:${(v/total*100).toFixed(1)}%;background:${CLASS_COLORS[c]||'#789'}" title="${esc(c)} ${(v/total*100).toFixed(0)}%"></span>`).join('');
+    return `<div class="ck-mixbar">${seg}</div>`;
+  }
+  function supRowHTML(s){
+    const pcls=(s.montant_investi!=null && s.valorisation!=null)?((s.valorisation-s.montant_investi)>=0?'positive':'negative'):'';
+    const perf=(s.montant_investi)?(s.valorisation-s.montant_investi)/s.montant_investi:null;
+    return `<div class="ck-sup" data-sup="${esc(s.id)}">
+      <span class="ck-sup__dot" style="background:${CLASS_COLORS[s.classe]||'#789'}"></span>
+      <div class="ck-sup__n">${esc(s.libelle||'—')}<small>${esc(s.classe||'')}${s.isin?' · '+esc(s.isin):''}</small></div>
+      <span class="ck-sup__v">${compact(+s.valorisation||0)}</span>
+      <span class="ck-sup__p ${pcls}">${perf!=null?perfPct(perf):''}</span>
+      <button class="ck-icon ck-edit-sup" title="Modifier">✎</button>
+    </div>`;
+  }
+  function dueRowHTML(x){
+    const struct = x.kind==='Observation structuré';
+    return `<div class="ov-risk__row ${struct?'safe':'warn'}">
+      <div class="ov-risk__n">${esc(x.label)}<small>${esc(x.kind)}${x.env?' · '+esc(x.env):''}${x.detail?' — '+esc(x.detail):''}</small></div>
+      <div class="ov-risk__fig"><b>${fmtShort(x.date)}</b></div></div>`;
+  }
+  function docRowHTML(d){
+    const st=docStatus(d); const lbl={signed:'Signé',pending:'À signer',expired:'Expiré'}[st];
+    return `<div class="ck-reg__row ${st}" data-doc="${esc(d.id)}">
+      <span class="ck-reg__t">${esc(d.type||'Document')}${d.libelle?' — '+esc(d.libelle):''}</span>
+      <span class="ck-reg__d">${d.date_signature?fmtShort(d.date_signature):'—'}${d.date_echeance?' → '+fmtShort(d.date_echeance):''}</span>
+      <span class="ck-reg__s ${st}">${lbl}</span>
+      <button class="ck-icon ck-edit-doc" title="Modifier">✎</button>
+    </div>`;
+  }
+
+  /* ---- Allocation actuelle vs cible (par classe d'actif) ---- */
+  function allocVsTargetHTML(d, target, classTotal){
+    if(!d.classes.length) return '<p class="sp-muted sm">Aucun support — pas d\'allocation à comparer.</p>';
+    const rows=d.classes.map(([c,v])=>{
+      const act=v/classTotal*100, tgt=target[c]!=null?target[c]:Math.round(act), gap=act-tgt, gcls=Math.abs(gap)<5?'ok':(gap>0?'over':'under');
       return `<div class="ck-alloc__row">
-        <span class="ck-alloc__n" title="${esc(f)}">${esc(f)}</span>
-        <div class="ck-alloc__bar"><div class="ck-alloc__fill" style="width:${Math.min(100,act).toFixed(0)}%"></div><div class="ck-alloc__tgt" style="left:${Math.min(100,tgt)}%"></div></div>
+        <span class="ck-alloc__n"><i style="background:${CLASS_COLORS[c]||'#789'}"></i>${esc(c)}</span>
+        <div class="ck-alloc__bar"><div class="ck-alloc__fill" style="width:${Math.min(100,act).toFixed(0)}%;background:${CLASS_COLORS[c]||'var(--gold)'}"></div><div class="ck-alloc__tgt" style="left:${Math.min(100,tgt)}%"></div></div>
         <span class="ck-alloc__act">${act.toFixed(0)}%</span>
-        <span class="ck-alloc__tgtv">cible <input type="number" class="ck-tgt-input" data-fam="${esc(f)}" value="${tgt}" min="0" max="100">%</span>
+        <span class="ck-alloc__tgtv">cible <input type="number" class="ck-tgt-input" data-cls="${esc(c)}" value="${tgt}" min="0" max="100">%</span>
         <span class="ck-alloc__gap ${gcls}">${gap>=0?'+':''}${gap.toFixed(0)} pts</span>
       </div>`;
     }).join('');
-    return rows+`<div class="ck-alloc__foot"><button class="ck-mini-btn" id="ck-tgt-save">Enregistrer la cible</button><button class="ck-mini-btn ghost" id="ck-tgt-auto">Réinitialiser</button><span class="sp-muted sm" id="ck-tgt-status"></span></div>`;
-  }
-  function cockpitDueRow(x){
-    const p=x.p; let sev='safe', note='';
-    if(x.worst!=null){
-      const ac=p.ac!=null?p.ac*100:null, cpn=p.bcpn!=null?p.bcpn*100:null;
-      if(cpn!=null && x.worst<cpn){ sev='danger'; note='sous barrière coupon'; }
-      else if(ac!=null && x.worst>=ac){ sev='warn'; note='autocall probable'; }
-      else note='pire '+x.worst.toFixed(0)+'%';
-    }
-    const tags=[p.ac!=null?'autocall '+pct(p.ac,0):'', p.bcpn!=null?'cpn '+pct(p.bcpn,0):''].filter(Boolean).join(' · ');
-    return `<div class="ov-risk__row ${sev}">
-      <div class="ov-risk__n">${esc(p.lib||p.isin)}<small>${esc((p.uls||[]).map(u=>u.n).join(', '))}${note?' — '+esc(note):''}</small></div>
-      <div class="ov-risk__fig"><b>${fmtShort(x.date)}</b><span>${tags}</span></div></div>`;
+    const detail=d.envRows.filter(r=>r.sup.length).map(r=>`<div class="ck-alloc-env"><span class="ck-alloc-env__n">${esc(r.e.type||'Enveloppe')}${r.e.etablissement?' · '+esc(r.e.etablissement):''}</span>${classMixHTML(r.sup)}</div>`).join('');
+    return rows
+      +`<div class="ck-alloc__foot"><button class="ck-mini-btn" id="ck-tgt-save">Enregistrer la cible</button><button class="ck-mini-btn ghost" id="ck-tgt-auto">Réinitialiser</button><span class="sp-muted sm" id="ck-tgt-status"></span></div>`
+      +(detail?`<div class="ck-alloc-detail"><div class="ck-reg__h">Détail par enveloppe</div>${detail}</div>`:'');
   }
 
   function bindCockpit(d){
-    const cta=document.getElementById('ck-brief-cta'); if(cta) cta.addEventListener('click',()=>openBrief(d));
-    const cp=document.getElementById('ck-brief-copy'); if(cp) cp.addEventListener('click',()=>copyBrief(d));
-    const pr=document.getElementById('ck-brief-print'); if(pr) pr.addEventListener('click',()=>openBrief(d));
-    const save=document.getElementById('ck-tgt-save');
-    if(save) save.addEventListener('click',()=>{ const map={}; document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>{ map[i.dataset.fam]=Math.max(0,Math.min(100,parseFloat(i.value)||0)); }); saveTarget(d,map);
+    const c=d.client;
+    const on=(id,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener('click',fn); };
+    on('ck-brief-cta',()=>openBrief(d)); on('ck-brief-copy',()=>copyBrief(d)); on('ck-brief-print',()=>openBrief(d));
+    on('ck-add-env',()=>openEnvForm(c)); on('ck-add-doc',()=>openDocForm(c));
+    on('ck-tgt-save',()=>{ const map={}; document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>{ map[i.dataset.cls]=Math.max(0,Math.min(100,parseFloat(i.value)||0)); }); saveTarget(c.id,map);
       const st=document.getElementById('ck-tgt-status'); if(st){ st.textContent='✓ Cible enregistrée'; st.style.color='#2e7d32'; } });
-    const auto=document.getElementById('ck-tgt-auto');
-    if(auto) auto.addEventListener('click',()=>{ saveTarget(d,null); renderCockpit(); });
+    on('ck-tgt-auto',()=>{ saveTarget(c.id,null); renderCockpit(); });
     document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>i.addEventListener('input',()=>updateAllocGaps(d)));
+    // enveloppes / supports
+    document.querySelectorAll('#ck-body .ck-env').forEach(row=>{
+      const eid=row.dataset.env; const env=enveloppes.find(e=>String(e.id)===String(eid));
+      row.querySelector('.ck-toggle-sup').addEventListener('click',()=>{ const box=row.querySelector('.ck-env__sup'); box.hidden=!box.hidden; row.querySelector('.ck-toggle-sup').textContent=box.hidden?'▾':'▴'; });
+      row.querySelector('.ck-edit-env').addEventListener('click',()=>openEnvForm(c, env));
+      row.querySelector('.ck-add-sup').addEventListener('click',()=>openSupForm(env));
+      row.querySelectorAll('.ck-sup').forEach(sr=>{ const sup=supports.find(s=>String(s.id)===String(sr.dataset.sup));
+        sr.querySelector('.ck-edit-sup').addEventListener('click',()=>openSupForm(env, sup)); });
+    });
+    document.querySelectorAll('#ck-body .ck-reg__row').forEach(r=>{ const doc=documents.find(x=>String(x.id)===String(r.dataset.doc));
+      r.querySelector('.ck-edit-doc').addEventListener('click',()=>openDocForm(c, null, doc)); });
   }
   function updateAllocGaps(d){
-    const famTotal=d.families.reduce((s,f)=>s+f[1],0)||1;
+    const classTotal=d.classes.reduce((s,x)=>s+x[1],0)||1;
     document.querySelectorAll('#ck-alloc .ck-alloc__row').forEach(row=>{
       const inp=row.querySelector('.ck-tgt-input'); if(!inp) return;
-      const ent=d.families.find(x=>x[0]===inp.dataset.fam); const v=ent?ent[1]:0;
-      const act=v/famTotal*100, tgt=parseFloat(inp.value)||0, gap=act-tgt;
+      const ent=d.classes.find(x=>x[0]===inp.dataset.cls); const v=ent?ent[1]:0;
+      const act=v/classTotal*100, tgt=parseFloat(inp.value)||0, gap=act-tgt;
       const g=row.querySelector('.ck-alloc__gap'); if(g){ g.textContent=(gap>=0?'+':'')+gap.toFixed(0)+' pts'; g.className='ck-alloc__gap '+(Math.abs(gap)<5?'ok':(gap>0?'over':'under')); }
       const mk=row.querySelector('.ck-alloc__tgt'); if(mk) mk.style.left=Math.min(100,tgt)+'%';
     });
   }
 
-  /* ---- Brief : lignes structurées (affichage / copier / impression) ---- */
+  /* ---------------- CIBLE (localStorage) ---------------- */
+  function ckTargetKey(id){ return 'lfdr:ck:alloc:'+id; }
+  function loadTarget(id){ try{ return JSON.parse(localStorage.getItem(ckTargetKey(id))||'null')||{}; }catch(e){ return {}; } }
+  function saveTarget(id,map){ try{ if(map) localStorage.setItem(ckTargetKey(id),JSON.stringify(map)); else localStorage.removeItem(ckTargetKey(id)); }catch(e){} }
+
+  /* ===================================================================
+     SAISIE / PERSISTANCE (enveloppes, supports, documents)
+     =================================================================== */
+  const modal=document.getElementById('ck-modal');
+  if(document.getElementById('ck-modal-close')) document.getElementById('ck-modal-close').addEventListener('click',()=>modal.classList.remove('is-open'));
+  if(modal) modal.addEventListener('click',e=>{ if(e.target===modal) modal.classList.remove('is-open'); });
+  function openModal(title){ document.getElementById('ck-modal-title').textContent=title; modal.classList.add('is-open'); document.getElementById('ck-modal-body').scrollTop=0; }
+  function fld(id,label,type,value,opts){
+    let input;
+    if(type==='select'){ input=`<select id="${id}">${(opts||[]).map(o=>`<option ${o===value?'selected':''}>${esc(o)}</option>`).join('')}</select>`; }
+    else if(type==='textarea'){ input=`<textarea id="${id}" rows="2">${esc(value==null?'':value)}</textarea>`; }
+    else input=`<input type="${type}" id="${id}" value="${value==null?'':esc(value)}">`;
+    return `<div class="sp-fld"><label>${esc(label)}</label>${input}</div>`;
+  }
+  function val(id){ const e=document.getElementById(id); return e?(String(e.value).trim()||null):null; }
+  function numv(id){ const e=document.getElementById(id); if(!e||e.value==='') return null; const n=parseFloat(String(e.value).replace(/\s/g,'').replace(',','.')); return isNaN(n)?null:n; }
+
+  function persistInsert(table, arr, payload){
+    if(!SB){ const local=Object.assign({id:'loc'+(++localId)},payload); arr.push(local); return Promise.resolve(local); }
+    return fetch(API+'/'+table,{method:'POST',headers:headers({'Prefer':'return=representation'}),body:JSON.stringify(payload)})
+      .then(r=>r.ok?r.json():Promise.reject(r.status)).then(rows=>{ const row=(rows&&rows[0])||Object.assign({id:'loc'+(++localId)},payload); arr.push(row); return row; })
+      .catch(()=>{ const local=Object.assign({id:'loc'+(++localId)},payload); arr.push(local); toast('Ajouté pour cette session — non sauvegardé (base non connectée).',true); return local; });
+  }
+  function persistUpdate(table, arr, id, patch){
+    const obj=arr.find(x=>String(x.id)===String(id)); if(obj) Object.assign(obj,patch);
+    if(SB) fetch(API+'/'+table+'?id=eq.'+id,{method:'PATCH',headers:headers({'Prefer':'return=minimal'}),body:JSON.stringify(patch)}).catch(()=>{});
+    return Promise.resolve(obj);
+  }
+  function persistDelete(table, arr, id){
+    const i=arr.findIndex(x=>String(x.id)===String(id)); if(i>=0) arr.splice(i,1);
+    if(table==='enveloppes'){ const subs=supports.filter(s=>String(s.enveloppe_id)===String(id)); subs.forEach(s=>persistDelete('supports',supports,s.id)); }
+    if(SB) fetch(API+'/'+table+'?id=eq.'+id,{method:'DELETE',headers:headers()}).catch(()=>{});
+    return Promise.resolve();
+  }
+  function refresh(){ buildClientSelect(); renderStats(); renderCockpit(); }
+
+  function openEnvForm(client, env){
+    env=env||{};
+    openModal(env.id?'Modifier l\'enveloppe':'Nouvelle enveloppe');
+    document.getElementById('ck-modal-body').innerHTML=`
+      <div class="sp-form-grid">
+        ${fld('en-type','Type d\'enveloppe','select',env.type||'Assurance-vie',ENV_TYPES)}
+        ${fld('en-etab','Établissement / Assureur','text',env.etablissement)}
+        ${fld('en-num','N° de contrat','text',env.numero)}
+        ${fld('en-date','Date de souscription','date',env.date_souscription?String(env.date_souscription).slice(0,10):'')}
+        ${fld('en-inv','Montant investi (€)','number',env.montant_investi)}
+        ${fld('en-valo','Valorisation actuelle (€)','number',env.valorisation)}
+        ${fld('en-ytd','Valorisation au 01/01 (€, pour la perf YTD)','number',env.valo_debut_annee)}
+        ${fld('en-dev','Devise','select',env.devise||'EUR',['EUR','USD','CHF','GBP'])}
+      </div>
+      <p class="sp-muted sm" style="margin-top:8px">La valorisation et l'investi se déduisent des supports si vous en ajoutez ; les montants saisis ici servent de repli.</p>
+      <div class="sp-save-bar">
+        <button class="btn btn--solid" id="en-save">Enregistrer</button>
+        ${env.id?'<button class="btn" id="en-del" style="border-color:#c0392b;color:#c0392b">Supprimer</button>':''}
+        <span class="sp-save-status" id="en-status"></span>
+      </div>`;
+    document.getElementById('en-save').addEventListener('click',()=>{
+      const payload={ client_id:client.id, type:val('en-type'), etablissement:val('en-etab'), numero:val('en-num'),
+        date_souscription:val('en-date'), montant_investi:numv('en-inv'), valorisation:numv('en-valo'),
+        valo_debut_annee:numv('en-ytd'), devise:val('en-dev')||'EUR', libelle:val('en-type') };
+      const p = env.id ? persistUpdate('enveloppes',enveloppes,env.id,payload) : persistInsert('enveloppes',enveloppes,payload);
+      p.then(()=>{ modal.classList.remove('is-open'); refresh(); toast('Enveloppe enregistrée.'); });
+    });
+    const del=document.getElementById('en-del');
+    if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer cette enveloppe et ses supports ?')) persistDelete('enveloppes',enveloppes,env.id).then(()=>{ modal.classList.remove('is-open'); refresh(); }); });
+  }
+
+  function openSupForm(env, sup){
+    if(!env){ toast('Enveloppe introuvable.',true); return; }
+    sup=sup||{};
+    openModal(sup.id?'Modifier le support':'Nouveau support — '+(env.type||'Enveloppe'));
+    document.getElementById('ck-modal-body').innerHTML=`
+      <div class="sp-form-grid">
+        ${fld('su-lib','Libellé du support','text',sup.libelle)}
+        ${fld('su-cls','Classe d\'actif','select',sup.classe||'Fonds euro',ASSET_CLASSES)}
+        ${fld('su-isin','ISIN (optionnel)','text',sup.isin)}
+        ${fld('su-inv','Montant investi (€)','number',sup.montant_investi)}
+        ${fld('su-valo','Valorisation (€)','number',sup.valorisation)}
+        ${fld('su-date','Date de valorisation','date',sup.date_valo?String(sup.date_valo).slice(0,10):'')}
+      </div>
+      <p class="sp-muted sm" style="margin-top:8px">Pour un produit structuré, renseignez l'ISIN : ses prochaines échéances (autocall/coupon) seront reprises automatiquement.</p>
+      <div class="sp-save-bar">
+        <button class="btn btn--solid" id="su-save">Enregistrer</button>
+        ${sup.id?'<button class="btn" id="su-del" style="border-color:#c0392b;color:#c0392b">Supprimer</button>':''}
+        <span class="sp-save-status" id="su-status"></span>
+      </div>`;
+    document.getElementById('su-save').addEventListener('click',()=>{
+      const payload={ enveloppe_id:env.id, libelle:val('su-lib'), classe:val('su-cls'),
+        isin:val('su-isin')?val('su-isin').toUpperCase():null, montant_investi:numv('su-inv'),
+        valorisation:numv('su-valo'), date_valo:val('su-date') };
+      const p = sup.id ? persistUpdate('supports',supports,sup.id,payload) : persistInsert('supports',supports,payload);
+      p.then(()=>{ modal.classList.remove('is-open'); refresh(); toast('Support enregistré.'); });
+    });
+    const del=document.getElementById('su-del');
+    if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer ce support ?')) persistDelete('supports',supports,sup.id).then(()=>{ modal.classList.remove('is-open'); refresh(); }); });
+  }
+
+  function openDocForm(client, env, doc){
+    doc=doc||{};
+    const envOpts=['(aucune)'].concat(clientEnvs(client.id).map(e=>(e.type||'Enveloppe')+(e.numero?' · '+e.numero:'')));
+    const envIds=[''].concat(clientEnvs(client.id).map(e=>e.id));
+    const curEnvIdx=doc.enveloppe_id?Math.max(0,envIds.indexOf(doc.enveloppe_id)):(env?Math.max(0,envIds.indexOf(env.id)):0);
+    openModal(doc.id?'Modifier le document':'Nouveau document de conformité');
+    document.getElementById('ck-modal-body').innerHTML=`
+      <div class="sp-form-grid">
+        ${fld('dc-type','Type de document','select',doc.type||'Convention de conseil',DOC_TYPES)}
+        ${fld('dc-lib','Libellé / objet','text',doc.libelle)}
+        <div class="sp-fld"><label>Enveloppe rattachée (optionnel)</label><select id="dc-env">${envOpts.map((o,i)=>`<option value="${esc(envIds[i]||'')}" ${i===curEnvIdx?'selected':''}>${esc(o)}</option>`).join('')}</select></div>
+        ${fld('dc-sign','Date de signature','date',doc.date_signature?String(doc.date_signature).slice(0,10):'')}
+        ${fld('dc-ech','Date d\'échéance / renouvellement','date',doc.date_echeance?String(doc.date_echeance).slice(0,10):'')}
+        ${fld('dc-ref','Référence','text',doc.reference)}
+      </div>
+      ${fld('dc-notes','Notes','textarea',doc.notes)}
+      <p class="sp-muted sm" style="margin-top:4px">Laissez la date de signature vide pour un document « à signer ». L'échéance déclenche une relance (ex : convention de conseil annuelle).</p>
+      <div class="sp-save-bar">
+        <button class="btn btn--solid" id="dc-save">Enregistrer</button>
+        ${doc.id?'<button class="btn" id="dc-del" style="border-color:#c0392b;color:#c0392b">Supprimer</button>':''}
+        <span class="sp-save-status" id="dc-status"></span>
+      </div>`;
+    document.getElementById('dc-save').addEventListener('click',()=>{
+      const payload={ client_id:client.id, enveloppe_id:val('dc-env')||null, type:val('dc-type'),
+        libelle:val('dc-lib'), date_signature:val('dc-sign'), date_echeance:val('dc-ech'),
+        reference:val('dc-ref'), notes:val('dc-notes') };
+      const p = doc.id ? persistUpdate('documents',documents,doc.id,payload) : persistInsert('documents',documents,payload);
+      p.then(()=>{ modal.classList.remove('is-open'); refresh(); toast('Document enregistré.'); });
+    });
+    const del=document.getElementById('dc-del');
+    if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer ce document ?')) persistDelete('documents',documents,doc.id).then(()=>{ modal.classList.remove('is-open'); refresh(); }); });
+  }
+
+  /* ---------------- BRIEF ---------------- */
   function briefLines(d){
-    const crm=d.crm, L=[];
-    const totPct=d.investedNom?d.coupTot/d.investedNom:null, ytdPct=d.investedNom?d.coupYtd/d.investedNom:null;
+    const c=d.client, L=[];
     L.push({h:'Synthèse patrimoniale'});
-    L.push({t:`${d.name} — ${d.live.length} produit(s) structuré(s) vivant(s), encours ${compact(d.encours)} réparti sur ${d.envelopes.length} enveloppe(s).`});
-    if(d.avgCoupon!=null || d.coupTot) L.push({t:`${d.avgCoupon!=null?`Coupon moyen pondéré ${pct(d.avgCoupon,2)}/an. `:''}Coupons perçus depuis origine ${compact(d.coupTot)}${totPct!=null?` (${pct(totPct,2)})`:''}${d.coupYtd?`, dont ${compact(d.coupYtd)}${ytdPct!=null?` (${pct(ytdPct,2)})`:''} cette année`:''}.`});
-    if(d.envelopes.length>1){ L.push({h:'Répartition par enveloppe'}); d.envelopes.forEach(([n,v])=>L.push({li:`${n} : ${compact(v)} (${(v/(d.encours||1)*100).toFixed(0)}%)`})); }
-    if(d.families.length){ const ft=d.families.reduce((s,f)=>s+f[1],0)||1; L.push({h:'Allocation par famille'}); d.families.forEach(([f,v])=>L.push({li:`${f} : ${(v/ft*100).toFixed(0)}%`})); }
-    if(d.upcoming.length){ L.push({h:'À l\'ordre du jour — échéances'});
-      d.upcoming.slice(0,5).forEach(x=>{ const w=x.worst!=null?`, pire ${x.worst.toFixed(0)}%`:''; const cnd=[x.p.ac!=null?'autocall '+pct(x.p.ac,0):'', x.p.bcpn!=null?'cpn '+pct(x.p.bcpn,0):''].filter(Boolean).join(', ');
-        L.push({li:`${fmtShort(x.date)} — ${x.p.lib||x.p.isin}${cnd?' ('+cnd+w+')':w}`}); }); }
-    const todo=d.compliance.filter(c=>c.sev!=='ok');
-    if(todo.length){ L.push({h:'Conformité à régulariser'}); todo.forEach(c=>L.push({li:c.label+(c.detail?` — ${c.detail}`:'')})); }
+    L.push({t:`${clientName(c)} — valorisation totale ${compact(d.valoTotal)} sur ${d.envs.length} enveloppe(s), investi ${compact(d.investiTotal)}, plus/moins-value ${d.plusValue>=0?'+':''}${compact(d.plusValue)} (${perfPct(d.perf)})${d.ytd!=null?`, performance ${perfPct(d.ytd)} YTD`:''}.`});
+    if(d.envRows.length){ L.push({h:'Enveloppes'}); d.envRows.forEach(r=>L.push({li:`${r.e.type||'Enveloppe'}${r.e.etablissement?' ('+r.e.etablissement+')':''} : ${compact(r.valo)}${r.perf!=null?' · '+perfPct(r.perf):''}`})); }
+    if(d.classes.length){ const ct=d.classes.reduce((s,x)=>s+x[1],0)||1; L.push({h:'Allocation par classe d\'actif'}); d.classes.forEach(([cl,v])=>L.push({li:`${cl} : ${(v/ct*100).toFixed(0)}%`})); }
+    if(d.upcoming.length){ L.push({h:'À l\'ordre du jour — échéances'}); d.upcoming.slice(0,5).forEach(x=>L.push({li:`${fmtShort(x.date)} — ${x.label} (${x.kind}${x.detail?', '+x.detail:''})`})); }
+    const todo=d.compliance.filter(x=>x.sev!=='ok');
+    if(todo.length){ L.push({h:'Conformité à régulariser'}); todo.forEach(x=>L.push({li:x.label+(x.detail?` — ${x.detail}`:'')})); }
     L.push({h:'Relation & objectifs'});
-    const lc=crm?lastContact(crm):null, nr=crm?nextRdv(crm):null;
-    L.push({t:`Dernier contact : ${lc?fmtShort(lc):'—'}.${nr?` Prochain RDV : ${fmtShort(nr)}.`:''}${crm&&crm.next_action?` Prochaine action : ${crm.next_action}${crm.next_action_date?' ('+fmtShort(crm.next_action_date)+')':''}.`:''}`});
-    if(crm&&crm.objectifs&&crm.objectifs.length) L.push({t:`Objectifs : ${Array.isArray(crm.objectifs)?crm.objectifs.join(', '):crm.objectifs}.`});
-    if(crm&&(crm.horizon||crm.couple_rendement_risque)) L.push({t:`Horizon : ${crm.horizon||'—'} · Profil : ${crm.couple_rendement_risque||'—'}.`});
-    if(crm&&crm.notes_internes) L.push({t:`Note interne : ${crm.notes_internes}`});
+    const lc=lastContact(c.id), nr=nextRdv(c.id);
+    L.push({t:`Dernier contact : ${lc?fmtShort(lc):'—'}.${nr?` Prochain RDV : ${fmtShort(nr)}.`:''}${c.next_action?` Prochaine action : ${c.next_action}${c.next_action_date?' ('+fmtShort(c.next_action_date)+')':''}.`:''}`});
+    if(c.objectifs&&c.objectifs.length) L.push({t:`Objectifs : ${Array.isArray(c.objectifs)?c.objectifs.join(', '):c.objectifs}.`});
+    if(c.horizon||c.couple_rendement_risque) L.push({t:`Horizon : ${c.horizon||'—'} · Profil : ${c.couple_rendement_risque||'—'}.`});
+    if(c.notes_internes) L.push({t:`Note interne : ${c.notes_internes}`});
     return L;
   }
   function linesToHTML(L, hTag){
     let html='', inUl=false;
-    L.forEach(x=>{
-      if(x.li){ if(!inUl){ html+='<ul>'; inUl=true; } html+=`<li>${esc(x.li)}</li>`; return; }
+    L.forEach(x=>{ if(x.li){ if(!inUl){ html+='<ul>'; inUl=true; } html+=`<li>${esc(x.li)}</li>`; return; }
       if(inUl){ html+='</ul>'; inUl=false; }
-      if(x.h) html+=`<${hTag}>${esc(x.h)}</${hTag}>`; else html+=`<p>${esc(x.t)}</p>`;
-    });
-    if(inUl) html+='</ul>';
-    return html;
+      if(x.h) html+=`<${hTag}>${esc(x.h)}</${hTag}>`; else html+=`<p>${esc(x.t)}</p>`; });
+    if(inUl) html+='</ul>'; return html;
   }
   function briefHTML(d){ return linesToHTML(briefLines(d),'h5'); }
   function briefPlain(d){
     const tday=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-    const out=['BRIEF PRÉ-RDV — '+d.name, 'La Financière de Rochechouart · '+tday];
+    const out=['BRIEF PRÉ-RDV — '+clientName(d.client), 'La Financière de Rochechouart · '+tday];
     briefLines(d).forEach(x=>{ if(x.h) out.push('', x.h.toUpperCase()); else if(x.li) out.push('  • '+x.li); else out.push(x.t); });
     return out.join('\n');
   }
   function copyBrief(d){
     const txt=briefPlain(d);
     if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>toast('Brief copié dans le presse-papiers.')).catch(()=>toast('Copie impossible.',true)); }
-    else toast('Presse-papiers indisponible sur ce navigateur.',true);
+    else toast('Presse-papiers indisponible.',true);
   }
   function openBrief(d){
     const tday=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-    const totPct=d.investedNom?d.coupTot/d.investedNom:null, ytdPct=d.investedNom?d.coupYtd/d.investedNom:null;
     const body=linesToHTML(briefLines(d),'h2');
-    const html=`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Brief pré-RDV — ${esc(d.name)} — ${tday}</title>
+    const html=`<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Brief pré-RDV — ${esc(clientName(d.client))} — ${tday}</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Jost,Arial,sans-serif;color:#1E211C;padding:46px 54px;max-width:880px;margin:0 auto;font-size:13px;line-height:1.65}
 .header{text-align:center;border-bottom:2px solid #A9853F;padding-bottom:22px;margin-bottom:24px}
 .header h1{font-family:'Cormorant Garamond',serif;color:#001B00;font-size:23px;font-weight:500}
 .header .date{color:#5B6058;font-size:12px;margin-top:6px}
 h1.client{font-family:'Cormorant Garamond',serif;color:#001B00;font-size:21px;font-weight:600;margin-bottom:14px}
-.summary{background:#f6f4ee;border-radius:10px;padding:18px 24px;margin-bottom:26px;display:flex;gap:34px;flex-wrap:wrap}
+.summary{background:#f6f4ee;border-radius:10px;padding:18px 24px;margin-bottom:26px;display:flex;gap:30px;flex-wrap:wrap}
 .summary .item .l{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#5B6058}
-.summary .item .v{font-size:19px;font-weight:600;color:#001B00;margin-top:3px}
+.summary .item .v{font-size:18px;font-weight:600;color:#001B00;margin-top:3px}
+.pos{color:#2e7d32}.neg{color:#c0392b}
 h2{font-family:'Cormorant Garamond',serif;color:#001B00;font-size:16px;margin:22px 0 7px;font-weight:600;border-bottom:1px solid #e8e6df;padding-bottom:4px}
 p{margin:0 0 7px}ul{margin:0 0 7px;padding-left:20px}li{margin-bottom:3px}
 .footer{text-align:center;font-size:10px;color:#999;margin-top:38px;border-top:1px solid #e8e6df;padding-top:16px;line-height:1.7}
@@ -605,31 +623,30 @@ p{margin:0 0 7px}ul{margin:0 0 7px;padding-left:20px}li{margin-bottom:3px}
 @media print{.print-btn{display:none}body{padding:20px}}</style></head><body>
 <button class="print-btn" onclick="window.print()">Imprimer / PDF</button>
 <div class="header"><h1>La Financière de Rochechouart</h1><div class="date">Brief pré-RDV · ${tday}</div></div>
-<h1 class="client">${esc(d.name)}</h1>
+<h1 class="client">${esc(clientName(d.client))}</h1>
 <div class="summary">
-  <div class="item"><div class="l">Encours en cours</div><div class="v">${Math.round(d.encours).toLocaleString('fr-FR')} €</div></div>
-  <div class="item"><div class="l">Produits vivants</div><div class="v">${d.live.length} / ${d.items.length}</div></div>
-  <div class="item"><div class="l">Coupons perçus (origine)</div><div class="v">${Math.round(d.coupTot).toLocaleString('fr-FR')} €${totPct!=null?' · '+pct(totPct,2):''}</div></div>
-  <div class="item"><div class="l">dont YTD</div><div class="v">${Math.round(d.coupYtd).toLocaleString('fr-FR')} €${ytdPct!=null?' · '+pct(ytdPct,2):''}</div></div>
+  <div class="item"><div class="l">Valorisation totale</div><div class="v">${fmtEur(d.valoTotal)}</div></div>
+  <div class="item"><div class="l">Investi</div><div class="v">${fmtEur(d.investiTotal)}</div></div>
+  <div class="item"><div class="l">Plus/moins-value</div><div class="v ${d.plusValue>=0?'pos':'neg'}">${d.plusValue>=0?'+':''}${fmtEur(d.plusValue)} (${perfPct(d.perf)})</div></div>
+  <div class="item"><div class="l">Performance YTD</div><div class="v ${d.ytd!=null&&d.ytd<0?'neg':'pos'}">${d.ytd!=null?perfPct(d.ytd):'—'}</div></div>
 </div>
 ${body}
-<div class="footer"><p><strong>La Financière de Rochechouart</strong> · 58 rue de Monceau, 75008 Paris</p><p>Document interne de préparation — Valorisations et niveaux indicatifs, non contractuels.</p></div>
+<div class="footer"><p><strong>La Financière de Rochechouart</strong> · 58 rue de Monceau, 75008 Paris</p><p>Document interne de préparation — Valorisations indicatives, non contractuelles.</p></div>
 </body></html>`;
     const w=window.open('','_blank'); if(!w){ toast('Autorisez les pop-ups pour ouvrir le brief.',true); return; }
     w.document.write(html); w.document.close();
   }
 
-  /* ---------------- STATS (en-tête du module) ---------------- */
+  /* ---------------- STATS (en-tête module) ---------------- */
   function renderStats(){
-    const list=cockpitList();
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
-    set('stat-clients', list.length);
-    let enc=0; positions.filter(p=>!p._deleted && (p.statut||'LIVE')==='LIVE').forEach(p=>enc+=(toEur(p.nominal,p.dev)||0));
-    set('stat-encours', compact(enc));
+    set('stat-clients', clientsWithData().filter(c=>clientEnvs(c.id).length).length);
+    let enc=0; enveloppes.forEach(e=>enc+=envValo(e)); set('stat-encours', compact(enc));
     const tod=today(), in30=addDays(tod,30); let due=0;
-    positions.filter(p=>!p._deleted && (p.statut||'LIVE')==='LIVE').forEach(p=>{ const pr=productsMap.get(p.isin); if(!pr) return; const o=nextObsDate(pr); if(o && o>=tod && o<=in30) due++; });
+    supports.forEach(s=>{ if(s.classe==='Produit structuré' && s.isin && productsMap.has(s.isin)){ const p=productsMap.get(s.isin); if(productStatus(p)!=='LIVE') return; const o=nextObsDate(p); if(o&&o>=tod&&o<=in30) due++; } });
+    documents.forEach(d=>{ if(d.date_echeance){ const de=pd(d.date_echeance); if(de>=tod&&de<=in30) due++; } });
     set('stat-due', due);
-    let toReg=0; list.forEach(h=>{ const c=complianceItems(h.crm, h.items); if(c.some(x=>x.sev==='todo')) toReg++; });
+    let toReg=0; crmClients.forEach(c=>{ const items=complianceItems(c, clientEnvs(c.id), clientDocs(c.id)); if(items.some(x=>x.sev==='todo')) toReg++; });
     set('stat-compliance', toReg);
   }
 
