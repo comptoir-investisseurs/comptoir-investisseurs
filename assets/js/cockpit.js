@@ -71,10 +71,15 @@
 
   /* ---------------- STATE ---------------- */
   const productsMap = new Map();
-  let crmClients = [], crmActivities = [], poles = [], enveloppes = [], supports = [], documents = [];
+  let crmClients = [], crmActivities = [], poles = [], enveloppes = [], supports = [], documents = [], positions = [];
   let localId = 900000;
+  const FX = {EUR:1,USD:0.92,CHF:1.04,GBP:1.17};
+  function toEur(n,dev){ return n==null?0:n*(FX[dev]||1); }
 
-  function seedState(){ (window.SP_PRODUCTS||[]).forEach(p => { p.uls = p.uls||[]; productsMap.set(p.isin, Object.assign({}, p)); }); }
+  function seedState(){
+    (window.SP_PRODUCTS||[]).forEach(p => { p.uls = p.uls||[]; productsMap.set(p.isin, Object.assign({}, p)); });
+    positions = (window.SP_POSITIONS||[]).map(p => Object.assign({_seed:true}, p));
+  }
   function init(){
     seedState();
     Promise.resolve().then(loadSbProducts).then(loadCrm).then(loadPortfolio).then(afterLoad).catch(e => { console.warn(e); afterLoad(); });
@@ -100,14 +105,20 @@
     return Promise.all([
       fetch(API + '/enveloppes?select=*', {headers:headers()}).then(r => r.ok ? r.json() : []),
       fetch(API + '/supports?select=*', {headers:headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/documents?select=*', {headers:headers()}).then(r => r.ok ? r.json() : [])
-    ]).then(([e,s,d]) => { enveloppes = e||[]; supports = s||[]; documents = d||[]; }).catch(()=>{});
+      fetch(API + '/documents?select=*', {headers:headers()}).then(r => r.ok ? r.json() : []),
+      fetch(API + '/sp_positions?select=*', {headers:headers()}).then(r => r.ok ? r.json() : [])
+    ]).then(([e,s,d,p]) => { enveloppes = e||[]; supports = s||[]; documents = d||[];
+      // fusionne les allocations Supabase avec le seed embarqué (override des lignes seed)
+      (p||[]).forEach(row => { const pos=fromDbPosition(row); if(pos.seed_id){ positions = positions.filter(x => !(x._seed && x.id===pos.seed_id)); if(pos._deleted) return; } positions.push(pos); });
+    }).catch(()=>{});
   }
+  function fromDbPosition(r){ return { id:r.id, seed_id:r.seed_id, isin:r.isin, prenom:r.prenom, nom:r.nom, compte:r.compte, nominal:r.nominal, dev:r.dev||'EUR', gt:r.gt, gc:r.gc, statut:r.statut, client_id:r.client_id, _deleted:r.deleted, _db:true }; }
   function afterLoad(){
     if(window.CK_DEMO){ const D=window.CK_DEMO;
       if(!crmClients.length) crmClients=D.clients||[]; if(!crmActivities.length) crmActivities=D.activities||[];
       if(!poles.length) poles=D.poles||[]; if(!enveloppes.length) enveloppes=D.enveloppes||[];
-      if(!supports.length) supports=D.supports||[]; if(!documents.length) documents=D.documents||[]; }
+      if(!supports.length) supports=D.supports||[]; if(!documents.length) documents=D.documents||[];
+      if(D.positions){ D.positions.forEach(p=>positions.push(Object.assign({_db:true},p))); } }
     buildClientSelect(); renderStats(); renderCockpit();
   }
 
@@ -197,29 +208,48 @@
     return {kind:'client', client:c, members:[c], ids:[c.id]};
   }
 
+  // Allocations structurées (sp_positions) déjà représentées par un support réel → à masquer du book.
+  function linkedPositionIds(){ return new Set(supports.map(s=>s.sp_position_id).filter(Boolean).map(String)); }
   function buildData(subj){
     const members=subj.members;
-    const envs=[]; members.forEach(m=>clientEnvs(m.id).forEach(e=>envs.push(Object.assign({}, e, {_owner:m}))));
+    const linked=linkedPositionIds();
+    const envRows=[];
+    members.forEach(m=>{
+      const realIsins=new Set();
+      // enveloppes réelles + leurs supports
+      clientEnvs(m.id).forEach(e=>{ const sup=envSupports(e.id); sup.forEach(s=>{ if(s.isin) realIsins.add(s.isin); });
+        const v=envValo(e), inv=envInvesti(e);
+        envRows.push({e:Object.assign({}, e, {_owner:m}), sup, valo:v, investi:inv, perf:inv?(v-inv)/inv:null, owner:m, virtual:false}); });
+      // passerelle : allocations structurées (module Produits structurés) non liées / non doublonnées
+      const mine=positions.filter(p=>!p._deleted && String(p.client_id)===String(m.id) && !linked.has(String(p.id)) && !(p.isin && realIsins.has(p.isin)));
+      const byCompte=new Map(); mine.forEach(p=>{ const k=(p.compte||'').trim()||'Produits structurés'; if(!byCompte.has(k)) byCompte.set(k,[]); byCompte.get(k).push(p); });
+      byCompte.forEach((arr,compte)=>{
+        const sup=arr.map(p=>{ const pr=productsMap.get(p.isin)||{}; const inv=toEur(p.nominal,p.dev); const valo=toEur((+p.nominal||0)*(1+(+p.gt||0)),p.dev);
+          return {id:'book:'+p.id, libelle:pr.lib||p.isin, isin:p.isin, classe:'Produit structuré', montant_investi:inv, valorisation:valo, _virtual:true}; });
+        const v=sup.reduce((s,x)=>s+x.valorisation,0), inv=sup.reduce((s,x)=>s+x.montant_investi,0);
+        const e={id:'book:'+m.id+':'+compte, type:'Produits structurés', etablissement:(compte==='Produits structurés'?'Book · module structurés':compte), _virtual:true, client_id:m.id, _owner:m};
+        envRows.push({e, sup, valo:v, investi:inv, perf:inv?(v-inv)/inv:null, owner:m, virtual:true});
+      });
+    });
+    envRows.sort((a,b)=>b.valo-a.valo);
     const docs=[]; members.forEach(m=>clientDocs(m.id).forEach(d=>docs.push(Object.assign({}, d, {_owner:m}))));
-    const valoTotal=envs.reduce((s,e)=>s+envValo(e),0);
-    const investiTotal=envs.reduce((s,e)=>s+envInvesti(e),0);
+    const valoTotal=envRows.reduce((s,r)=>s+r.valo,0);
+    const investiTotal=envRows.reduce((s,r)=>s+r.investi,0);
     const plusValue=valoTotal-investiTotal;
     const perf=investiTotal?plusValue/investiTotal:null;
-    let ytdRef=0, ytdHas=false; envs.forEach(e=>{ if(e.valo_debut_annee!=null){ ytdRef+=+e.valo_debut_annee; ytdHas=true; } });
+    let ytdRef=0, ytdHas=false; members.forEach(m=>clientEnvs(m.id).forEach(e=>{ if(e.valo_debut_annee!=null){ ytdRef+=+e.valo_debut_annee; ytdHas=true; } }));
     const ytd = ytdHas && ytdRef ? (valoTotal-ytdRef)/ytdRef : null;
     const classMap=new Map();
-    envs.forEach(e=>{ const sup=envSupports(e.id); if(sup.length){ sup.forEach(s=>{ const c=s.classe||'Autre'; classMap.set(c,(classMap.get(c)||0)+(+s.valorisation||0)); }); } else classMap.set('Autre',(classMap.get('Autre')||0)+envValo(e)); });
+    envRows.forEach(r=>{ if(r.sup.length){ r.sup.forEach(s=>{ const c=s.classe||'Autre'; classMap.set(c,(classMap.get(c)||0)+(+s.valorisation||0)); }); } else classMap.set('Autre',(classMap.get('Autre')||0)+r.valo); });
     const classes=Array.from(classMap.entries()).sort((a,b)=>b[1]-a[1]);
-    const envRows=envs.map(e=>{ const sup=envSupports(e.id); const v=envValo(e), inv=envInvesti(e); return {e, sup, valo:v, investi:inv, perf:inv?(v-inv)/inv:null, owner:e._owner}; }).sort((a,b)=>b.valo-a.valo);
-    // échéances : structurés (ISIN) + pièces à renouveler + procédures à venir
+    // échéances : structurés (ISIN, réels + book) + pièces à renouveler
     const tod=today(); const upcoming=[];
-    envs.forEach(e=>{ envSupports(e.id).forEach(s=>{ if(s.classe==='Produit structuré' && s.isin && productsMap.has(s.isin)){ const p=productsMap.get(s.isin); if(productStatus(p)!=='LIVE') return; const d=nextObsDate(p); if(!d||d<tod) return;
-      upcoming.push({date:d, kind:'Observation structuré', label:p.lib||s.libelle||s.isin, detail:[p.ac!=null?'autocall '+pct(p.ac,0):'', p.bcpn!=null?'cpn '+pct(p.bcpn,0):''].filter(Boolean).join(' · ')}); } }); });
+    envRows.forEach(r=>r.sup.forEach(s=>{ if(s.classe==='Produit structuré' && s.isin && productsMap.has(s.isin)){ const p=productsMap.get(s.isin); if(productStatus(p)!=='LIVE') return; const d=nextObsDate(p); if(!d||d<tod) return;
+      upcoming.push({date:d, kind:'Observation structuré', label:p.lib||s.libelle||s.isin, detail:[p.ac!=null?'autocall '+pct(p.ac,0):'', p.bcpn!=null?'cpn '+pct(p.bcpn,0):''].filter(Boolean).join(' · ')}); } }));
     docs.forEach(d=>{ if(d.categorie==='piece'){ const st=pieceStatus(d); if(st.until && st.until>=tod) upcoming.push({date:st.until, kind:'Pièce à renouveler', label:d.type, detail:''}); } });
     upcoming.sort((a,b)=>a.date-b.date);
-    // conformité agrégée (par membre)
     const perMember=members.map(m=>{ const md=clientDocs(m.id); return {member:m, pieces:pieceChecklist(m,md), procs:clientProcs(md), missing:missingProcs(m, clientEnvs(m.id), clientProcs(md))}; });
-    return {subj, members, envs, envRows, docs, valoTotal, investiTotal, plusValue, perf, ytd, classes, upcoming:upcoming.slice(0,8), perMember};
+    return {subj, members, envs:envRows.map(r=>r.e), envRows, docs, valoTotal, investiTotal, plusValue, perf, ytd, classes, upcoming:upcoming.slice(0,8), perMember};
   }
 
   /* ===================================================================
@@ -319,20 +349,20 @@
   }
 
   function envRowHTML(r, isPole){
-    const e=r.e; const pcls=r.perf==null?'':(r.perf>=0?'positive':'negative');
-    return `<div class="ck-env" data-env="${esc(e.id)}">
+    const e=r.e; const pcls=r.perf==null?'':(r.perf>=0?'positive':'negative'); const virtual=!!r.virtual;
+    const acts = virtual
+      ? `<button class="ck-icon ck-goto-sp" title="Gérer dans Produits structurés">↗</button>`
+      : `<button class="ck-icon ck-import-pdf" title="Importer un relevé PDF">⤓</button>
+         <button class="ck-icon ck-add-sup" title="Ajouter un support">＋</button>
+         <button class="ck-icon ck-edit-env" title="Modifier l'enveloppe">✎</button>`;
+    return `<div class="ck-env ${virtual?'is-book':''}" data-env="${esc(e.id)}" ${virtual?'data-virtual="1"':''}>
       <div class="ck-env__head">
-        <div class="ck-env__id"><b>${esc(e.type||'Enveloppe')}</b><small>${esc(e.etablissement||'')}${e.numero?' · '+esc(e.numero):''}${isPole&&r.owner?' · '+esc(clientName(r.owner)):''}${e.date_souscription?' · depuis '+fmtShort(e.date_souscription):''}</small></div>
+        <div class="ck-env__id"><b>${esc(e.type||'Enveloppe')}${virtual?' <span class="ck-book-badge">Produits structurés</span>':''}</b><small>${esc(e.etablissement||'')}${e.numero?' · '+esc(e.numero):''}${isPole&&r.owner?' · '+esc(clientName(r.owner)):''}${e.date_souscription?' · depuis '+fmtShort(e.date_souscription):''}</small></div>
         <div class="ck-env__fig"><span class="ck-env__valo">${compact(r.valo)}</span><span class="ck-env__perf ${pcls}">${perfPct(r.perf)}</span></div>
-        <div class="ck-env__act">
-          <button class="ck-icon ck-import-pdf" title="Importer un relevé PDF">⤓</button>
-          <button class="ck-icon ck-add-sup" title="Ajouter un support">＋</button>
-          <button class="ck-icon ck-edit-env" title="Modifier l'enveloppe">✎</button>
-          <button class="ck-icon ck-toggle-sup" title="Voir les supports">▾</button>
-        </div>
+        <div class="ck-env__act">${acts}<button class="ck-icon ck-toggle-sup" title="Voir les supports">▾</button></div>
       </div>
       ${classMixHTML(r.sup)}
-      <div class="ck-env__sup" hidden>${r.sup.length?r.sup.map(supRowHTML).join(''):'<p class="sp-muted sm">Aucun support. Cliquez sur ＋ (ou importez un relevé PDF ⤓).</p>'}</div>
+      <div class="ck-env__sup" hidden>${r.sup.length?r.sup.map(s=>supRowHTML(s,virtual)).join(''):'<p class="sp-muted sm">Aucun support. Cliquez sur ＋ (ou importez un relevé PDF ⤓).</p>'}</div>
     </div>`;
   }
   function classMixHTML(sup){ if(!sup.length) return '';
@@ -340,7 +370,7 @@
     sup.forEach(s=>{ const c=s.classe||'Autre'; m.set(c,(m.get(c)||0)+(+s.valorisation||0)); });
     const seg=Array.from(m.entries()).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<span class="ck-seg" style="width:${(v/total*100).toFixed(1)}%;background:${CLASS_COLORS[c]||'#789'}" title="${esc(c)} ${(v/total*100).toFixed(0)}%"></span>`).join('');
     return `<div class="ck-env__mix"><div class="ck-mixbar">${seg}</div></div>`; }
-  function supRowHTML(s){
+  function supRowHTML(s, readOnly){
     const perf=(s.montant_investi)?(s.valorisation-s.montant_investi)/s.montant_investi:null;
     const pcls=perf==null?'':(perf>=0?'positive':'negative');
     return `<div class="ck-sup" data-sup="${esc(s.id)}">
@@ -348,7 +378,7 @@
       <div class="ck-sup__n">${esc(s.libelle||'—')}<small>${esc(s.classe||'')}${s.isin?' · '+esc(s.isin):''}</small></div>
       <span class="ck-sup__v">${compact(+s.valorisation||0)}</span>
       <span class="ck-sup__p ${pcls}">${perf!=null?perfPct(perf):''}</span>
-      <button class="ck-icon ck-edit-sup" title="Modifier">✎</button>
+      ${readOnly?'<span class="ck-icon" style="opacity:.35" title="Géré dans Produits structurés">↗</span>':'<button class="ck-icon ck-edit-sup" title="Modifier">✎</button>'}
     </div>`;
   }
   function dueRowHTML(x){ const struct=x.kind==='Observation structuré';
@@ -413,12 +443,14 @@
     on('ck-tgt-auto',()=>{ saveTarget(targetKey(subj),null); renderCockpit(); });
     document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>i.addEventListener('input',()=>updateAllocGaps(d)));
     document.querySelectorAll('#ck-body .ck-env').forEach(row=>{
+      const tog=row.querySelector('.ck-toggle-sup');
+      if(tog) tog.addEventListener('click',()=>{ const box=row.querySelector('.ck-env__sup'); box.hidden=!box.hidden; tog.textContent=box.hidden?'▾':'▴'; });
+      if(row.dataset.virtual){ const g=row.querySelector('.ck-goto-sp'); if(g) g.addEventListener('click',()=>window.open('structures.html','_blank')); return; }
       const env=enveloppes.find(e=>String(e.id)===String(row.dataset.env));
-      row.querySelector('.ck-toggle-sup').addEventListener('click',()=>{ const box=row.querySelector('.ck-env__sup'); box.hidden=!box.hidden; row.querySelector('.ck-toggle-sup').textContent=box.hidden?'▾':'▴'; });
       row.querySelector('.ck-edit-env').addEventListener('click',()=>openEnvForm(subj, env));
       row.querySelector('.ck-add-sup').addEventListener('click',()=>openSupForm(env));
       row.querySelector('.ck-import-pdf').addEventListener('click',()=>importReleve(env));
-      row.querySelectorAll('.ck-sup').forEach(sr=>{ const sup=supports.find(s=>String(s.id)===String(sr.dataset.sup)); sr.querySelector('.ck-edit-sup').addEventListener('click',()=>openSupForm(env, sup)); });
+      row.querySelectorAll('.ck-sup').forEach(sr=>{ const btn=sr.querySelector('.ck-edit-sup'); if(!btn) return; const sup=supports.find(s=>String(s.id)===String(sr.dataset.sup)); btn.addEventListener('click',()=>openSupForm(env, sup)); });
     });
     document.querySelectorAll('#ck-body .ck-piece[data-doc]').forEach(el=>el.addEventListener('click',()=>{ const doc=documents.find(x=>String(x.id)===String(el.dataset.doc)); openDocForm(subj,'piece',doc); }));
     document.querySelectorAll('#ck-body .ck-piece[data-newpiece]').forEach(el=>el.addEventListener('click',()=>openDocForm(subj,'piece',{type:el.dataset.newpiece, client_id:el.dataset.owner})));
@@ -497,6 +529,19 @@
     const del=document.getElementById('en-del'); if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer cette enveloppe et ses supports ?')) persistDelete('enveloppes',enveloppes,env.id).then(()=>{ modal.classList.remove('is-open'); refresh(); }); });
   }
 
+  // Passerelle : miroir d'un support structuré vers sp_positions (module Produits structurés)
+  function clientOf(id){ return crmClients.find(c=>String(c.id)===String(id)); }
+  function spNames(c){ if(!c) return {nom:'',prenom:''}; if(isMorale(c)) return {nom:c.raison_sociale||c.nom||'',prenom:''}; return {nom:c.nom||'',prenom:c.prenom||''}; }
+  function syncSpPosition(env, supObj, payload){
+    const isStruct = payload.classe==='Produit structuré' && payload.isin;
+    if(!isStruct){ if(supObj && supObj.sp_position_id){ const pid=supObj.sp_position_id; persistDelete('sp_positions',positions,pid); return persistUpdate('supports',supports,supObj.id,{sp_position_id:null}); } return Promise.resolve(); }
+    const c=clientOf(env.client_id); const nm=spNames(c);
+    const nominal = payload.montant_investi!=null?payload.montant_investi:(payload.valorisation!=null?payload.valorisation:null);
+    const compte = (env.type||'') + (env.numero?' '+env.numero:'');
+    if(supObj && supObj.sp_position_id) return persistUpdate('sp_positions',positions,supObj.sp_position_id,{isin:payload.isin, nominal, compte});
+    return persistInsert('sp_positions',positions,{isin:payload.isin, client_id:env.client_id, nom:nm.nom, prenom:nm.prenom, compte, nominal, dev:'EUR', statut:'LIVE'})
+      .then(prow=> persistUpdate('supports',supports,supObj.id,{sp_position_id:prow.id}));
+  }
   function openSupForm(env, sup){ if(!env){ toast('Enveloppe introuvable.',true); return; } sup=sup||{};
     openModal(sup.id?'Modifier le support':'Nouveau support');
     document.getElementById('ck-modal-body').innerHTML=`
@@ -512,9 +557,11 @@
       <div class="sp-save-bar"><button class="btn btn--solid" id="su-save">Enregistrer</button>${sup.id?'<button class="btn" id="su-del" style="border-color:#c0392b;color:#c0392b">Supprimer</button>':''}<span class="sp-save-status" id="su-status"></span></div>`;
     document.getElementById('su-save').addEventListener('click',()=>{
       const payload={ enveloppe_id:env.id, libelle:val('su-lib'), classe:val('su-cls'), isin:val('su-isin')?val('su-isin').toUpperCase():null, montant_investi:numv('su-inv'), valorisation:numv('su-valo'), date_valo:val('su-date') };
-      (sup.id?persistUpdate('supports',supports,sup.id,payload):persistInsert('supports',supports,payload)).then(()=>{ modal.classList.remove('is-open'); refresh(); toast('Support enregistré.'); });
+      (sup.id?persistUpdate('supports',supports,sup.id,payload):persistInsert('supports',supports,payload))
+        .then(row=>{ const supObj = sup.id?Object.assign(sup,payload):row; return syncSpPosition(env, supObj, payload); })
+        .then(()=>{ modal.classList.remove('is-open'); refresh(); toast('Support enregistré.'); });
     });
-    const del=document.getElementById('su-del'); if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer ce support ?')) persistDelete('supports',supports,sup.id).then(()=>{ modal.classList.remove('is-open'); refresh(); }); });
+    const del=document.getElementById('su-del'); if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer ce support ?')){ const pid=sup.sp_position_id; persistDelete('supports',supports,sup.id).then(()=>{ if(pid) persistDelete('sp_positions',positions,pid); modal.classList.remove('is-open'); refresh(); }); } });
   }
 
   // Document : pièce justificative OU procédure
@@ -693,10 +740,15 @@ ${body}
   /* ---------------- STATS (en-tête module) ---------------- */
   function renderStats(){
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
-    set('stat-clients', crmClients.filter(c=>clientEnvs(c.id).length).length);
-    let enc=0; enveloppes.forEach(e=>enc+=envValo(e)); set('stat-encours', compact(enc));
+    const linked=linkedPositionIds();
+    const withHoldings=crmClients.filter(c=>clientEnvs(c.id).length || positions.some(p=>!p._deleted && String(p.client_id)===String(c.id) && !linked.has(String(p.id))));
+    set('stat-clients', withHoldings.length);
+    let enc=0; enveloppes.forEach(e=>enc+=envValo(e));
+    positions.forEach(p=>{ if(!p._deleted && p.client_id && !linked.has(String(p.id))) enc+=toEur((+p.nominal||0)*(1+(+p.gt||0)),p.dev); });
+    set('stat-encours', compact(enc));
     const tod=today(), in30=addDays(tod,30); let due=0;
     supports.forEach(s=>{ if(s.classe==='Produit structuré' && s.isin && productsMap.has(s.isin)){ const p=productsMap.get(s.isin); if(productStatus(p)!=='LIVE') return; const o=nextObsDate(p); if(o&&o>=tod&&o<=in30) due++; } });
+    positions.forEach(p=>{ if(p._deleted || !p.client_id || linked.has(String(p.id))) return; if(p.isin && productsMap.has(p.isin)){ const pr=productsMap.get(p.isin); if(productStatus(pr)!=='LIVE') return; const o=nextObsDate(pr); if(o&&o>=tod&&o<=in30) due++; } });
     documents.forEach(d=>{ if(d.categorie!=='piece' && d.statut!=='fait' && d.date_echeance){ const de=pd(d.date_echeance); if(de>=tod&&de<=in30) due++; } });
     set('stat-due', due);
     // dossiers à régulariser : pièce non à jour OU procédure en retard

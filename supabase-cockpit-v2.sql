@@ -39,3 +39,8 @@ ALTER TABLE documents ADD COLUMN IF NOT EXISTS categorie     text DEFAULT 'proce
 ALTER TABLE documents ADD COLUMN IF NOT EXISTS date_document date;                        -- date d'émission (pièce)
 ALTER TABLE documents ADD COLUMN IF NOT EXISTS date_validite date;                        -- pièce : valide jusqu'à (auto par règle, ajustable)
 ALTER TABLE documents ADD COLUMN IF NOT EXISTS statut        text;                        -- procédure : 'a_faire' | 'en_cours' | 'fait'
+
+-- 4) Passerelle produits structurés : lien support (cockpit) <-> allocation (sp_positions)
+--    Un support « Produit structuré » créé dans le cockpit peut refléter une ligne
+--    sp_positions du module Produits structurés (et réciproquement), sans double compte.
+ALTER TABLE supports ADD COLUMN IF NOT EXISTS sp_position_id uuid;   -- id de la ligne sp_positions liée

@@ -87,59 +87,10 @@
   // ---------- PORTFOLIO (demo data) ----------
   const ALLOC_COLORS = {
     'Actions':'#1565c0','ETF':'#2e7d32','OPCVM':'#6a1b9a','Obligations':'#e65100',
-    'Produit structuré':'#c62828','Immobilier':'#00838f','Fonds euro':'#558b2f','Liquidités':'#9e9e9e'
+    'Produit structuré':'#A9853F','Immobilier':'#00838f','Fonds euro':'#558b2f',
+    'Private Equity':'#5d4037','Liquidités':'#9e9e9e','Autre':'#7a8a99'
   };
-  const DEMO_PORTFOLIO = { contracts:[
-    { name:'Assurance-vie Luxembourgeoise', provider:'Generali Luxembourg',
-      number:'GL-2024-00847', type:'Assurance-vie', openDate:'2024-03-15',
-      invested:500000, currentValue:567800,
-      history:[500000,502300,498700,505100,512400,508900,515600,522100,518700,526300,534100,541800,537200,545600,552300,559800,563400,567800],
-      lines:[
-        {name:'Amundi MSCI World UCITS ETF',isin:'LU1681043599',type:'ETF',allocation:25,value:141950,perf:18.2},
-        {name:'Carmignac Patrimoine',isin:'FR0010135103',type:'OPCVM',allocation:15,value:85170,perf:8.4},
-        {name:'Produit Structuré Phoenix — BNP',isin:'XS2548712345',type:'Produit structuré',allocation:12,value:68136,perf:6.8},
-        {name:'iShares Euro Corp Bond',isin:'IE00B3F81R35',type:'Obligations',allocation:10,value:56780,perf:4.2},
-        {name:'Fonds en euros Netissima',isin:'—',type:'Fonds euro',allocation:18,value:102204,perf:3.1},
-        {name:'SC Tempo (SCPI)',isin:'—',type:'Immobilier',allocation:10,value:56780,perf:5.6},
-        {name:'Liquidités',isin:'—',type:'Liquidités',allocation:10,value:56780,perf:0}
-      ]},
-    { name:'Plan Épargne Retraite (PER)', provider:'Intencial Patrimoine',
-      number:'INT-PER-2024-03291', type:'PER', openDate:'2024-06-01',
-      invested:150000, currentValue:164250,
-      history:[150000,150800,149200,151600,153400,152100,154800,156200,155100,157800,159600,160900,161500,162800,163400,163900,164100,164250],
-      lines:[
-        {name:'Lyxor MSCI EMU ESG',isin:'LU1792117340',type:'ETF',allocation:30,value:49275,perf:12.1},
-        {name:'Comgest Growth Europe',isin:'IE0004766675',type:'OPCVM',allocation:25,value:41062,perf:9.8},
-        {name:'AXA Aedificandi (OPCI)',isin:'FR0013285004',type:'Immobilier',allocation:15,value:24637,perf:4.2},
-        {name:'Tikehau Taux Variables',isin:'FR0010460493',type:'Obligations',allocation:15,value:24637,perf:5.1},
-        {name:'Fonds euros Apicil Euro Garanti',isin:'—',type:'Fonds euro',allocation:15,value:24639,perf:2.8}
-      ]},
-    { name:'Compte-Titres Ordinaire', provider:'Saxo Banque',
-      number:'SXO-FR-2023-18754', type:'CTO', openDate:'2023-11-10',
-      invested:300000, currentValue:347200,
-      history:[300000,303200,298100,305400,312800,309100,316500,321700,317400,324600,330200,335800,331900,338400,341200,344800,345600,347200],
-      lines:[
-        {name:'LVMH Moët Hennessy',isin:'FR0000121014',type:'Actions',allocation:12,value:41664,perf:15.3},
-        {name:'ASML Holding',isin:'NL0010273215',type:'Actions',allocation:10,value:34720,perf:28.4},
-        {name:'Air Liquide',isin:'FR0000120073',type:'Actions',allocation:8,value:27776,perf:11.2},
-        {name:'iShares Core S&P 500 UCITS',isin:'IE00B5BMR087',type:'ETF',allocation:20,value:69440,perf:22.1},
-        {name:'Xtrackers MSCI Emerging Markets',isin:'IE00BTJRMP35',type:'ETF',allocation:10,value:34720,perf:8.7},
-        {name:'Produit Structuré Autocall — SG',isin:'XS2634521000',type:'Produit structuré',allocation:15,value:52080,perf:7.2},
-        {name:'Obligations souveraines EUR',isin:'LU0290355717',type:'Obligations',allocation:10,value:34720,perf:3.8},
-        {name:'Liquidités',isin:'—',type:'Liquidités',allocation:15,value:52080,perf:0}
-      ]},
-    { name:'Assurance-vie Française', provider:'Spirica (Linxea Spirit 2)',
-      number:'SPI-AV-2024-07832', type:'Assurance-vie', openDate:'2024-01-20',
-      invested:200000, currentValue:218750,
-      history:[200000,201500,199200,203100,206400,204800,207600,210200,208900,211500,213800,215200,214100,216300,217400,218100,218500,218750],
-      lines:[
-        {name:'Fonds en euros Spirica',isin:'—',type:'Fonds euro',allocation:40,value:87500,perf:3.5},
-        {name:'R-co Valor',isin:'FR0011253624',type:'OPCVM',allocation:20,value:43750,perf:12.3},
-        {name:'Amundi IS MSCI Europe SRI',isin:'LU1861137484',type:'ETF',allocation:15,value:32812,perf:9.8},
-        {name:'Primonial Capimmo (OPCI)',isin:'FR0013157320',type:'Immobilier',allocation:15,value:32813,perf:3.9},
-        {name:'Liquidités',isin:'—',type:'Liquidités',allocation:10,value:21875,perf:0}
-      ]}
-  ]};
+  // ---------- PORTFOLIO : données réelles (voir clientPortfolio) ----------
 
   // ---------- AUTH ----------
   const loginWrap = document.querySelector('.login-wrap');
@@ -180,16 +131,46 @@
   let contacts = [];
   let activities = [];
   let poles = [];
+  let enveloppes = [];
+  let supports = [];
+  let spPositions = [];
+  const spProducts = new Map(); // isin -> {lib, fam}
 
   function loadAll(){
     Promise.all([
       fetch(API + '/clients?select=*&order=created_at.desc', {headers: headers()}).then(r => r.ok ? r.json() : []),
       fetch(API + '/activities?select=*&order=date_activite.desc', {headers: headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/poles?select=*', {headers: headers()}).then(r => r.ok ? r.json() : [])
-    ]).then(([c, a, p]) => {
+      fetch(API + '/poles?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      fetch(API + '/enveloppes?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      fetch(API + '/supports?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      fetch(API + '/sp_positions?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      fetch(API + '/sp_products?select=isin,lib,fam', {headers: headers()}).then(r => r.ok ? r.json() : [])
+    ]).then(([c, a, p, e, s, sp, pr]) => {
       contacts = c || []; activities = a || []; poles = p || [];
+      enveloppes = e || []; supports = s || []; spPositions = sp || [];
+      (pr || []).forEach(x => spProducts.set(x.isin, {lib:x.lib, fam:x.fam}));
       updateStats(); renderActiveTab();
     }).catch(err => console.error(err));
+  }
+
+  // Portefeuille réel d'un client : enveloppes + supports (+ structurés du book non liés)
+  function clientPortfolio(id){
+    const envs = enveloppes.filter(e => String(e.client_id) === String(id));
+    const linked = new Set(supports.map(s => s.sp_position_id).filter(Boolean).map(String));
+    const contracts = envs.map(e => {
+      const lines = supports.filter(s => String(s.enveloppe_id) === String(e.id)).map(s => ({
+        name:s.libelle||'—', isin:s.isin||'—', type:s.classe||'Autre', invested:+s.montant_investi||0, value:+s.valorisation||0
+      }));
+      const value = lines.length ? lines.reduce((a,l)=>a+l.value,0) : (e.valorisation!=null?+e.valorisation:(+e.montant_investi||0));
+      const invested = (lines.length && lines.some(l=>l.invested)) ? lines.reduce((a,l)=>a+l.invested,0) : (e.montant_investi!=null?+e.montant_investi:value);
+      return {name:e.type||'Enveloppe', provider:(e.etablissement||'')+(e.numero?' · '+e.numero:''), openDate:e.date_souscription, invested, value, lines};
+    });
+    const pos = spPositions.filter(p => !p.deleted && String(p.client_id) === String(id) && !linked.has(String(p.id)));
+    if(pos.length){
+      const lines = pos.map(p => { const pr = spProducts.get(p.isin)||{}; const inv=+p.nominal||0; return {name:pr.lib||p.isin, isin:p.isin||'—', type:'Produit structuré', invested:inv, value:inv*(1+(+p.gt||0))}; });
+      contracts.push({name:'Produits structurés', provider:'Book · module Produits structurés', openDate:null, invested:lines.reduce((a,l)=>a+l.invested,0), value:lines.reduce((a,l)=>a+l.value,0), lines, book:true});
+    }
+    return contracts;
   }
 
   // Résout un pôle par son nom (crée la fiche pôle si nécessaire), renvoie l'id (ou null).
@@ -570,16 +551,17 @@
     pane.innerHTML = activitiesPaneHTML(id); bindActivityForm(id);
   }
 
-  // ---------- PORTFOLIO ----------
+  // ---------- PORTFOLIO (données réelles : enveloppes + supports + structurés) ----------
   function portfolioPaneHTML(){
-    const pf = DEMO_PORTFOLIO;
-    const totalInvested = pf.contracts.reduce((s,c) => s+c.invested, 0);
-    const totalValue = pf.contracts.reduce((s,c) => s+c.currentValue, 0);
+    const contracts = clientPortfolio(currentId);
+    if(!contracts.length) return '<div class="dash-empty" style="padding:34px"><p>Aucune enveloppe pour ce client. Ajoutez ses enveloppes et supports depuis le <strong>Cockpit client</strong> (ou importez un relevé PDF) — ils apparaîtront ici.</p></div>';
+    const totalInvested = contracts.reduce((s,c) => s+c.invested, 0);
+    const totalValue = contracts.reduce((s,c) => s+c.value, 0);
     const gain = totalValue - totalInvested;
-    const perf = ((gain/totalInvested)*100).toFixed(1);
+    const perf = totalInvested ? ((gain/totalInvested)*100).toFixed(1) : '0.0';
     const sign = gain >= 0 ? '+' : '';
     const classMap = {};
-    pf.contracts.forEach(c => c.lines.forEach(l => { classMap[l.type]=(classMap[l.type]||0)+l.value; }));
+    contracts.forEach(c => (c.lines||[]).forEach(l => { classMap[l.type]=(classMap[l.type]||0)+l.value; }));
     const allocEntries = Object.entries(classMap).sort((a,b) => b[1]-a[1]);
     return `
       <div class="pf-toolbar">
@@ -594,16 +576,12 @@
         <div class="pf-total-perf ${gain>=0?'positive':'negative'}">${sign}${fmtMoney(gain)} (${sign}${perf}%)</div>
         <div class="pf-total-invested">Investi : ${fmtMoney(totalInvested)}</div>
       </div></div>
-      <div class="pf-chart-section">
-        <h4>Évolution de la valorisation</h4>
-        <div class="pf-chart-wrap"><canvas id="pf-perf-chart"></canvas></div>
-      </div>
       <div class="pf-alloc-section">
         <h4>Répartition par classe d'actif</h4>
         <div class="pf-alloc-grid">
           <div class="pf-donut-wrap"><canvas id="pf-alloc-donut" width="200" height="200"></canvas></div>
           <div class="pf-alloc-list">${allocEntries.map(([type,val]) => {
-            const pct = ((val/totalValue)*100).toFixed(1);
+            const pct = totalValue ? ((val/totalValue)*100).toFixed(1) : '0.0';
             return `<div class="pf-alloc-item">
               <span class="pf-alloc-dot" style="background:${ALLOC_COLORS[type]||'#999'}"></span>
               <span class="pf-alloc-name">${esc(type)}</span>
@@ -614,42 +592,43 @@
         </div>
       </div>
       <div class="pf-contracts-section">
-        <h4>Détail des contrats</h4>
-        ${pf.contracts.map(c => contractCardHTML(c)).join('')}
+        <h4>Détail des enveloppes</h4>
+        ${contracts.map(c => contractCardHTML(c)).join('')}
       </div>`;
   }
 
   function contractCardHTML(c){
-    const gain = c.currentValue - c.invested;
-    const perf = ((gain/c.invested)*100).toFixed(1);
+    const gain = c.value - c.invested;
+    const perf = c.invested ? ((gain/c.invested)*100).toFixed(1) : '0.0';
     const sign = gain >= 0 ? '+' : '';
+    const lines = c.lines||[];
     return `<div class="pf-contract">
       <div class="pf-contract__head">
         <div class="pf-contract__info">
-          <div class="pf-contract__name">${esc(c.name)}</div>
-          <div class="pf-contract__provider">${esc(c.provider)} · ${esc(c.number)}</div>
+          <div class="pf-contract__name">${esc(c.name)}${c.book?' <span class="kanban-card__badge badge-prospect">structurés</span>':''}</div>
+          <div class="pf-contract__provider">${esc(c.provider||'')}</div>
         </div>
         <div class="pf-contract__figures">
-          <div class="pf-contract__value">${fmtMoney(c.currentValue)}</div>
+          <div class="pf-contract__value">${fmtMoney(c.value)}</div>
           <div class="pf-contract__perf ${gain>=0?'positive':'negative'}">${sign}${perf}%</div>
         </div>
         <button class="pf-contract__toggle" aria-label="Détails"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
       </div>
       <div class="pf-contract__detail" style="display:none">
         <div class="pf-contract__meta">
-          <span>Ouverture : ${fmtDate(c.openDate)}</span>
+          ${c.openDate?`<span>Ouverture : ${fmtDate(c.openDate)}</span>`:''}
           <span>Investi : ${fmtMoney(c.invested)}</span>
           <span class="${gain>=0?'positive':'negative'}">P/L : ${sign}${fmtMoney(gain)}</span>
         </div>
-        <table class="pf-lines-table"><thead><tr>
+        ${lines.length?`<table class="pf-lines-table"><thead><tr>
           <th>Support</th><th>Classe</th><th>Allocation</th><th>Valorisation</th><th>Perf.</th>
-        </tr></thead><tbody>${c.lines.map(l => `<tr>
+        </tr></thead><tbody>${lines.map(l => { const alloc = c.value?(l.value/c.value*100):0; const lp = l.invested?((l.value-l.invested)/l.invested*100):null; return `<tr>
           <td><div class="pf-line-name">${esc(l.name)}</div><div class="pf-line-isin">${esc(l.isin)}</div></td>
           <td><span class="pf-line-class" style="background:${(ALLOC_COLORS[l.type]||'#999')}20;color:${ALLOC_COLORS[l.type]||'#999'}">${esc(l.type)}</span></td>
-          <td>${l.allocation.toFixed(1)}%</td>
+          <td>${alloc.toFixed(1)}%</td>
           <td class="pf-line-val">${fmtMoney(l.value)}</td>
-          <td class="${l.perf>=0?'positive':'negative'}">${l.perf>=0?'+':''}${l.perf.toFixed(1)}%</td>
-        </tr>`).join('')}</tbody></table>
+          <td class="${lp==null||lp>=0?'positive':'negative'}">${lp==null?'—':(lp>=0?'+':'')+lp.toFixed(1)+'%'}</td>
+        </tr>`; }).join('')}</tbody></table>`:'<p style="color:var(--muted);font-size:.85rem">Aucun support détaillé.</p>'}
       </div>
     </div>`;
   }
@@ -759,15 +738,11 @@
   }
 
   function drawPortfolioCharts(){
-    const pf=DEMO_PORTFOLIO;
-    const totalValue=pf.contracts.reduce((s,c)=>s+c.currentValue,0);
-    const maxLen=Math.max(...pf.contracts.map(c=>c.history.length));
-    const agg=[];
-    for(let i=0;i<maxLen;i++){let sum=0;pf.contracts.forEach(c=>{sum+=c.history[Math.min(i,c.history.length-1)];});agg.push(sum);}
+    const contracts=clientPortfolio(currentId);
+    const totalValue=contracts.reduce((s,c)=>s+c.value,0);
     const classMap={};
-    pf.contracts.forEach(c=>c.lines.forEach(l=>{classMap[l.type]=(classMap[l.type]||0)+l.value;}));
-    drawPerformanceChart('pf-perf-chart',agg);
-    drawAllocationDonut('pf-alloc-donut',Object.entries(classMap).sort((a,b)=>b[1]-a[1]),totalValue);
+    contracts.forEach(c=>(c.lines||[]).forEach(l=>{classMap[l.type]=(classMap[l.type]||0)+l.value;}));
+    if(totalValue>0) drawAllocationDonut('pf-alloc-donut',Object.entries(classMap).sort((a,b)=>b[1]-a[1]),totalValue);
   }
 
   function bindPortfolioEvents(){
@@ -788,43 +763,44 @@
   function exportReport(){
     const c = contacts.find(x=>x.id===currentId);
     if(!c) return;
-    const pf = DEMO_PORTFOLIO;
-    const totalInvested = pf.contracts.reduce((s,ct)=>s+ct.invested,0);
-    const totalValue = pf.contracts.reduce((s,ct)=>s+ct.currentValue,0);
+    const contracts = clientPortfolio(currentId);
+    const totalInvested = contracts.reduce((s,ct)=>s+ct.invested,0);
+    const totalValue = contracts.reduce((s,ct)=>s+ct.value,0);
     const gain = totalValue-totalInvested;
-    const perf = ((gain/totalInvested)*100).toFixed(1);
+    const perf = totalInvested ? ((gain/totalInvested)*100).toFixed(1) : '0.0';
     const sign = gain>=0?'+':'';
     const today = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
 
-    const contractsHTML = pf.contracts.map(ct=>{
-      const g = ct.currentValue-ct.invested;
-      const p = ((g/ct.invested)*100).toFixed(1);
+    const contractsHTML = contracts.map(ct=>{
+      const g = ct.value-ct.invested;
+      const p = ct.invested ? ((g/ct.invested)*100).toFixed(1) : '0.0';
       const s = g>=0?'+':'';
+      const lines = ct.lines||[];
       return `
         <div class="contract">
           <div class="contract-head">
             <div>
-              <h3>${ct.name}</h3>
-              <div class="contract-provider">${ct.provider} · ${ct.number}</div>
+              <h3>${esc(ct.name)}</h3>
+              <div class="contract-provider">${esc(ct.provider||'')}</div>
             </div>
             <div class="contract-val">
-              <div class="contract-amount">${fmtMoney(ct.currentValue)}</div>
+              <div class="contract-amount">${fmtMoney(ct.value)}</div>
               <div class="${g>=0?'positive':'negative'}">${s}${p}%</div>
             </div>
           </div>
           <div class="contract-meta">
-            <span>Date d'ouverture : ${fmtDate(ct.openDate)}</span>
+            ${ct.openDate?`<span>Date d'ouverture : ${fmtDate(ct.openDate)}</span>`:''}
             <span>Montant investi : ${fmtMoney(ct.invested)}</span>
             <span class="${g>=0?'positive':'negative'}">Plus/Moins-value : ${s}${fmtMoney(g)}</span>
           </div>
-          <table>
+          ${lines.length?`<table>
             <thead><tr><th>Support</th><th>ISIN</th><th>Classe</th><th>Allocation</th><th>Valorisation</th><th>Perf.</th></tr></thead>
-            <tbody>${ct.lines.map(l=>`<tr>
-              <td>${l.name}</td><td class="mono">${l.isin}</td><td>${l.type}</td>
-              <td>${l.allocation.toFixed(1)}%</td><td>${fmtMoney(l.value)}</td>
-              <td class="${l.perf>=0?'positive':'negative'}">${l.perf>=0?'+':''}${l.perf.toFixed(1)}%</td>
-            </tr>`).join('')}</tbody>
-          </table>
+            <tbody>${lines.map(l=>{ const alloc=ct.value?(l.value/ct.value*100):0; const lp=l.invested?((l.value-l.invested)/l.invested*100):null; return `<tr>
+              <td>${esc(l.name)}</td><td class="mono">${esc(l.isin)}</td><td>${esc(l.type)}</td>
+              <td>${alloc.toFixed(1)}%</td><td>${fmtMoney(l.value)}</td>
+              <td class="${lp==null||lp>=0?'positive':'negative'}">${lp==null?'—':(lp>=0?'+':'')+lp.toFixed(1)+'%'}</td>
+            </tr>`; }).join('')}</tbody>
+          </table>`:''}
         </div>`;
     }).join('');
 
@@ -886,7 +862,7 @@ td{padding:8px 10px;border-bottom:1px solid #eae8e1;vertical-align:middle}
   <div class="summary-item"><div class="label">Valorisation totale</div><div class="value">${fmtMoney(totalValue)}</div></div>
   <div class="summary-item"><div class="label">Montant investi</div><div class="value">${fmtMoney(totalInvested)}</div></div>
   <div class="summary-item"><div class="label">Plus/Moins-value</div><div class="value ${gain>=0?'positive':'negative'}">${sign}${fmtMoney(gain)}</div><div class="sub ${gain>=0?'positive':'negative'}">${sign}${perf}%</div></div>
-  <div class="summary-item"><div class="label">Nombre de contrats</div><div class="value">${pf.contracts.length}</div></div>
+  <div class="summary-item"><div class="label">Nombre d'enveloppes</div><div class="value">${contracts.length}</div></div>
 </div>
 ${contractsHTML}
 <div class="footer">
