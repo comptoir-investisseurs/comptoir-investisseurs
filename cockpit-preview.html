@@ -94,74 +94,82 @@
 
 <div id="ck-toast" class="sp-toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
 <!-- ============ PRÉVISUALISATION : données fictives, sans connexion ============ -->
 <script>
 (function(){
   sessionStorage.setItem('sb_access_token','preview');
   sessionStorage.setItem('sb_user_email','demo@lfdr.fr');
   window.CK_DEMO={
+    poles:[{id:'P1',nom:'Famille & Groupe Durand',type:'Family office'}],
     clients:[
-      {id:'c1',nom:'Durand',prenom:'Marie',email:'marie.durand@example.fr',telephone:'06 12 34 56 78',stage:'Client',
-       consentement_rgpd:true,couple_rendement_risque:'Équilibré',niveau_connaissance:'Confirmé',
-       experience_produits:['Actions','Produits structurés','OPCVM'],horizon:'8 ans',
-       objectifs:['Revenus complémentaires','Transmission'],
-       next_action:'Arbitrage fonds € vers UC sur le PER',next_action_date:'2026-06-15',
-       notes_internes:'Sensible à la protection du capital. Épouse co-souscriptrice sur l\'AV Lux.'},
-      {id:'c2',nom:'Lefèvre',prenom:'Antoine',email:'a.lefevre@example.fr',stage:'Proposition',consentement_rgpd:false,niveau_connaissance:'Débutant',experience_produits:[]}
+      {id:'c1',personne:'physique',nom:'Durand',prenom:'Marie',email:'marie.durand@example.fr',telephone:'06 12 34 56 78',
+       pole_id:'P1',pole_role:'Titulaire',couple_rendement_risque:'Équilibré',niveau_connaissance:'Confirmé',
+       horizon:'8 ans',objectifs:['Revenus complémentaires','Transmission'],notes_internes:'Sensible à la protection du capital.'},
+      {id:'c2',personne:'morale',raison_sociale:'SCI du Parc',forme_juridique:'SCI',siren:'842 115 998',capital_social:'1 000 €',
+       date_creation:'2019-05-02',siege_social:'24 av. Foch, 75116 Paris',dirigeant:'Marie Durand',
+       beneficiaires_effectifs:'Marie Durand (60%), Paul Durand (40%)',activite:'Immobilier locatif',pole_id:'P1',pole_role:'SCI'},
+      {id:'c3',personne:'morale',raison_sociale:'Durand Invest Holding',forme_juridique:'Holding (SAS)',siren:'901 447 210',
+       capital_social:'50 000 €',date_creation:'2020-01-15',dirigeant:'Marie Durand',pole_id:'P1',pole_role:'Holding'}
     ],
     activities:[
-      {id:'a1',client_id:'c1',type:'rdv',titre:'Bilan patrimonial annuel',date_activite:'2024-11-18T10:00:00Z',done:true},
-      {id:'a2',client_id:'c1',type:'tache',titre:'Transmettre le reporting structurés',date_activite:'2026-05-20T09:00:00Z',done:false}
+      {id:'a1',client_id:'c1',type:'rdv',titre:'Bilan patrimonial',date_activite:'2025-11-18T10:00:00Z',done:true}
     ],
     enveloppes:[
-      {id:'e1',client_id:'c1',type:'Assurance-vie luxembourgeoise',etablissement:'Generali Luxembourg',numero:'GL-2024-00847',date_souscription:'2021-03-15',montant_investi:500000,valorisation:null,valo_debut_annee:545000,devise:'EUR'},
-      {id:'e2',client_id:'c1',type:'PER',etablissement:'Intencial Patrimoine',numero:'INT-PER-2024-03291',date_souscription:'2022-06-01',montant_investi:150000,valorisation:null,valo_debut_annee:158000,devise:'EUR'},
-      {id:'e3',client_id:'c1',type:'Compte-titres (CTO)',etablissement:'Saxo Banque',numero:'SXO-2023-18754',date_souscription:'2020-11-10',montant_investi:300000,valorisation:null,valo_debut_annee:332000,devise:'EUR'}
+      {id:'e1',client_id:'c1',type:'Assurance-vie luxembourgeoise',etablissement:'Generali Luxembourg',numero:'GL-00847',date_souscription:'2021-03-15',montant_investi:500000,valo_debut_annee:545000,devise:'EUR'},
+      {id:'e2',client_id:'c1',type:'PER',etablissement:'Intencial Patrimoine',numero:'INT-03291',date_souscription:'2022-06-01',montant_investi:150000,valo_debut_annee:158000,devise:'EUR'},
+      {id:'e4',client_id:'c2',type:'Compte-titres (CTO)',etablissement:'Saxo Banque',numero:'SXO-771',date_souscription:'2020-11-10',montant_investi:250000,valo_debut_annee:300000,devise:'EUR'},
+      {id:'e5',client_id:'c3',type:'Contrat de capitalisation',etablissement:'Spirica',numero:'CAP-556',date_souscription:'2021-01-20',montant_investi:400000,valo_debut_annee:430000,devise:'EUR'}
     ],
     supports:[
       {id:'s1',enveloppe_id:'e1',libelle:'Fonds euro Netissima',classe:'Fonds euro',montant_investi:100000,valorisation:104300},
-      {id:'s2',enveloppe_id:'e1',libelle:'Amundi MSCI World UCITS ETF',isin:'LU1681043599',classe:'ETF',montant_investi:120000,valorisation:148900},
-      {id:'s3',enveloppe_id:'e1',libelle:'Carmignac Patrimoine',isin:'FR0010135103',classe:'OPCVM',montant_investi:80000,valorisation:85170},
-      {id:'s4',enveloppe_id:'e1',libelle:'Phoenix Mémoire Richemont, Rolls-Royce',isin:'DE000VK6N2Y4',classe:'Produit structuré',montant_investi:90000,valorisation:96200},
-      {id:'s5',enveloppe_id:'e1',libelle:'SC Tempo (SCPI)',classe:'Immobilier',montant_investi:60000,valorisation:62400},
-      {id:'s6',enveloppe_id:'e1',libelle:'iShares Euro Corp Bond',isin:'IE00B3F81R35',classe:'Obligations',montant_investi:55000,valorisation:56780},
-      {id:'s7',enveloppe_id:'e1',libelle:'Liquidités',classe:'Liquidités',montant_investi:14000,valorisation:14050},
-      {id:'s8',enveloppe_id:'e2',libelle:'Fonds euro Apicil Garanti',classe:'Fonds euro',montant_investi:60000,valorisation:62800},
-      {id:'s9',enveloppe_id:'e2',libelle:'Lyxor MSCI EMU ESG',isin:'LU1792117340',classe:'ETF',montant_investi:45000,valorisation:52100},
-      {id:'s10',enveloppe_id:'e2',libelle:'AXA Aedificandi (OPCI)',classe:'Immobilier',montant_investi:25000,valorisation:25600},
-      {id:'s11',enveloppe_id:'e2',libelle:'Tikehau Taux Variables',classe:'Obligations',montant_investi:20000,valorisation:23750},
-      {id:'s12',enveloppe_id:'e3',libelle:'LVMH',isin:'FR0000121014',classe:'Actions',montant_investi:40000,valorisation:48100},
-      {id:'s13',enveloppe_id:'e3',libelle:'ASML Holding',isin:'NL0010273215',classe:'Actions',montant_investi:30000,valorisation:41200},
-      {id:'s14',enveloppe_id:'e3',libelle:'iShares Core S&P 500',isin:'IE00B5BMR087',classe:'ETF',montant_investi:60000,valorisation:78900},
-      {id:'s15',enveloppe_id:'e3',libelle:'Athéna Airbag Engie, Alstom',isin:'XS2697210909',classe:'Produit structuré',montant_investi:80000,valorisation:84600},
-      {id:'s16',enveloppe_id:'e3',libelle:'Obligations souveraines EUR',classe:'Obligations',montant_investi:50000,valorisation:51800},
-      {id:'s17',enveloppe_id:'e3',libelle:'Liquidités',classe:'Liquidités',montant_investi:42000,valorisation:42600}
+      {id:'s2',enveloppe_id:'e1',libelle:'Amundi MSCI World ETF',isin:'LU1681043599',classe:'ETF',montant_investi:120000,valorisation:148900},
+      {id:'s3',enveloppe_id:'e1',libelle:'Phoenix Mémoire Richemont, Rolls-Royce',isin:'DE000VK6N2Y4',classe:'Produit structuré',montant_investi:90000,valorisation:96200},
+      {id:'s4',enveloppe_id:'e1',libelle:'SC Tempo (SCPI)',classe:'Immobilier',montant_investi:60000,valorisation:62400},
+      {id:'s5',enveloppe_id:'e1',libelle:'iShares Euro Corp Bond',isin:'IE00B3F81R35',classe:'Obligations',montant_investi:130000,valorisation:135900},
+      {id:'s6',enveloppe_id:'e2',libelle:'Fonds euro Apicil',classe:'Fonds euro',montant_investi:60000,valorisation:62800},
+      {id:'s7',enveloppe_id:'e2',libelle:'Lyxor MSCI EMU ESG',isin:'LU1792117340',classe:'ETF',montant_investi:90000,valorisation:101450},
+      {id:'s8',enveloppe_id:'e4',libelle:'Primonial Capimmo (SCPI)',classe:'Immobilier',montant_investi:150000,valorisation:171000},
+      {id:'s9',enveloppe_id:'e4',libelle:'Athéna Airbag Engie, Alstom',isin:'XS2697210909',classe:'Produit structuré',montant_investi:60000,valorisation:63600},
+      {id:'s10',enveloppe_id:'e4',libelle:'Liquidités',classe:'Liquidités',montant_investi:40000,valorisation:40200},
+      {id:'s11',enveloppe_id:'e5',libelle:'Fonds euro Spirica',classe:'Fonds euro',montant_investi:200000,valorisation:214000},
+      {id:'s12',enveloppe_id:'e5',libelle:'Dette privée Tikehau',classe:'Private Equity',montant_investi:120000,valorisation:131000},
+      {id:'s13',enveloppe_id:'e5',libelle:'R-co Valor',isin:'FR0011253624',classe:'OPCVM',montant_investi:80000,valorisation:88000}
     ],
     documents:[
-      {id:'d1',client_id:'c1',type:'Convention de conseil',libelle:'Mission de conseil 2025-2026',date_signature:'2025-09-01',date_echeance:'2026-09-01'},
-      {id:'d2',client_id:'c1',type:'Document d\'entrée en relation (DER)',date_signature:'2021-03-10'},
-      {id:'d3',client_id:'c1',type:'Questionnaire / Profil de risque (MIF)',date_signature:'2024-11-18'},
-      {id:'d4',client_id:'c1',type:'KYC / Pièce d\'identité',date_signature:'2021-03-10'},
-      {id:'d5',client_id:'c1',enveloppe_id:'e1',type:'Bulletin de souscription',libelle:'AV Lux Generali',date_signature:'2021-03-15'},
-      {id:'d6',client_id:'c1',enveloppe_id:'e3',type:'Rapport de mission (arbitrage)',libelle:'Arbitrage CTO — renforcement actions',date_signature:'2026-02-12'}
+      /* pièces c1 (physique) */
+      {id:'p1',client_id:'c1',categorie:'piece',type:"Pièce d'identité",date_document:'2019-05-01',date_validite:'2029-05-01'},
+      {id:'p2',client_id:'c1',categorie:'piece',type:'Justificatif de domicile',date_document:'2026-02-01'},
+      {id:'p3',client_id:'c1',categorie:'piece',type:"Avis d'imposition",date_document:'2025-09-01'},
+      {id:'p4',client_id:'c1',categorie:'piece',type:'RIB',date_document:'2024-01-01'},
+      /* pièces c2 (morale) */
+      {id:'p5',client_id:'c2',categorie:'piece',type:'Extrait KBIS',date_document:'2026-06-01'},
+      {id:'p6',client_id:'c2',categorie:'piece',type:'Statuts à jour',date_document:'2019-05-02'},
+      {id:'p7',client_id:'c2',categorie:'piece',type:"Pièce d'identité du dirigeant",date_document:'2019-05-01',date_validite:'2030-01-01'},
+      /* procédures */
+      {id:'q1',client_id:'c1',categorie:'procedure',type:'Convention de conseil',libelle:'Mission 2025-2026',statut:'fait',date_signature:'2025-09-01',date_echeance:'2026-09-01'},
+      {id:'q2',client_id:'c1',categorie:'procedure',type:"Document d'entrée en relation (DER)",statut:'fait',date_signature:'2021-03-10'},
+      {id:'q3',client_id:'c1',enveloppe_id:'e1',categorie:'procedure',type:'Bulletin de souscription',statut:'fait',date_signature:'2021-03-15'},
+      {id:'q4',client_id:'c1',categorie:'procedure',type:'Actualisation KYC',statut:'a_faire',date_echeance:'2026-05-01'},
+      {id:'q5',client_id:'c2',categorie:'procedure',type:'Rapport de mission (arbitrage)',libelle:'Arbitrage CTO SCI',statut:'en_cours',date_echeance:'2026-07-15'},
+      {id:'q6',client_id:'c3',categorie:'procedure',type:'Souscription / Versement',libelle:'Versement complémentaire capi',statut:'a_faire',date_echeance:'2026-07-01'}
     ]
   };
-  // Coupe les appels Supabase pour forcer le repli démo (hors connexion) sans latence réseau.
   var _f=window.fetch?window.fetch.bind(window):null;
   window.fetch=function(url,opt){ var u=String(url); if(u.indexOf('/rest/v1/')>=0||u.indexOf('/auth/v1/')>=0) return Promise.reject(new Error('preview-offline')); return _f?_f(url,opt):Promise.reject(new Error('no-fetch')); };
   window.addEventListener('load',function(){
-    var b=document.createElement('div');
-    b.textContent='Prévisualisation — données fictives, hors connexion';
+    var b=document.createElement('div'); b.textContent='Prévisualisation — données fictives, hors connexion';
     b.style.cssText='position:fixed;bottom:14px;right:14px;z-index:300;background:#A9853F;color:#fff;font:500 12px/1 Jost,sans-serif;padding:8px 14px;border-radius:8px;box-shadow:0 6px 18px rgba(0,27,0,.25)';
     document.body.appendChild(b);
     var tries=0,t=setInterval(function(){ var sel=document.getElementById('ck-client');
       if(sel && sel.options.length>1){ clearInterval(t); sel.value=sel.options[1].value; sel.dispatchEvent(new Event('change')); }
-      else if(++tries>40){ clearInterval(t); } },150);
+      else if(++tries>40) clearInterval(t); },150);
   });
 })();
 </script>
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/sp-data.js?v=2"></script>
-<script src="assets/js/cockpit.js?v=1"></script>
+<script src="assets/js/cockpit.js?v=2"></script>
 </body>
 </html>

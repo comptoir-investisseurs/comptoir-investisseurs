@@ -11,8 +11,37 @@
 
   const STAGES = ['Nouveau', 'Contacté', 'RDV planifié', 'Proposition', 'Gagné', 'Perdu'];
 
-  // Champs éditables, organisés par section
-  const FIELD_SECTIONS = [
+  // Sections communes aux deux types de personne
+  const SEC_PATRIMOINE = {title:'Patrimoine', fields:[
+    ['patrimoine_financier','Patrimoine financier','text'],
+    ['patrimoine_immobilier','Patrimoine immobilier','text'],
+    ['placements_existants','Placements existants','array'],
+    ['credits','Crédits','text'],['montant_investir','Montant à investir','text'],
+    ['origine_fonds','Origine des fonds','text'],
+  ]};
+  const SEC_OBJECTIFS = {title:'Objectifs', fields:[
+    ['objectifs','Objectifs','array'],['horizon','Horizon','text'],
+    ['besoin_liquidite','Besoin de liquidité','text'],
+    ['projets_specifiques','Projets spécifiques','textarea'],
+  ]};
+  const SEC_RISQUE = {title:'Profil de risque', fields:[
+    ['niveau_connaissance','Niveau de connaissance','text'],
+    ['experience_produits','Produits connus','array'],
+    ['couple_rendement_risque','Profil rendement/risque','text'],
+    ['part_illiquide','Part illiquide','text'],['esg','ESG','text'],
+    ['reaction_baisse','Réaction en baisse','text'],['perte_max','Perte max acceptée','text'],
+  ]};
+  const SEC_SUIVI = {title:'Pôle, suivi & notes', fields:[
+    ['type','Type','select',['prospect','client']],
+    ['next_action','Prochaine action','text'],
+    ['next_action_date','Échéance','date'],
+    ['comment_connu','Source','text'],
+    ['notes_internes','Notes internes','textarea'],
+    ['commentaires','Commentaires','textarea'],
+  ]};
+
+  // Personne physique
+  const SECTIONS_PHYS = [
     {title:'Identité & Coordonnées', fields:[
       ['civilite','Civilité','select',['','Monsieur','Madame']],
       ['nom','Nom','text'],['prenom','Prénom','text'],
@@ -32,41 +61,28 @@
       ['csp','CSP','text'],['profession','Profession','text'],['employeur','Employeur','text'],
       ['revenus','Revenus annuels','text'],['capacite_epargne','Capacité d\'épargne','text'],
     ]},
-    {title:'Patrimoine', fields:[
-      ['patrimoine_financier','Patrimoine financier','text'],
-      ['patrimoine_immobilier','Patrimoine immobilier','text'],
-      ['placements_existants','Placements existants','array'],
-      ['credits','Crédits','text'],['montant_investir','Montant à investir','text'],
-      ['origine_fonds','Origine des fonds','text'],
-    ]},
-    {title:'Objectifs', fields:[
-      ['objectifs','Objectifs','array'],['horizon','Horizon','text'],
-      ['besoin_liquidite','Besoin de liquidité','text'],
-      ['projets_specifiques','Projets spécifiques','textarea'],
-    ]},
-    {title:'Expérience financière', fields:[
-      ['niveau_connaissance','Niveau de connaissance','text'],
-      ['experience_produits','Produits connus','array'],
-      ['experience_duree','Durée d\'expérience','text'],
-      ['frequence_operations','Fréquence','text'],['pertes_passees','Pertes passées','text'],
-    ]},
-    {title:'Profil de risque', fields:[
-      ['reaction_baisse','Réaction en baisse','text'],['perte_max','Perte max acceptée','text'],
-      ['couple_rendement_risque','Profil rendement/risque','text'],
-      ['part_illiquide','Part illiquide','text'],['esg','ESG','text'],
-      ['preference_geo','Préférence géographique','array'],
-    ]},
-    {title:'Suivi & notes', fields:[
-      ['type','Type','select',['prospect','client']],
-      ['next_action','Prochaine action','text'],
-      ['next_action_date','Échéance','date'],
-      ['comment_connu','Source','text'],
-      ['notes_internes','Notes internes','textarea'],
-      ['commentaires','Commentaires du client','textarea'],
-    ]},
+    SEC_PATRIMOINE, SEC_OBJECTIFS, SEC_RISQUE, SEC_SUIVI,
   ];
-  const EDITABLE_KEYS = FIELD_SECTIONS.flatMap(s => s.fields.map(f => f[0]));
-  const ARRAY_KEYS = FIELD_SECTIONS.flatMap(s => s.fields.filter(f => f[2]==='array').map(f => f[0]));
+  // Personne morale
+  const SECTIONS_MORALE = [
+    {title:'Identité société', fields:[
+      ['raison_sociale','Raison sociale','text'],
+      ['forme_juridique','Forme juridique','select',['','SAS','SASU','SARL','EURL','SA','SCI','SC','Holding (SAS)','Holding (SARL)','SNC','Autre']],
+      ['siren','SIREN / SIRET','text'],['capital_social','Capital social','text'],
+      ['date_creation','Date de création','date'],['activite','Activité / Code NAF','text'],
+      ['siege_social','Siège social','text'],
+      ['email','Email','email'],['telephone','Téléphone','tel'],
+    ]},
+    {title:'Dirigeant & bénéficiaires effectifs', fields:[
+      ['dirigeant','Dirigeant / Représentant légal','text'],
+      ['beneficiaires_effectifs','Bénéficiaires effectifs','textarea'],
+    ]},
+    SEC_PATRIMOINE, SEC_OBJECTIFS, SEC_RISQUE, SEC_SUIVI,
+  ];
+  function sectionsFor(personne){ return personne==='morale' ? SECTIONS_MORALE : SECTIONS_PHYS; }
+  const ALL_SECTIONS = SECTIONS_PHYS.concat(SECTIONS_MORALE);
+  const EDITABLE_KEYS = Array.from(new Set(ALL_SECTIONS.flatMap(s => s.fields.map(f => f[0]))));
+  const ARRAY_KEYS = Array.from(new Set(ALL_SECTIONS.flatMap(s => s.fields.filter(f => f[2]==='array').map(f => f[0]))));
 
   // ---------- PORTFOLIO (demo data) ----------
   const ALLOC_COLORS = {
@@ -163,20 +179,35 @@
   // ---------- STATE ----------
   let contacts = [];
   let activities = [];
+  let poles = [];
 
   function loadAll(){
     Promise.all([
       fetch(API + '/clients?select=*&order=created_at.desc', {headers: headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/activities?select=*&order=date_activite.desc', {headers: headers()}).then(r => r.ok ? r.json() : [])
-    ]).then(([c, a]) => {
-      contacts = c || []; activities = a || [];
+      fetch(API + '/activities?select=*&order=date_activite.desc', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      fetch(API + '/poles?select=*', {headers: headers()}).then(r => r.ok ? r.json() : [])
+    ]).then(([c, a, p]) => {
+      contacts = c || []; activities = a || []; poles = p || [];
       updateStats(); renderActiveTab();
     }).catch(err => console.error(err));
   }
 
+  // Résout un pôle par son nom (crée la fiche pôle si nécessaire), renvoie l'id (ou null).
+  function resolvePole(name){
+    name = (name||'').trim();
+    if(!name) return Promise.resolve(null);
+    const existing = poles.find(p => (p.nom||'').trim().toLowerCase() === name.toLowerCase());
+    if(existing) return Promise.resolve(existing.id);
+    return fetch(API + '/poles', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify({nom:name})})
+      .then(r => r.ok ? r.json() : Promise.reject(r.status)).then(rows => { const p=(rows&&rows[0]); if(p){ poles.push(p); return p.id; } return null; })
+      .catch(() => null);
+  }
+  function poleName(id){ const p = poles.find(x => String(x.id)===String(id)); return p ? (p.nom||'') : ''; }
+
   // ---------- HELPERS ----------
   function esc(s){ const d = document.createElement('div'); d.textContent = (s===null||s===undefined)?'':s; return d.innerHTML; }
-  function fullName(c){ return ((c.prenom||'') + ' ' + (c.nom||'')).trim() || '(sans nom)'; }
+  function isMorale(c){ return c && c.personne==='morale'; }
+  function fullName(c){ if(isMorale(c)) return (c.raison_sociale||c.nom||'(société)').trim(); return ((c.prenom||'') + ' ' + (c.nom||'')).trim() || '(sans nom)'; }
   function fmtDate(d){ return d ? new Date(d).toLocaleDateString('fr-FR') : '—'; }
   function fmtDateTime(d){ return d ? new Date(d).toLocaleString('fr-FR',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
   function fmtMoney(n){ return (n||0).toLocaleString('fr-FR',{maximumFractionDigits:0})+' €'; }
@@ -264,7 +295,7 @@
     const tbody = document.getElementById('list-clients');
     if(!list.length){ tbody.innerHTML = '<tr><td colspan="6" class="dash-empty"><p>Aucun client.</p></td></tr>'; return; }
     tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
-      <td><strong>${esc(c.nom||'')}</strong> ${esc(c.prenom||'')}</td>
+      <td><strong>${esc(fullName(c))}</strong>${isMorale(c)?' <span class="kanban-card__badge badge-prospect">Morale</span>':''}</td>
       <td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td>
       <td>${esc(c.patrimoine_financier||'—')}</td><td>${esc(c.stage||'Nouveau')}</td>
       <td>${esc(c.next_action||'—')}</td></tr>`).join('');
@@ -276,7 +307,7 @@
     const tbody = document.getElementById('list-prospects');
     if(!list.length){ tbody.innerHTML = '<tr><td colspan="6" class="dash-empty"><p>Aucun prospect. Cliquez sur « Ajouter un prospect ».</p></td></tr>'; return; }
     tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
-      <td><strong>${esc(c.nom||'')}</strong> ${esc(c.prenom||'')}</td>
+      <td><strong>${esc(fullName(c))}</strong>${isMorale(c)?' <span class="kanban-card__badge badge-prospect">Morale</span>':''}</td>
       <td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td>
       <td>${esc(c.stage||'Nouveau')}</td><td>${esc(c.next_action||'—')}</td>
       <td>${fmtDate(c.next_action_date)}</td></tr>`).join('');
@@ -355,82 +386,101 @@
     return `<div class="edit-field"><label>${esc(label)}</label>${input}</div>`;
   }
 
+  function contactInfoInner(c, id){
+    const stageBar = `<div class="contact-pipeline">${STAGES.map(s =>
+      `<div class="contact-stage ${(c.stage||'Nouveau')===s?'is-active':''}" data-stage="${esc(s)}">${esc(s)}</div>`).join('')}</div>`;
+    const personneSwitch = `<div class="detail-section"><h4>Type de personne</h4><div class="edit-grid">
+      <div class="edit-field"><label>Personne</label><select id="f_personne">
+        <option value="physique" ${!isMorale(c)?'selected':''}>Personne physique</option>
+        <option value="morale" ${isMorale(c)?'selected':''}>Personne morale</option>
+      </select></div></div></div>`;
+    const formHTML = sectionsFor(c.personne).map(sec =>
+      `<div class="detail-section"><h4>${esc(sec.title)}</h4><div class="edit-grid">${
+        sec.fields.map(f => editField(f[0], f[1], f[2], f[3], c[f[0]])).join('')
+      }</div></div>`).join('');
+    const poleBlock = `<div class="detail-section"><h4>Pôle / regroupement</h4><div class="edit-grid">
+      <div class="edit-field"><label>Pôle (nom)</label><input type="text" id="f_pole_nom" list="pole-list" value="${esc(poleName(c.pole_id))}" placeholder="ex : Famille Durand"></div>
+      <div class="edit-field"><label>Rôle dans le pôle</label><input type="text" id="f_pole_role" value="${esc(c.pole_role||'')}" placeholder="Dirigeant, Holding, SCI, Conjoint…"></div>
+      </div><datalist id="pole-list">${poles.map(p=>`<option value="${esc(p.nom||'')}"></option>`).join('')}</datalist></div>`;
+    const saveBar = `<div class="modal-save-bar">
+      <button class="btn btn--solid" id="save-contact">Enregistrer les modifications</button>
+      <button class="btn" id="delete-contact" style="border-color:#c0392b;color:#c0392b">Supprimer</button>
+      <span class="modal-save-status" id="save-status"></span></div>`;
+    return personneSwitch + stageBar + formHTML + poleBlock + saveBar;
+  }
+  function collectForm(){
+    const o = {};
+    EDITABLE_KEYS.forEach(key => { const el = document.getElementById('f_' + key); if(!el) return;
+      let v = el.value;
+      if(ARRAY_KEYS.includes(key)) v = v.split(',').map(s => s.trim()).filter(Boolean);
+      else if(key==='nb_enfants') v = parseInt(v,10) || 0;
+      else if(v==='') v = null;
+      o[key] = v; });
+    return o;
+  }
+  function bindContactInfo(c, id){
+    modalBody.querySelectorAll('.contact-stage').forEach(el => el.addEventListener('click', () => {
+      modalBody.querySelectorAll('.contact-stage').forEach(s => s.classList.remove('is-active'));
+      el.classList.add('is-active');
+    }));
+    const pe = document.getElementById('f_personne');
+    if(pe) pe.addEventListener('change', () => {
+      const cur = collectForm(); Object.assign(c, cur); c.personne = pe.value;
+      const pane = document.getElementById('pane-infos'); pane.innerHTML = contactInfoInner(c, id); bindContactInfo(c, id);
+    });
+    document.getElementById('save-contact').addEventListener('click', () => saveContact(id));
+    document.getElementById('delete-contact').addEventListener('click', () => deleteContact(id));
+  }
+
   function openContact(id){
     const c = contacts.find(x => x.id === id); if(!c) return;
     currentId = id;
     document.getElementById('modal-title').textContent = fullName(c);
-
-    const stageBar = `<div class="contact-pipeline">${STAGES.map(s =>
-      `<div class="contact-stage ${(c.stage||'Nouveau')===s?'is-active':''}" data-stage="${esc(s)}">${esc(s)}</div>`).join('')}</div>`;
-
-    const formHTML = FIELD_SECTIONS.map(sec =>
-      `<div class="detail-section"><h4>${esc(sec.title)}</h4><div class="edit-grid">${
-        sec.fields.map(f => editField(f[0], f[1], f[2], f[3], c[f[0]])).join('')
-      }</div></div>`).join('');
-
     modalBody.innerHTML = `
       <div class="modal-tabs">
         <button class="modal-tab is-active" data-pane="infos">Informations</button>
         <button class="modal-tab" data-pane="portefeuille">Portefeuille</button>
         <button class="modal-tab" data-pane="activites">Activités</button>
       </div>
-      <div class="modal-pane is-active" id="pane-infos">
-        ${stageBar}
-        ${formHTML}
-        <div class="modal-save-bar">
-          <button class="btn btn--solid" id="save-contact">Enregistrer les modifications</button>
-          <button class="btn" id="delete-contact" style="border-color:#c0392b;color:#c0392b">Supprimer</button>
-          <span class="modal-save-status" id="save-status"></span>
-        </div>
-      </div>
+      <div class="modal-pane is-active" id="pane-infos">${contactInfoInner(c, id)}</div>
       <div class="modal-pane" id="pane-portefeuille">${portfolioPaneHTML()}</div>
-      <div class="modal-pane" id="pane-activites">${activitiesPaneHTML(id)}</div>
-    `;
-
-    // Stage selector
-    modalBody.querySelectorAll('.contact-stage').forEach(el => el.addEventListener('click', () => {
-      modalBody.querySelectorAll('.contact-stage').forEach(s => s.classList.remove('is-active'));
-      el.classList.add('is-active');
-    }));
-    // Modal tabs
+      <div class="modal-pane" id="pane-activites">${activitiesPaneHTML(id)}</div>`;
     modalBody.querySelectorAll('.modal-tab').forEach(t => t.addEventListener('click', () => {
       modalBody.querySelectorAll('.modal-tab').forEach(x => x.classList.toggle('is-active', x===t));
       modalBody.querySelectorAll('.modal-pane').forEach(p => p.classList.remove('is-active'));
       modalBody.querySelector('#pane-' + t.dataset.pane).classList.add('is-active');
       if(t.dataset.pane==='portefeuille') setTimeout(drawPortfolioCharts,30);
     }));
-    document.getElementById('save-contact').addEventListener('click', () => saveContact(id));
-    document.getElementById('delete-contact').addEventListener('click', () => deleteContact(id));
+    bindContactInfo(c, id);
     bindActivityForm(id);
     bindPortfolioEvents();
-
     modal.classList.add('is-open');
     modalBody.scrollTop = 0;
   }
 
   function saveContact(id){
-    const patch = {};
-    EDITABLE_KEYS.forEach(key => {
-      const el = document.getElementById('f_' + key); if(!el) return;
-      let v = el.value;
-      if(ARRAY_KEYS.includes(key)) v = v.split(',').map(s => s.trim()).filter(Boolean);
-      else if(key==='nb_enfants') v = parseInt(v,10) || 0;
-      else if(v==='') v = null;
-      patch[key] = v;
-    });
+    const patch = collectForm();
+    const pe = document.getElementById('f_personne'); if(pe) patch.personne = pe.value;
     const activeStage = modalBody.querySelector('.contact-stage.is-active');
     if(activeStage) patch.stage = activeStage.dataset.stage;
+    // Personne morale : garantir les colonnes NOT NULL nom/prenom (recherche + intégrité)
+    if(patch.personne==='morale'){ if(patch.raison_sociale) patch.nom = patch.raison_sociale; if(patch.prenom==null) patch.prenom = ''; }
 
     const status = document.getElementById('save-status');
     status.style.color = 'var(--muted)'; status.textContent = 'Enregistrement…';
-    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
-      .then(r => {
-        if(!r.ok) throw new Error(r.status);
-        Object.assign(contacts.find(x => x.id===id), patch);
-        status.style.color = '#2e7d32'; status.textContent = '✓ Enregistré';
-        updateStats(); renderActiveTab();
-      })
-      .catch(err => { console.error(err); status.style.color = '#c0392b'; status.textContent = 'Erreur'; });
+    const poleNom = (document.getElementById('f_pole_nom')||{}).value || '';
+    const poleRole = ((document.getElementById('f_pole_role')||{}).value || '').trim() || null;
+    resolvePole(poleNom).then(pid => {
+      patch.pole_id = pid; patch.pole_role = poleRole;
+      return fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+        .then(r => {
+          if(!r.ok) throw new Error(r.status);
+          Object.assign(contacts.find(x => x.id===id), patch);
+          status.style.color = '#2e7d32'; status.textContent = '✓ Enregistré';
+          document.getElementById('modal-title').textContent = fullName(contacts.find(x => x.id===id));
+          updateStats(); renderActiveTab();
+        });
+    }).catch(err => { console.error(err); status.style.color = '#c0392b'; status.textContent = 'Erreur'; });
   }
 
   function deleteContact(id){
@@ -873,17 +923,28 @@ ${contractsHTML}
   const prospectModal = document.getElementById('prospect-modal');
   const prospectForm = document.getElementById('prospect-form');
   const prospectStatus = document.getElementById('prospect-status');
-  function openProspect(){ prospectForm.reset(); prospectStatus.textContent=''; prospectModal.classList.add('is-open'); }
+  function openProspect(){ prospectForm.reset(); prospectStatus.textContent=''; togglePersonneFields(); prospectModal.classList.add('is-open'); }
+  function togglePersonneFields(){
+    const morale = document.getElementById('pro-personne').value==='morale';
+    document.getElementById('pro-phys-row').style.display = morale?'none':'';
+    document.getElementById('pro-morale-row').style.display = morale?'':'none';
+  }
+  document.getElementById('pro-personne').addEventListener('change', togglePersonneFields);
   document.getElementById('btn-add-prospect').addEventListener('click', openProspect);
   document.getElementById('btn-add-prospect-2').addEventListener('click', openProspect);
   document.getElementById('prospect-close').addEventListener('click', () => prospectModal.classList.remove('is-open'));
   prospectModal.addEventListener('click', e => { if(e.target===prospectModal) prospectModal.classList.remove('is-open'); });
   prospectForm.addEventListener('submit', function(e){
     e.preventDefault();
+    const personne = document.getElementById('pro-personne').value;
+    const raison = document.getElementById('pro-raison').value.trim();
+    const nom = document.getElementById('pro-nom').value.trim();
+    if(personne==='morale' ? !raison : !nom){ prospectStatus.style.color='#c0392b'; prospectStatus.textContent = personne==='morale'?'Raison sociale requise.':'Nom requis.'; return; }
     const payload = {
-      type:'prospect', stage:'Nouveau',
-      nom: document.getElementById('pro-nom').value.trim(),
-      prenom: document.getElementById('pro-prenom').value.trim() || null,
+      type:'prospect', stage:'Nouveau', personne,
+      nom: personne==='morale' ? raison : nom,
+      prenom: personne==='morale' ? '' : (document.getElementById('pro-prenom').value.trim() || null),
+      raison_sociale: personne==='morale' ? raison : null,
       email: document.getElementById('pro-email').value.trim() || null,
       telephone: document.getElementById('pro-tel').value.trim() || null,
       comment_connu: document.getElementById('pro-source').value.trim() || null

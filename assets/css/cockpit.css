@@ -123,3 +123,44 @@
 /* ---------- FORMULAIRES (modale) ---------- */
 #ck-modal .sp-fld textarea{padding:9px 12px;border:1px solid var(--line);border-radius:7px;font-family:var(--sans);font-size:.88rem;outline:none;background:#fff;color:var(--ink);resize:vertical}
 #ck-modal .sp-fld textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,133,63,.1)}
+
+/* ---------- carte pleine largeur (membres du pôle) ---------- */
+.ck-span2{grid-column:1/-1}
+.ck-members{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.ck-member{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--parchment)}
+.ck-member__ico{font-size:1.05rem}
+.ck-member__n{min-width:0;flex:1;color:var(--green);font-weight:600;font-size:.86rem}
+.ck-member__n small{display:block;color:var(--muted);font-weight:400;font-size:.73rem}
+.ck-member__v{font-weight:700;color:var(--green);white-space:nowrap}
+
+/* ---------- PIÈCES JUSTIFICATIVES ---------- */
+.ck-pieces{display:flex;flex-direction:column;gap:7px}
+.ck-piece{display:flex;align-items:center;gap:10px;font-size:.84rem;color:var(--green);cursor:pointer;padding:2px 0}
+.ck-piece:hover{color:var(--gold)}
+.ck-piece__n{flex:1;min-width:0;font-weight:500}
+.ck-piece__n small{display:block;color:var(--muted);font-weight:400;font-size:.73rem}
+.ck-piece .ck-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.ck-piece.ok .ck-dot{background:#2e7d32}.ck-piece.warn .ck-dot{background:#d97706}.ck-piece.todo .ck-dot{background:#c0392b}
+.ck-piece__s{font-size:.64rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.ck-piece__s.ok{background:#e8f5e9;color:#2e7d32}.ck-piece__s.warn{background:#fff0d9;color:#b06f15}.ck-piece__s.todo{background:#fdecea;color:#c0392b}
+
+/* ---------- PROCÉDURES ---------- */
+.ck-procs{display:flex;flex-direction:column;gap:10px}
+.ck-proc-grp__h{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin:0 0 5px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+.ck-proc-grp__h.retard{color:#c0392b}.ck-proc-grp__h.today{color:#b06f15}.ck-proc-grp__h.soon{color:var(--gold)}.ck-proc-grp__h.done{color:#2e7d32}.ck-proc-grp__h.init{color:var(--muted)}
+.ck-proc{display:flex;align-items:center;gap:9px;font-size:.83rem;color:var(--green);padding:4px 0}
+.ck-proc .ck-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--muted)}
+.ck-proc.retard .ck-dot{background:#c0392b}.ck-proc.today .ck-dot{background:#d97706}.ck-proc.soon .ck-dot{background:var(--gold)}.ck-proc.done .ck-dot{background:#2e7d32}
+.ck-proc__n{flex:1;min-width:0;font-weight:500}
+.ck-proc__n small{display:block;color:var(--muted);font-weight:400;font-size:.72rem}
+.ck-proc__st{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.ck-proc__st.st-a_faire{background:#eef0ee;color:#5B6058}.ck-proc__st.st-en_cours{background:#eef4fb;color:#1565c0}.ck-proc__st.st-fait{background:#e8f5e9;color:#2e7d32}
+.ck-proc.init{opacity:.85}
+
+/* ---------- IMPORT RELEVÉ ---------- */
+.ck-imp-list{display:flex;flex-direction:column;gap:7px;margin:8px 0;max-height:340px;overflow:auto}
+.ck-imp-row{display:flex;gap:6px;align-items:center}
+.ck-imp-row input,.ck-imp-row select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-family:var(--sans);font-size:.8rem;outline:none;background:#fff;color:var(--ink);min-width:0}
+.ck-imp-row .imp-lib{flex:1}
+.ck-imp-row input:focus,.ck-imp-row select:focus{border-color:var(--gold)}
+.ck-imp-foot{margin-bottom:6px}

@@ -155,10 +155,13 @@
     <div class="dash-modal__body">
       <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Créez une fiche prospect manuellement. Vous pourrez la compléter, ajouter des activités, ou l'inviter à remplir le questionnaire plus tard.</p>
       <form id="prospect-form">
-        <div class="q-row">
+        <div class="q-field"><label for="pro-personne">Type de personne</label>
+          <select id="pro-personne"><option value="physique">Personne physique</option><option value="morale">Personne morale</option></select></div>
+        <div class="q-row" id="pro-phys-row">
           <div class="q-field"><label for="pro-prenom">Prénom</label><input type="text" id="pro-prenom"></div>
-          <div class="q-field"><label for="pro-nom">Nom <span class="req">*</span></label><input type="text" id="pro-nom" required></div>
+          <div class="q-field"><label for="pro-nom">Nom <span class="req">*</span></label><input type="text" id="pro-nom"></div>
         </div>
+        <div class="q-field" id="pro-morale-row" style="display:none"><label for="pro-raison">Raison sociale <span class="req">*</span></label><input type="text" id="pro-raison"></div>
         <div class="q-row">
           <div class="q-field"><label for="pro-email">Email</label><input type="email" id="pro-email"></div>
           <div class="q-field"><label for="pro-tel">Téléphone</label><input type="tel" id="pro-tel"></div>
@@ -185,6 +188,6 @@
 </div>
 
 <script src="assets/js/supabase-config.js"></script>
-<script src="assets/js/admin.js?v=6"></script>
+<script src="assets/js/admin.js?v=7"></script>
 </body>
 </html>
