@@ -26,9 +26,14 @@ direct sur tous les téléphones.
   **décompte** ; les compteurs repartent à zéro le 1er du mois.
 - 😂 **Réactions** : cartons 🟨 🟥 et smileys (🔥 😂 🍺 🤮) sur chaque pinte, en direct.
 - 🗺️ **Carte des pintes** (onglet 🗺️) : carte de France zoomable (Leaflet + OpenStreetMap)
-  avec un marqueur par ville → qui a bu, où et quand. À la publication, la ville se
-  choisit par autocomplétion sur **toutes les communes de France**
-  (API gratuite `api-adresse.data.gouv.fr`, coordonnées stockées avec la pinte).
+  avec un marqueur par ville → qui a bu, où et quand.
+- 📍 **Localisation par GPS** (non déclaratif) : à la publication, le joueur **partage
+  sa position**, reverse-géocodée (API `api-adresse.data.gouv.fr`) en commune + **département**.
+- 🏴 **Conquête des départements** : chaque département où le joueur a bu une pinte
+  s'affiche **en jaune** sur la carte, avec son **% de départements conquis**.
+- 🖼️ **Photo de profil** modifiable (stockée en base64 dans le doc joueur).
+- 👀 **Aperçu rapide** : cliquer un avatar dans le fil ouvre une mini-fenêtre avec ses
+  stats principales (pintes, litres, départements) + accès au profil complet.
 - 🔎 **Vérification IA des photos** (Google Gemini) : rejette galopins, demis,
   verres opaques, canettes, verres vides — seule une vraie pinte 50 cl est validée.
 
@@ -129,8 +134,8 @@ Déployable tel quel sur **GitHub Pages**, Netlify, Vercel, etc.
 | Collection | Contenu |
 |---|---|
 | `teams` | `{ name, color, createdAt }` |
-| `players` | doc id = `uid` → `{ prenom, nom, email, teamId, teamName, teamColor }` |
-| `pints` | `{ playerId, prenom, nom, teamId, teamName, teamColor, photoUrl, lieu, city, cp, lat, lng, volumeCl, status, verifyReason, reactions, createdAt }` |
+| `players` | doc id = `uid` → `{ prenom, nom, email, teamId, teamName, teamColor, avatarUrl }` |
+| `pints` | `{ playerId, prenom, nom, teamId, teamName, teamColor, photoUrl, lieu, city, cp, dep, depName, lat, lng, volumeCl, status, verifyReason, reactions, createdAt }` |
 
 Les infos d'équipe/joueur sont **dénormalisées** dans chaque pinte : aucune
 jointure, tout est temps réel via `onSnapshot`. Les statistiques et classements

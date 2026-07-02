@@ -46,6 +46,15 @@ const REACTIONS = ['🟨', '🟥', '😂', '🔥', '🍺', '🤮'];
 const COLORS = ['#F5A623','#E8503A','#7FB800','#FFD23F','#2EC4F1','#B36AE2','#FF7AB6','#00C2A8'];
 const colorFor = (str) => COLORS[[...(str||'?')].reduce((a,c)=>a+c.charCodeAt(0),0) % COLORS.length];
 const initials = (p, n) => ((p||'?')[0] + (n||'')[0]).toUpperCase();
+function avatarUrlOf(playerId) {
+  if (state.me && state.me.id === playerId && state.me.avatarUrl) return state.me.avatarUrl;
+  const pl = state.players.find(p => p.id === playerId);
+  return (pl && pl.avatarUrl) || null;
+}
+const avatarInner = (playerId, prenom, nom) => {
+  const url = avatarUrlOf(playerId);
+  return url ? `<img src="${url}" alt="">` : initials(prenom, nom);
+};
 const litres   = (cl) => (Number(cl||0) / 100);
 const fmtL     = (cl) => litres(cl).toLocaleString('fr-FR', { maximumFractionDigits: 1 });
 const millis   = (ts) => ts && typeof ts.toMillis === 'function' ? ts.toMillis() : (ts ? +new Date(ts) : 0);
@@ -149,9 +158,10 @@ function boot() {
 /* Reflète le profil connecté dans la barre (avatar) */
 function applyMeToUI() {
   const has = !!state.me;
-  $('#meBtn').textContent = has ? initials(state.me.prenom, state.me.nom) : '🙂';
-  $('#meBtn').style.background = has
-    ? `linear-gradient(135deg, ${colorFor(state.me.id)}, var(--pop))` : '';
+  const av = has && state.me.avatarUrl;
+  $('#meBtn').innerHTML = av ? `<img src="${av}" alt="">` : (has ? initials(state.me.prenom, state.me.nom) : '🙂');
+  $('#meBtn').style.background = av ? '#000'
+    : (has ? `linear-gradient(135deg, ${colorFor(state.me.id)}, var(--pop))` : '');
 }
 
 /* ============================================================
@@ -191,7 +201,7 @@ function subscribeData() {
 function refreshDynamic() {
   renderStats();
   if (!$('#viewStats').classList.contains('hidden')) renderStatsView();
-  if (!$('#viewMap').classList.contains('hidden')) renderMap();
+  if (!$('#viewMap').classList.contains('hidden') && state.map) renderMapAll();
   if (state.user && !$('#viewFeed').classList.contains('hidden')) renderFeed();
   if (!$('#viewProfile').classList.contains('hidden') && state.viewingProfile) openProfile(state.viewingProfile);
 }
@@ -481,11 +491,17 @@ function openMapView() {
     }).addTo(state.map);
     state.mapLayer = L.layerGroup().addTo(state.map);
   }
-  setTimeout(() => { state.map.invalidateSize(); renderMap(); }, 60);
+  setTimeout(async () => {
+    state.map.invalidateSize();
+    await ensureDepGeo();
+    renderMapAll();
+  }, 60);
 }
 
+function renderMapAll() { renderDepartments(); renderMarkers(); }
+
 /* Regroupe les pintes par ville (coordonnées) et pose un marqueur par ville */
-function renderMap() {
+function renderMarkers() {
   if (!state.map || !state.mapLayer) return;
   state.mapLayer.clearLayers();
 
@@ -534,45 +550,87 @@ function teamColorMix(pints) {
   return Object.entries(c).sort((a,b) => b[1]-a[1])[0][0];
 }
 
-/* ---------- Autocomplétion ville (API adresse gouv, toutes les communes) ---------- */
-let cityTimer = null;
-function setupCityAutocomplete() {
-  const input = $('#cityInput'), box = $('#citySuggest');
-  input.addEventListener('input', () => {
-    state.currentCity = null; $('#cityChosen').textContent = '';
-    const q = input.value.trim();
-    clearTimeout(cityTimer);
-    if (q.length < 2) { box.classList.add('hidden'); box.innerHTML = ''; return; }
-    cityTimer = setTimeout(() => fetchCities(q), 250);
-  });
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('#cityInput') && !e.target.closest('#citySuggest')) box.classList.add('hidden');
-  });
+/* ---------- Localisation par GPS (non déclaratif) ---------- */
+async function requestGeo() {
+  const hint = $('#cityChosen'), btn = $('#geoBtn');
+  if (!navigator.geolocation) { hint.className = 'hint geo-ko'; hint.textContent = '📍 Géolocalisation non supportée par ton navigateur.'; return; }
+  btn.disabled = true; btn.textContent = '📍 Localisation en cours…'; hint.className = 'hint'; hint.textContent = '';
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    const loc = await reverseGeocode(lat, lng);
+    if (!loc) {
+      hint.className = 'hint geo-ko'; hint.textContent = 'Impossible de déterminer ta commune (hors France ?).';
+      btn.disabled = false; btn.textContent = '📍 Réessayer'; return;
+    }
+    state.currentCity = { name: loc.city, cp: loc.cp, dep: loc.dep, depName: loc.depName, lat, lng };
+    hint.className = 'hint geo-ok';
+    hint.innerHTML = `✅ ${escapeHtml(loc.city)} <span class="muted">(dép. ${escapeHtml(loc.dep)})</span> — position confirmée`;
+    btn.disabled = false; btn.textContent = '📍 Position confirmée ✓';
+  }, (err) => {
+    hint.className = 'hint geo-ko';
+    hint.textContent = err.code === 1
+      ? 'Autorise la localisation : elle est obligatoire pour valider ta pinte.'
+      : 'Position indisponible, réessaie.';
+    btn.disabled = false; btn.textContent = '📍 Partager ma position';
+  }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
 }
-async function fetchCities(q) {
-  const box = $('#citySuggest');
+
+/* Reverse-geocoding GPS → commune + département (API gouv, gratuit) */
+async function reverseGeocode(lat, lng) {
   try {
-    const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&type=municipality&limit=6`);
+    const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${lng}&lat=${lat}&type=municipality`);
     const data = await res.json();
-    const feats = (data.features || []);
-    if (!feats.length) { box.innerHTML = `<button disabled>Aucune ville trouvée</button>`; box.classList.remove('hidden'); return; }
-    box.innerHTML = feats.map((f, i) => {
-      const p = f.properties, [lng, lat] = f.geometry.coordinates;
-      return `<button type="button" data-i="${i}" data-lat="${lat}" data-lng="${lng}"
-        data-name="${escapeHtml(p.city || p.name)}" data-cp="${escapeHtml(p.postcode||'')}">
-        ${escapeHtml(p.city || p.name)} <small>${escapeHtml(p.postcode||'')} · ${escapeHtml(p.context||'')}</small></button>`;
-    }).join('');
-    box.classList.remove('hidden');
-    $$('#citySuggest button[data-name]').forEach(btn => btn.addEventListener('click', () => {
-      state.currentCity = { name: btn.dataset.name, cp: btn.dataset.cp,
-                            lat: parseFloat(btn.dataset.lat), lng: parseFloat(btn.dataset.lng) };
-      $('#cityInput').value = btn.dataset.name;
-      $('#cityChosen').innerHTML = `✅ ${escapeHtml(btn.dataset.name)} <span class="muted">(${escapeHtml(btn.dataset.cp)})</span>`;
-      box.classList.add('hidden');
-    }));
-  } catch (e) {
-    box.innerHTML = `<button disabled>Recherche indisponible</button>`; box.classList.remove('hidden');
-  }
+    const f = data.features && data.features[0];
+    if (!f) return null;
+    const p = f.properties;
+    const ctx = (p.context || '').split(',').map(s => s.trim()); // ["75","Paris","Île-de-France"]
+    const dep = ctx[0] || (p.citycode || '').slice(0, 2);
+    return { city: p.city || p.name, cp: p.postcode || '', dep, depName: ctx[1] || '' };
+  } catch { return null; }
+}
+
+/* ---------- Départements conquis ---------- */
+function conqueredDepsOf(playerId) {
+  const set = new Set();
+  state.pints.forEach(p => { if (p.playerId === playerId && verified(p) && p.dep) set.add(String(p.dep)); });
+  return set;
+}
+function updateConquestStat(conquered) {
+  const total = state.depGeo ? state.depGeo.features.length : 101;
+  const n = conquered.size;
+  const pct = total ? Math.round(n / total * 100) : 0;
+  if ($('#depPct'))   $('#depPct').textContent = pct + '%';
+  if ($('#depBar'))   $('#depBar').style.width = pct + '%';
+  if ($('#depCount')) $('#depCount').textContent = n;
+}
+
+/* Charge (une fois) le contour des départements français */
+async function ensureDepGeo() {
+  if (state.depGeo || !window.L) return;
+  try {
+    const res = await fetch('https://france-geojson.gregoiredavid.fr/repo/departements-version-simplifiee.geojson');
+    state.depGeo = await res.json();
+  } catch { state.depGeo = null; }
+}
+
+/* Colore les départements : jaune = conquis par le joueur connecté */
+function renderDepartments() {
+  if (!state.map || !state.depGeo) return;
+  const conquered = state.me ? conqueredDepsOf(state.me.id) : new Set();
+  if (state.depLayer) { state.depLayer.remove(); state.depLayer = null; }
+  state.depLayer = L.geoJSON(state.depGeo, {
+    style: (feat) => {
+      const won = conquered.has(String(feat.properties.code));
+      return { color: won ? '#FFD23F' : 'rgba(255,244,214,0.22)', weight: won ? 1.6 : 0.5,
+               fillColor: won ? '#FFD23F' : '#ffffff', fillOpacity: won ? 0.42 : 0.03 };
+    },
+    onEachFeature: (feat, layer) => {
+      const won = conquered.has(String(feat.properties.code));
+      layer.bindPopup(`<div class="map-pop"><b>${escapeHtml(feat.properties.nom)} (${feat.properties.code})</b><br>${won ? '🏴 Conquis !' : 'À conquérir 👀'}</div>`);
+    },
+  }).addTo(state.map);
+  state.depLayer.bringToBack();
+  updateConquestStat(conquered);
 }
 
 /* ============================================================
@@ -707,7 +765,7 @@ function postHtml(p) {
   return `
     <article class="post">
       <div class="post-head">
-        <div class="pa" data-player="${p.playerId||''}" style="background:${colorFor(p.playerId||'?')}">${initials(p.prenom, p.nom)}</div>
+        <div class="pa" data-player="${p.playerId||''}" style="background:${colorFor(p.playerId||'?')}">${avatarInner(p.playerId, p.prenom, p.nom)}</div>
         <div class="who" data-player="${p.playerId||''}">
           <b>${escapeHtml(p.prenom||'Joueur')} ${escapeHtml((p.nom||'')[0]||'')}.</b>
           <span><span class="dot" style="width:8px;height:8px;border-radius:50%;background:${teamColor};display:inline-block"></span> ${escapeHtml(teamName)}</span>
@@ -755,8 +813,27 @@ function bindPostAvatars(root) {
   $$('[data-player]', root).forEach(el => {
     if (el.dataset.bound) return;
     el.dataset.bound = '1';
-    el.addEventListener('click', () => { const id = el.dataset.player; if (id) openProfile(id); });
+    el.addEventListener('click', () => { const id = el.dataset.player; if (id) openPreview(id); });
   });
+}
+
+/* Mini-fenêtre d'aperçu des stats d'un joueur (depuis le fil) */
+function openPreview(playerId) {
+  const s = computeStats(true);
+  const idx = s.players.findIndex(x => x.id === playerId);
+  const p = idx >= 0 ? s.players[idx]
+          : (state.players.find(x => x.id === playerId) || { id: playerId, prenom: '?', nom: '', pintes: 0, volume: 0 });
+  const av = avatarUrlOf(playerId);
+  $('#pvAvatar').style.background = av ? '#000' : `linear-gradient(135deg, ${p.teamColor||colorFor(p.id)}, var(--pop))`;
+  $('#pvAvatar').innerHTML = av ? `<img src="${av}" alt="">` : initials(p.prenom, p.nom);
+  $('#pvName').textContent = `${p.prenom} ${p.nom||''}`.trim();
+  $('#pvTeam').textContent = `🚩 ${p.teamName || 'Sans équipe'}`;
+  $('#pvTeam').style.background = p.teamColor || 'var(--biere)';
+  $('#pvPintes').textContent = p.pintes || 0;
+  $('#pvLitres').textContent = fmtL(p.volume);
+  $('#pvDeps').textContent = conqueredDepsOf(playerId).size;
+  $('#pvFull').onclick = () => { closeOverlay('#previewOverlay'); openProfile(playerId); };
+  openOverlay('#previewOverlay');
 }
 
 /* ============================================================
@@ -771,8 +848,11 @@ function openProfile(playerId) {
           : (state.players.find(x => x.id === playerId) || { id: playerId, prenom: '?', nom: '', pintes: 0, volume: 0 });
   const rank = (idx >= 0 && p.pintes > 0) ? `#${idx + 1}` : '–';
 
-  $('#pfAvatar').textContent = initials(p.prenom, p.nom);
-  $('#pfAvatar').style.background = `linear-gradient(135deg, ${p.teamColor||colorFor(p.id)}, var(--pop))`;
+  const isMe = state.me && state.me.id === playerId;
+  const av = avatarUrlOf(playerId);
+  $('#pfAvatar').style.background = av ? '#000' : `linear-gradient(135deg, ${p.teamColor||colorFor(p.id)}, var(--pop))`;
+  $('#pfAvatar').innerHTML = (av ? `<img src="${av}" alt="">` : initials(p.prenom, p.nom))
+    + (isMe ? `<button class="pa-edit" id="pfAvatarEdit" title="Changer la photo">📷</button>` : '');
   $('#pfName').textContent = `${p.prenom} ${p.nom||''}`.trim();
   $('#pfTeam').textContent = `🚩 ${p.teamName || 'Sans équipe'}`;
   $('#pfTeam').style.background = p.teamColor || 'var(--biere)';
@@ -780,11 +860,14 @@ function openProfile(playerId) {
   $('#pfLitres').textContent = fmtL(p.volume);
   $('#pfRank').textContent   = rank;
 
-  const isMe = state.me && state.me.id === playerId;
+  const deps = conqueredDepsOf(playerId).size;
+  $('#pfConquest').innerHTML = `🏴 <b style="color:#FFD23F">${deps}</b> département${deps>1?'s':''} conquis`;
+
   $('#pfActions').innerHTML = isMe
     ? `<button class="btn btn-primary btn-block" id="changeTeamBtn" style="margin-bottom:8px">🔀 Changer d'équipe</button>
        <button class="btn btn-ghost btn-block" id="logoutBtn">Se déconnecter</button>` : '';
   if (isMe) {
+    $('#pfAvatarEdit').addEventListener('click', () => $('#avatarInput').click());
     $('#changeTeamBtn').addEventListener('click', openTeamEditor);
     $('#logoutBtn').addEventListener('click', () => auth.signOut());
   }
@@ -901,6 +984,8 @@ $('#postForm').addEventListener('submit', async (e) => {
       lieu,
       city:      city.name,
       cp:        city.cp || null,
+      dep:       city.dep || null,
+      depName:   city.depName || null,
       lat:       city.lat,
       lng:       city.lng,
       volumeCl:  CFG.PINTE_CL || 50,
@@ -927,15 +1012,29 @@ function resetPostForm() {
   $('#photoInput').value = '';
   $('#previewImg').src = '';
   $('#lieuInput').value = '';
-  $('#cityInput').value = '';
-  $('#cityChosen').textContent = '';
-  $('#citySuggest').classList.add('hidden');
-  $('#citySuggest').innerHTML = '';
+  $('#cityChosen').textContent = ''; $('#cityChosen').className = 'hint';
+  const gb = $('#geoBtn'); gb.disabled = false; gb.textContent = '📍 Partager ma position';
   $('#photoDrop').classList.remove('hidden');
   $('#photoPreview').classList.add('hidden');
   $('#verifyBox').classList.add('hidden');
   $('#postSubmit').disabled = true;
   $('#postErr').textContent = '';
+}
+
+/* Changement de photo de profil (stockée en base64 dans le doc joueur) */
+async function onAvatarPicked(e) {
+  const file = e.target.files[0];
+  if (!file || !state.me) return;
+  try {
+    const { dataUrl } = await compressImage(file, 256, 120 * 1024);
+    await db.collection('players').doc(state.me.id).update({ avatarUrl: dataUrl });
+    state.me.avatarUrl = dataUrl;
+    applyMeToUI();
+    if (state.viewingProfile === state.me.id) openProfile(state.me.id);
+    toast('📸 Photo de profil mise à jour !', 'ok');
+  } catch (err) {
+    console.error(err); toast('Photo impossible', 'ko');
+  } finally { e.target.value = ''; }
 }
 
 /* Compression via canvas → data URL JPEG, sous une taille cible (octets).
@@ -1009,7 +1108,9 @@ function wireEvents() {
   $('#fabMap').addEventListener('click', openMapView);
   $('#fabPost').addEventListener('click', () => { resetPostForm(); openOverlay('#postOverlay'); });
 
-  setupCityAutocomplete();
+  // Localisation GPS + photo de profil
+  $('#geoBtn').addEventListener('click', requestGeo);
+  $('#avatarInput').addEventListener('change', onAvatarPicked);
 
   // Réactions (délégation : le fil est reconstruit à chaque mise à jour)
   document.addEventListener('click', (e) => {

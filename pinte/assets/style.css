@@ -410,6 +410,40 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .profile-stats .s .n { font-size: 1.7rem; font-weight: 700; color: var(--biere-2); }
 .profile-stats .s .l { font-size: .74rem; color: var(--txt-dim); margin-top: 3px; }
 
+/* ---------- Avatars photo ---------- */
+.pa img, .pa-big img, .avatar-btn img {
+  width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;
+}
+.pa-big { position: relative; overflow: visible; }
+.pa-big img { position: absolute; inset: 0; }
+.pa-edit {
+  position: absolute; right: -2px; bottom: -2px; z-index: 2;
+  width: 30px; height: 30px; border-radius: 50%; font-size: .9rem;
+  background: var(--biere); color: var(--stout); border: 2px solid var(--stout);
+  display: grid; place-items: center;
+}
+
+/* ---------- Aperçu profil (mini) ---------- */
+.preview-sheet { max-width: 460px; }
+.preview-head { display: flex; align-items: center; gap: 14px; padding-top: 6px; }
+.preview-head .pa-big { width: 68px; height: 68px; margin: 0; font-size: 1.6rem; }
+
+/* ---------- Conquête des départements ---------- */
+.conquest {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 12px 14px; margin-bottom: 10px;
+}
+.conquest .cq-num { font-size: 1.05rem; font-weight: 700; }
+.conquest .cq-num span { color: #FFD23F; font-size: 1.5rem; }
+.conquest .cq-num small { color: var(--txt-dim); font-weight: 600; font-size: .82rem; }
+.conquest .cq-bar { height: 8px; border-radius: 999px; background: rgba(255,244,214,.1); margin: 8px 0 6px; overflow: hidden; }
+.conquest .cq-bar span { display: block; height: 100%; width: 0; border-radius: 999px;
+  background: linear-gradient(90deg, var(--biere), #FFD23F); transition: width .5s ease; }
+.conquest .cq-sub { font-size: .8rem; color: var(--txt-dim); }
+
+.geo-ok { color: #7ff0a0 !important; }
+.geo-ko { color: #ff9686 !important; }
+
 /* ---------- Toast ---------- */
 .toast-wrap { position: fixed; left: 0; right: 0; bottom: 96px; z-index: 80; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
 .toast {

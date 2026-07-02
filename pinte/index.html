@@ -81,9 +81,13 @@
       <section class="section">
         <button class="btn btn-ghost" id="backFromProfile" style="padding:8px 14px;margin-bottom:8px">← Retour</button>
         <div class="profile-head">
-          <div class="pa-big" id="pfAvatar">🙂</div>
+          <div class="pa-big" id="pfAvatar">🙂
+            <button class="pa-edit hidden" id="pfAvatarEdit" title="Changer la photo">📷</button>
+          </div>
+          <input type="file" accept="image/*" id="avatarInput" class="hidden">
           <h3 id="pfName">–</h3>
           <div class="team-tag" id="pfTeam" style="background:var(--biere)">🚩 –</div>
+          <div class="hint" id="pfConquest" style="margin-top:8px"></div>
         </div>
         <div class="profile-stats">
           <div class="s"><div class="n" id="pfPintes">0</div><div class="l">Pintes 🍺</div></div>
@@ -133,7 +137,12 @@
       <section class="section" style="padding-bottom:8px">
         <button class="btn btn-ghost" id="backFromMap" style="padding:8px 14px;margin-bottom:8px">← Retour</button>
         <h2>🗺️ La carte des pintes <span class="chip" id="mapCount"></span></h2>
-        <p class="hint" style="margin:-4px 0 10px">Chaque marqueur = une ville. Clique dessus pour voir qui a bu quoi. Zoom avec la molette ou les doigts.</p>
+        <div class="conquest" id="conquestBox">
+          <div class="cq-num"><span id="depPct">0%</span> <small>des départements conquis 🏴</small></div>
+          <div class="cq-bar"><span id="depBar"></span></div>
+          <div class="cq-sub"><b id="depCount">0</b> départements où tu as bu une pinte · <span style="color:#FFD23F">■</span> en jaune sur la carte</div>
+        </div>
+        <p class="hint" style="margin:-2px 0 10px">Les marqueurs = tes pintes. Les départements <b style="color:#FFD23F">jaunes</b> sont ceux que tu as conquis. Zoom molette/doigts.</p>
       </section>
       <div id="map"></div>
     </main>
@@ -223,6 +232,27 @@
     </div>
   </div>
 
+  <!-- ============ OVERLAY : APERÇU PROFIL (mini) ============ -->
+  <div class="overlay" id="previewOverlay">
+    <div class="sheet preview-sheet">
+      <div class="grab"></div>
+      <button class="close" data-close>✕</button>
+      <div class="preview-head">
+        <div class="pa-big" id="pvAvatar">🙂</div>
+        <div>
+          <h3 id="pvName" style="font-size:1.35rem">–</h3>
+          <div class="team-tag" id="pvTeam" style="background:var(--biere);margin-top:4px">🚩 –</div>
+        </div>
+      </div>
+      <div class="profile-stats" style="margin:16px 0 8px">
+        <div class="s"><div class="n" id="pvPintes">0</div><div class="l">Pintes 🍺</div></div>
+        <div class="s"><div class="n" id="pvLitres">0</div><div class="l">Litres 🌊</div></div>
+        <div class="s"><div class="n" id="pvDeps">0</div><div class="l">Départements 🏴</div></div>
+      </div>
+      <button class="btn btn-primary btn-block" id="pvFull">Voir le profil complet →</button>
+    </div>
+  </div>
+
   <!-- ============ OVERLAY : POSTER UNE PINTE ============ -->
   <div class="overlay" id="postOverlay">
     <div class="sheet">
@@ -252,10 +282,9 @@
 
         <div class="verify-box hidden" id="verifyBox"></div>
 
-        <div class="field" style="position:relative">
-          <label>📍 Dans quelle ville ?</label>
-          <input id="cityInput" placeholder="Cherche ta ville (toute la France)…" autocomplete="off">
-          <div class="suggest hidden" id="citySuggest"></div>
+        <div class="field">
+          <label>📍 Ta position <span style="color:var(--txt-dim)">— obligatoire, vérifiée par GPS</span></label>
+          <button type="button" class="btn btn-ghost btn-block" id="geoBtn">📍 Partager ma position</button>
           <div class="hint" id="cityChosen"></div>
         </div>
 
