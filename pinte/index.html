@@ -286,8 +286,12 @@
           <label>📍 Ta position <span style="color:var(--txt-dim)">— obligatoire</span></label>
           <button type="button" class="btn btn-ghost btn-block" id="geoBtn">📍 Partager ma position (GPS)</button>
           <div class="hint" id="cityChosen"></div>
+        </div>
+        <div class="field">
+          <label>… ou choisis ta ville dans la liste</label>
+          <select id="citySelect"><option value="">— Choisir une ville —</option></select>
           <div class="hint" style="margin-top:6px">
-            <a id="manualToggle" style="color:var(--biere-2);cursor:pointer;font-weight:600">Impossible ? Saisir ma ville à la main</a>
+            <a id="manualToggle" style="color:var(--biere-2);cursor:pointer;font-weight:600">Ta ville n'est pas dans la liste ? Rechercher</a>
           </div>
         </div>
         <div class="field hidden" id="manualCityField" style="position:relative">
@@ -315,6 +319,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="assets/config.js"></script>
+  <script src="assets/cities.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>

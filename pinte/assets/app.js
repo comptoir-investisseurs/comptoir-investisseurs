@@ -563,6 +563,7 @@ async function requestGeo() {
       btn.disabled = false; btn.textContent = '📍 Réessayer'; return;
     }
     state.currentCity = { name: loc.city, cp: loc.cp, dep: loc.dep, depName: loc.depName, lat, lng };
+    if ($('#citySelect')) $('#citySelect').value = '';
     hint.className = 'hint geo-ok';
     hint.innerHTML = `✅ ${escapeHtml(loc.city)} <span class="muted">(dép. ${escapeHtml(loc.dep)})</span> — position confirmée`;
     btn.disabled = false; btn.textContent = '📍 Position confirmée ✓';
@@ -611,6 +612,7 @@ async function fetchCities(q) {
       state.currentCity = { name: btn.dataset.name, cp: btn.dataset.cp, dep: btn.dataset.dep,
                             depName: btn.dataset.depname, lat: parseFloat(btn.dataset.lat), lng: parseFloat(btn.dataset.lng) };
       $('#cityInput').value = btn.dataset.name;
+      if ($('#citySelect')) $('#citySelect').value = '';
       $('#cityChosen').className = 'hint geo-ok';
       $('#cityChosen').innerHTML = `✅ ${escapeHtml(btn.dataset.name)} <span class="muted">(dép. ${escapeHtml(btn.dataset.dep)})</span> — saisie manuelle`;
       box.classList.add('hidden');
@@ -618,6 +620,23 @@ async function fetchCities(q) {
   } catch (e) {
     box.innerHTML = `<button disabled>Recherche indisponible</button>`; box.classList.remove('hidden');
   }
+}
+
+/* Menu déroulant de villes (secours 100% hors-ligne, aucune requête) */
+function fillCitySelect() {
+  const sel = $('#citySelect'); if (!sel || !window.PP_CITIES) return;
+  const list = [...window.PP_CITIES].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  sel.innerHTML = `<option value="">— Choisir une ville —</option>` +
+    list.map((c, i) => `<option value="${window.PP_CITIES.indexOf(c)}">${escapeHtml(c.name)} (${escapeHtml(c.dep)})</option>`).join('');
+  sel.addEventListener('change', () => {
+    const c = window.PP_CITIES[parseInt(sel.value, 10)];
+    if (!c) { state.currentCity = null; $('#cityChosen').textContent = ''; $('#cityChosen').className = 'hint'; return; }
+    state.currentCity = { name: c.name, cp: '', dep: c.dep, depName: '', lat: c.lat, lng: c.lng };
+    // reset GPS visuel
+    const gb = $('#geoBtn'); gb.textContent = '📍 Partager ma position (GPS)';
+    $('#cityChosen').className = 'hint geo-ok';
+    $('#cityChosen').innerHTML = `✅ ${escapeHtml(c.name)} <span class="muted">(dép. ${escapeHtml(c.dep)})</span> — choisie dans la liste`;
+  });
 }
 
 /* Reverse-geocoding GPS → commune + département (API gouv, gratuit) */
@@ -1062,6 +1081,7 @@ function resetPostForm() {
   $('#cityInput').value = '';
   $('#citySuggest').classList.add('hidden'); $('#citySuggest').innerHTML = '';
   $('#manualCityField').classList.add('hidden');
+  if ($('#citySelect')) $('#citySelect').value = '';
   $('#photoDrop').classList.remove('hidden');
   $('#photoPreview').classList.add('hidden');
   $('#verifyBox').classList.add('hidden');
@@ -1162,6 +1182,7 @@ function wireEvents() {
     $('#manualCityField').classList.toggle('hidden');
     if (!$('#manualCityField').classList.contains('hidden')) $('#cityInput').focus();
   });
+  fillCitySelect();
   setupCityAutocomplete();
   $('#avatarInput').addEventListener('change', onAvatarPicked);
 
