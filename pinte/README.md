@@ -3,88 +3,81 @@
 **La compétition de pintes par équipe.** Site web participatif, mobile-first,
 **100 % indépendant** (aucun lien avec un autre projet du dépôt).
 
-Chaque joueur s'inscrit, rejoint une équipe, et poste ses pintes en photo.
-Chaque photo est **vérifiée automatiquement** (une pinte, dans un verre en verre,
-50 cl, liquide visible). Le fil des pintes défile **en temps réel** comme une
-conversation, et les statistiques (pintes bues, joueurs, meilleures équipes)
-sont mises à jour en direct.
+Chaque joueur s'inscrit, rejoint une équipe et poste ses pintes en photo.
+Le fil des pintes défile **en temps réel** comme une conversation, et les
+statistiques (pintes bues, joueurs, meilleures équipes) sont mises à jour en
+direct sur tous les téléphones.
 
 ## Fonctionnalités
 
-- 🏠 **Accueil public** : compteurs globaux (pintes bues, joueurs, équipes, litres),
+- 🏠 **Accueil public** : compteurs globaux (pintes, joueurs, équipes, litres),
   classement des équipes et top joueurs.
-- 🔐 **Inscription / connexion** (Supabase Auth). L'inscription récolte **prénom,
+- 🔐 **Inscription / connexion** (Firebase Auth). L'inscription récolte **prénom,
   nom et email** — obligatoire pour participer.
 - 📸 **Fil en temps réel** : les pintes postées par tous les joueurs apparaissent
   instantanément, avec le décompte, le lieu et l'équipe.
 - 🙋 **Profils** : chaque joueur a ses stats (pintes, litres, classement) et la
-  liste de ses pintes — accessibles en cliquant sur son avatar.
-- ✅ **Vérification des photos** par IA (vision Claude) via une fonction Edge.
+  liste de ses pintes — en cliquant sur son avatar.
 - 🏆 **Compétition par équipe** : rejoins une équipe existante ou crée la tienne.
+- 🤝 **Règles de la pinte** : une pinte dans un verre en verre, 50 cl, liquide
+  visible (validation à l'honneur ; les orgas peuvent invalider une photo).
 
 ## Stack
 
-100 % statique côté client (HTML/CSS/JS, sans build) + **Supabase** :
-Auth · Postgres (+ RLS) · Storage · Realtime · Edge Functions.
+100 % statique côté client (HTML/CSS/JS, sans build) + **Firebase** :
+Authentication · Firestore (temps réel) · Storage (photos).
 
 ```
 pinte/
-├─ index.html                     Interface (shell)
+├─ index.html            Interface (shell)
 ├─ assets/
-│  ├─ style.css                   Design system (punchy, participatif)
-│  ├─ config.js                   ⚙️ À REMPLIR : URL + clé anon Supabase
-│  └─ app.js                      Logique (auth, fil, realtime, upload, profil)
-├─ supabase.sql                   Schéma + RLS + vues + storage + realtime
-├─ edge-functions/verify-pinte/   Vérification photo (vision Claude)
-│  └─ index.ts
+│  ├─ style.css          Design system (punchy, participatif)
+│  ├─ config.js          ⚙️ À REMPLIR : firebaseConfig de votre projet
+│  └─ app.js             Logique (auth, fil temps réel, upload, profils, stats)
+├─ firestore.rules       Règles de sécurité Firestore
+├─ storage.rules         Règles de sécurité Storage
 └─ README.md
 ```
 
-## Installation
+## Installation (Firebase — gratuit, sans facturation)
 
-### 1. Créer un projet Supabase
-Sur [supabase.com](https://supabase.com), créez un **nouveau projet dédié**
-(indépendant de tout autre projet). Récupérez dans *Project Settings > API* :
-- **Project URL**
-- **anon public** key
+### 1. Créer un projet Firebase
+Sur [console.firebase.google.com](https://console.firebase.google.com), créez un
+**nouveau projet dédié**.
 
-### 2. Configurer le front
-Éditez `assets/config.js` et collez vos deux valeurs :
+### 2. Ajouter une app Web
+Dans le projet → icône **`</>`** (Web) → enregistrez l'app. Copiez l'objet
+`firebaseConfig` proposé.
+
+### 3. Configurer le front
+Collez ces valeurs dans **`assets/config.js`** :
 
 ```js
 window.PP_CONFIG = {
-  SUPABASE_URL:      'https://xxxx.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOi...',
-  ...
+  firebase: {
+    apiKey:        'AIza...',
+    authDomain:    'xxxx.firebaseapp.com',
+    projectId:     'xxxx',
+    storageBucket: 'xxxx.appspot.com',
+    messagingSenderId: '...',
+    appId:         '1:...:web:...',
+  },
+  PINTE_CL: 50,
 };
 ```
 
-> La clé **anon** est publique par nature (elle vit dans le navigateur). La
-> sécurité repose sur les règles **RLS** de `supabase.sql`. Ne mettez **jamais**
-> la clé `service_role` ici.
+> Ces clés Firebase sont **publiques** par nature (elles vivent dans le
+> navigateur). La sécurité repose sur les **Security Rules** ci-dessous.
 
-### 3. Créer la base
-Dans *Supabase Dashboard > SQL Editor*, collez et exécutez **`supabase.sql`**.
-Il crée les tables (`pp_teams`, `pp_players`, `pp_pints`), les vues de stats,
-les politiques RLS, le bucket de stockage `pintes` et active le temps réel.
+### 4. Activer les services
+Dans la console Firebase :
+- **Authentication** → *Sign-in method* → activez **E-mail/Mot de passe**.
+- **Firestore Database** → *Créer une base* (mode production, région au choix).
+- **Storage** → *Commencer* (mode production).
 
-### 4. Vérifier le Storage
-Le script crée le bucket public `pintes`. Si besoin, vérifiez dans
-*Storage* qu'il existe et qu'il est **public**.
-
-### 5. (Recommandé) Vérification des photos par IA
-La fonction Edge `verify-pinte` valide chaque photo avec la vision de Claude.
-
-```bash
-# Depuis la racine du dépôt, avec la CLI Supabase installée & liée au projet :
-supabase functions deploy verify-pinte --no-verify-jwt
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-xxxxx
-```
-
-> **Sans cette fonction, le jeu marche quand même** : les pintes passent en
-> statut « en attente » (⏳) au lieu d'être validées automatiquement. Vous
-> pouvez alors les valider à la main (passer `status` à `verified` dans la table
-> `pp_pints`).
+### 5. Coller les règles de sécurité
+- **Firestore** → onglet *Règles* → collez le contenu de **`firestore.rules`**.
+- **Storage** → onglet *Règles* → collez le contenu de **`storage.rules`**.
 
 ### 6. Lancer
 Site statique : ouvrez `pinte/index.html`, ou servez le dossier :
@@ -95,28 +88,34 @@ python3 -m http.server 8000
 ```
 
 Déployable tel quel sur **GitHub Pages**, Netlify, Vercel, etc.
+> Sur GitHub Pages, pensez à ajouter le domaine du site dans
+> *Firebase Console > Authentication > Settings > Domaines autorisés*.
 
-## Règle de validation d'une pinte
+## Modèle de données (Firestore)
 
-Une photo est acceptée si **les trois** conditions sont réunies :
-1. 🍺 une pinte dans un **vrai verre en verre** (ni canette, ni bouteille, ni gobelet) ;
-2. 📏 volume **50 cl** ;
-3. 💧 **liquide visible** (le verre n'est pas vide).
-
-Sinon la photo est refusée avec une courte explication, et le joueur peut en reprendre une.
-
-## Modèle de données (résumé)
-
-| Table | Rôle |
+| Collection | Contenu |
 |---|---|
-| `pp_teams` | équipes (nom, couleur) |
-| `pp_players` | profils joueurs (prénom, nom, email, équipe) liés à `auth.users` |
-| `pp_pints` | pintes postées (photo, lieu, volume, statut de vérification) |
+| `teams` | `{ name, color, createdAt }` |
+| `players` | doc id = `uid` → `{ prenom, nom, email, teamId, teamName, teamColor }` |
+| `pints` | `{ playerId, prenom, nom, teamId, teamName, teamColor, photoUrl, lieu, volumeCl, status, createdAt }` |
 
-Vues de stats en lecture publique : `pp_global_stats`, `pp_team_stats`, `pp_player_stats`.
+Les infos d'équipe/joueur sont **dénormalisées** dans chaque pinte : aucune
+jointure, tout est temps réel via `onSnapshot`. Les statistiques et classements
+sont calculés côté client à partir de ces collections.
+
+## Validation des photos
+
+La règle : 🍺 une pinte dans un **vrai verre en verre**, 📏 **50 cl**, 💧 **liquide
+visible**. La validation est **à l'honneur** entre joueurs. Une pinte compte dès
+qu'elle est postée (`status: verified`). Pour invalider une photo hors règles,
+passez son champ `status` à `rejected` dans la console Firestore (elle disparaît
+alors du fil et des compteurs).
+
+> 💡 *Envie d'une vérification 100 % automatique par IA ?* Elle nécessite une clé
+> secrète côté serveur (donc une Cloud Function Firebase, plan **Blaze**). Ce
+> n'est pas activé ici pour rester sans facturation.
 
 ## Personnalisation
 
 - **Couleurs / ambiance** : variables CSS dans `assets/style.css` (`:root`).
 - **Volume de la pinte** : `PINTE_CL` dans `assets/config.js`.
-- **Équipes de départ** : bloc final de `supabase.sql`.

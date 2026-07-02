@@ -1,0 +1,37 @@
+rules_version = '2';
+// ============================================================
+// Ma p'tite pinte 🍺 — Règles Firestore
+// À coller dans : Firebase Console > Firestore Database > Règles
+// ============================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Lecture publique (stats, classements, fil visibles sans compte)
+
+    // ---- Équipes ----
+    match /teams/{teamId} {
+      allow read: if true;
+      allow create: if request.auth != null;      // un joueur connecté crée son équipe
+      allow update, delete: if false;             // (gérées à la main dans la console)
+    }
+
+    // ---- Joueurs (profils) ----
+    match /players/{uid} {
+      allow read: if true;
+      // On ne peut créer/modifier que SON propre profil
+      allow create, update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
+    // ---- Pintes ----
+    match /pints/{pintId} {
+      allow read: if true;
+      // On ne peut poster qu'en son propre nom
+      allow create: if request.auth != null
+                    && request.resource.data.playerId == request.auth.uid;
+      // Le joueur peut modifier/supprimer ses propres pintes
+      allow update, delete: if request.auth != null
+                    && resource.data.playerId == request.auth.uid;
+    }
+  }
+}

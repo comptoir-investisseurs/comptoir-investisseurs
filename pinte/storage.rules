@@ -1,0 +1,18 @@
+rules_version = '2';
+// ============================================================
+// Ma p'tite pinte 🍺 — Règles Storage
+// À coller dans : Firebase Console > Storage > Règles
+// ============================================================
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Photos de pintes : lecture publique, écriture par le propriétaire
+    match /pintes/{uid}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.size < 8 * 1024 * 1024        // 8 Mo max
+                   && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

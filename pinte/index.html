@@ -151,12 +151,13 @@
       <button class="close" data-close>✕</button>
       <h3>Poster ma pinte 🍺</h3>
       <div class="rules">
-        <b>Règles de validation :</b> chaque photo est vérifiée automatiquement.
+        <b>Règles du jeu :</b> pour qu'une pinte compte, la photo doit montrer
         <ul>
           <li>🍺 Une <b>pinte</b> dans un <b>vrai verre en verre</b></li>
           <li>📏 Volume <b>50 cl</b></li>
           <li>💧 <b>Liquide visible</b> (pas un verre vide !)</li>
         </ul>
+        Fair-play entre joueurs 🤝 — les orgas peuvent invalider une photo hors règles.
       </div>
 
       <form id="postForm">
@@ -183,8 +184,11 @@
 
   <div class="toast-wrap" id="toastWrap"></div>
 
-  <!-- Supabase JS + app -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Firebase (compat) + app -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <script src="assets/config.js"></script>
   <script src="assets/app.js"></script>
 </body>
