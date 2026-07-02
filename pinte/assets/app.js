@@ -373,6 +373,11 @@ function renderStats() {
 function renderStatsView() {
   const s = computeStats(true);
 
+  // Total de pintes bues depuis le début (toutes saisons) + courbe
+  const allTime = state.pints.filter(verified);
+  $('#statTotalPintes').textContent = allTime.length.toLocaleString('fr-FR');
+  $('#pintChart').innerHTML = chartSvg(cumulativeByDay(allTime));
+
   const teams = s.teams.slice(0, 20);
   $('#statTeamBoard').innerHTML = teams.length ? teams.map(teamRowHtml).join('') : EMPTY_TEAMS;
 
@@ -396,6 +401,65 @@ function renderStatsView() {
 }
 
 function openStatsView() { showView('stats'); renderStatsView(); updateCountdowns(); }
+
+/* Série cumulée des pintes bues par jour (toutes saisons confondues) */
+function cumulativeByDay(pts) {
+  if (!pts.length) return [];
+  const byDay = new Map();
+  let min = Infinity, max = -Infinity;
+  pts.forEach(p => {
+    const d = new Date(millis(p.createdAt) || Date.now());
+    d.setHours(0, 0, 0, 0);
+    const k = d.getTime();
+    byDay.set(k, (byDay.get(k) || 0) + 1);
+    if (k < min) min = k; if (k > max) max = k;
+  });
+  const out = []; let cum = 0;
+  for (let t = min; t <= max; t += 86400000) { cum += (byDay.get(t) || 0); out.push({ t, cum }); }
+  return out;
+}
+
+/* Petite courbe SVG (abscisse = date, ordonnée = pintes cumulées) */
+function chartSvg(series) {
+  if (!series.length) return `<div class="empty">Pas encore de pinte à afficher 📈</div>`;
+  const W = 560, H = 150, pad = { l: 10, r: 12, t: 14, b: 24 };
+  const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+  const minX = series[0].t, maxX = series[series.length - 1].t;
+  const maxY = Math.max(...series.map(s => s.cum), 1);
+  const X = t => pad.l + (maxX === minX ? iw / 2 : (t - minX) / (maxX - minX) * iw);
+  const Y = v => pad.t + ih - (v / maxY) * ih;
+  const fmtD = t => { const d = new Date(t); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; };
+
+  const pts = series.map(s => `${X(s.t).toFixed(1)},${Y(s.cum).toFixed(1)}`);
+  const line = 'M' + pts.join(' L');
+  const baseY = pad.t + ih;
+  const area = `M${X(minX).toFixed(1)},${baseY} L` + pts.join(' L') + ` L${X(maxX).toFixed(1)},${baseY} Z`;
+  const last = series[series.length - 1];
+
+  // libellés d'axe X : début, milieu, fin (sans doublon)
+  const idxs = [...new Set([0, Math.floor((series.length - 1) / 2), series.length - 1])];
+  const xLabels = idxs.map(i => {
+    const s = series[i];
+    const anchor = i === 0 ? 'start' : i === series.length - 1 ? 'end' : 'middle';
+    return `<text class="lbl" x="${X(s.t).toFixed(1)}" y="${H - 6}" text-anchor="${anchor}">${fmtD(s.t)}</text>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution des pintes bues">
+    <defs>
+      <linearGradient id="ppFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#F5A623" stop-opacity="0.42"/>
+        <stop offset="100%" stop-color="#F5A623" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <line class="grid" x1="${pad.l}" y1="${baseY}" x2="${W - pad.r}" y2="${baseY}"/>
+    <text class="lbl" x="${pad.l}" y="${pad.t - 2}" text-anchor="start">${maxY} 🍺</text>
+    <path d="${area}" fill="url(#ppFill)"/>
+    <path class="area-line" d="${line}"/>
+    <circle class="dot" cx="${X(last.t).toFixed(1)}" cy="${Y(last.cum).toFixed(1)}" r="4.5"/>
+    <text class="dot-lbl" x="${(X(last.t) - 6).toFixed(1)}" y="${(Y(last.cum) - 8).toFixed(1)}" text-anchor="end">${last.cum}</text>
+    ${xLabels}
+  </svg>`;
+}
 
 /* ============================================================
  * PROFIL (auth)

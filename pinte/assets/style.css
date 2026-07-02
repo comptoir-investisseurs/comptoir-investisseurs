@@ -399,6 +399,28 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .countdown.big .cd-time { font-size: 2.3rem; }
 .countdown .cd-sub { font-size: .78rem; color: var(--txt-dim); margin-top: 6px; }
 
+/* ---------- Total + courbe ---------- */
+.total-card {
+  text-align: center; margin-bottom: 16px; padding: 16px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+}
+.total-card .tc-num {
+  font-size: 2.8rem; font-weight: 700; line-height: 1; color: var(--biere-2);
+  font-variant-numeric: tabular-nums;
+}
+.total-card .tc-lbl { color: var(--txt-dim); font-size: .9rem; margin-top: 6px; }
+
+.chart {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 12px 8px 6px;
+}
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .lbl  { fill: var(--txt-dim); font-size: 10px; font-family: var(--font); }
+.chart .area-line { fill: none; stroke: var(--biere); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart .dot { fill: var(--biere-2); stroke: var(--stout); stroke-width: 2; }
+.chart .dot-lbl { fill: var(--biere-2); font-size: 11px; font-weight: 700; font-family: var(--font); }
+
 /* ---------- Réactions ---------- */
 .reactions {
   display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
