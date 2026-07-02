@@ -283,9 +283,16 @@
         <div class="verify-box hidden" id="verifyBox"></div>
 
         <div class="field">
-          <label>📍 Ta position <span style="color:var(--txt-dim)">— obligatoire, vérifiée par GPS</span></label>
-          <button type="button" class="btn btn-ghost btn-block" id="geoBtn">📍 Partager ma position</button>
+          <label>📍 Ta position <span style="color:var(--txt-dim)">— obligatoire</span></label>
+          <button type="button" class="btn btn-ghost btn-block" id="geoBtn">📍 Partager ma position (GPS)</button>
           <div class="hint" id="cityChosen"></div>
+          <div class="hint" style="margin-top:6px">
+            <a id="manualToggle" style="color:var(--biere-2);cursor:pointer;font-weight:600">Impossible ? Saisir ma ville à la main</a>
+          </div>
+        </div>
+        <div class="field hidden" id="manualCityField" style="position:relative">
+          <input id="cityInput" placeholder="Cherche ta ville (toute la France)…" autocomplete="off">
+          <div class="suggest hidden" id="citySuggest"></div>
         </div>
 
         <div class="field"><label>🍺 Le lieu (bar, terrasse…) <span style="color:var(--txt-dim)">— optionnel</span></label>

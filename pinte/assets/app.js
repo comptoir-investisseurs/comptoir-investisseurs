@@ -575,6 +575,51 @@ async function requestGeo() {
   }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
 }
 
+/* Saisie manuelle de la ville (secours si le GPS échoue) — toutes les communes */
+let cityTimer = null;
+function setupCityAutocomplete() {
+  const input = $('#cityInput'), box = $('#citySuggest');
+  if (!input) return;
+  input.addEventListener('input', () => {
+    state.currentCity = null;
+    const q = input.value.trim();
+    clearTimeout(cityTimer);
+    if (q.length < 2) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+    cityTimer = setTimeout(() => fetchCities(q), 250);
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#cityInput') && !e.target.closest('#citySuggest')) box.classList.add('hidden');
+  });
+}
+async function fetchCities(q) {
+  const box = $('#citySuggest');
+  try {
+    const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&type=municipality&limit=6`);
+    const data = await res.json();
+    const feats = data.features || [];
+    if (!feats.length) { box.innerHTML = `<button disabled>Aucune ville trouvée</button>`; box.classList.remove('hidden'); return; }
+    box.innerHTML = feats.map(f => {
+      const p = f.properties, [lng, lat] = f.geometry.coordinates;
+      const ctx = (p.context || '').split(',').map(s => s.trim());
+      return `<button type="button" data-lat="${lat}" data-lng="${lng}"
+        data-name="${escapeHtml(p.city || p.name)}" data-cp="${escapeHtml(p.postcode||'')}"
+        data-dep="${escapeHtml(ctx[0]||'')}" data-depname="${escapeHtml(ctx[1]||'')}">
+        ${escapeHtml(p.city || p.name)} <small>${escapeHtml(p.postcode||'')} · ${escapeHtml(p.context||'')}</small></button>`;
+    }).join('');
+    box.classList.remove('hidden');
+    $$('#citySuggest button[data-name]').forEach(btn => btn.addEventListener('click', () => {
+      state.currentCity = { name: btn.dataset.name, cp: btn.dataset.cp, dep: btn.dataset.dep,
+                            depName: btn.dataset.depname, lat: parseFloat(btn.dataset.lat), lng: parseFloat(btn.dataset.lng) };
+      $('#cityInput').value = btn.dataset.name;
+      $('#cityChosen').className = 'hint geo-ok';
+      $('#cityChosen').innerHTML = `✅ ${escapeHtml(btn.dataset.name)} <span class="muted">(dép. ${escapeHtml(btn.dataset.dep)})</span> — saisie manuelle`;
+      box.classList.add('hidden');
+    }));
+  } catch (e) {
+    box.innerHTML = `<button disabled>Recherche indisponible</button>`; box.classList.remove('hidden');
+  }
+}
+
 /* Reverse-geocoding GPS → commune + département (API gouv, gratuit) */
 async function reverseGeocode(lat, lng) {
   try {
@@ -1013,7 +1058,10 @@ function resetPostForm() {
   $('#previewImg').src = '';
   $('#lieuInput').value = '';
   $('#cityChosen').textContent = ''; $('#cityChosen').className = 'hint';
-  const gb = $('#geoBtn'); gb.disabled = false; gb.textContent = '📍 Partager ma position';
+  const gb = $('#geoBtn'); gb.disabled = false; gb.textContent = '📍 Partager ma position (GPS)';
+  $('#cityInput').value = '';
+  $('#citySuggest').classList.add('hidden'); $('#citySuggest').innerHTML = '';
+  $('#manualCityField').classList.add('hidden');
   $('#photoDrop').classList.remove('hidden');
   $('#photoPreview').classList.add('hidden');
   $('#verifyBox').classList.add('hidden');
@@ -1108,8 +1156,13 @@ function wireEvents() {
   $('#fabMap').addEventListener('click', openMapView);
   $('#fabPost').addEventListener('click', () => { resetPostForm(); openOverlay('#postOverlay'); });
 
-  // Localisation GPS + photo de profil
+  // Localisation GPS + saisie manuelle de secours + photo de profil
   $('#geoBtn').addEventListener('click', requestGeo);
+  $('#manualToggle').addEventListener('click', () => {
+    $('#manualCityField').classList.toggle('hidden');
+    if (!$('#manualCityField').classList.contains('hidden')) $('#cityInput').focus();
+  });
+  setupCityAutocomplete();
   $('#avatarInput').addEventListener('change', onAvatarPicked);
 
   // Réactions (délégation : le fil est reconstruit à chaque mise à jour)
