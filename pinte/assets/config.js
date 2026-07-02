@@ -15,12 +15,12 @@
 
 window.PP_CONFIG = {
   firebase: {
-    apiKey:            'VOTRE_API_KEY',
-    authDomain:        'VOTRE-PROJET.firebaseapp.com',
-    projectId:         'VOTRE-PROJET',
-    storageBucket:     'VOTRE-PROJET.appspot.com',
-    messagingSenderId: 'VOTRE_SENDER_ID',
-    appId:             'VOTRE_APP_ID',
+    apiKey:            'AIzaSyCP7Vu-aV_6ZS8h1jhuDxeJIKkX5ijPXog',
+    authDomain:        'ma-p-tite-pinte.firebaseapp.com',
+    projectId:         'ma-p-tite-pinte',
+    storageBucket:     'ma-p-tite-pinte.firebasestorage.app',
+    messagingSenderId: '501817697579',
+    appId:             '1:501817697579:web:130d81b8ac9c5a4b8f116e',
   },
 
   // Volume attendu d'une pinte, en centilitres.
