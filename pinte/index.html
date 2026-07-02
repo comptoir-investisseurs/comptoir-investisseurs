@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <title>Ma p'tite pinte 🍺 — La compétition</title>
+  <meta name="description" content="La compétition de pintes par équipe. Poste ta pinte, grimpe au classement, fais gagner ton équipe !" />
+  <meta name="theme-color" content="#1A1206" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar">
+      <div class="brand" id="goHome">
+        <span class="logo">🍺</span>
+        <span>Ma p'tite <b>pinte</b></span>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost hidden" id="loginBtn" style="padding:9px 16px">Se connecter</button>
+      <button class="avatar-btn hidden" id="meBtn" title="Mon profil">🙂</button>
+    </header>
+
+    <!-- ============ VUE PUBLIQUE (déconnecté) ============ -->
+    <main id="viewPublic">
+      <section class="hero">
+        <h1>La compét' de <span class="a">pintes</span><br>entre <span class="b">équipes</span> 🏆</h1>
+        <p class="sub">Poste ta pinte, elle est vérifiée, elle compte. Fais grimper ton équipe au sommet !</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" id="ctaSignup">🍻 Je m'inscris</button>
+          <button class="btn btn-ghost" id="ctaLogin">J'ai un compte</button>
+        </div>
+        <div class="foam"></div>
+      </section>
+
+      <section class="stats">
+        <div class="stat-grid">
+          <div class="stat">     <div class="num" id="stPintes">–</div>   <div class="lbl">Pintes bues 🍺</div></div>
+          <div class="stat pop"> <div class="num" id="stJoueurs">–</div>  <div class="lbl">Joueurs inscrits 🙋</div></div>
+          <div class="stat vert"><div class="num" id="stEquipes">–</div>  <div class="lbl">Équipes en lice 🚩</div></div>
+          <div class="stat bleu"><div class="num" id="stLitres">–</div>   <div class="lbl">Litres engloutis 🌊</div></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>🏆 Classement des équipes <span class="chip" id="teamCount"></span></h2>
+        <div class="board" id="teamBoard"></div>
+      </section>
+
+      <section class="section">
+        <h2>🥇 Top joueurs</h2>
+        <div class="board" id="playerBoard"></div>
+      </section>
+
+      <p class="footer-note">Inscription obligatoire pour participer • Chaque photo est vérifiée 🔎</p>
+    </main>
+
+    <!-- ============ VUE CONNECTÉE : LE FIL ============ -->
+    <main id="viewFeed" class="hidden">
+      <section class="section" style="padding-bottom:0">
+        <h2>📸 Le fil des pintes
+          <span class="chip"><span id="liveDot">🟢</span> en direct</span>
+        </h2>
+      </section>
+      <div class="feed" id="feed"></div>
+    </main>
+
+    <!-- ============ VUE PROFIL ============ -->
+    <main id="viewProfile" class="hidden">
+      <section class="section">
+        <button class="btn btn-ghost" id="backFromProfile" style="padding:8px 14px;margin-bottom:8px">← Retour</button>
+        <div class="profile-head">
+          <div class="pa-big" id="pfAvatar">🙂</div>
+          <h3 id="pfName">–</h3>
+          <div class="team-tag" id="pfTeam" style="background:var(--biere)">🚩 –</div>
+        </div>
+        <div class="profile-stats">
+          <div class="s"><div class="n" id="pfPintes">0</div><div class="l">Pintes 🍺</div></div>
+          <div class="s"><div class="n" id="pfLitres">0</div><div class="l">Litres 🌊</div></div>
+          <div class="s"><div class="n" id="pfRank">–</div><div class="l">Classement 🏅</div></div>
+        </div>
+        <div id="pfActions"></div>
+        <h2 style="font-size:1.1rem;margin:20px 0 10px">Ses pintes</h2>
+        <div class="feed" id="pfFeed" style="padding:0 0 40px"></div>
+      </section>
+    </main>
+
+    <!-- ============ FAB (poster) ============ -->
+    <div class="fab hidden" id="fab">
+      <button class="btn btn-ghost" id="fabHome" style="flex:0 0 auto;width:54px">🏠</button>
+      <button class="btn btn-primary" id="fabPost">📸 Poster ma pinte</button>
+    </div>
+
+  </div>
+
+  <!-- ============ OVERLAY : AUTH ============ -->
+  <div class="overlay" id="authOverlay">
+    <div class="sheet">
+      <div class="grab"></div>
+      <button class="close" data-close>✕</button>
+
+      <!-- Connexion -->
+      <div id="paneLogin">
+        <h3>Content de te revoir 🍻</h3>
+        <p class="lead">Connecte-toi pour poster ta pinte.</p>
+        <form id="loginForm">
+          <div class="field"><label>Email</label><input type="email" name="email" autocomplete="email" required></div>
+          <div class="field"><label>Mot de passe</label><input type="password" name="password" autocomplete="current-password" required></div>
+          <div class="err-msg" id="loginErr"></div>
+          <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
+        </form>
+        <p class="switch-link">Pas encore de compte ? <a id="toSignup">Inscris-toi</a></p>
+      </div>
+
+      <!-- Inscription -->
+      <div id="paneSignup" class="hidden">
+        <h3>Rejoins la compét' 🚀</h3>
+        <p class="lead">Inscription obligatoire pour participer.</p>
+        <form id="signupForm">
+          <div class="field"><div class="row">
+            <div><label>Prénom</label><input name="prenom" autocomplete="given-name" required></div>
+            <div><label>Nom</label><input name="nom" autocomplete="family-name" required></div>
+          </div></div>
+          <div class="field"><label>Email</label><input type="email" name="email" autocomplete="email" required></div>
+          <div class="field"><label>Mot de passe</label><input type="password" name="password" autocomplete="new-password" minlength="6" required></div>
+          <div class="field">
+            <label>Ton équipe</label>
+            <select name="team" id="teamSelect"></select>
+          </div>
+          <div class="field hidden" id="newTeamField">
+            <label>Nom de ta nouvelle équipe</label>
+            <input name="newTeam" id="newTeamInput" placeholder="Ex : Les Assoiffés du Vendredi">
+          </div>
+          <div class="err-msg" id="signupErr"></div>
+          <button class="btn btn-primary btn-block" type="submit">🍻 Créer mon compte</button>
+        </form>
+        <p class="switch-link">Déjà inscrit ? <a id="toLogin">Connecte-toi</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ OVERLAY : POSTER UNE PINTE ============ -->
+  <div class="overlay" id="postOverlay">
+    <div class="sheet">
+      <div class="grab"></div>
+      <button class="close" data-close>✕</button>
+      <h3>Poster ma pinte 🍺</h3>
+      <div class="rules">
+        <b>Règles de validation :</b> chaque photo est vérifiée automatiquement.
+        <ul>
+          <li>🍺 Une <b>pinte</b> dans un <b>vrai verre en verre</b></li>
+          <li>📏 Volume <b>50 cl</b></li>
+          <li>💧 <b>Liquide visible</b> (pas un verre vide !)</li>
+        </ul>
+      </div>
+
+      <form id="postForm">
+        <input type="file" accept="image/*" capture="environment" id="photoInput" class="hidden">
+        <div class="photo-drop" id="photoDrop">
+          <div class="big">📷</div>
+          <div>Prends une photo ou choisis-en une</div>
+        </div>
+        <div class="photo-preview hidden" id="photoPreview">
+          <img id="previewImg" alt="Aperçu de la pinte">
+          <div class="re">🔄 Changer</div>
+        </div>
+
+        <div class="verify-box hidden" id="verifyBox"></div>
+
+        <div class="field"><label>📍 Où bois-tu cette pinte ?</label>
+          <input name="lieu" id="lieuInput" placeholder="Ex : Le Comptoir, Paris" required></div>
+
+        <div class="err-msg" id="postErr"></div>
+        <button class="btn btn-primary btn-block" type="submit" id="postSubmit" disabled>Poster ma pinte 🍻</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- Supabase JS + app -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/config.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
