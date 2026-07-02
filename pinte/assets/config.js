@@ -29,8 +29,13 @@ window.PP_CONFIG = {
   // ---- Vérification IA des photos ----
   // URL de VOTRE Cloudflare Worker "verify-pinte" (voir cloudflare-worker/).
   // La clé Gemini reste SECRÈTE côté Worker — jamais dans le navigateur.
-  // Sans URL, les pintes passent en « en attente » au lieu d'être validées.
+  // Sans URL, les pintes passent en « en attente » (ou voir FAKE_VERIFY ci-dessous).
   VERIFY_URL: 'https://verify-pinte.VOTRE-SOUS-DOMAINE.workers.dev',
+
+  // Fausse vérification : l'interface simule l'analyse puis VALIDE tout
+  // automatiquement (pratique en attendant le vrai Worker Cloudflare).
+  // Passez à false une fois VERIFY_URL configuré pour activer la vraie IA.
+  FAKE_VERIFY: true,
 
   // Renouvellement de la compétition : 'monthly' (tous les mois).
   SEASON: 'monthly',

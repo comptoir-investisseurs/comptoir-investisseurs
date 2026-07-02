@@ -735,7 +735,14 @@ async function runVerification() {
  * Retour : { status: 'verified'|'rejected'|'pending', reason } */
 async function verifyPhoto(dataUrl) {
   const url = CFG.VERIFY_URL;
-  if (!url || String(url).includes('VOTRE')) return { status: 'pending', reason: '' };
+  const configured = url && !String(url).includes('VOTRE');
+
+  // Fausse vérification : on simule l'analyse puis on valide (si pas de vrai Worker)
+  if (!configured && CFG.FAKE_VERIFY) {
+    await new Promise(r => setTimeout(r, 1300));
+    return { status: 'verified', reason: '' };
+  }
+  if (!configured) return { status: 'pending', reason: '' };
   try {
     const res = await fetch(url, {
       method: 'POST',
