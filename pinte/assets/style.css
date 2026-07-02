@@ -290,6 +290,23 @@ button { font-family: inherit; cursor: pointer; border: none; }
 }
 .field .row { display: flex; gap: 10px; }
 .field .row > * { flex: 1; }
+/* Sélecteur segmenté (Rejoindre / Créer) */
+.seg {
+  display: flex; gap: 6px; padding: 5px;
+  background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 14px;
+}
+.seg-btn {
+  flex: 1; padding: 11px 8px; border-radius: 10px;
+  background: transparent; color: var(--txt-dim); font-weight: 700; font-size: .95rem;
+  transition: background .15s, color .15s;
+}
+.seg-btn.active {
+  background: linear-gradient(135deg, var(--biere), var(--biere-2));
+  color: var(--stout); box-shadow: 0 4px 12px rgba(245,166,35,.35);
+}
+.seg-btn:disabled { opacity: .4; }
+.hint { color: var(--txt-dim); font-size: .82rem; margin-top: 6px; min-height: 1em; }
+
 .switch-link { text-align: center; margin-top: 14px; color: var(--txt-dim); font-size: .9rem; }
 .switch-link a { color: var(--biere-2); font-weight: 700; text-decoration: none; cursor: pointer; }
 

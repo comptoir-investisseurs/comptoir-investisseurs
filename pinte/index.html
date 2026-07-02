@@ -130,11 +130,17 @@
           <div class="field"><label>Mot de passe</label><input type="password" name="password" autocomplete="new-password" minlength="6" required></div>
           <div class="field">
             <label>Ton équipe</label>
+            <div class="seg" id="teamMode">
+              <button type="button" class="seg-btn active" data-mode="join">🤝 Rejoindre</button>
+              <button type="button" class="seg-btn" data-mode="create">➕ Créer la mienne</button>
+            </div>
+          </div>
+          <div class="field" id="joinTeamField">
             <select name="team" id="teamSelect"></select>
+            <div class="hint" id="noTeamHint"></div>
           </div>
           <div class="field hidden" id="newTeamField">
-            <label>Nom de ta nouvelle équipe</label>
-            <input name="newTeam" id="newTeamInput" placeholder="Ex : Les Assoiffés du Vendredi">
+            <input name="newTeam" id="newTeamInput" placeholder="Nom de ta nouvelle équipe (ex : Les Assoiffés)">
           </div>
           <div class="err-msg" id="signupErr"></div>
           <button class="btn btn-primary btn-block" type="submit">🍻 Créer mon compte</button>

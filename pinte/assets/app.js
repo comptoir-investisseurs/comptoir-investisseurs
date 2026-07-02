@@ -31,6 +31,7 @@ const state = {
   players: [],   // cache joueurs
   pints: [],     // cache pintes (toutes, pour stats + fil)
   unsub: [],     // désabonnements onSnapshot
+  teamMode: 'join', // 'join' (rejoindre) | 'create' (créer)
 };
 
 /* ---------- Helpers UI ---------- */
@@ -149,10 +150,32 @@ function subscribeData() {
 function fillTeamSelect() {
   const sel = $('#teamSelect'); if (!sel) return;
   const cur = sel.value;
-  sel.innerHTML =
-    state.teams.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('') +
-    `<option value="__new__">➕ Créer une nouvelle équipe</option>`;
-  if (cur) sel.value = cur;
+  sel.innerHTML = state.teams.length
+    ? state.teams.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('')
+    : '';
+  if (cur && state.teams.some(t => t.id === cur)) sel.value = cur;
+  refreshTeamMode();
+}
+
+/* Bascule Rejoindre / Créer une équipe */
+function setTeamMode(mode) {
+  state.teamMode = mode;
+  $$('#teamMode .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  $('#joinTeamField').classList.toggle('hidden', mode !== 'join');
+  $('#newTeamField').classList.toggle('hidden', mode !== 'create');
+}
+
+/* S'assure que le mode choisi reste cohérent avec les équipes existantes */
+function refreshTeamMode() {
+  const hasTeams = state.teams.length > 0;
+  const joinBtn = $('#teamMode .seg-btn[data-mode="join"]');
+  const hint = $('#noTeamHint');
+  if (joinBtn) joinBtn.disabled = !hasTeams;
+  if (hint) hint.textContent = hasTeams ? '' : 'Aucune équipe pour l’instant — crée la première !';
+  // Sans équipe existante : on force la création
+  if (!hasTeams) setTeamMode('create');
+  else if (!state.teamMode) setTeamMode('join');
+  else setTeamMode(state.teamMode);
 }
 
 /* ============================================================
@@ -260,16 +283,25 @@ $('#signupForm').addEventListener('submit', async (e) => {
     const uid = cred.user.uid;
     await cred.user.updateProfile({ displayName: `${prenom}|${nom}` });
 
-    // 2) Équipe (existante ou nouvelle)
+    // 2) Équipe : rejoindre une existante ou en créer une
     let team = null;
-    if (f.team.value === '__new__') {
+    if (state.teamMode === 'create' || state.teams.length === 0) {
       const name = $('#newTeamInput').value.trim();
       if (!name) throw new Error("Donne un nom à ta nouvelle équipe.");
-      const color = colorFor(name);
-      const ref = await db.collection('teams').add({ name, color, createdAt: SERVER_TS() });
-      team = { id: ref.id, name, color };
+      // Réutilise une équipe du même nom si elle existe déjà (évite les doublons)
+      const existing = state.teams.find(t => (t.name||'').toLowerCase() === name.toLowerCase());
+      if (existing) {
+        team = existing;
+      } else {
+        const color = colorFor(name);
+        const ref = await db.collection('teams').add({ name, color, createdAt: SERVER_TS() });
+        team = { id: ref.id, name, color };
+      }
     } else {
-      team = state.teams.find(t => t.id === f.team.value) || null;
+      const chosen = f.team.value;
+      if (!chosen) throw new Error("Choisis une équipe à rejoindre (ou crée la tienne).");
+      team = state.teams.find(t => t.id === chosen) || null;
+      if (!team) throw new Error("Équipe introuvable, réessaie.");
     }
 
     // 3) Profil joueur
@@ -515,6 +547,7 @@ function wireEvents() {
   const showAuth = (pane) => {
     $('#paneLogin').classList.toggle('hidden',  pane !== 'login');
     $('#paneSignup').classList.toggle('hidden', pane !== 'signup');
+    if (pane === 'signup') refreshTeamMode();
     openOverlay('#authOverlay');
   };
   $('#loginBtn').addEventListener('click', () => showAuth('login'));
@@ -523,9 +556,9 @@ function wireEvents() {
   $('#toSignup').addEventListener('click', () => showAuth('signup'));
   $('#toLogin').addEventListener('click',  () => showAuth('login'));
 
-  $('#teamSelect').addEventListener('change', (e) => {
-    $('#newTeamField').classList.toggle('hidden', e.target.value !== '__new__');
-  });
+  // Bascule Rejoindre / Créer une équipe
+  $$('#teamMode .seg-btn').forEach(b =>
+    b.addEventListener('click', () => { if (!b.disabled) setTeamMode(b.dataset.mode); }));
 
   $('#goHome').addEventListener('click', () => showView(state.user ? 'feed' : 'public'));
   $('#meBtn').addEventListener('click', () => state.me && openProfile(state.me.id));
