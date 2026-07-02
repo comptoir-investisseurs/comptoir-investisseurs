@@ -17,10 +17,16 @@ direct sur tous les téléphones.
 - 📸 **Fil en temps réel** : les pintes postées par tous les joueurs apparaissent
   instantanément, avec le décompte, le lieu et l'équipe.
 - 🙋 **Profils** : chaque joueur a ses stats (pintes, litres, classement) et la
-  liste de ses pintes — en cliquant sur son avatar.
+  liste de ses pintes — en cliquant sur son avatar. On peut **changer d'équipe**
+  depuis son profil (ses pintes suivent).
 - 🏆 **Compétition par équipe** : rejoins une équipe existante ou crée la tienne.
-- 🤝 **Règles de la pinte** : une pinte dans un verre en verre, 50 cl, liquide
-  visible (validation à l'honneur ; les orgas peuvent invalider une photo).
+- 📊 **Vue statistiques** (bouton 📊) : compétition **en direct** — classement des
+  équipes, **classement interne de ton équipe**, top joueurs.
+- 🗓️ **Saison mensuelle** : la compétition se renouvelle **chaque mois** avec un
+  **décompte** ; les compteurs repartent à zéro le 1er du mois.
+- 😂 **Réactions** : cartons 🟨 🟥 et smileys (🔥 😂 🍺 🤮) sur chaque pinte, en direct.
+- 🔎 **Vérification IA des photos** (Google Gemini) : rejette galopins, demis,
+  verres opaques, canettes, verres vides — seule une vraie pinte 50 cl est validée.
 
 ## Stack
 
@@ -81,8 +87,21 @@ Dans la console Firebase :
 
 ### 5. Coller les règles de sécurité
 - **Firestore** → onglet *Règles* → collez le contenu de **`firestore.rules`**.
+  (Elles autorisent la lecture publique, l'écriture de son propre profil/ses pintes,
+  et les **réactions** de tout joueur connecté sur n'importe quelle pinte.)
 
-### 6. Lancer
+### 6. (Recommandé) Vérification IA des photos — gratuit
+Pour rejeter automatiquement galopins/demis/verres vides :
+1. Génère une clé sur **[aistudio.google.com/apikey](https://aistudio.google.com/apikey)** (gratuit).
+2. Colle-la dans `assets/config.js` → `GEMINI_API_KEY`.
+3. **Restreins la clé** dans Google Cloud (APIs & Services → Identifiants → ta clé →
+   *Restrictions d'application* → **Référents HTTP** → ajoute `https://hugoflpp-afk.github.io/*`)
+   pour éviter tout usage abusif.
+
+> Sans clé Gemini, l'appli fonctionne : les pintes passent en « ⏳ en attente »
+> (validables à la main en passant `status` à `verified` dans Firestore).
+
+### 7. Lancer
 Site statique : ouvrez `pinte/index.html`, ou servez le dossier :
 
 ```bash
@@ -100,7 +119,7 @@ Déployable tel quel sur **GitHub Pages**, Netlify, Vercel, etc.
 |---|---|
 | `teams` | `{ name, color, createdAt }` |
 | `players` | doc id = `uid` → `{ prenom, nom, email, teamId, teamName, teamColor }` |
-| `pints` | `{ playerId, prenom, nom, teamId, teamName, teamColor, photoUrl, lieu, volumeCl, status, createdAt }` |
+| `pints` | `{ playerId, prenom, nom, teamId, teamName, teamColor, photoUrl, lieu, volumeCl, status, verifyReason, reactions, createdAt }` |
 
 Les infos d'équipe/joueur sont **dénormalisées** dans chaque pinte : aucune
 jointure, tout est temps réel via `onSnapshot`. Les statistiques et classements
@@ -109,19 +128,25 @@ sont calculés côté client à partir de ces collections.
 Le champ `photoUrl` contient l'image en **base64** (data URL). Elle est compressée
 côté navigateur pour rester sous ~700 Ko (limite Firestore : 1 Mo par document).
 
-## Validation des photos
+## Validation des photos (IA Gemini)
 
-La règle : 🍺 une pinte dans un **vrai verre en verre**, 📏 **50 cl**, 💧 **liquide
-visible**. La validation est **à l'honneur** entre joueurs. Une pinte compte dès
-qu'elle est postée (`status: verified`). Pour invalider une photo hors règles,
-passez son champ `status` à `rejected` dans la console Firestore (elle disparaît
-alors du fil et des compteurs).
+La règle : 🍺 une pinte dans un **vrai verre en verre**, 📏 **~50 cl**, 💧 **liquide
+visible**. Au moment de poster, la photo est envoyée à l'IA de vision **Gemini**
+qui **refuse** galopins/demis, chopes opaques, canettes, bouteilles, gobelets
+plastique et verres vides. Une photo validée est postée en `status: verified` ;
+une photo refusée n'est pas postée (le joueur en reprend une). Sans clé Gemini,
+les pintes passent en `status: pending` (validables à la main dans Firestore).
 
-> 💡 *Envie d'une vérification 100 % automatique par IA ?* Elle nécessite une clé
-> secrète côté serveur (donc une Cloud Function Firebase, plan **Blaze**). Ce
-> n'est pas activé ici pour rester sans facturation.
+## Compétition mensuelle
+
+Les classements et compteurs ne comptent que les pintes du **mois en cours**
+(`createdAt`). Un **décompte** affiche le temps restant avant le 1er du mois
+suivant, où tout repart à zéro. Les pintes des mois passés restent visibles dans
+les profils mais ne comptent plus dans la compétition en cours.
 
 ## Personnalisation
 
 - **Couleurs / ambiance** : variables CSS dans `assets/style.css` (`:root`).
 - **Volume de la pinte** : `PINTE_CL` dans `assets/config.js`.
+- **Réactions disponibles** : constante `REACTIONS` dans `assets/app.js`.
+- **Modèle IA** : `GEMINI_MODEL` dans `assets/config.js`.

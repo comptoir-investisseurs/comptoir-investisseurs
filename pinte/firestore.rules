@@ -29,8 +29,13 @@ service cloud.firestore {
       // On ne peut poster qu'en son propre nom
       allow create: if request.auth != null
                     && request.resource.data.playerId == request.auth.uid;
-      // Le joueur peut modifier/supprimer ses propres pintes
-      allow update, delete: if request.auth != null
+      // Le propriétaire modifie/supprime sa pinte ;
+      // tout joueur connecté peut modifier UNIQUEMENT le champ "reactions".
+      allow update: if request.auth != null && (
+                      resource.data.playerId == request.auth.uid ||
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+                    );
+      allow delete: if request.auth != null
                     && resource.data.playerId == request.auth.uid;
     }
   }

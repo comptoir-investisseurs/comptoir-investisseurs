@@ -383,6 +383,52 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .toast.ko { border-color: rgba(232,80,58,.5); }
 @keyframes toast-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 
+/* ---------- Countdown saison ---------- */
+.countdown {
+  background: linear-gradient(135deg, rgba(245,166,35,.16), rgba(232,80,58,.14));
+  border: 1px solid rgba(245,166,35,.34);
+  border-radius: var(--r); padding: 14px 16px; margin-bottom: 14px; text-align: center;
+}
+.countdown .cd-top { font-size: .84rem; color: var(--mousse); }
+.countdown .cd-top b { color: var(--biere-2); text-transform: capitalize; }
+.countdown .cd-time {
+  font-size: 1.7rem; font-weight: 700; color: var(--biere-2);
+  font-variant-numeric: tabular-nums; letter-spacing: .5px; margin-top: 4px;
+}
+.countdown.big { padding: 20px 16px; }
+.countdown.big .cd-time { font-size: 2.3rem; }
+.countdown .cd-sub { font-size: .78rem; color: var(--txt-dim); margin-top: 6px; }
+
+/* ---------- Réactions ---------- */
+.reactions {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  padding: 0 14px 12px;
+}
+.react-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 10px; border-radius: 999px; font-size: .9rem; font-weight: 700;
+  background: rgba(255,244,214,.06); border: 1px solid var(--line); color: var(--txt);
+  transition: transform .1s, background .15s, border-color .15s;
+}
+.react-btn:active { transform: scale(.9); }
+.react-btn .cnt { font-size: .8rem; color: var(--txt-dim); }
+.react-btn.mine { background: rgba(245,166,35,.2); border-color: var(--biere); }
+.react-btn.mine .cnt { color: var(--biere-2); }
+.react-add {
+  margin-left: auto; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 1rem;
+  background: rgba(255,244,214,.06); border: 1px solid var(--line); color: var(--txt-dim);
+}
+.react-picker {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  padding: 6px; margin: 0 14px 10px; border-radius: 14px;
+  background: rgba(0,0,0,.3); border: 1px solid var(--line);
+}
+.react-picker button {
+  font-size: 1.3rem; padding: 6px 8px; border-radius: 10px; background: transparent;
+}
+.react-picker button:active { background: rgba(245,166,35,.2); }
+
 /* ---------- Misc ---------- */
 .empty { text-align: center; color: var(--txt-dim); padding: 40px 20px; }
 .empty .big { font-size: 3rem; margin-bottom: 8px; }

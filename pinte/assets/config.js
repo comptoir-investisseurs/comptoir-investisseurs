@@ -25,4 +25,15 @@ window.PP_CONFIG = {
 
   // Volume attendu d'une pinte, en centilitres.
   PINTE_CL: 50,
+
+  // ---- Vérification IA des photos (Google Gemini, palier gratuit) ----
+  // Obtenez une clé sur https://aistudio.google.com/apikey (gratuit).
+  // ⚠️ Restreignez cette clé par « Référents HTTP » dans Google Cloud
+  //    (ex : https://hugoflpp-afk.github.io/*) pour éviter tout abus.
+  // Sans clé, les pintes passent en « en attente » au lieu d'être validées.
+  GEMINI_API_KEY: 'VOTRE_CLE_GEMINI',
+  GEMINI_MODEL:   'gemini-2.0-flash',
+
+  // Renouvellement de la compétition : 'monthly' (tous les mois).
+  SEASON: 'monthly',
 };

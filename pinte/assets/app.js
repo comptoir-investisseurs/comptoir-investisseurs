@@ -31,8 +31,13 @@ const state = {
   players: [],   // cache joueurs
   pints: [],     // cache pintes (toutes, pour stats + fil)
   unsub: [],     // désabonnements onSnapshot
-  teamMode: 'join', // 'join' (rejoindre) | 'create' (créer)
+  teamMode: 'join',     // inscription : 'join' | 'create'
+  editTeamMode: 'join', // édition profil : 'join' | 'create'
+  signingUp: false,     // inscription en cours (évite une race sur le profil)
 };
+
+/* Réactions disponibles (cartons + smileys) */
+const REACTIONS = ['🟨', '🟥', '😂', '🔥', '🍺', '🤮'];
 
 /* ---------- Helpers UI ---------- */
 const COLORS = ['#F5A623','#E8503A','#7FB800','#FFD23F','#2EC4F1','#B36AE2','#FF7AB6','#00C2A8'];
@@ -49,6 +54,29 @@ function timeAgo(ts) {
   if (s < 3600)  return `il y a ${Math.floor(s/60)} min`;
   if (s < 86400) return `il y a ${Math.floor(s/3600)} h`;
   return `il y a ${Math.floor(s/86400)} j`;
+}
+
+/* ---------- Saison mensuelle + décompte ---------- */
+function seasonKeyOf(ts) {
+  const d = new Date(millis(ts) || Date.now());
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+const currentSeasonKey = () => seasonKeyOf(Date.now());
+const inCurrentSeason  = (p) => seasonKeyOf(p.createdAt) === currentSeasonKey();
+const seasonLabel = () => new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+function nextResetDate() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth() + 1, 1, 0, 0, 0, 0); }
+
+function updateCountdowns() {
+  let diff = Math.max(0, nextResetDate().getTime() - Date.now());
+  const d = Math.floor(diff / 86400000); diff -= d * 86400000;
+  const h = Math.floor(diff / 3600000);  diff -= h * 3600000;
+  const m = Math.floor(diff / 60000);    diff -= m * 60000;
+  const s = Math.floor(diff / 1000);
+  const txt = `${d}j ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+  const big = $('#countdownBig'); if (big) big.textContent = txt;
+  const hero = $('#countdownHero'); if (hero) hero.textContent = txt;
+  const sh = $('#seasonHero');  if (sh) sh.textContent = seasonLabel();
+  const ss = $('#seasonStats'); if (ss) ss.textContent = seasonLabel();
 }
 
 function toast(msg, kind = '') {
@@ -69,6 +97,7 @@ function showView(name) {
   $('#viewPublic').classList.toggle('hidden',  name !== 'public');
   $('#viewFeed').classList.toggle('hidden',    name !== 'feed');
   $('#viewProfile').classList.toggle('hidden', name !== 'profile');
+  $('#viewStats').classList.toggle('hidden',   name !== 'stats');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -90,6 +119,8 @@ function boot() {
   }
 
   subscribeData();  // temps réel : équipes, joueurs, pintes
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
 
   auth.onAuthStateChanged(async (user) => {
     state.user = user;
@@ -98,9 +129,7 @@ function boot() {
       $('#loginBtn').classList.add('hidden');
       $('#meBtn').classList.remove('hidden');
       $('#fab').classList.remove('hidden');
-      $('#meBtn').textContent = state.me ? initials(state.me.prenom, state.me.nom) : '🙂';
-      $('#meBtn').style.background = state.me
-        ? `linear-gradient(135deg, ${colorFor(state.me.id)}, var(--pop))` : '';
+      applyMeToUI();
       showView('feed');
       renderFeed();
     } else {
@@ -113,6 +142,14 @@ function boot() {
   });
 }
 
+/* Reflète le profil connecté dans la barre (avatar) */
+function applyMeToUI() {
+  const has = !!state.me;
+  $('#meBtn').textContent = has ? initials(state.me.prenom, state.me.nom) : '🙂';
+  $('#meBtn').style.background = has
+    ? `linear-gradient(135deg, ${colorFor(state.me.id)}, var(--pop))` : '';
+}
+
 /* ============================================================
  * TEMPS RÉEL : équipes, joueurs, pintes
  * ============================================================ */
@@ -121,21 +158,20 @@ function subscribeData() {
     db.collection('teams').orderBy('name').onSnapshot((snap) => {
       state.teams = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       fillTeamSelect();
-      renderStats();
+      refreshDynamic();
     }, console.error)
   );
   state.unsub.push(
     db.collection('players').onSnapshot((snap) => {
       state.players = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderStats();
+      refreshDynamic();
     }, console.error)
   );
   state.unsub.push(
     db.collection('pints').orderBy('createdAt', 'desc').limit(300).onSnapshot((snap) => {
       const before = state.pints.length;
       state.pints = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderStats();
-      if (state.user) renderFeed();
+      refreshDynamic();
       // notif d'une nouvelle pinte d'un autre joueur
       snap.docChanges().forEach(ch => {
         if (ch.type === 'added' && before > 0) {
@@ -145,6 +181,14 @@ function subscribeData() {
       });
     }, console.error)
   );
+}
+
+/* Rafraîchit toutes les vues dépendant des données (temps réel) */
+function refreshDynamic() {
+  renderStats();
+  if (!$('#viewStats').classList.contains('hidden')) renderStatsView();
+  if (state.user && !$('#viewFeed').classList.contains('hidden')) renderFeed();
+  if (!$('#viewProfile').classList.contains('hidden') && state.viewingProfile) openProfile(state.viewingProfile);
 }
 
 function fillTeamSelect() {
@@ -178,13 +222,84 @@ function refreshTeamMode() {
   else setTeamMode(state.teamMode);
 }
 
+/* ---------- Éditeur d'équipe (profil) ---------- */
+function setEditTeamMode(mode) {
+  state.editTeamMode = mode;
+  $$('#editTeamMode .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  $('#editJoinField').classList.toggle('hidden', mode !== 'join');
+  $('#editNewTeamField').classList.toggle('hidden', mode !== 'create');
+}
+function openTeamEditor() {
+  const sel = $('#editTeamSelect');
+  const hasTeams = state.teams.length > 0;
+  sel.innerHTML = state.teams.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  if (state.me && state.me.teamId) sel.value = state.me.teamId;
+  $('#editTeamMode .seg-btn[data-mode="join"]').disabled = !hasTeams;
+  $('#editNoTeamHint').textContent = hasTeams ? '' : 'Aucune autre équipe — crée la tienne !';
+  $('#editNewTeamInput').value = '';
+  $('#editTeamErr').textContent = '';
+  setEditTeamMode(hasTeams ? 'join' : 'create');
+  openOverlay('#teamOverlay');
+}
+
+/* Applique un changement d'équipe : profil + toutes ses pintes (dénormalisées) */
+async function changeTeam(team) {
+  const uid = state.me.id;
+  await db.collection('players').doc(uid).update({
+    teamId: team.id, teamName: team.name, teamColor: team.color,
+  });
+  state.me.teamId = team.id; state.me.teamName = team.name; state.me.teamColor = team.color;
+
+  // Met à jour ses pintes existantes pour rester cohérent (max 300 en cache)
+  const mine = state.pints.filter(p => p.playerId === uid);
+  if (mine.length) {
+    const batch = db.batch();
+    mine.forEach(p => batch.update(db.collection('pints').doc(p.id),
+      { teamId: team.id, teamName: team.name, teamColor: team.color }));
+    await batch.commit();
+  }
+  applyMeToUI();
+}
+
+$('#saveTeamBtn').addEventListener('click', async () => {
+  const btn = $('#saveTeamBtn'); const err = $('#editTeamErr'); err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  try {
+    let team;
+    if (state.editTeamMode === 'create' || state.teams.length === 0) {
+      const name = $('#editNewTeamInput').value.trim();
+      if (!name) throw new Error("Donne un nom à l'équipe.");
+      const existing = state.teams.find(t => (t.name || '').toLowerCase() === name.toLowerCase());
+      if (existing) team = existing;
+      else {
+        const color = colorFor(name);
+        const ref = await db.collection('teams').add({ name, color, createdAt: SERVER_TS() });
+        team = { id: ref.id, name, color };
+      }
+    } else {
+      const chosen = $('#editTeamSelect').value;
+      team = state.teams.find(t => t.id === chosen);
+      if (!team) throw new Error('Choisis une équipe.');
+    }
+    await changeTeam(team);
+    toast(`🚩 Tu joues maintenant pour « ${team.name} »`, 'ok');
+    closeOverlay('#teamOverlay');
+    if (state.viewingProfile) openProfile(state.viewingProfile);
+  } catch (e) {
+    err.textContent = prettyErr(e);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Enregistrer';
+  }
+});
+
 /* ============================================================
  * STATISTIQUES (calculées côté client)
  * ============================================================ */
 function verified(p) { return p.status !== 'rejected'; }  // rejeté = ne compte pas
 
-function computeStats() {
-  const pts = state.pints.filter(verified);
+/* seasonOnly=true → uniquement les pintes du mois en cours (compétition) */
+function computeStats(seasonOnly = true) {
+  const pts = state.pints.filter(p => verified(p) && (!seasonOnly || inCurrentSeason(p)));
   const totalVol = pts.reduce((a, p) => a + (p.volumeCl || 0), 0);
 
   // équipes
@@ -199,7 +314,7 @@ function computeStats() {
   state.players.forEach(pl => plMap.set(pl.id, { ...pl, pintes: 0, volume: 0 }));
   pts.forEach(p => {
     let e = plMap.get(p.playerId);
-    if (!e) { e = { id: p.playerId, prenom: p.prenom, nom: p.nom, teamName: p.teamName, teamColor: p.teamColor, pintes: 0, volume: 0 }; plMap.set(p.playerId, e); }
+    if (!e) { e = { id: p.playerId, prenom: p.prenom, nom: p.nom, teamId: p.teamId, teamName: p.teamName, teamColor: p.teamColor, pintes: 0, volume: 0 }; plMap.set(p.playerId, e); }
     e.pintes++; e.volume += (p.volumeCl||0);
   });
   const players = [...plMap.values()].sort((a,b) => b.pintes - a.pintes || b.volume - a.volume);
@@ -211,9 +326,35 @@ function computeStats() {
   };
 }
 
+function teamRowHtml(t, i) {
+  return `
+    <div class="board-row ${i<3?'top'+(i+1):''}">
+      <div class="rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</div>
+      <span class="dot" style="background:${t.color||'#F5A623'}"></span>
+      <div class="name">${escapeHtml(t.name)}
+        <div class="sub">${t.joueurs} joueur${t.joueurs>1?'s':''} · ${fmtL(t.volume)} L</div>
+      </div>
+      <div class="val">${t.pintes} <small>🍺</small></div>
+    </div>`;
+}
+function playerRowHtml(p, i) {
+  return `
+    <div class="board-row ${i<3?'top'+(i+1):''}">
+      <div class="rank">${i+1}</div>
+      <span class="dot" style="background:${p.teamColor||colorFor(p.id)}"></span>
+      <div class="name">${escapeHtml(p.prenom)} ${escapeHtml((p.nom||'')[0]||'')}.
+        <div class="sub">${escapeHtml(p.teamName||'Sans équipe')}</div>
+      </div>
+      <div class="val">${p.pintes} <small>🍺</small></div>
+    </div>`;
+}
+const EMPTY_TEAMS   = `<div class="empty"><div class="big">🚩</div>Aucune équipe ce mois-ci.<br>Lance la compét' !</div>`;
+const EMPTY_PLAYERS = `<div class="empty"><div class="big">🍺</div>La première pinte du mois n'attend que toi !</div>`;
+
+/* Vue publique (déconnecté) */
 function renderStats() {
   if (!state.teams.length && !state.players.length && !state.pints.length) return;
-  const s = computeStats();
+  const s = computeStats(true);
 
   $('#stPintes').textContent  = s.totalPintes.toLocaleString('fr-FR');
   $('#stJoueurs').textContent = s.totalJoueurs.toLocaleString('fr-FR');
@@ -222,31 +363,39 @@ function renderStats() {
 
   const teams = s.teams.slice(0, 10);
   $('#teamCount').textContent = teams.length ? `${teams.length} équipes` : '';
-  $('#teamBoard').innerHTML = teams.length
-    ? teams.map((t, i) => `
-        <div class="board-row ${i<3?'top'+(i+1):''}">
-          <div class="rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</div>
-          <span class="dot" style="background:${t.color||'#F5A623'}"></span>
-          <div class="name">${escapeHtml(t.name)}
-            <div class="sub">${t.joueurs} joueur${t.joueurs>1?'s':''} · ${fmtL(t.volume)} L</div>
-          </div>
-          <div class="val">${t.pintes} <small>🍺</small></div>
-        </div>`).join('')
-    : `<div class="empty"><div class="big">🚩</div>Aucune équipe pour l'instant.<br>Sois le premier à en créer une !</div>`;
+  $('#teamBoard').innerHTML = teams.length ? teams.map(teamRowHtml).join('') : EMPTY_TEAMS;
 
   const players = s.players.filter(p => p.pintes > 0).slice(0, 8);
-  $('#playerBoard').innerHTML = players.length
-    ? players.map((p, i) => `
-        <div class="board-row ${i<3?'top'+(i+1):''}">
-          <div class="rank">${i+1}</div>
-          <span class="dot" style="background:${p.teamColor||colorFor(p.id)}"></span>
-          <div class="name">${escapeHtml(p.prenom)} ${escapeHtml((p.nom||'')[0]||'')}.
-            <div class="sub">${escapeHtml(p.teamName||'Sans équipe')}</div>
-          </div>
-          <div class="val">${p.pintes} <small>🍺</small></div>
-        </div>`).join('')
-    : `<div class="empty"><div class="big">🍺</div>La première pinte n'attend que toi !</div>`;
+  $('#playerBoard').innerHTML = players.length ? players.map(playerRowHtml).join('') : EMPTY_PLAYERS;
 }
+
+/* Vue Statistiques (bouton 📊) — compétition du mois + mon équipe */
+function renderStatsView() {
+  const s = computeStats(true);
+
+  const teams = s.teams.slice(0, 20);
+  $('#statTeamBoard').innerHTML = teams.length ? teams.map(teamRowHtml).join('') : EMPTY_TEAMS;
+
+  // Détail de mon équipe (classement interne des coéquipiers)
+  const myTeamId = state.me && state.me.teamId;
+  if (myTeamId) {
+    $('#myTeamBlock').classList.remove('hidden');
+    $('#myTeamName').textContent = state.me.teamName || '—';
+    const mates = s.players
+      .filter(p => p.teamId === myTeamId)
+      .sort((a, b) => b.pintes - a.pintes || b.volume - a.volume);
+    $('#myTeamBoard').innerHTML = mates.length
+      ? mates.map(playerRowHtml).join('')
+      : `<div class="empty">Personne n'a encore posté dans ton équipe. À toi de lancer ! 🍺</div>`;
+  } else {
+    $('#myTeamBlock').classList.add('hidden');
+  }
+
+  const players = s.players.filter(p => p.pintes > 0).slice(0, 15);
+  $('#statPlayerBoard').innerHTML = players.length ? players.map(playerRowHtml).join('') : EMPTY_PLAYERS;
+}
+
+function openStatsView() { showView('stats'); renderStatsView(); updateCountdowns(); }
 
 /* ============================================================
  * PROFIL (auth)
@@ -257,13 +406,16 @@ async function ensureProfile() {
   const doc = await ref.get();
   if (doc.exists) { state.me = { id: uid, ...doc.data() }; return; }
 
-  // Profil manquant : on le reconstruit depuis le displayName si possible
+  // Inscription en cours : c'est le formulaire qui créera le profil (avec l'équipe).
+  // On n'écrit surtout PAS ici pour ne pas écraser l'équipe (race condition).
+  if (state.signingUp) return;
+
+  // Profil manquant (ex : email confirmé plus tard) : reconstruction minimale.
   const dn = (state.user.displayName || '').split('|');
-  if (dn.length >= 2) {
-    const row = { prenom: dn[0], nom: dn[1], email: state.user.email, teamId: null, teamName: null, teamColor: null };
-    await ref.set(row);
-    state.me = { id: uid, ...row };
-  }
+  const row = { prenom: dn[0] || 'Joueur', nom: dn[1] || '', email: state.user.email,
+                teamId: null, teamName: null, teamColor: null, createdAt: SERVER_TS() };
+  await ref.set(row, { merge: true });
+  state.me = { id: uid, ...row };
 }
 
 /* --- Inscription --- */
@@ -272,6 +424,7 @@ $('#signupForm').addEventListener('submit', async (e) => {
   const f = e.target;
   const errEl = $('#signupErr'); errEl.textContent = '';
   const btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'Création…';
+  state.signingUp = true;
   try {
     const prenom = f.prenom.value.trim();
     const nom    = f.nom.value.trim();
@@ -304,20 +457,26 @@ $('#signupForm').addEventListener('submit', async (e) => {
       if (!team) throw new Error("Équipe introuvable, réessaie.");
     }
 
-    // 3) Profil joueur
-    await db.collection('players').doc(uid).set({
+    // 3) Profil joueur (avec l'équipe)
+    const profile = {
       prenom, nom, email,
       teamId:    team ? team.id : null,
       teamName:  team ? team.name : null,
       teamColor: team ? team.color : null,
       createdAt: SERVER_TS(),
-    });
+    };
+    await db.collection('players').doc(uid).set(profile);
+
+    // On fixe le profil localement tout de suite (évite la race avec onAuthStateChanged)
+    state.me = { id: uid, ...profile };
+    applyMeToUI();
 
     toast('🍻 Bienvenue dans la compét’ !', 'ok');
     closeOverlay('#authOverlay');
   } catch (err) {
     errEl.textContent = prettyErr(err);
   } finally {
+    state.signingUp = false;
     btn.disabled = false; btn.textContent = '🍻 Créer mon compte';
   }
 });
@@ -384,7 +543,34 @@ function postHtml(p) {
         <span class="pill team" style="background:${teamColor}">🚩 ${escapeHtml(teamName)}</span>
         <span class="badge-status ${p.status||'pending'}">${statusTxt}</span>
       </div>
+      ${reactionsHtml(p)}
     </article>`;
+}
+
+/* Barre de réactions (cartons + smileys) */
+function reactionsHtml(p) {
+  const r = p.reactions || {};
+  const uid = state.me && state.me.id;
+  return `<div class="reactions">` + REACTIONS.map(em => {
+    const arr = r[em] || [];
+    const mine = uid && arr.includes(uid);
+    return `<button class="react-btn ${mine?'mine':''}" data-react="${em}" data-pint="${p.id}">${em}${arr.length ? `<span class="cnt">${arr.length}</span>` : ''}</button>`;
+  }).join('') + `</div>`;
+}
+
+/* Ajoute/retire ma réaction sur une pinte */
+async function toggleReaction(pintId, emoji) {
+  if (!state.user) { toast('Connecte-toi pour réagir 🍻'); return; }
+  const uid = state.user.uid;
+  const p = state.pints.find(x => x.id === pintId); if (!p) return;
+  const mine = ((p.reactions && p.reactions[emoji]) || []).includes(uid);
+  const fp = new firebase.firestore.FieldPath('reactions', emoji);
+  const val = mine
+    ? firebase.firestore.FieldValue.arrayRemove(uid)
+    : firebase.firestore.FieldValue.arrayUnion(uid);
+  try {
+    await db.collection('pints').doc(pintId).update(fp, val);
+  } catch (e) { console.error(e); toast('Réaction impossible', 'ko'); }
 }
 
 function bindPostAvatars(root) {
@@ -400,7 +586,8 @@ function bindPostAvatars(root) {
  * ============================================================ */
 function openProfile(playerId) {
   showView('profile');
-  const s = computeStats();
+  state.viewingProfile = playerId;
+  const s = computeStats(true);
   const idx = s.players.findIndex(x => x.id === playerId);
   const p = idx >= 0 ? s.players[idx]
           : (state.players.find(x => x.id === playerId) || { id: playerId, prenom: '?', nom: '', pintes: 0, volume: 0 });
@@ -417,8 +604,12 @@ function openProfile(playerId) {
 
   const isMe = state.me && state.me.id === playerId;
   $('#pfActions').innerHTML = isMe
-    ? `<button class="btn btn-ghost btn-block" id="logoutBtn">Se déconnecter</button>` : '';
-  if (isMe) $('#logoutBtn').addEventListener('click', () => auth.signOut());
+    ? `<button class="btn btn-primary btn-block" id="changeTeamBtn" style="margin-bottom:8px">🔀 Changer d'équipe</button>
+       <button class="btn btn-ghost btn-block" id="logoutBtn">Se déconnecter</button>` : '';
+  if (isMe) {
+    $('#changeTeamBtn').addEventListener('click', openTeamEditor);
+    $('#logoutBtn').addEventListener('click', () => auth.signOut());
+  }
 
   const pints = state.pints.filter(x => x.playerId === playerId && x.status !== 'rejected').slice(0, 30);
   $('#pfFeed').innerHTML = pints.length ? pints.map(postHtml).join('') : `<div class="empty">Pas encore de pinte 🍺</div>`;
@@ -442,22 +633,94 @@ $('#photoInput').addEventListener('change', async (e) => {
     $('#previewImg').src = currentPhoto.dataUrl;
     $('#photoDrop').classList.add('hidden');
     $('#photoPreview').classList.remove('hidden');
-    // Rappel des règles (validation à l'honneur pour l'instant)
-    const box = $('#verifyBox');
-    box.classList.remove('hidden', 'ok', 'ko', 'loading');
-    box.classList.add('ok');
-    box.innerHTML = `✅ Photo prête ! Vérifie qu'on voit bien une pinte 50 cl, liquide visible.`;
-    $('#postSubmit').disabled = false;
+    await runVerification();
   } catch (err) {
     toast('Impossible de lire cette image', 'ko');
   }
 });
+
+/* Vérifie la photo (IA Gemini) et met à jour l'UI + le bouton */
+async function runVerification() {
+  const box = $('#verifyBox'), submit = $('#postSubmit');
+  box.classList.remove('hidden', 'ok', 'ko', 'loading');
+  box.classList.add('loading');
+  box.innerHTML = `<span class="spin"></span> L'IA vérifie ta pinte…`;
+  submit.disabled = true;
+
+  const res = await verifyPhoto(currentPhoto.dataUrl);
+  currentPhoto.verify = res;
+  box.classList.remove('loading');
+
+  if (res.status === 'rejected') {
+    box.classList.add('ko');
+    box.innerHTML = `❌ Refusée — ${escapeHtml(res.reason || 'ce n’est pas une pinte valide')}.<br>Reprends une photo 📷`;
+    submit.disabled = true;
+  } else if (res.status === 'verified') {
+    box.classList.add('ok');
+    box.innerHTML = `✅ Pinte validée !${res.reason ? ' ' + escapeHtml(res.reason) : ''}`;
+    submit.disabled = false;
+  } else {
+    box.classList.add('loading');
+    box.innerHTML = `⏳ Vérification IA non configurée — ta pinte partira « en attente ».`;
+    submit.disabled = false;
+  }
+}
+
+/* Appel de l'IA de vision Google Gemini.
+ * Retour : { status: 'verified'|'rejected'|'pending', reason } */
+async function verifyPhoto(dataUrl) {
+  const key = CFG.GEMINI_API_KEY;
+  if (!key || String(key).includes('VOTRE')) return { status: 'pending', reason: '' };
+  const model = CFG.GEMINI_MODEL || 'gemini-2.0-flash';
+  const b64 = dataUrl.split(',')[1] || '';
+
+  const prompt = `Tu es l'arbitre d'un concours de bière "Ma p'tite pinte".
+Réponds UNIQUEMENT par un objet JSON, sans texte autour :
+{"verified": true|false, "reason": "explication courte en français, max 10 mots"}
+
+verified = true SEULEMENT si TOUTES ces conditions sont réunies :
+1. La photo montre une PINTE de bière (environ 50 cl) servie dans un VERRE EN VERRE transparent.
+2. Le verre est grand (format pinte), bien rempli, et la BIÈRE (liquide) est clairement visible.
+
+verified = false dans TOUS ces cas :
+- verre trop petit : galopin (~12,5 cl), demi (~25 cl) ou tout verre nettement plus petit qu'une pinte ;
+- chope opaque, canette, bouteille, gobelet plastique ;
+- verre vide ou quasi vide ; pas de bière identifiable ; photo floue.
+En cas de doute sur la taille, considère que ce n'est PAS une pinte (verified=false).`;
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { text: prompt },
+          { inline_data: { mime_type: 'image/jpeg', data: b64 } },
+        ] }],
+        generationConfig: { temperature: 0, maxOutputTokens: 120 },
+      }),
+    });
+    if (!res.ok) { console.error('Gemini', res.status, await res.text()); return { status: 'pending', reason: '' }; }
+    const data = await res.json();
+    const text = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+    const jm = text.match(/\{[\s\S]*\}/);
+    if (!jm) return { status: 'pending', reason: '' };
+    const parsed = JSON.parse(jm[0]);
+    return { status: parsed.verified === true ? 'verified' : 'rejected', reason: String(parsed.reason || '').slice(0, 140) };
+  } catch (e) {
+    console.error(e);
+    return { status: 'pending', reason: '' };
+  }
+}
 
 $('#postForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const errEl = $('#postErr'); errEl.textContent = '';
   const submit = $('#postSubmit');
   if (!currentPhoto) { errEl.textContent = 'Ajoute une photo de ta pinte.'; return; }
+  const v = currentPhoto.verify || { status: 'pending', reason: '' };
+  if (v.status === 'rejected') { errEl.textContent = 'Photo refusée par l’IA — reprends-en une.'; return; }
   const lieu = $('#lieuInput').value.trim();
   if (!lieu) { errEl.textContent = 'Indique le lieu.'; return; }
 
@@ -475,11 +738,13 @@ $('#postForm').addEventListener('submit', async (e) => {
       photoUrl:  currentPhoto.dataUrl,   // image en base64 (stockée dans Firestore)
       lieu,
       volumeCl:  CFG.PINTE_CL || 50,
-      status:    'verified',   // comptée immédiatement (validation à l'honneur)
+      status:    v.status === 'verified' ? 'verified' : 'pending',
+      verifyReason: v.reason || null,
+      reactions: {},
       createdAt: SERVER_TS(),
     });
 
-    toast('🍻 Pinte postée !', 'ok');
+    toast(v.status === 'verified' ? '🍻 Pinte validée et postée !' : '🍺 Pinte postée (en attente de validation)', 'ok');
     resetPostForm();
     closeOverlay('#postOverlay');
     showView('feed');
@@ -556,15 +821,26 @@ function wireEvents() {
   $('#toSignup').addEventListener('click', () => showAuth('signup'));
   $('#toLogin').addEventListener('click',  () => showAuth('login'));
 
-  // Bascule Rejoindre / Créer une équipe
+  // Bascule Rejoindre / Créer une équipe (inscription)
   $$('#teamMode .seg-btn').forEach(b =>
     b.addEventListener('click', () => { if (!b.disabled) setTeamMode(b.dataset.mode); }));
+  // Bascule Rejoindre / Créer (édition d'équipe)
+  $$('#editTeamMode .seg-btn').forEach(b =>
+    b.addEventListener('click', () => { if (!b.disabled) setEditTeamMode(b.dataset.mode); }));
 
   $('#goHome').addEventListener('click', () => showView(state.user ? 'feed' : 'public'));
   $('#meBtn').addEventListener('click', () => state.me && openProfile(state.me.id));
   $('#backFromProfile').addEventListener('click', () => showView(state.user ? 'feed' : 'public'));
+  $('#backFromStats').addEventListener('click', () => showView(state.user ? 'feed' : 'public'));
   $('#fabHome').addEventListener('click', () => showView('feed'));
+  $('#fabStats').addEventListener('click', openStatsView);
   $('#fabPost').addEventListener('click', () => { resetPostForm(); openOverlay('#postOverlay'); });
+
+  // Réactions (délégation : le fil est reconstruit à chaque mise à jour)
+  document.addEventListener('click', (e) => {
+    const rb = e.target.closest('.react-btn');
+    if (rb) toggleReaction(rb.dataset.pint, rb.dataset.react);
+  });
 }
 
 /* Go 🍺 */

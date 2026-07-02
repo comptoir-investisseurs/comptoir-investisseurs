@@ -39,11 +39,15 @@
       </section>
 
       <section class="stats">
+        <div class="countdown" id="cdHero">
+          <div class="cd-top">🏁 Saison <b id="seasonHero">—</b> · nouvelle saison dans</div>
+          <div class="cd-time" id="countdownHero">—</div>
+        </div>
         <div class="stat-grid">
-          <div class="stat">     <div class="num" id="stPintes">–</div>   <div class="lbl">Pintes bues 🍺</div></div>
+          <div class="stat">     <div class="num" id="stPintes">–</div>   <div class="lbl">Pintes ce mois 🍺</div></div>
           <div class="stat pop"> <div class="num" id="stJoueurs">–</div>  <div class="lbl">Joueurs inscrits 🙋</div></div>
           <div class="stat vert"><div class="num" id="stEquipes">–</div>  <div class="lbl">Équipes en lice 🚩</div></div>
-          <div class="stat bleu"><div class="num" id="stLitres">–</div>   <div class="lbl">Litres engloutis 🌊</div></div>
+          <div class="stat bleu"><div class="num" id="stLitres">–</div>   <div class="lbl">Litres ce mois 🌊</div></div>
         </div>
       </section>
 
@@ -90,10 +94,35 @@
       </section>
     </main>
 
+    <!-- ============ VUE STATISTIQUES ============ -->
+    <main id="viewStats" class="hidden">
+      <section class="section">
+        <button class="btn btn-ghost" id="backFromStats" style="padding:8px 14px;margin-bottom:8px">← Retour</button>
+        <div class="countdown big" id="cdStats">
+          <div class="cd-top">🏁 Saison <b id="seasonStats">—</b></div>
+          <div class="cd-time" id="countdownBig">—</div>
+          <div class="cd-sub">avant le renouvellement · les compteurs repartent à zéro 🔄</div>
+        </div>
+
+        <h2>🏆 Classement des équipes <span class="chip">ce mois</span></h2>
+        <div class="board" id="statTeamBoard"></div>
+
+        <div id="myTeamBlock" class="hidden">
+          <h2 style="margin-top:22px">👥 Mon équipe : <span id="myTeamName" style="color:var(--biere-2)">—</span></h2>
+          <div class="board" id="myTeamBoard"></div>
+        </div>
+
+        <h2 style="margin-top:22px">🥇 Top joueurs <span class="chip">ce mois</span></h2>
+        <div class="board" id="statPlayerBoard"></div>
+        <p class="footer-note">La compétition se renouvelle chaque mois 🔄 — à fond pour ton équipe !</p>
+      </section>
+    </main>
+
     <!-- ============ FAB (poster) ============ -->
     <div class="fab hidden" id="fab">
-      <button class="btn btn-ghost" id="fabHome" style="flex:0 0 auto;width:54px">🏠</button>
-      <button class="btn btn-primary" id="fabPost">📸 Poster ma pinte</button>
+      <button class="btn btn-ghost" id="fabHome"  style="flex:0 0 auto;width:52px">🏠</button>
+      <button class="btn btn-ghost" id="fabStats" style="flex:0 0 auto;width:52px">📊</button>
+      <button class="btn btn-primary" id="fabPost">📸 Poster</button>
     </div>
 
   </div>
@@ -150,6 +179,29 @@
     </div>
   </div>
 
+  <!-- ============ OVERLAY : CHANGER D'ÉQUIPE ============ -->
+  <div class="overlay" id="teamOverlay">
+    <div class="sheet">
+      <div class="grab"></div>
+      <button class="close" data-close>✕</button>
+      <h3>Changer d'équipe 🔀</h3>
+      <p class="lead">Rejoins une autre équipe ou crée la tienne. Tes pintes suivront.</p>
+      <div class="seg" id="editTeamMode">
+        <button type="button" class="seg-btn active" data-mode="join">🤝 Rejoindre</button>
+        <button type="button" class="seg-btn" data-mode="create">➕ Créer</button>
+      </div>
+      <div class="field" id="editJoinField" style="margin-top:12px">
+        <select id="editTeamSelect"></select>
+        <div class="hint" id="editNoTeamHint"></div>
+      </div>
+      <div class="field hidden" id="editNewTeamField">
+        <input id="editNewTeamInput" placeholder="Nom de la nouvelle équipe">
+      </div>
+      <div class="err-msg" id="editTeamErr"></div>
+      <button class="btn btn-primary btn-block" id="saveTeamBtn">Enregistrer</button>
+    </div>
+  </div>
+
   <!-- ============ OVERLAY : POSTER UNE PINTE ============ -->
   <div class="overlay" id="postOverlay">
     <div class="sheet">
@@ -157,13 +209,13 @@
       <button class="close" data-close>✕</button>
       <h3>Poster ma pinte 🍺</h3>
       <div class="rules">
-        <b>Règles du jeu :</b> pour qu'une pinte compte, la photo doit montrer
+        <b>Vérification IA 🔎</b> — ta photo doit montrer :
         <ul>
           <li>🍺 Une <b>pinte</b> dans un <b>vrai verre en verre</b></li>
-          <li>📏 Volume <b>50 cl</b></li>
-          <li>💧 <b>Liquide visible</b> (pas un verre vide !)</li>
+          <li>📏 Volume <b>50 cl</b> (galopins et demis refusés !)</li>
+          <li>💧 <b>Liquide bien visible</b> (pas un verre vide)</li>
         </ul>
-        Fair-play entre joueurs 🤝 — les orgas peuvent invalider une photo hors règles.
+        L'IA analyse chaque photo et refuse ce qui n'est pas une vraie pinte.
       </div>
 
       <form id="postForm">
