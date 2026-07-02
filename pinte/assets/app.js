@@ -34,6 +34,9 @@ const state = {
   teamMode: 'join',     // inscription : 'join' | 'create'
   editTeamMode: 'join', // édition profil : 'join' | 'create'
   signingUp: false,     // inscription en cours (évite une race sur le profil)
+  currentCity: null,    // ville choisie au moment de poster { name, cp, lat, lng }
+  map: null,            // instance Leaflet
+  mapLayer: null,       // calque des marqueurs
 };
 
 /* Réactions disponibles (cartons + smileys) */
@@ -98,6 +101,7 @@ function showView(name) {
   $('#viewFeed').classList.toggle('hidden',    name !== 'feed');
   $('#viewProfile').classList.toggle('hidden', name !== 'profile');
   $('#viewStats').classList.toggle('hidden',   name !== 'stats');
+  $('#viewMap').classList.toggle('hidden',     name !== 'map');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -187,6 +191,7 @@ function subscribeData() {
 function refreshDynamic() {
   renderStats();
   if (!$('#viewStats').classList.contains('hidden')) renderStatsView();
+  if (!$('#viewMap').classList.contains('hidden')) renderMap();
   if (state.user && !$('#viewFeed').classList.contains('hidden')) renderFeed();
   if (!$('#viewProfile').classList.contains('hidden') && state.viewingProfile) openProfile(state.viewingProfile);
 }
@@ -459,6 +464,115 @@ function chartSvg(series) {
     <text class="dot-lbl" x="${(X(last.t) - 6).toFixed(1)}" y="${(Y(last.cum) - 8).toFixed(1)}" text-anchor="end">${last.cum}</text>
     ${xLabels}
   </svg>`;
+}
+
+/* ============================================================
+ * CARTE DES PINTES (Leaflet + OpenStreetMap)
+ * ============================================================ */
+function openMapView() {
+  showView('map');
+  if (!window.L) { $('#map').innerHTML = `<div class="empty">Carte indisponible (hors-ligne).</div>`; return; }
+  if (!state.map) {
+    state.map = L.map('map', { scrollWheelZoom: true, attributionControl: true })
+      .setView([46.6, 2.4], 6);  // centré sur la France
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+    }).addTo(state.map);
+    state.mapLayer = L.layerGroup().addTo(state.map);
+  }
+  setTimeout(() => { state.map.invalidateSize(); renderMap(); }, 60);
+}
+
+/* Regroupe les pintes par ville (coordonnées) et pose un marqueur par ville */
+function renderMap() {
+  if (!state.map || !state.mapLayer) return;
+  state.mapLayer.clearLayers();
+
+  const withGeo = state.pints.filter(p => verified(p) && typeof p.lat === 'number' && typeof p.lng === 'number');
+  $('#mapCount').textContent = withGeo.length ? `${withGeo.length} pinte${withGeo.length>1?'s':''}` : '';
+
+  // groupement par ville (clé lat,lng arrondie)
+  const groups = new Map();
+  withGeo.forEach(p => {
+    const key = `${p.lat.toFixed(3)},${p.lng.toFixed(3)}`;
+    if (!groups.has(key)) groups.set(key, { lat: p.lat, lng: p.lng, city: p.city || p.lieu || 'Ville', pints: [] });
+    groups.get(key).pints.push(p);
+  });
+  if (!groups.size) return;
+
+  const bounds = [];
+  groups.forEach(g => {
+    const n = g.pints.length;
+    const size = Math.min(52, 24 + n * 4);
+    const icon = L.divIcon({
+      className: '', iconSize: [size, size], iconAnchor: [size/2, size/2],
+      html: `<div class="pin" style="width:${size}px;height:${size}px;background:${teamColorMix(g.pints)}">${n}</div>`,
+    });
+    const recent = [...g.pints].sort((a,b) => millis(b.createdAt) - millis(a.createdAt)).slice(0, 6);
+    const rows = recent.map(p => `
+      <div class="row">
+        <span class="dot" style="background:${p.teamColor||colorFor(p.playerId||'?')}"></span>
+        <span><b style="color:var(--txt);font-size:.9rem">${escapeHtml(p.prenom||'Joueur')} ${escapeHtml((p.nom||'')[0]||'')}.</b>
+        ${p.lieu ? `<span class="muted"> · ${escapeHtml(p.lieu)}</span>` : ''}
+        <span class="muted"> · ${timeAgo(p.createdAt)}</span></span>
+      </div>`).join('');
+    const more = n > recent.length ? `<div class="muted" style="margin-top:6px">+ ${n - recent.length} autre(s)…</div>` : '';
+    L.marker([g.lat, g.lng], { icon })
+      .bindPopup(`<div class="map-pop"><b>🍺 ${escapeHtml(g.city)}</b> — ${n} pinte${n>1?'s':''}${rows}${more}</div>`)
+      .addTo(state.mapLayer);
+    bounds.push([g.lat, g.lng]);
+  });
+  if (bounds.length > 1) state.map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+  else state.map.setView(bounds[0], 11);
+}
+
+/* Couleur d'un marqueur : l'équipe majoritaire sur ce lieu */
+function teamColorMix(pints) {
+  const c = {};
+  pints.forEach(p => { const k = p.teamColor || '#F5A623'; c[k] = (c[k]||0) + 1; });
+  return Object.entries(c).sort((a,b) => b[1]-a[1])[0][0];
+}
+
+/* ---------- Autocomplétion ville (API adresse gouv, toutes les communes) ---------- */
+let cityTimer = null;
+function setupCityAutocomplete() {
+  const input = $('#cityInput'), box = $('#citySuggest');
+  input.addEventListener('input', () => {
+    state.currentCity = null; $('#cityChosen').textContent = '';
+    const q = input.value.trim();
+    clearTimeout(cityTimer);
+    if (q.length < 2) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+    cityTimer = setTimeout(() => fetchCities(q), 250);
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#cityInput') && !e.target.closest('#citySuggest')) box.classList.add('hidden');
+  });
+}
+async function fetchCities(q) {
+  const box = $('#citySuggest');
+  try {
+    const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&type=municipality&limit=6`);
+    const data = await res.json();
+    const feats = (data.features || []);
+    if (!feats.length) { box.innerHTML = `<button disabled>Aucune ville trouvée</button>`; box.classList.remove('hidden'); return; }
+    box.innerHTML = feats.map((f, i) => {
+      const p = f.properties, [lng, lat] = f.geometry.coordinates;
+      return `<button type="button" data-i="${i}" data-lat="${lat}" data-lng="${lng}"
+        data-name="${escapeHtml(p.city || p.name)}" data-cp="${escapeHtml(p.postcode||'')}">
+        ${escapeHtml(p.city || p.name)} <small>${escapeHtml(p.postcode||'')} · ${escapeHtml(p.context||'')}</small></button>`;
+    }).join('');
+    box.classList.remove('hidden');
+    $$('#citySuggest button[data-name]').forEach(btn => btn.addEventListener('click', () => {
+      state.currentCity = { name: btn.dataset.name, cp: btn.dataset.cp,
+                            lat: parseFloat(btn.dataset.lat), lng: parseFloat(btn.dataset.lng) };
+      $('#cityInput').value = btn.dataset.name;
+      $('#cityChosen').innerHTML = `✅ ${escapeHtml(btn.dataset.name)} <span class="muted">(${escapeHtml(btn.dataset.cp)})</span>`;
+      box.classList.add('hidden');
+    }));
+  } catch (e) {
+    box.innerHTML = `<button disabled>Recherche indisponible</button>`; box.classList.remove('hidden');
+  }
 }
 
 /* ============================================================
@@ -768,8 +882,9 @@ $('#postForm').addEventListener('submit', async (e) => {
   if (!currentPhoto) { errEl.textContent = 'Ajoute une photo de ta pinte.'; return; }
   const v = currentPhoto.verify || { status: 'pending', reason: '' };
   if (v.status === 'rejected') { errEl.textContent = 'Photo refusée par l’IA — reprends-en une.'; return; }
+  if (!state.currentCity) { errEl.textContent = 'Choisis ta ville dans la liste.'; return; }
   const lieu = $('#lieuInput').value.trim();
-  if (!lieu) { errEl.textContent = 'Indique le lieu.'; return; }
+  const city = state.currentCity;
 
   submit.disabled = true; submit.textContent = 'Envoi…';
   try {
@@ -784,6 +899,10 @@ $('#postForm').addEventListener('submit', async (e) => {
       teamColor: state.me ? state.me.teamColor : null,
       photoUrl:  currentPhoto.dataUrl,   // image en base64 (stockée dans Firestore)
       lieu,
+      city:      city.name,
+      cp:        city.cp || null,
+      lat:       city.lat,
+      lng:       city.lng,
       volumeCl:  CFG.PINTE_CL || 50,
       status:    v.status === 'verified' ? 'verified' : 'pending',
       verifyReason: v.reason || null,
@@ -804,9 +923,14 @@ $('#postForm').addEventListener('submit', async (e) => {
 
 function resetPostForm() {
   currentPhoto = null;
+  state.currentCity = null;
   $('#photoInput').value = '';
   $('#previewImg').src = '';
   $('#lieuInput').value = '';
+  $('#cityInput').value = '';
+  $('#cityChosen').textContent = '';
+  $('#citySuggest').classList.add('hidden');
+  $('#citySuggest').innerHTML = '';
   $('#photoDrop').classList.remove('hidden');
   $('#photoPreview').classList.add('hidden');
   $('#verifyBox').classList.add('hidden');
@@ -879,9 +1003,13 @@ function wireEvents() {
   $('#meBtn').addEventListener('click', () => state.me && openProfile(state.me.id));
   $('#backFromProfile').addEventListener('click', () => showView(state.user ? 'feed' : 'public'));
   $('#backFromStats').addEventListener('click', () => showView(state.user ? 'feed' : 'public'));
+  $('#backFromMap').addEventListener('click', () => showView(state.user ? 'feed' : 'public'));
   $('#fabHome').addEventListener('click', () => showView('feed'));
   $('#fabStats').addEventListener('click', openStatsView);
+  $('#fabMap').addEventListener('click', openMapView);
   $('#fabPost').addEventListener('click', () => { resetPostForm(); openOverlay('#postOverlay'); });
+
+  setupCityAutocomplete();
 
   // Réactions (délégation : le fil est reconstruit à chaque mise à jour)
   document.addEventListener('click', (e) => {
