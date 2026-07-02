@@ -666,48 +666,24 @@ async function runVerification() {
   }
 }
 
-/* Appel de l'IA de vision Google Gemini.
+/* Vérification via le Cloudflare Worker (qui appelle Gemini côté serveur).
+ * La clé reste secrète : le navigateur n'envoie que l'image au Worker.
  * Retour : { status: 'verified'|'rejected'|'pending', reason } */
 async function verifyPhoto(dataUrl) {
-  const key = CFG.GEMINI_API_KEY;
-  if (!key || String(key).includes('VOTRE')) return { status: 'pending', reason: '' };
-  const model = CFG.GEMINI_MODEL || 'gemini-2.0-flash';
-  const b64 = dataUrl.split(',')[1] || '';
-
-  const prompt = `Tu es l'arbitre d'un concours de bière "Ma p'tite pinte".
-Réponds UNIQUEMENT par un objet JSON, sans texte autour :
-{"verified": true|false, "reason": "explication courte en français, max 10 mots"}
-
-verified = true SEULEMENT si TOUTES ces conditions sont réunies :
-1. La photo montre une PINTE de bière (environ 50 cl) servie dans un VERRE EN VERRE transparent.
-2. Le verre est grand (format pinte), bien rempli, et la BIÈRE (liquide) est clairement visible.
-
-verified = false dans TOUS ces cas :
-- verre trop petit : galopin (~12,5 cl), demi (~25 cl) ou tout verre nettement plus petit qu'une pinte ;
-- chope opaque, canette, bouteille, gobelet plastique ;
-- verre vide ou quasi vide ; pas de bière identifiable ; photo floue.
-En cas de doute sur la taille, considère que ce n'est PAS une pinte (verified=false).`;
-
+  const url = CFG.VERIFY_URL;
+  if (!url || String(url).includes('VOTRE')) return { status: 'pending', reason: '' };
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [
-          { text: prompt },
-          { inline_data: { mime_type: 'image/jpeg', data: b64 } },
-        ] }],
-        generationConfig: { temperature: 0, maxOutputTokens: 120 },
-      }),
+      body: JSON.stringify({ image: dataUrl }),
     });
-    if (!res.ok) { console.error('Gemini', res.status, await res.text()); return { status: 'pending', reason: '' }; }
+    if (!res.ok) { console.error('verify', res.status); return { status: 'pending', reason: '' }; }
     const data = await res.json();
-    const text = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
-    const jm = text.match(/\{[\s\S]*\}/);
-    if (!jm) return { status: 'pending', reason: '' };
-    const parsed = JSON.parse(jm[0]);
-    return { status: parsed.verified === true ? 'verified' : 'rejected', reason: String(parsed.reason || '').slice(0, 140) };
+    if (typeof data.verified === 'boolean') {
+      return { status: data.verified ? 'verified' : 'rejected', reason: data.reason || '' };
+    }
+    return { status: 'pending', reason: data.reason || '' };  // verified=null → indisponible
   } catch (e) {
     console.error(e);
     return { status: 'pending', reason: '' };

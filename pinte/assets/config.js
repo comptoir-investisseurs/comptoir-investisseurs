@@ -26,13 +26,11 @@ window.PP_CONFIG = {
   // Volume attendu d'une pinte, en centilitres.
   PINTE_CL: 50,
 
-  // ---- Vérification IA des photos (Google Gemini, palier gratuit) ----
-  // Obtenez une clé sur https://aistudio.google.com/apikey (gratuit).
-  // ⚠️ Restreignez cette clé par « Référents HTTP » dans Google Cloud
-  //    (ex : https://hugoflpp-afk.github.io/*) pour éviter tout abus.
-  // Sans clé, les pintes passent en « en attente » au lieu d'être validées.
-  GEMINI_API_KEY: 'VOTRE_CLE_GEMINI',
-  GEMINI_MODEL:   'gemini-2.0-flash',
+  // ---- Vérification IA des photos ----
+  // URL de VOTRE Cloudflare Worker "verify-pinte" (voir cloudflare-worker/).
+  // La clé Gemini reste SECRÈTE côté Worker — jamais dans le navigateur.
+  // Sans URL, les pintes passent en « en attente » au lieu d'être validées.
+  VERIFY_URL: 'https://verify-pinte.VOTRE-SOUS-DOMAINE.workers.dev',
 
   // Renouvellement de la compétition : 'monthly' (tous les mois).
   SEASON: 'monthly',

@@ -45,6 +45,8 @@ pinte/
 │  ├─ config.js          ⚙️ firebaseConfig de votre projet
 │  └─ app.js             Logique (auth, fil temps réel, photos, profils, stats)
 ├─ firestore.rules       Règles de sécurité Firestore
+├─ cloudflare-worker/
+│  └─ verify-pinte.js    Proxy IA (garde la clé Gemini secrète côté serveur)
 └─ README.md
 ```
 
@@ -90,16 +92,21 @@ Dans la console Firebase :
   (Elles autorisent la lecture publique, l'écriture de son propre profil/ses pintes,
   et les **réactions** de tout joueur connecté sur n'importe quelle pinte.)
 
-### 6. (Recommandé) Vérification IA des photos — gratuit
-Pour rejeter automatiquement galopins/demis/verres vides :
-1. Génère une clé sur **[aistudio.google.com/apikey](https://aistudio.google.com/apikey)** (gratuit).
-2. Colle-la dans `assets/config.js` → `GEMINI_API_KEY`.
-3. **Restreins la clé** dans Google Cloud (APIs & Services → Identifiants → ta clé →
-   *Restrictions d'application* → **Référents HTTP** → ajoute `https://hugoflpp-afk.github.io/*`)
-   pour éviter tout usage abusif.
+### 6. (Recommandé) Vérification IA des photos — gratuit & sécurisé
+La vérif passe par un **Cloudflare Worker** qui garde la clé Gemini **secrète côté
+serveur** (jamais exposée dans le navigateur). Fichier : `cloudflare-worker/verify-pinte.js`.
 
-> Sans clé Gemini, l'appli fonctionne : les pintes passent en « ⏳ en attente »
+1. **Clé Gemini** : génère-en une sur **[aistudio.google.com/apikey](https://aistudio.google.com/apikey)** (gratuit, format `AIza…`).
+2. **Cloudflare** (gratuit) : [dash.cloudflare.com](https://dash.cloudflare.com) → *Workers & Pages* → *Create* → *Create Worker* → nomme-le `verify-pinte` → *Deploy*.
+3. **Code** : ouvre le Worker → *Edit code* → colle tout `cloudflare-worker/verify-pinte.js` → *Deploy*.
+4. **Secret** : Worker → *Settings* → *Variables and Secrets* → *Add* →
+   type **Secret**, nom `GEMINI_API_KEY`, valeur = ta clé `AIza…` → *Deploy*.
+5. **URL** : copie l'adresse du Worker (`https://verify-pinte.<sous-domaine>.workers.dev`)
+   et colle-la dans `assets/config.js` → `VERIFY_URL`.
+
+> Sans `VERIFY_URL`, l'appli fonctionne : les pintes passent en « ⏳ en attente »
 > (validables à la main en passant `status` à `verified` dans Firestore).
+> La clé `AIza…` ne doit **jamais** être mise dans `config.js` — uniquement dans le Worker.
 
 ### 7. Lancer
 Site statique : ouvrez `pinte/index.html`, ou servez le dossier :
@@ -131,11 +138,12 @@ côté navigateur pour rester sous ~700 Ko (limite Firestore : 1 Mo par document
 ## Validation des photos (IA Gemini)
 
 La règle : 🍺 une pinte dans un **vrai verre en verre**, 📏 **~50 cl**, 💧 **liquide
-visible**. Au moment de poster, la photo est envoyée à l'IA de vision **Gemini**
-qui **refuse** galopins/demis, chopes opaques, canettes, bouteilles, gobelets
-plastique et verres vides. Une photo validée est postée en `status: verified` ;
-une photo refusée n'est pas postée (le joueur en reprend une). Sans clé Gemini,
-les pintes passent en `status: pending` (validables à la main dans Firestore).
+visible**. Au moment de poster, la photo part vers le **Cloudflare Worker** qui
+interroge l'IA de vision **Gemini** ; elle **refuse** galopins/demis, chopes
+opaques, canettes, bouteilles, gobelets plastique et verres vides. Une photo
+validée est postée en `status: verified` ; une photo refusée n'est pas postée
+(le joueur en reprend une). Sans `VERIFY_URL`, les pintes passent en
+`status: pending` (validables à la main dans Firestore).
 
 ## Compétition mensuelle
 
@@ -149,4 +157,4 @@ les profils mais ne comptent plus dans la compétition en cours.
 - **Couleurs / ambiance** : variables CSS dans `assets/style.css` (`:root`).
 - **Volume de la pinte** : `PINTE_CL` dans `assets/config.js`.
 - **Réactions disponibles** : constante `REACTIONS` dans `assets/app.js`.
-- **Modèle IA** : `GEMINI_MODEL` dans `assets/config.js`.
+- **Modèle IA** : variable `GEMINI_MODEL` du Worker Cloudflare (défaut `gemini-2.0-flash`).
