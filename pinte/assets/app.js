@@ -11,7 +11,7 @@ const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
 /* ---------- Init Firebase ---------- */
-let auth = null, db = null, storage = null;
+let auth = null, db = null;
 const fb = CFG.firebase || {};
 const configured = fb.apiKey && !String(fb.apiKey).includes('VOTRE') &&
                    fb.projectId && !String(fb.projectId).includes('VOTRE');
@@ -20,7 +20,6 @@ if (configured && window.firebase) {
   firebase.initializeApp(fb);
   auth = firebase.auth();
   db = firebase.firestore();
-  storage = firebase.storage();
 }
 const SERVER_TS = () => firebase.firestore.FieldValue.serverTimestamp();
 
@@ -406,7 +405,8 @@ $('#photoInput').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
   try {
-    currentPhoto = await compressImage(file, 1080, 0.82);
+    // Photo stockée en base64 dans Firestore → on vise < ~700 Ko.
+    currentPhoto = await compressImage(file, 1000, 700 * 1024);
     $('#previewImg').src = currentPhoto.dataUrl;
     $('#photoDrop').classList.add('hidden');
     $('#photoPreview').classList.remove('hidden');
@@ -432,10 +432,6 @@ $('#postForm').addEventListener('submit', async (e) => {
   submit.disabled = true; submit.textContent = 'Envoi…';
   try {
     const uid = state.user.uid;
-    const path = `pintes/${uid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
-    const ref = storage.ref().child(path);
-    const snap = await ref.put(currentPhoto.blob, { contentType: 'image/jpeg' });
-    const url = await snap.ref.getDownloadURL();
 
     await db.collection('pints').add({
       playerId:  uid,
@@ -444,7 +440,7 @@ $('#postForm').addEventListener('submit', async (e) => {
       teamId:    state.me ? state.me.teamId : null,
       teamName:  state.me ? state.me.teamName : null,
       teamColor: state.me ? state.me.teamColor : null,
-      photoUrl:  url,
+      photoUrl:  currentPhoto.dataUrl,   // image en base64 (stockée dans Firestore)
       lieu,
       volumeCl:  CFG.PINTE_CL || 50,
       status:    'verified',   // comptée immédiatement (validation à l'honneur)
@@ -474,23 +470,38 @@ function resetPostForm() {
   $('#postErr').textContent = '';
 }
 
-/* Compression/redimensionnement via canvas → Blob JPEG */
-function compressImage(file, maxSize, quality) {
+/* Compression via canvas → data URL JPEG, sous une taille cible (octets).
+ * On réduit la qualité puis la taille jusqu'à passer sous maxBytes,
+ * car la photo est stockée en base64 dans Firestore (limite 1 Mo/doc). */
+function compressImage(file, maxSize, maxBytes) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
       URL.revokeObjectURL(url);
-      let { width: w, height: h } = img;
-      if (Math.max(w, h) > maxSize) {
-        const r = maxSize / Math.max(w, h); w = Math.round(w*r); h = Math.round(h*r);
+      let dim = Math.min(maxSize, Math.max(img.width, img.height));
+
+      const render = (targetDim, q) => {
+        const r = targetDim / Math.max(img.width, img.height);
+        const w = Math.max(1, Math.round(img.width * r));
+        const h = Math.max(1, Math.round(img.height * r));
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        return c.toDataURL('image/jpeg', q);
+      };
+
+      let dataUrl = '';
+      // 1) baisse la qualité, 2) si toujours trop lourd, réduit la dimension
+      for (let pass = 0; pass < 6; pass++) {
+        for (const q of [0.72, 0.6, 0.5, 0.42]) {
+          dataUrl = render(dim, q);
+          if (dataUrl.length <= maxBytes) return resolve({ dataUrl });
+        }
+        dim = Math.round(dim * 0.8);
+        if (dim < 320) break;
       }
-      const c = document.createElement('canvas'); c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
-      c.toBlob((blob) => {
-        if (!blob) return reject(new Error('canvas'));
-        resolve({ blob, dataUrl: c.toDataURL('image/jpeg', quality) });
-      }, 'image/jpeg', quality);
+      // Dernier recours : on renvoie la plus légère obtenue
+      resolve({ dataUrl });
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
     img.src = url;

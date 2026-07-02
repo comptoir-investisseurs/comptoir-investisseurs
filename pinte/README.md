@@ -25,17 +25,20 @@ direct sur tous les téléphones.
 ## Stack
 
 100 % statique côté client (HTML/CSS/JS, sans build) + **Firebase** :
-Authentication · Firestore (temps réel) · Storage (photos).
+Authentication · Firestore (temps réel).
+
+> 🆓 **Aucune facturation.** On n'utilise **pas** Firebase Storage (devenu payant
+> sur le plan Spark). Les photos sont compressées puis stockées **directement dans
+> Firestore** (en base64), qui reste gratuit. Rien à activer côté Storage.
 
 ```
 pinte/
 ├─ index.html            Interface (shell)
 ├─ assets/
 │  ├─ style.css          Design system (punchy, participatif)
-│  ├─ config.js          ⚙️ À REMPLIR : firebaseConfig de votre projet
-│  └─ app.js             Logique (auth, fil temps réel, upload, profils, stats)
+│  ├─ config.js          ⚙️ firebaseConfig de votre projet
+│  └─ app.js             Logique (auth, fil temps réel, photos, profils, stats)
 ├─ firestore.rules       Règles de sécurité Firestore
-├─ storage.rules         Règles de sécurité Storage
 └─ README.md
 ```
 
@@ -69,15 +72,15 @@ window.PP_CONFIG = {
 > Ces clés Firebase sont **publiques** par nature (elles vivent dans le
 > navigateur). La sécurité repose sur les **Security Rules** ci-dessous.
 
-### 4. Activer les services
+### 4. Activer les services (2 seulement, tous gratuits)
 Dans la console Firebase :
 - **Authentication** → *Sign-in method* → activez **E-mail/Mot de passe**.
 - **Firestore Database** → *Créer une base* (mode production, région au choix).
-- **Storage** → *Commencer* (mode production).
+
+> ❌ Pas besoin d'activer **Storage** : les photos vivent dans Firestore.
 
 ### 5. Coller les règles de sécurité
 - **Firestore** → onglet *Règles* → collez le contenu de **`firestore.rules`**.
-- **Storage** → onglet *Règles* → collez le contenu de **`storage.rules`**.
 
 ### 6. Lancer
 Site statique : ouvrez `pinte/index.html`, ou servez le dossier :
@@ -102,6 +105,9 @@ Déployable tel quel sur **GitHub Pages**, Netlify, Vercel, etc.
 Les infos d'équipe/joueur sont **dénormalisées** dans chaque pinte : aucune
 jointure, tout est temps réel via `onSnapshot`. Les statistiques et classements
 sont calculés côté client à partir de ces collections.
+
+Le champ `photoUrl` contient l'image en **base64** (data URL). Elle est compressée
+côté navigateur pour rester sous ~700 Ko (limite Firestore : 1 Mo par document).
 
 ## Validation des photos
 
