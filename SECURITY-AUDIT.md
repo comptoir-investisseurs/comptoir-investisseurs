@@ -168,9 +168,9 @@ de l'échappement `esc()` reste la dernière ligne de défense.
 ## 4. Checklist d'action
 
 - [x] Basculer le flux d'invitation sur des **RPC `SECURITY DEFINER`** (code client) — §3.1
-- [ ] **➡️ À FAIRE CÔTÉ SUPABASE : exécuter `supabase-invitations-hardening.sql`** dans
-      le SQL Editor (indispensable pour que le durcissement `invitations` soit effectif) — §3.1
-- [ ] Vérifier que les **tokens d'invitation sont imprévisibles** (`gen_random_uuid()` / 32+ octets) — §3.1
+- [x] **Exécuté côté Supabase** : `supabase-invitations-hardening.sql` appliqué ; l'accès
+      direct `anon` à `invitations` est coupé (`has_table_privilege('anon',...)` = false) — §3.1
+- [x] Tokens d'invitation **imprévisibles** confirmé (colonne `token` de type `uuid`) — §3.1
 - [x] **CSP** ajoutée sur les pages privilégiées (atténue le risque CDN) — §3.2
 - [ ] **Ajouter SRI (`integrity`) sur pdf.js** ou l'auto-héberger (complément à la CSP) — §3.2
 - [ ] Ajouter un **anti-spam** au questionnaire public — §3.3
