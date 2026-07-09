@@ -12,14 +12,18 @@
   const inviteToken = new URLSearchParams(window.location.search).get('token');
 
   if(inviteToken && SUPABASE_URL && !SUPABASE_URL.includes('VOTRE_PROJET')){
-    // Pré-remplir les coordonnées à partir de l'invitation
-    fetch(SUPABASE_URL + '/rest/v1/invitations?select=nom,prenom,email&token=eq.' + encodeURIComponent(inviteToken), {
-      headers: {'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY}
+    // Pré-remplir les coordonnées à partir de l'invitation, via une RPC
+    // SECURITY DEFINER (get_invitation) : le client public n'accède jamais
+    // directement à la table invitations (voir supabase-invitations-hardening.sql).
+    fetch(SUPABASE_URL + '/rest/v1/rpc/get_invitation', {
+      method: 'POST',
+      headers: {'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json'},
+      body: JSON.stringify({p_token: inviteToken})
     })
-    .then(r => r.json())
+    .then(r => r.ok ? r.json() : null)
     .then(rows => {
-      if(rows && rows[0]){
-        const inv = rows[0];
+      const inv = Array.isArray(rows) ? rows[0] : rows;
+      if(inv){
         const set = (id, val) => { const el = document.getElementById(id); if(el && val) el.value = val; };
         set('nom', inv.nom);
         set('prenom', inv.prenom);
@@ -155,17 +159,18 @@
     })
     .then(res => {
       if(!res.ok) throw new Error('Erreur ' + res.status);
-      // Marquer l'invitation comme complétée
+      // Marquer l'invitation comme complétée (via RPC sécurisée, pas
+      // d'écriture directe sur la table invitations)
       if(inviteToken){
-        fetch(SUPABASE_URL + '/rest/v1/invitations?token=eq.' + encodeURIComponent(inviteToken), {
-          method: 'PATCH',
+        fetch(SUPABASE_URL + '/rest/v1/rpc/complete_invitation', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_ANON_KEY,
             'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
             'Prefer': 'return=minimal'
           },
-          body: JSON.stringify({completed: true, completed_at: new Date().toISOString()})
+          body: JSON.stringify({p_token: inviteToken})
         }).catch(() => {});
       }
       showSuccess();

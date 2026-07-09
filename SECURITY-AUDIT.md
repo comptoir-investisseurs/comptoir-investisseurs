@@ -37,6 +37,21 @@ Security (RLS)** côté Supabase (voir §3).
 
 ---
 
+## 1 bis. Correctifs de durcissement appliqués dans ce commit
+
+| Mesure | Fichiers | Effet |
+|---|---|---|
+| **Content-Security-Policy** sur les 4 pages privilégiées | `admin.html`, `cockpit.html`, `cockpit-preview.html`, `structures.html` | `connect-src` limite les destinations réseau à Supabase (+ cdnjs pour pdf.js) : même un script CDN compromis ne peut **pas exfiltrer** le jeton/les données vers un domaine attaquant. `object-src 'none'`, `base-uri 'self'`, `script-src` restreint aux origines connues. |
+| **Flux d'invitation via RPC `SECURITY DEFINER`** | `assets/js/questionnaire.js` + `supabase-invitations-hardening.sql` | Le client public n'accède plus **jamais** directement à la table `invitations` (fin de la fuite potentielle noms/emails/tokens). ⚠️ Nécessite d'exécuter le script SQL fourni. |
+| **Retrait du repli d'authentification « démo »** | `assets/js/cockpit.js` | La connexion échoue désormais en *fail-closed* si la configuration est absente (plus de jeton `demo` accordé). |
+| **Déploiement Pages assaini** | `.github/workflows/pages.yml` | `build.py`, les `*.sql` et le rapport d'audit ne sont plus publiés (fin de la divulgation du code source / schéma). |
+
+> Le correctif SRI de pdf.js n'a **pas** pu être appliqué : le CDN est bloqué par
+> la politique réseau de cet environnement (impossible de récupérer le fichier ou
+> le hachage). La CSP couvre l'essentiel du risque en attendant (voir §3.2).
+
+---
+
 ## 2. Éléments vérifiés « sûrs »
 
 | Contrôle | Résultat |
@@ -152,11 +167,15 @@ de l'échappement `esc()` reste la dernière ligne de défense.
 
 ## 4. Checklist d'action
 
-- [ ] **Vérifier / restreindre le RLS de `invitations`** (SECURITY DEFINER + tokens imprévisibles) — §3.1
-- [ ] **Ajouter SRI (`integrity`) sur pdf.js** ou l'auto-héberger — §3.2
+- [x] Basculer le flux d'invitation sur des **RPC `SECURITY DEFINER`** (code client) — §3.1
+- [ ] **➡️ À FAIRE CÔTÉ SUPABASE : exécuter `supabase-invitations-hardening.sql`** dans
+      le SQL Editor (indispensable pour que le durcissement `invitations` soit effectif) — §3.1
+- [ ] Vérifier que les **tokens d'invitation sont imprévisibles** (`gen_random_uuid()` / 32+ octets) — §3.1
+- [x] **CSP** ajoutée sur les pages privilégiées (atténue le risque CDN) — §3.2
+- [ ] **Ajouter SRI (`integrity`) sur pdf.js** ou l'auto-héberger (complément à la CSP) — §3.2
 - [ ] Ajouter un **anti-spam** au questionnaire public — §3.3
-- [ ] **Exclure `build.py` / `*.sql`** de l'artefact GitHub Pages — §3.4
-- [ ] Retirer le **repli d'authentification « démo »** — §3.5
+- [x] **Exclure `build.py` / `*.sql`** de l'artefact GitHub Pages — §3.4
+- [x] Retirer le **repli d'authentification « démo »** — §3.5
 - [ ] Confirmer côté Supabase que le RLS est **activé** sur *toutes* les tables réellement
       présentes (celles du dépôt le sont ; vérifier `invitations` et toute table ajoutée hors dépôt)
 
