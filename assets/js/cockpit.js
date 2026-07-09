@@ -33,7 +33,7 @@
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
     loginError.style.display = 'none';
-    if(!SB){ sessionStorage.setItem('sb_access_token','demo'); sessionStorage.setItem('sb_user_email',email||'demo'); document.getElementById('dash-user-email').textContent = email||'demo'; showDash(); return; }
+    if(!SB){ loginError.textContent='Configuration indisponible.'; loginError.style.display='block'; return; }
     fetch(SB + '/auth/v1/token?grant_type=password', { method:'POST', headers:{'apikey':SB_KEY,'Content-Type':'application/json'}, body: JSON.stringify({email, password}) })
       .then(r => r.json()).then(data => {
         if(data.access_token){ sessionStorage.setItem('sb_access_token', data.access_token); sessionStorage.setItem('sb_user_email', email); document.getElementById('dash-user-email').textContent = email; showDash(); }
