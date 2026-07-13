@@ -1,10 +1,6 @@
 /* La Financière de Rochechouart — interactions */
 (function () {
   'use strict';
-  // Progressive enhancement: only enable the scroll-reveal (which hides
-  // elements until seen) once JS is actually running. If this file fails to
-  // load or errors, the page stays fully visible instead of blank.
-  document.documentElement.classList.add('js');
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Header: solid on scroll ---------- */
@@ -75,15 +71,36 @@
 
   /* ---------- Scroll reveal ---------- */
   var reveals = document.querySelectorAll('[data-reveal]');
-  if (reduceMotion || !('IntersectionObserver' in window)) {
-    reveals.forEach(function (el) { el.classList.add('is-in'); });
-  } else {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); }
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-    reveals.forEach(function (el) { io.observe(el); });
+  function revealAll() { reveals.forEach(function (el) { el.classList.add('is-in'); }); }
+  // Failsafe: reveal anything already at/above the fold, so visible content is
+  // never stuck hidden even if the observer misfires on a given host.
+  function revealInView() {
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    reveals.forEach(function (el) {
+      if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < vh * 0.98) {
+        el.classList.add('is-in');
+      }
+    });
+  }
+  try {
+    // Only now — and only if the reveal logic actually runs — do we allow the
+    // hidden state (.js in CSS). Any earlier error leaves the text fully visible.
+    document.documentElement.classList.add('js');
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      revealAll();
+    } else {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      reveals.forEach(function (el) { io.observe(el); });
+      revealInView();
+      window.addEventListener('load', revealInView);
+      setTimeout(revealInView, 1500);
+    }
+  } catch (e) {
+    revealAll(); // last resort: show everything
   }
 
   /* ---------- Accordion (FAQ) ---------- */
