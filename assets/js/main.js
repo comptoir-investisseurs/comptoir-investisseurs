@@ -1,6 +1,10 @@
 /* La Financière de Rochechouart — interactions */
 (function () {
   'use strict';
+  // Progressive enhancement: only enable the scroll-reveal (which hides
+  // elements until seen) once JS is actually running. If this file fails to
+  // load or errors, the page stays fully visible instead of blank.
+  document.documentElement.classList.add('js');
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Header: solid on scroll ---------- */
