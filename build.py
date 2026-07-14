@@ -19,14 +19,14 @@ PAGE_IMAGES = {
     "ceder-transmettre": ["yacht-mer.jpg", "voiture-prestige.jpg"],
     "preparer-retraite": ["retraite.jpg", "plage-ocean.jpg"],
     "expatriation": ["bateau-mer.jpg", "foret-aerien.jpg"],
-    # Nos solutions — hubs
+    # Nos solutions, hubs
     "placements-financiers": ["place-vendome.jpg", "coupole-lafayette.jpg"],
     "tresorerie-entreprise": ["toits-paris.jpg"],
     "private-equity": ["foret-aerien.jpg"],
     "placements-immobiliers": ["haussmann.jpg"],
     "structuration-juridique": ["interieur-coupole.jpg"],
     "family-office": ["opera-garnier.jpg"],
-    # Placements financiers — sous-pages
+    # Placements financiers, sous-pages
     "assurance-vie": ["plage-ocean.jpg"],
     "contrat-capitalisation": ["detail-raffinement.jpg"],
     "contrat-luxembourgeois": ["coupole-lafayette.jpg"],
@@ -36,7 +36,7 @@ PAGE_IMAGES = {
     "pea-pme": ["echiquier.jpg"],
     "mandats-gestion": ["coupole-sculptee.jpg"],
     "produits-structures": ["plafond-baroque.jpg"],
-    # Trésorerie — sous-pages
+    # Trésorerie, sous-pages
     "treso-audit": ["interieur-coupole.jpg"],
     "comptes-a-terme": ["paris-colonnade.jpg"],
     "capitalisation-personne-morale": ["detail-raffinement.jpg"],
@@ -45,20 +45,20 @@ PAGE_IMAGES = {
     "structures-tresorerie": ["plafond-baroque.jpg"],
     "mandats-tresorerie": ["echiquier.jpg"],
     "holdings-reserves": ["opera-garnier.jpg"],
-    # Private Equity — sous-pages
+    # Private Equity, sous-pages
     "fonds-private-equity": ["foret-aerien.jpg"],
     "club-deals-coinvestissement": ["voiture-prestige.jpg"],
     "dette-privee-actifs-reels": ["bateau-mer.jpg"],
-    # Immobilier — sous-pages
+    # Immobilier, sous-pages
     "scpi-immobilier-gere": ["haussmann.jpg"],
     "club-deals-immobiliers": ["paris-colonnade.jpg"],
     "immobilier-direct": ["toits-paris.jpg"],
-    # Structuration — sous-pages
+    # Structuration, sous-pages
     "organisation-patrimoniale": ["coupole-sculptee.jpg"],
     "optimisation-fiscale-flux": ["interieur-coupole.jpg"],
     "transmission-gouvernance": ["retraite.jpg"],
     "structuration-dirigeant": ["serenite.jpg"],
-    # Family Office — sous-pages
+    # Family Office, sous-pages
     "pilotage-patrimonial-global": ["opera-garnier.jpg"],
     "ingenierie-patrimoniale": ["paris-courtyard.jpg"],
     "allocation-architecture-ouverte": ["mansion.jpg"],
@@ -146,10 +146,10 @@ def render_brand(cls="brand", mode="header"):
             imgs = ('<img class="brand__logo brand__logo--dark" src="%s" alt="%s">'
                     '<img class="brand__logo brand__logo--light" src="%s" alt="" aria-hidden="true">'
                     % (BRAND_LOGO, html.escape(BRAND), BRAND_LOGO_LIGHT))
-        return ('<a class="%s brand--img" href="index.html" aria-label="%s — accueil">%s</a>'
+        return ('<a class="%s brand--img" href="index.html" aria-label="%s · accueil">%s</a>'
                 % (cls, html.escape(BRAND), imgs))
     return (
-      '<a class="%s" href="index.html" aria-label="%s — accueil">'
+      '<a class="%s" href="index.html" aria-label="%s · accueil">'
         '<img class="brand__mark" src="%s" alt="" width="42" height="42">'
         '<span class="brand__text"><b>La Financière</b><span>de Rochechouart</span></span>'
       '</a>' % (cls, BRAND, LOGO_MARK))
@@ -227,7 +227,7 @@ def render_footer():
           'passées ne préjugent pas des performances futures. Tout investissement comporte des risques, notamment de perte en '
           'capital. La fiscalité dépend de la situation individuelle de chaque client et est susceptible d’évoluer.</p>'
           '<div class="footer-bottom">'
-            '<span>© <span id="year">2026</span> %s — Tous droits réservés.</span>'
+            '<span>© <span id="year">2026</span> %s, Tous droits réservés.</span>'
             '<span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a></span>'
           '</div>'
         '</div>'
@@ -241,7 +241,7 @@ LAYOUT = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>__TITLE__ — La Financière de Rochechouart</title>
+<title>__TITLE__ · La Financière de Rochechouart</title>
 <meta name="description" content="__DESC__">
 <link rel="icon" href="__FAVICON__">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -415,7 +415,7 @@ def build_home():
       <p class="eyebrow eyebrow--light">Cabinet de gestion privée</p>
       <h1>Gestion privée et placement de trésorerie</h1>
       <hr class="rule">
-      <p>Entre exigence et transparence, découvrez nos solutions optimales pour valoriser, protéger et transmettre votre patrimoine — ainsi que la trésorerie de votre entreprise.</p>
+      <p>Entre exigence et transparence, découvrez nos solutions optimales pour valoriser, protéger et transmettre votre patrimoine, ainsi que la trésorerie de votre entreprise.</p>
       <div class="hero__actions">
         <a class="btn btn--light" href="nos-solutions.html">Découvrir nos solutions __ARROW__</a>
         <a class="btn btn--ghost-light" href="contact.html">Prendre rendez-vous</a>
@@ -432,7 +432,7 @@ def build_home():
       <h2 class="title-lg">Une maison de conseil indépendante, au service d’une clientèle exigeante</h2>
       <hr class="rule">
       <p class="lede">Établie au cœur du 8<sup>e</sup> arrondissement de Paris, La Financière de Rochechouart accompagne dirigeants, familles et entreprises dans la structuration, la valorisation et la transmission de leur patrimoine.</p>
-      <p>Notre approche conjugue la rigueur d’une grande institution et la disponibilité d’un cabinet à taille humaine. Architecture ouverte, sélection rigoureuse des supports et alignement total avec vos intérêts : nous concevons chaque stratégie sur-mesure, avec une seule ambition — la préservation et la croissance maîtrisée de votre capital.</p>
+      <p>Notre approche conjugue la rigueur d’une grande institution et la disponibilité d’un cabinet à taille humaine. Architecture ouverte, sélection rigoureuse des supports et alignement total avec vos intérêts : nous concevons chaque stratégie sur-mesure, avec une seule ambition : la préservation et la croissance maîtrisée de votre capital.</p>
       <a class="link-arrow" href="vos-besoins.html">Découvrir notre accompagnement __ARROW__</a>
     </div>
     <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/paris-courtyard.jpg" alt="Cour d’honneur du Palais-Royal, Paris"></div></div>
@@ -456,7 +456,7 @@ def build_home():
   <div class="container">
     <div class="stats">
       <div data-reveal><div class="stat__num stat--light" style="color:#fff">100%</div><div class="stat__lbl" style="color:rgba(246,242,233,.7)">Architecture ouverte</div></div>
-      <div data-reveal data-delay="1"><div class="stat__num" style="color:#fff">+25 ans</div><div class="stat__lbl" style="color:rgba(246,242,233,.7)">D’expérience cumulée</div></div>
+      <div data-reveal data-delay="1"><div class="stat__num" style="color:#fff">+ de 25 ans</div><div class="stat__lbl" style="color:rgba(246,242,233,.7)">D’expérience cumulée</div></div>
       <div data-reveal data-delay="2"><div class="stat__num" style="color:#fff">Sur-mesure</div><div class="stat__lbl" style="color:rgba(246,242,233,.7)">Chaque stratégie</div></div>
       <div data-reveal data-delay="3"><div class="stat__num" style="color:#fff">Confidentiel</div><div class="stat__lbl" style="color:rgba(246,242,233,.7)">À chaque étape</div></div>
     </div>
@@ -560,7 +560,7 @@ def build_vos_besoins():
 def build_nos_solutions():
     body = page_hero(
         "Nos solutions",
-        "Une gamme complète, en architecture ouverte, pour valoriser votre patrimoine privé comme la trésorerie de votre entreprise — sans conflit d’intérêts.",
+        "Une gamme complète, en architecture ouverte, pour valoriser votre patrimoine privé comme la trésorerie de votre entreprise, sans conflit d’intérêts.",
         [("Accueil","index.html"),("Nos solutions",None)])
     body += section('<div class="center" style="max-width:720px;margin-inline:auto" data-reveal><p class="eyebrow">Notre offre</p>'
                     '<h2 class="title-lg">Des solutions d’investissement de premier rang</h2><hr class="rule">'
@@ -577,18 +577,18 @@ def build_epargner():
         "Investir ne consiste pas seulement à placer un capital, mais à construire une stratégie cohérente au service de vos objectifs de vie et de votre vision de long terme.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("Épargner & Investir",None)])
 
-    # — Philosophie
+    #, Philosophie
     body += intro("Notre approche", "Investir, c’est d’abord une stratégie",
         "Développer votre patrimoine, générer des revenus, préparer votre retraite, diversifier, optimiser votre fiscalité ou structurer un capital après une phase de création de richesse : chaque investissement doit répondre à une logique précise.",
-        ["Dans un environnement de plus en plus complexe, investir efficacement exige une approche structurée, indépendante et personnalisée. L’enjeu n’est pas seulement la performance, mais l’organisation intelligente de votre capital — selon votre horizon, votre profil de risque, vos besoins de liquidité et vos priorités.",
+        ["Dans un environnement de plus en plus complexe, investir efficacement exige une approche structurée, indépendante et personnalisée. L’enjeu n’est pas seulement la performance, mais l’organisation intelligente de votre capital, selon votre horizon, votre profil de risque, vos besoins de liquidité et vos priorités.",
          "Nous intervenons sur l’ensemble des leviers pertinents : placements financiers, immobilier, private equity, trésorerie, structuration patrimoniale et diversification internationale."],
         "assets/img/paris-courtyard.jpg", "Stratégie d’investissement")
 
-    # — Objectif (citation)
+    #, Objectif (citation)
     body += section('<div class="quote" data-reveal><p>« Transformer votre capacité d’investissement en stratégie de création, de protection et de valorisation durable de votre patrimoine. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
 
-    # — Étape 01 : Stratégie
-    p1 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 01 — Stratégie</p>'
+    #, Étape 01 : Stratégie
+    p1 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 01 : Stratégie</p>'
           '<h2 class="title-lg">Définir votre stratégie d’investissement</h2><hr class="rule">'
           '<p class="lede">La réussite d’un investissement repose moins sur un produit que sur la stratégie qui le structure. Tout commence par une vision claire de vos objectifs, formalisée par un audit patrimonial approfondi.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>L’audit patrimonial éclaire</p>'
@@ -605,9 +605,9 @@ def build_epargner():
           ]) + '</div>')
     body += section(p1)
 
-    # — Étape 02 : Sélection (fond crème, avec photo)
+    #, Étape 02 : Sélection (fond crème, avec photo)
     p2 = feature_row("assets/img/paris-colonnade.jpg", "Sélection des opportunités",
-        "Étape 02 — Sélection", "Sélectionner les meilleures opportunités",
+        "Étape 02 : Sélection", "Sélectionner les meilleures opportunités",
         ["L’enjeu n’est pas de multiplier les placements, mais d’identifier les opportunités les plus cohérentes et les mieux structurées selon votre profil.",
          "Notre architecture est ouverte : nous ne sommes liés à aucune banque, aucun broker, aucune société de gestion ou promoteur. Nous sélectionnons librement les meilleures solutions du marché, selon vos seuls intérêts."],
         rev=True)
@@ -628,8 +628,8 @@ def build_epargner():
           '<div class="tags" style="margin-top:16px" data-reveal>' + "".join('<span class="tag">%s</span>' % t for t in ["Croissance","Rendement","Protection","Décorrélation","Liquidité","Transmission"]) + '</div>')
     body += section(p2, cls="section band-cream")
 
-    # — Étape 03 : Pilotage
-    p3 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 03 — Pilotage</p>'
+    #, Étape 03 : Pilotage
+    p3 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 03 : Pilotage</p>'
           '<h2 class="title-lg">Piloter et faire évoluer dans le temps</h2><hr class="rule">'
           '<p class="lede">Investir ne s’arrête pas à l’allocation initiale. Le principal risque n’est pas un mauvais choix de départ, mais l’absence de suivi : un patrimoine non piloté devient déséquilibré, surconcentré ou fiscalement inefficace.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>Une gouvernance patrimoniale active</p>'
@@ -651,7 +651,7 @@ def build_epargner():
               ])) + '</div>')
     body += section(p3)
 
-    # — Citation de clôture
+    #, Citation de clôture
     body += section('<div class="quote" data-reveal><p>« Investir avec succès, c’est autant savoir construire que savoir piloter dans le temps. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
 
     body += cta_band("Construisons votre stratégie d’investissement","Faisons le point sur vos objectifs, votre horizon et votre profil de risque lors d’un premier rendez-vous confidentiel.")
@@ -666,18 +666,18 @@ def build_fiscalite():
         "Optimiser sa fiscalité ne consiste pas à réduire l’impôt à court terme, mais à structurer intelligemment son patrimoine, ses revenus et ses flux pour améliorer durablement leur efficacité économique.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("Optimiser votre fiscalité",None)])
 
-    # — Philosophie
+    #, Philosophie
     body += intro("Notre approche", "La fiscalité, un levier plutôt qu’une contrainte",
         "La performance d’une stratégie patrimoniale ne se mesure pas en rendement brut, mais en création de valeur nette après fiscalité.",
         ["La fiscalité influence directement la rentabilité réelle de vos placements, la croissance de votre patrimoine, la structuration de vos revenus, vos décisions d’investissement et votre transmission.",
-         "Dans un environnement réglementaire complexe et évolutif, nous construisons une stratégie cohérente, durable et conforme — qu’il s’agisse d’un particulier, d’un dirigeant, d’un investisseur immobilier, d’une profession libérale ou d’une famille entrepreneuriale."],
+         "Dans un environnement réglementaire complexe et évolutif, nous construisons une stratégie cohérente, durable et conforme, qu’il s’agisse d’un particulier, d’un dirigeant, d’un investisseur immobilier, d’une profession libérale ou d’une famille entrepreneuriale."],
         "assets/img/mansion.jpg", "Optimisation fiscale du patrimoine", rev=True)
 
-    # — Objectif (citation)
+    #, Objectif (citation)
     body += section('<div class="quote" data-reveal><p>« Transformer la fiscalité d’une contrainte subie en un levier stratégique au service de la protection, de la croissance et de la transmission de votre patrimoine. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
 
-    # — Étape 01 : Flux
-    p1 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 01 — Flux</p>'
+    #, Étape 01 : Flux
+    p1 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 01 : Flux</p>'
           '<h2 class="title-lg">Structurer vos revenus, investissements et flux</h2><hr class="rule">'
           '<p class="lede">Tout commence par une organisation intelligente de vos flux. Chaque euro perçu, investi, distribué, cédé ou transmis peut être traité différemment selon sa nature, sa temporalité et sa structure de détention.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>Cartographier votre écosystème économique</p>'
@@ -698,11 +698,11 @@ def build_fiscalite():
           '<p class="muted" style="margin-top:32px;max-width:70ch" data-reveal>Nous articulons ainsi fiscalité personnelle, sociétale, immobilière et financière dans une même architecture, où chaque décision s’inscrit dans une logique globale de performance nette.</p>')
     body += section(p1)
 
-    # — Étape 02 : Structures (fond crème, avec photo)
+    #, Étape 02 : Structures (fond crème, avec photo)
     p2 = feature_row("assets/img/paris-colonnade.jpg", "Enveloppes et structures patrimoniales",
-        "Étape 02 — Structures", "Choisir les meilleures enveloppes et structures",
+        "Étape 02 : Structures", "Choisir les meilleures enveloppes et structures",
         ["L’efficience fiscale dépend autant des revenus que du cadre dans lequel ils sont détenus : à rendement identique, deux investissements peuvent produire des résultats très différents selon leur mode de détention.",
-         "Nous raisonnons en architectes patrimoniaux — sélectionner et combiner sur mesure les véhicules les plus adaptés à vos objectifs et à votre horizon, sans dépendance à une enveloppe unique."],
+         "Nous raisonnons en architectes patrimoniaux, sélectionner et combiner sur mesure les véhicules les plus adaptés à vos objectifs et à votre horizon, sans dépendance à une enveloppe unique."],
         rev=True)
     p2 += ('<p class="eyebrow" style="margin-top:72px" data-reveal>Les principales enveloppes et structures</p>'
            '<div class="grid grid-3" style="margin-top:24px">' + tiles([
@@ -724,17 +724,17 @@ def build_fiscalite():
     p2 += tagrow(["Immobilier via SCI","Capitalisation via assurance-vie","Réserves via holding","Transmission via démembrement","International via Luxembourg"])
     body += section(p2, cls="section band-cream")
 
-    # — Étape 03 : Long terme
-    p3 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 03 — Long terme</p>'
+    #, Étape 03 : Long terme
+    p3 = ('<div data-reveal style="max-width:780px"><p class="eyebrow">Étape 03 : Long terme</p>'
           '<h2 class="title-lg">Anticiper transmission, cession et gouvernance</h2><hr class="rule">'
           '<p class="lede">Les décisions les plus structurantes concernent les grandes étapes de vie. Un patrimoine performant peut perdre une part de sa valeur faute d’anticipation lors de sa transmission, de sa cession ou de sa réorganisation.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>Les moments clés à anticiper</p>')
     p3 += tagrow(["Cession d’entreprise","Transmission familiale","Donation","Liquidité exceptionnelle","Réorganisation","Retraite","Internationalisation","Évolution familiale"])
     p3 += ('<div class="grid grid-2" style="margin-top:44px">'
            '<div class="card" data-reveal><div class="card__num">Dirigeants</div><h3>Préparer la cession</h3>'
-           '<p>L’entreprise représente souvent la majeure partie du patrimoine : sa cession se prépare en amont — structuration de détention, organisation des flux, réallocation du capital, protection post-liquidité et gouvernance. Sans anticipation, la fiscalité de cession devient subie plutôt que pilotée.</p></div>'
+           '<p>L’entreprise représente souvent la majeure partie du patrimoine : sa cession se prépare en amont, structuration de détention, organisation des flux, réallocation du capital, protection post-liquidité et gouvernance. Sans anticipation, la fiscalité de cession devient subie plutôt que pilotée.</p></div>'
            '<div class="card" data-reveal data-delay="1"><div class="card__num">Familles</div><h3>Organiser la transmission</h3>'
-           '<p>Transmettre sans fragiliser : donation simple ou graduelle, donation-partage, démembrement, holdings ou SCI, clauses statutaires, protection du conjoint et préparation des héritiers — en articulant fiscalité, droit civil et gouvernance.</p></div>'
+           '<p>Transmettre sans fragiliser : donation simple ou graduelle, donation-partage, démembrement, holdings ou SCI, clauses statutaires, protection du conjoint et préparation des héritiers, en articulant fiscalité, droit civil et gouvernance.</p></div>'
            '</div>'
            '<p class="eyebrow" style="margin-top:60px" data-reveal>Une gouvernance qui traverse les générations</p>'
            '<p class="muted" style="margin-top:12px;max-width:70ch" data-reveal>Sans gouvernance, le patrimoine s’expose à la dilution, aux conflits successoraux, à la perte de contrôle et à la fragmentation. Nous bâtissons une architecture capable de traverser les cycles économiques et les évolutions réglementaires.</p>')
@@ -745,7 +745,7 @@ def build_fiscalite():
     p3 += '<p style="margin-top:28px" data-reveal><a class="link-arrow" href="structuration-juridique.html">Découvrir la structuration juridique et fiscale %s</a></p>' % arrow()
     body += section(p3)
 
-    # — Citation de clôture
+    #, Citation de clôture
     body += section('<div class="quote" data-reveal><p>« Faire de la fiscalité long terme un outil de pilotage stratégique, plutôt qu’une contrainte tardivement subie. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
 
     body += cta_band("Optimisons votre fiscalité","Un audit fiscal et patrimonial révèle souvent des marges d’optimisation insoupçonnées. Étudions votre situation en toute confidentialité.")
@@ -757,21 +757,21 @@ def build_ceder():
         cls = "tags tags--light" if light else "tags"
         return '<div class="%s" style="margin-top:16px" data-reveal>%s</div>' % (cls, "".join('<span class="tag">%s</span>' % t for t in items))
     body = page_hero("Céder ou transmettre votre entreprise",
-        "La cession ou la transmission d’une entreprise constitue l’un des moments les plus stratégiques dans la vie d’un dirigeant — bien plus qu’une simple transaction.",
+        "La cession ou la transmission d’une entreprise constitue l’un des moments les plus stratégiques dans la vie d’un dirigeant, bien plus qu’une simple transaction.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("Céder ou transmettre votre entreprise",None)])
 
-    # — Philosophie
+    #, Philosophie
     body += intro("Notre approche", "Bien plus qu’une simple transaction",
         "Céder ou transmettre son entreprise implique d’anticiper simultanément des enjeux financiers, fiscaux, juridiques, patrimoniaux, familiaux et humains.",
         ["La qualité de la préparation détermine directement la valorisation, la fiscalité, la protection du dirigeant, l’organisation du capital futur et la pérennité du projet.",
-         "Notre rôle : construire une stratégie globale — préparation en amont, structuration, optimisation, sécurisation post-opération et organisation patrimoniale de long terme."],
+         "Notre rôle : construire une stratégie globale, préparation en amont, structuration, optimisation, sécurisation post-opération et organisation patrimoniale de long terme."],
         "assets/img/paris-colonnade.jpg", "Cession et transmission d’entreprise")
 
-    # — Objectif (citation)
+    #, Objectif (citation)
     body += section('<div class="quote" data-reveal><p>« Transformer une opération de cession ou de transmission en stratégie de valorisation, de protection et de continuité patrimoniale. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
 
-    # — Étape 01 : Préparer
-    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 — Préparer</p>'
+    #, Étape 01 : Préparer
+    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 : Préparer</p>'
           '<h2 class="title-lg">Préparer, structurer et optimiser l’opération</h2><hr class="rule">'
           '<p class="lede">La réussite dépend avant tout de la préparation en amont. L’objectif n’est pas de céder une société, mais de maximiser la valeur nette créée, d’optimiser la structuration juridique et fiscale et de protéger le dirigeant et sa famille.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>Un audit stratégique approfondi</p>'
@@ -796,9 +796,9 @@ def build_ceder():
     p1 += '<p class="muted" style="margin-top:32px;max-width:72ch" data-reveal>Nous coordonnons l’ensemble des expertises nécessaires : ingénierie patrimoniale, fiscalité, avocats, notaires, M&amp;A, gouvernance et stratégie d’allocation future.</p>'
     body += section(p1)
 
-    # — Étape 02 : Après-cession (fond crème, avec visuel marchés)
+    #, Étape 02 : Après-cession (fond crème, avec visuel marchés)
     p2 = feature_row("assets/img/serenite.jpg", "Sécurisation du capital post-cession",
-        "Étape 02 — Après-cession", "Sécuriser le capital post-opération",
+        "Étape 02 : Après-cession", "Sécuriser le capital post-opération",
         ["La réussite ne se mesure pas qu’à l’opération, mais à la façon dont le capital est ensuite structuré, sécurisé et piloté. La cession fait passer d’un patrimoine concentré et illiquide à une liquidité importante à réorganiser.",
          "L’enjeu : transformer une liquidité exceptionnelle en patrimoine structuré de long terme."],
         rev=True)
@@ -828,10 +828,10 @@ def build_ceder():
     p2 += tagrow(["Sécuriser","Diversifier","Structurer","Générer","Transmettre"])
     body += section(p2, cls="section band-cream")
 
-    # — Étape 03 : Continuité
-    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 — Continuité</p>'
+    #, Étape 03 : Continuité
+    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 : Continuité</p>'
           '<h2 class="title-lg">Assurer la continuité familiale, entrepreneuriale et patrimoniale</h2><hr class="rule">'
-          '<p class="lede">Céder ou transmettre, ce n’est pas seulement transférer un capital : c’est préserver une continuité — pour que la valeur créée soit transmise, mais aussi protégée, organisée et durablement maîtrisée.</p></div>'
+          '<p class="lede">Céder ou transmettre, ce n’est pas seulement transférer un capital : c’est préserver une continuité, pour que la valeur créée soit transmise, mais aussi protégée, organisée et durablement maîtrisée.</p></div>'
           '<div class="grid grid-3" style="margin-top:44px">' + tiles([
               ("concierge","Continuité familiale","Maintenir l’entreprise ou le patrimoine structurés au sein de la famille."),
               ("building","Continuité entrepreneuriale","Assurer la pérennité d’un projet, d’une gouvernance et d’une vision."),
@@ -858,7 +858,7 @@ def build_ceder():
     p3 += '<p class="muted" style="margin-top:32px;max-width:72ch" data-reveal>Lorsque la transmission familiale n’est pas privilégiée, la continuité prend d’autres formes : reprise par le management, repreneur externe, Family Office ou organisation d’un capital familial post-cession.</p>'
     body += section(p3)
 
-    # — Citation de clôture
+    #, Citation de clôture
     body += section('<div class="quote" data-reveal><p>« Faire en sorte que la réussite entrepreneuriale ne s’arrête pas à la transaction, mais se prolonge en héritage organisé, protégé et pérennisé à travers les générations. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
 
     body += cta_band("Préparons votre cession ou transmission","Plus une opération est anticipée, plus elle est optimisée. Rencontrons-nous en toute confidentialité pour en poser les fondations.")
@@ -873,20 +873,20 @@ def build_retraite():
         "Préparer sa retraite, ce n’est pas seulement anticiper la fin de son activité, mais organiser une nouvelle phase de vie où revenus, patrimoine, fiscalité et liberté financière se pensent avec précision.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("Préparer votre retraite",None)])
 
-    # — Philosophie
+    #, Philosophie
     body += intro("Notre approche", "La retraite, un véritable projet patrimonial",
         "L’enjeu n’est plus de « cesser de travailler », mais de préserver votre niveau de vie, sécuriser vos revenus futurs, valoriser votre capital et organiser sereinement votre transmission.",
-        ["Évolution des régimes obligatoires, incertitudes économiques, allongement de l’espérance de vie : chaque situation appelle une stratégie spécifique — dirigeant, profession libérale, salarié, investisseur, entrepreneur ou famille patrimoniale.",
+        ["Évolution des régimes obligatoires, incertitudes économiques, allongement de l’espérance de vie : chaque situation appelle une stratégie spécifique, dirigeant, profession libérale, salarié, investisseur, entrepreneur ou famille patrimoniale.",
          "Notre rôle : construire une stratégie retraite globale, intégrant anticipation financière, optimisation fiscale, diversification patrimoniale, organisation des revenus futurs et sécurisation de long terme."],
         "assets/img/retraite.jpg", "Préparation de la retraite", rev=True)
 
-    # — Objectif (citation)
+    #, Objectif (citation)
     body += section('<div class="quote" data-reveal><p>« Transformer la préparation de votre retraite en stratégie de liberté financière durable, structurée autour de vos projets de vie. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
 
-    # — Étape 01 : Construire la stratégie
-    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 — Stratégie</p>'
+    #, Étape 01 : Construire la stratégie
+    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 : Stratégie</p>'
           '<h2 class="title-lg">Construire votre stratégie et anticiper vos besoins</h2><hr class="rule">'
-          '<p class="lede">La retraite ne doit pas être subie comme une baisse de revenus, mais préparée comme une transition patrimoniale structurée — où la logique d’accumulation cède progressivement la place à la sécurisation, aux revenus et à la transmission.</p></div>'
+          '<p class="lede">La retraite ne doit pas être subie comme une baisse de revenus, mais préparée comme une transition patrimoniale structurée, où la logique d’accumulation cède progressivement la place à la sécurisation, aux revenus et à la transmission.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>Un audit complet de votre situation</p>'
           '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
           '<ul class="checklist">' + lis(["Droits retraite obligatoires et complémentaires","Revenus actuels et futurs","Patrimoine financier, immobilier, professionnel","Niveau de vie cible","Charges prévisibles"]) + '</ul>'
@@ -906,9 +906,9 @@ def build_retraite():
     p1 += tagrow(["Inflation long terme","Besoins de santé","Dépendance potentielle","Fiscalité des sorties","Liquidité","Protection du conjoint"])
     body += section(p1)
 
-    # — Étape 02 : Constituer les revenus (fond crème, photo)
+    #, Étape 02 : Constituer les revenus (fond crème, photo)
     p2 = feature_row("assets/img/mansion.jpg", "Architecture des revenus futurs",
-        "Étape 02 — Revenus", "Constituer, diversifier et optimiser vos revenus",
+        "Étape 02 : Revenus", "Constituer, diversifier et optimiser vos revenus",
         ["Une stratégie performante ne repose pas sur une seule source de revenus, mais sur un écosystème patrimonial capable de générer, sécuriser et optimiser des ressources complémentaires.",
          "Dans la majorité des cas, les régimes obligatoires ne suffisent pas : il s’agit de transformer votre capacité actuelle de création de richesse en revenus futurs durables, diversifiés et fiscalement cohérents."],
         rev=True)
@@ -930,8 +930,8 @@ def build_retraite():
            '<p class="muted" style="margin-top:32px;max-width:72ch" data-reveal>La stratégie s’adapte à mesure que la retraite approche : accumulation, consolidation, sécurisation, puis distribution.</p>')
     body += section(p2, cls="section band-cream")
 
-    # — Étape 03 : Sécuriser
-    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 — Sécuriser</p>'
+    #, Étape 03 : Sécuriser
+    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 : Sécuriser</p>'
           '<h2 class="title-lg">Sécuriser votre patrimoine, votre fiscalité et votre transmission</h2><hr class="rule">'
           '<p class="lede">À l’approche de la retraite, la logique patrimoniale évolue : il ne s’agit plus seulement de développer, mais de sécuriser, préserver et transmettre. C’est le passage d’une stratégie d’accumulation à une stratégie de consolidation.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>Une réévaluation complète</p>'
@@ -953,7 +953,7 @@ def build_retraite():
     p3 += tagrow(["Préserver","Structurer","Protéger","Optimiser","Transmettre"])
     body += section(p3)
 
-    # — Citation de clôture
+    #, Citation de clôture
     body += section('<div class="quote" data-reveal><p>« Faire de votre patrimoine retraite un instrument de revenus, mais aussi de protection, de liberté et de continuité familiale. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
 
     body += cta_band("Préparons votre retraite","Quel niveau de vie visez-vous ? Établissons ensemble une trajectoire chiffrée et pilotable pour l’atteindre sereinement.")
@@ -968,18 +968,18 @@ def build_expatriation():
         "S’expatrier, ce n’est pas seulement changer de lieu de résidence : c’est une décision de vie qui impacte votre fiscalité, votre patrimoine, vos investissements, votre entreprise, votre retraite et votre transmission.",
         [("Accueil","index.html"),("Vos besoins","vos-besoins.html"),("S’expatrier à l’étranger",None)])
 
-    # — Philosophie
+    #, Philosophie
     body += intro("Notre approche", "Faire de votre mobilité une opportunité stratégique",
         "Mal préparée, une expatriation entraîne double imposition, erreurs déclaratives, désorganisation patrimoniale ou perte d’optimisation. Bien anticipée, elle devient une opportunité.",
         ["Réorganiser son patrimoine, adapter sa fiscalité, internationaliser ses investissements et préserver durablement ses intérêts personnels, familiaux et économiques : tels sont les bénéfices d’une mobilité maîtrisée.",
-         "Notre rôle : une stratégie globale couvrant l’avant, le pendant et l’après — préparation juridique et fiscale, structuration patrimoniale, coordination internationale et protection de long terme."],
+         "Notre rôle : une stratégie globale couvrant l’avant, le pendant et l’après, préparation juridique et fiscale, structuration patrimoniale, coordination internationale et protection de long terme."],
         "assets/img/serenite.jpg", "Expatriation et mobilité internationale", rev=True)
 
-    # — Objectif (citation)
+    #, Objectif (citation)
     body += section('<div class="quote" data-reveal><p>« Transformer votre expatriation en projet de mobilité patrimoniale maîtrisé, sécurisé et optimisé. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
 
-    # — Étape 01 : Préparer le départ
-    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 — Départ</p>'
+    #, Étape 01 : Préparer le départ
+    p1 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 01 : Départ</p>'
           '<h2 class="title-lg">Préparer votre départ : fiscalité, résidence et structuration</h2><hr class="rule">'
           '<p class="lede">Une expatriation réussie se prépare bien avant le départ. Le changement de résidence fiscale implique une reconfiguration potentiellement majeure de votre situation personnelle, professionnelle et patrimoniale.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>Un audit global de votre situation</p>'
@@ -987,7 +987,7 @@ def build_expatriation():
           '<ul class="checklist">' + lis(["Résidence fiscale actuelle","Situation familiale","Patrimoine financier et immobilier","Sociétés, holdings ou activité","Revenus et flux internationaux"]) + '</ul>'
           '<ul class="checklist">' + lis(["Enjeux successoraux","Objectifs de mobilité","Pays de destination","Horizon de résidence","Obligations déclaratives"]) + '</ul></div>'
           '<p class="eyebrow" style="margin-top:56px" data-reveal>Sécuriser le changement de résidence fiscale</p>'
-          '<p class="muted" style="margin-top:12px;max-width:74ch" data-reveal>La résidence fiscale ne dépend pas d’une adresse, mais de critères complexes — foyer, centre des intérêts économiques, durée de présence, activité, conventions bilatérales.</p>')
+          '<p class="muted" style="margin-top:12px;max-width:74ch" data-reveal>La résidence fiscale ne dépend pas d’une adresse, mais de critères complexes, foyer, centre des intérêts économiques, durée de présence, activité, conventions bilatérales.</p>')
     p1 += tagrow(["Sortie du cadre fiscal initial","Cohérence avec la juridiction d’accueil","Documentation de résidence","Organisation des flux","Conformité déclarative"])
     p1 += ('<p class="eyebrow" style="margin-top:56px" data-reveal>Pour dirigeants, entrepreneurs et actionnaires</p>'
            '<div class="grid grid-3" style="margin-top:24px">' + tiles([
@@ -1002,11 +1002,11 @@ def build_expatriation():
     p1 += tagrow(["Protection sociale","Assurance santé","Régime de retraite","Scolarité familiale","Gouvernance d’actifs à distance","Risques réglementaires"])
     body += section(p1)
 
-    # — Étape 02 : Organiser à l'international (fond crème, photo Luxembourg)
+    #, Étape 02 : Organiser à l'international (fond crème, photo Luxembourg)
     p2 = feature_row("assets/img/img-luxembourg.svg", "Architecture patrimoniale internationale",
-        "Étape 02 — International", "Organiser votre patrimoine et vos investissements",
+        "Étape 02 : International", "Organiser votre patrimoine et vos investissements",
         ["Une expatriation implique une réorganisation profonde du patrimoine pour l’adapter à votre juridiction d’accueil, à vos obligations réglementaires et à vos objectifs de long terme.",
-         "L’enjeu : transformer un patrimoine structuré selon le pays d’origine en une architecture internationale cohérente — efficace fiscalement, conforme, protégée et flexible. Le contrat luxembourgeois y joue souvent un rôle de référence."],
+         "L’enjeu : transformer un patrimoine structuré selon le pays d’origine en une architecture internationale cohérente, efficace fiscalement, conforme, protégée et flexible. Le contrat luxembourgeois y joue souvent un rôle de référence."],
         rev=True)
     p2 += ('<p class="eyebrow" style="margin-top:72px" data-reveal>Cartographier puis arbitrer vos actifs</p>'
            '<div class="grid grid-2" style="margin-top:18px;gap:8px 48px" data-reveal>'
@@ -1025,8 +1025,8 @@ def build_expatriation():
     p2 += tagrow(["Retour éventuel","Multi-résidence","Cession future","Transmission internationale","Gouvernance transfrontalière"])
     body += section(p2, cls="section band-cream")
 
-    # — Étape 03 : Sécuriser la mobilité long terme
-    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 — Long terme</p>'
+    #, Étape 03 : Sécuriser la mobilité long terme
+    p3 = ('<div data-reveal style="max-width:800px"><p class="eyebrow">Étape 03 : Long terme</p>'
           '<h2 class="title-lg">Sécuriser votre mobilité : retraite, transmission et gouvernance</h2><hr class="rule">'
           '<p class="lede">Une fois le départ organisé et le patrimoine adapté, l’enjeu devient la continuité : protéger durablement votre situation et maintenir une cohérence patrimoniale dans un environnement transfrontalier.</p></div>'
           '<p class="eyebrow" style="margin-top:48px" data-reveal>Projeter votre situation dans le temps</p>'
@@ -1044,7 +1044,7 @@ def build_expatriation():
     p3 += tagrow(["Changement futur de juridiction","Retour au pays d’origine","Double nationalité patrimoniale","Réorganisation post-cession","Gouvernance à distance"])
     body += section(p3)
 
-    # — Citation de clôture
+    #, Citation de clôture
     body += section('<div class="quote" data-reveal><p>« Faire de votre expatriation une plateforme patrimoniale internationale, capable d’accompagner votre vie personnelle, familiale et économique à travers le temps. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
 
     body += cta_band("Préparez votre expatriation","Un projet de mobilité internationale ? Anticipons ensemble ses conséquences fiscales, patrimoniales et successorales, en coordination avec vos conseils locaux.")
@@ -1054,7 +1054,7 @@ def build_expatriation():
 # ---- Solutions ----
 FIN_SOLUTIONS = [
     ("shield","Contrats d’assurance-vie","Développer, organiser et transmettre votre capital, dans un cadre fiscal attractif.","assurance-vie.html"),
-    ("coins","Contrats de capitalisation","Structurer et transmettre un capital — y compris du vivant ou via une société.","contrat-capitalisation.html"),
+    ("coins","Contrats de capitalisation","Structurer et transmettre un capital, y compris du vivant ou via une société.","contrat-capitalisation.html"),
     ("globe","Contrats luxembourgeois","Une plateforme patrimoniale internationale, sécurité et souplesse maximales.","contrat-luxembourgeois.html"),
     ("retire","Solutions retraite","Construire des revenus complémentaires futurs (PER et au-delà).","solutions-retraite.html"),
     ("chart","Comptes-titres","Accéder à l’ensemble des marchés financiers, sans frontière.","comptes-titres.html"),
@@ -1075,7 +1075,7 @@ def build_placements_financiers():
         "assets/img/paris-courtyard.jpg","Marchés financiers")
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
         '<p class="eyebrow">Nos solutions financières</p><h2 class="title-lg">Neuf enveloppes, une stratégie cohérente</h2><hr class="rule">'
-        '<p class="lede">Découvrez chaque solution en détail — nous les articulons ensuite au sein d’une allocation globale.</p></div>'
+        '<p class="lede">Découvrez chaque solution en détail, nous les articulons ensuite au sein d’une allocation globale.</p></div>'
         '<div class="grid grid-3" style="margin-top:54px">' + tiles(FIN_SOLUTIONS) + '</div>', cls="section band-cream")
     # Flagship dark callout
     body += '<section class="section band-dark"><div class="container">'
@@ -1099,7 +1099,7 @@ def build_placements_financiers():
              "<p>Pas systématiquement. Certains offrent une garantie totale, d’autres une protection conditionnelle (barrière). Le niveau de protection se définit avec vous, en contrepartie du rendement visé. Tout investissement comporte un risque de perte en capital.</p>"),
         ]) + '</div>')
     body += cta_band("Construisons votre allocation financière","Assurance-vie luxembourgeoise, produits structurés ou actifs privés : étudions la combinaison la plus pertinente pour vous.")
-    page("placements-financiers.html","Placements financiers","Assurance-vie, capitalisation, contrats luxembourgeois, retraite, comptes-titres, PEA, PEA-PME, mandats de gestion et produits structurés — en architecture ouverte.", body)
+    page("placements-financiers.html","Placements financiers","Assurance-vie, capitalisation, contrats luxembourgeois, retraite, comptes-titres, PEA, PEA-PME, mandats de gestion et produits structurés, en architecture ouverte.", body)
 
 def build_fin_pages():
     """Detailed sub-pages for each financial solution."""
@@ -1144,11 +1144,11 @@ def build_fin_pages():
         body += cta_band()
         page(slug, title, seo, body)
 
-    # 1 — Assurance-vie
+    # 1, Assurance-vie
     fin_page("assurance-vie.html","Contrats d’assurance-vie","Un couteau suisse patrimonial",
         "L’un des outils les plus complets pour développer, organiser et transmettre votre capital, dans un cadre fiscal attractif et avec une grande souplesse d’utilisation.",
         "assets/img/mansion.jpg","Assurance-vie",
-        ["Investissez sur différents supports — du fonds en euros sécurisé aux unités de compte plus dynamiques — pour adapter la stratégie à votre profil de risque, votre horizon et vos objectifs.",
+        ["Investissez sur différents supports, du fonds en euros sécurisé aux unités de compte plus dynamiques, pour adapter la stratégie à votre profil de risque, votre horizon et vos objectifs.",
          "Constituer une épargne, préparer la retraite, financer un projet, générer des revenus ou anticiper la transmission : un même contrat, plusieurs objectifs de vie."],
         ["Allocation personnalisée : prudence, équilibre ou performance","Évolutive dans le temps selon les marchés et vos besoins","Disponibilité : rachats partiels ou totaux possibles"],
         [("cards","Quatre usages clés",[
@@ -1165,9 +1165,9 @@ def build_fin_pages():
         [("Le contrat luxembourgeois","contrat-luxembourgeois.html"),("Solutions retraite","solutions-retraite.html"),("Optimiser votre fiscalité","optimiser-fiscalite.html")],
         "Le contrat d’assurance-vie : épargne, revenus, retraite et transmission dans un cadre fiscal attractif et une grande souplesse.")
 
-    # 2 — Capitalisation
+    # 2, Capitalisation
     fin_page("contrat-capitalisation.html","Contrats de capitalisation","Un outil de structuration avancée",
-        "Structurer, valoriser et transmettre un capital sur le long terme — un complément à l’assurance-vie, aux spécificités juridiques puissantes.",
+        "Structurer, valoriser et transmettre un capital sur le long terme, un complément à l’assurance-vie, aux spécificités juridiques puissantes.",
         "assets/img/mansion.jpg","Contrat de capitalisation",
         ["Comme l’assurance-vie, il donne accès à une large gamme de supports : fonds en euros, unités de compte, OPCVM, ETF, obligations, actions ou supports diversifiés.",
          "Mais il s’en distingue par sa portabilité patrimoniale, qui en fait un outil de gestion avancée et de transmission anticipée."],
@@ -1180,12 +1180,12 @@ def build_fin_pages():
          ]),
          ("text","Une fiscalité proche de l’assurance-vie",
             ["La fiscalité des rachats porte principalement sur les gains réalisés, avec des possibilités d’optimisation selon la durée de détention et la situation du titulaire.",
-             "En cas de succession, le contrat intègre l’actif successoral et peut être conservé par les héritiers — une continuité utile à certaines stratégies de réorganisation."]),
+             "En cas de succession, le contrat intègre l’actif successoral et peut être conservé par les héritiers, une continuité utile à certaines stratégies de réorganisation."]),
         ],
         [("Contrats d’assurance-vie","assurance-vie.html"),("Structuration juridique","structuration-juridique.html"),("Trésorerie d’entreprise","tresorerie-entreprise.html")],
         "Le contrat de capitalisation : transmission du vivant, détention sociétaire et continuité patrimoniale, en complément de l’assurance-vie.")
 
-    # 3 — Luxembourgeois
+    # 3, Luxembourgeois
     fin_page("contrat-luxembourgeois.html","Contrats luxembourgeois","Une plateforme patrimoniale internationale",
         "Une solution haut de gamme : cadre juridique renforcé, grande souplesse financière et diversification internationale avancée.",
         "assets/img/img-luxembourg.svg","Contrat luxembourgeois",
@@ -1201,13 +1201,13 @@ def build_fin_pages():
          ("checklist","Mobilité internationale & transmission",
             ["Portabilité patrimoniale pour les expatriés","Adaptation aux environnements fiscaux selon la résidence","Clause bénéficiaire structurée et gestion transfrontalière","Approche civile, fiscale et familiale sur-mesure"]),
          ("text","Notre accompagnement",
-            ["Nous sélectionnons les solutions luxembourgeoises adaptées à votre niveau patrimonial, votre résidence fiscale et vos exigences de sécurité — architecture du contrat, partenaires, supports et intégration dans votre stratégie globale."]),
+            ["Nous sélectionnons les solutions luxembourgeoises adaptées à votre niveau patrimonial, votre résidence fiscale et vos exigences de sécurité, architecture du contrat, partenaires, supports et intégration dans votre stratégie globale."]),
         ],
         [("Produits structurés","produits-structures.html"),("S’expatrier à l’étranger","expatriation.html"),("Accès à notre Family Office","family-office.html")],
         "Le contrat d’assurance-vie luxembourgeois : triangle de sécurité, super-privilège, FID/FAS et portabilité internationale.",
         quote="Bien plus qu’un contrat d’assurance-vie : une véritable plateforme patrimoniale internationale.")
 
-    # 4 — Solutions retraite
+    # 4, Solutions retraite
     fin_page("solutions-retraite.html","Solutions retraite","Des revenus complémentaires futurs",
         "Construire progressivement des revenus complémentaires adaptés à votre futur niveau de vie, au-delà de la seule pension obligatoire.",
         "assets/img/retraite.jpg","Solutions retraite",
@@ -1221,12 +1221,12 @@ def build_fin_pages():
             ("chart","Portefeuilles de rendement","Dividendes, coupons et allocation dédiée."),
          ]),
          ("text","Notre accompagnement",
-            ["Estimation de vos revenus à la retraite, évaluation des besoins, identification des écarts potentiels, sélection des solutions et mise en place d’une stratégie évolutive — intégrant les dimensions fiscales, successorales et patrimoniales."]),
+            ["Estimation de vos revenus à la retraite, évaluation des besoins, identification des écarts potentiels, sélection des solutions et mise en place d’une stratégie évolutive, intégrant les dimensions fiscales, successorales et patrimoniales."]),
         ],
         [("Préparer votre retraite","preparer-retraite.html"),("Contrats d’assurance-vie","assurance-vie.html"),("Placements immobiliers","placements-immobiliers.html")],
         "Solutions retraite : PER et stratégies complémentaires pour constituer des revenus futurs dans un cadre fiscal optimisé.")
 
-    # 5 — Comptes-titres
+    # 5, Comptes-titres
     fin_page("comptes-titres.html","Comptes-titres","La liberté patrimoniale",
         "Accéder à l’ensemble des marchés financiers, sans contrainte géographique ni sectorielle, pour piloter un portefeuille totalement personnalisé.",
         "assets/img/paris-colonnade.jpg","Compte-titres",
@@ -1242,8 +1242,8 @@ def build_fin_pages():
         [("PEA","pea.html"),("Produits structurés","produits-structures.html"),("Mandats de gestion","mandats-gestion.html")],
         "Le compte-titres (CTO) : accès illimité aux marchés mondiaux et gestion active d’un portefeuille sur-mesure.")
 
-    # 6 — PEA
-    fin_page("pea.html","PEA — Plan d’Épargne en Actions","Performance et fiscalité",
+    # 6, PEA
+    fin_page("pea.html","PEA, Plan d’Épargne en Actions","Performance et fiscalité",
         "Investir sur les marchés actions européens dans un cadre fiscal particulièrement attractif, pensé pour le long terme.",
         "assets/img/paris-courtyard.jpg","PEA",
         ["Construire progressivement un portefeuille orienté croissance : entreprises européennes cotées, fonds éligibles, ETF, OPCVM ou stratégies sectorielles.",
@@ -1257,7 +1257,7 @@ def build_fin_pages():
         [("PEA-PME / ETI","pea-pme.html"),("Comptes-titres","comptes-titres.html"),("Épargner & Investir","epargner-investir.html")],
         "Le PEA : investir en actions européennes sur le long terme avec une fiscalité avantageuse.")
 
-    # 7 — PEA-PME
+    # 7, PEA-PME
     fin_page("pea-pme.html","PEA-PME / ETI","Financer la croissance",
         "Orienter votre épargne vers les PME et ETI européennes à fort potentiel, dans le cadre fiscal avantageux du PEA.",
         "assets/img/paris-colonnade.jpg","PEA-PME / ETI",
@@ -1275,7 +1275,7 @@ def build_fin_pages():
         [("PEA","pea.html"),("Private Equity","private-equity.html"),("Épargner & Investir","epargner-investir.html")],
         "Le PEA-PME / ETI : financer les PME et ETI à fort potentiel avec la fiscalité avantageuse du PEA.")
 
-    # 8 — Mandats de gestion
+    # 8, Mandats de gestion
     fin_page("mandats-gestion.html","Mandats de gestion","La gestion déléguée",
         "Déléguer la gestion de votre capital à des professionnels expérimentés, tout en conservant une stratégie alignée sur vos objectifs.",
         "assets/img/paris-courtyard.jpg","Mandat de gestion",
@@ -1294,11 +1294,11 @@ def build_fin_pages():
         [("Comptes-titres","comptes-titres.html"),("Contrats luxembourgeois","contrat-luxembourgeois.html"),("Produits structurés","produits-structures.html")],
         "Les mandats de gestion : déléguer le pilotage de vos actifs à des professionnels, selon un cadre aligné sur vos objectifs.")
 
-    # 9 — Produits structurés
+    # 9, Produits structurés
     fin_page("produits-structures.html","Produits structurés","Une ingénierie sur-mesure",
         "Des instruments de haute ingénierie financière, conçus pour un objectif patrimonial précis et un scénario de marché identifié.",
         "assets/img/paris-courtyard.jpg","Produits structurés",
-        ["Ils combinent plusieurs briques — obligations, dérivés, options, mécanismes de protection — pour aller au-delà d’un investissement traditionnel et viser la performance dans différents contextes de marché.",
+        ["Ils combinent plusieurs briques, obligations, dérivés, options, mécanismes de protection, pour aller au-delà d’un investissement traditionnel et viser la performance dans différents contextes de marché.",
          "Selon leur construction : génération de revenus conditionnels, protection partielle ou totale du capital à échéance, ou optimisation du couple rendement / risque."],
         ["Architecture totalement ouverte et indépendante","Aucune salle de marché ni plateforme imposée","Mise en concurrence des émetteurs sur chaque opération"],
         [("tags","Les salles de marché que nous mettons en concurrence",
@@ -1338,7 +1338,7 @@ def build_tresorerie():
     body += intro("Dynamiser","Faire travailler votre trésorerie excédentaire",
         "Excédents, réserves stratégiques, holdings patrimoniales ou besoins de diversification : chaque situation appelle une approche structurée, en toute indépendance.",
         ["Nous accompagnons entreprises, dirigeants et holdings avec une sélection rigoureuse des meilleures solutions : placements court terme, capitalisation, contrats luxembourgeois, produits de taux, produits structurés et mandats de gestion.",
-         "Chaque poche de trésorerie est segmentée par horizon, puis associée à la solution la plus adaptée — sécurité, rendement et disponibilité maîtrisés."],
+         "Chaque poche de trésorerie est segmentée par horizon, puis associée à la solution la plus adaptée, sécurité, rendement et disponibilité maîtrisés."],
         "assets/img/paris-courtyard.jpg","Trésorerie d’entreprise", rev=True)
     body += section('<div class="quote" data-reveal><p>« Transformer votre trésorerie en un outil stratégique au service de la solidité financière et du développement de votre entreprise. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
@@ -1394,7 +1394,7 @@ def build_tresorerie_pages():
     sub_page("capitalisation-personne-morale.html","Contrats de capitalisation (personnes morales)","Un outil d’ingénierie de bilan",
         "Valoriser une trésorerie excédentaire dans une logique de moyen ou long terme, au-delà des solutions purement bancaires de court terme.",
         "assets/img/mansion.jpg","Contrat de capitalisation pour personne morale",
-        ["Adapté aux entreprises, holdings patrimoniales et sociétés civiles — notamment soumises à l’IS —, il inscrit la trésorerie dans une stratégie de capitalisation structurée.",
+        ["Adapté aux entreprises, holdings patrimoniales et sociétés civiles, notamment soumises à l’IS , , il inscrit la trésorerie dans une stratégie de capitalisation structurée.",
          "Accès à une architecture étendue : fonds en euros (selon disponibilité), supports obligataires, fonds diversifiés, unités de compte, ETF, produits structurés ou gestion sous mandat."],
         ["Détention par une société ou une holding","Allocation sur-mesure selon horizon et risque","Un outil de gestion de réserves piloté"],
         [("checklist","Construire l’allocation selon",
@@ -1437,7 +1437,7 @@ def build_tresorerie_pages():
          ("checklist","Les facteurs analysés",
             ["Duration / sensibilité aux taux","Risque de crédit (notation, spread)","Courbe des taux","Liquidité secondaire","Rendement actuariel réel","Risque de réinvestissement","Risque de change","Fiscalité et traitement comptable"]),
          ("text","Le « ladder » obligataire",
-            ["Répartir les maturités permet de lisser le risque de taux, de sécuriser des échéances progressives et d’optimiser le rendement moyen — un outil aussi tactique selon l’évolution des politiques monétaires."]),
+            ["Répartir les maturités permet de lisser le risque de taux, de sécuriser des échéances progressives et d’optimiser le rendement moyen, un outil aussi tactique selon l’évolution des politiques monétaires."]),
         ],
         [("Comptes à terme","comptes-a-terme.html"),("Produits structurés de trésorerie","structures-tresorerie.html"),("Mandats de gestion","mandats-tresorerie.html")],
         "Allocation obligataire et produits de taux : une réserve de rendement structurée et pilotée pour la trésorerie d’entreprise.", parent)
@@ -1484,7 +1484,7 @@ def build_tresorerie_pages():
         "Mandats de gestion de trésorerie : une direction financière externalisée, réactive et indépendante pour vos liquidités.", parent)
 
     sub_page("holdings-reserves.html","Structuration de holdings & réserves stratégiques","La holding, centre de gouvernance financière",
-        "Organiser globalement — juridiquement, financièrement et patrimonialement — les capitaux de l’entreprise ou du groupe : protection, rendement, transmission.",
+        "Organiser globalement, juridiquement, financièrement et patrimonialement, les capitaux de l’entreprise ou du groupe : protection, rendement, transmission.",
         "assets/img/mansion.jpg","Structuration de holdings et réserves",
         ["Au-delà du placement d’excédents : centraliser les réserves, organiser les flux, piloter les investissements et préparer les grandes étapes de développement ou de transmission.",
          "Une approche de chef d’entreprise patrimonial, où la trésorerie devient un actif structuré et orienté vers des objectifs supérieurs : croissance, stabilité, protection et transmission."],
@@ -1525,7 +1525,7 @@ def build_private_equity():
         '<p class="lede">Des fonds diversifiés aux opérations directes les plus sélectives, jusqu’aux actifs réels.</p></div>'
         '<div class="grid grid-3" style="margin-top:54px">' + tiles(PE_SOLUTIONS) + '</div>', cls="section band-cream")
     body += cta_band("Accédez au private equity","Le non coté s’adresse à des investisseurs avertis. Vérifions ensemble sa pertinence et son dosage dans votre allocation.")
-    page("private-equity.html","Solutions non cotées & Private Equity","Fonds de private equity, club deals et co-investissements, dette privée, infrastructures et actifs réels — en architecture ouverte.", body)
+    page("private-equity.html","Solutions non cotées & Private Equity","Fonds de private equity, club deals et co-investissements, dette privée, infrastructures et actifs réels, en architecture ouverte.", body)
 
 def build_private_equity_pages():
     parent = ("Solutions non cotées & Private Equity","private-equity.html")
@@ -1553,7 +1553,7 @@ def build_private_equity_pages():
     sub_page("club-deals-coinvestissement.html","Club Deals, Co-investissements & Opportunités directes","La dimension la plus sélective",
         "Accéder à des opportunités ciblées, souvent aux côtés d’investisseurs professionnels, de family offices ou d’équipes de management, avec une participation plus directe à la création de valeur.",
         "assets/img/paris-colonnade.jpg","Club deals et co-investissements",
-        ["Plutôt qu’un fonds diversifié, on sélectionne des dossiers précis — entreprise, acquisition, transmission, infrastructure — selon des critères rigoureux et un cahier des charges patrimonial défini.",
+        ["Plutôt qu’un fonds diversifié, on sélectionne des dossiers précis, entreprise, acquisition, transmission, infrastructure, selon des critères rigoureux et un cahier des charges patrimonial défini.",
          "L’objectif : des opérations à forte conviction, avec une meilleure visibilité sur l’actif, la stratégie de développement et les leviers de création de valeur."],
         ["Sélection ciblée à forte conviction","Visibilité renforcée sur l’actif sous-jacent","Réduction potentielle de certaines couches de frais"],
         [("cards","Les formes d’investissement direct",[
@@ -1611,7 +1611,7 @@ def build_immobilier():
         '<p class="lede">Du collectif piloté aux opérations les plus ciblées, jusqu’à la détention en direct.</p></div>'
         '<div class="grid grid-3" style="margin-top:54px">' + tiles(IMMO_SOLUTIONS) + '</div>', cls="section band-cream")
     body += cta_band("Diversifiez dans l’immobilier","Quel rôle l’immobilier doit-il jouer dans votre patrimoine ? Construisons une stratégie adaptée à vos objectifs.")
-    page("placements-immobiliers.html","Placements immobiliers","SCPI et immobilier géré, club deals immobiliers et opérations privées, investissement en direct clés en main — en architecture ouverte.", body)
+    page("placements-immobiliers.html","Placements immobiliers","SCPI et immobilier géré, club deals immobiliers et opérations privées, investissement en direct clés en main, en architecture ouverte.", body)
 
 def build_immobilier_pages():
     parent = ("Placements immobiliers","placements-immobiliers.html")
@@ -1619,7 +1619,7 @@ def build_immobilier_pages():
     sub_page("scpi-immobilier-gere.html","SCPI & immobilier géré","L’immobilier piloté, sans contrainte de gestion",
         "L’un des moyens les plus accessibles et structurés d’intégrer l’immobilier, sans supporter les contraintes de gestion, d’acquisition ou d’administration locative.",
         "assets/img/paris-courtyard.jpg","SCPI et immobilier géré",
-        ["Investir indirectement dans un portefeuille diversifié — bureaux, commerces, logistique, santé, résidentiel spécialisé, hôtellerie ou actifs paneuropéens — avec mutualisation des risques et gestion professionnelle.",
+        ["Investir indirectement dans un portefeuille diversifié, bureaux, commerces, logistique, santé, résidentiel spécialisé, hôtellerie ou actifs paneuropéens, avec mutualisation des risques et gestion professionnelle.",
          "Transformer l’immobilier en actif patrimonial piloté : revenus complémentaires potentiels, diversification, préparation de la retraite ou structuration de long terme."],
         ["Gestion totalement déléguée","Mutualisation des risques et diversification","Accès à l’immobilier professionnel"],
         [("cards","Plusieurs types de SCPI",[
@@ -1645,7 +1645,7 @@ def build_immobilier_pages():
         "SCPI et immobilier géré : un patrimoine immobilier diversifié et piloté, en gestion déléguée et architecture ouverte.", parent)
 
     sub_page("club-deals-immobiliers.html","Club Deals immobiliers & opérations privées","L’immobilier sélectif et sur-mesure",
-        "Accéder à des opportunités spécifiques, rigoureusement sélectionnées, aux côtés d’opérateurs spécialisés — dans une logique de création de valeur directe.",
+        "Accéder à des opportunités spécifiques, rigoureusement sélectionnées, aux côtés d’opérateurs spécialisés, dans une logique de création de valeur directe.",
         "assets/img/paris-colonnade.jpg","Club deals immobiliers",
         ["Plutôt que des solutions mutualisées, on investit dans des actifs ou opérations identifiés : acquisition patrimoniale, restructuration, promotion, marchand de biens, hôtellerie, logistique, résidentiel premium ou stratégies opportunistes.",
          "Des projets à thèse d’investissement précise, avec une meilleure visibilité sur l’actif, sa stratégie de valorisation, son horizon de sortie et ses leviers de création de valeur."],
@@ -1661,14 +1661,14 @@ def build_immobilier_pages():
          ("tags","Des points déterminants",
             ["Niveau de levier","Calendrier d’exécution","Risques administratifs / urbanistiques","Scénario de valorisation","Profondeur du marché secondaire","Résistance aux cycles"]),
          ("text","Pour quels investisseurs ?",
-            ["Pour ceux qui recherchent une allocation immobilière plus active et sélective, en acceptant un niveau d’analyse supérieur — avec une discipline de diversification face au risque de concentration sur un seul actif."]),
+            ["Pour ceux qui recherchent une allocation immobilière plus active et sélective, en acceptant un niveau d’analyse supérieur, avec une discipline de diversification face au risque de concentration sur un seul actif."]),
         ],
         [("SCPI & immobilier géré","scpi-immobilier-gere.html"),("Immobilier en direct clés en main","immobilier-direct.html"),("Club deals & co-investissements (PE)","club-deals-coinvestissement.html")],
         "Club deals immobiliers et opérations privées : des opérations ciblées et sophistiquées, sélectionnées avec exigence.", parent,
         quote="Nous ne distribuons pas d’opérations standardisées : nous sélectionnons les meilleures opportunités selon leur qualité intrinsèque et leur cohérence patrimoniale.")
 
     sub_page("immobilier-direct.html","Investissements immobiliers en direct, clés en main","Votre patrimoine immobilier, de A à Z",
-        "Détenir directement des actifs sélectionnés sur-mesure, avec un accompagnement global — du sourcing à la gestion — sans la complexité technique et administrative.",
+        "Détenir directement des actifs sélectionnés sur-mesure, avec un accompagnement global, du sourcing à la gestion, sans la complexité technique et administrative.",
         "assets/img/hero.jpg","Immobilier en direct clés en main",
         ["Contrairement aux véhicules collectifs, le direct permet une personnalisation totale : type de bien, localisation, rendement, fiscalité, horizon de détention, transmission ou financement.",
          "L’objectif n’est pas « d’acheter un bien », mais de structurer une stratégie immobilière cohérente, alignée sur votre situation et votre vision de long terme."],
@@ -1680,7 +1680,7 @@ def build_immobilier_pages():
          ("checklist","Chaque projet analysé selon",
             ["Emplacement et tension locative","Qualité intrinsèque du bien","Prix d’acquisition","Potentiel de valorisation","Rendement net","Fiscalité et coût global","Financement et travaux","Profondeur du marché et risque local"]),
          ("text","L’intérêt d’une approche clés en main",
-            ["Transformer un investissement potentiellement complexe en stratégie structurée, pilotée et optimisée — en évitant la sélection émotionnelle, le mauvais pricing, la sous-estimation des coûts ou une fiscalité mal calibrée."]),
+            ["Transformer un investissement potentiellement complexe en stratégie structurée, pilotée et optimisée, en évitant la sélection émotionnelle, le mauvais pricing, la sous-estimation des coûts ou une fiscalité mal calibrée."]),
         ],
         [("SCPI & immobilier géré","scpi-immobilier-gere.html"),("Club deals immobiliers","club-deals-immobiliers.html"),("Optimiser votre fiscalité","optimiser-fiscalite.html")],
         "Investissement immobilier en direct clés en main : sourcing, structuration, financement, valorisation et gestion d’actifs sur-mesure.", parent,
@@ -1725,7 +1725,7 @@ def build_scpi_page():
     body += section(feature_row("assets/img/paris-courtyard.jpg","SCPI et immobilier géré","En bref",
         "L’immobilier piloté, sans contrainte de gestion",
         ["Investir en SCPI, c’est accéder à un véhicule de gestion collective agréé par l’AMF, qui détient de l’immobilier professionnel sans que vous en assuriez la gestion.",
-         "Le choix du mode d’acquisition — comptant, crédit, démembrement ou assurance-vie — pèse autant sur la rentabilité nette que le choix de la SCPI elle-même."],
+         "Le choix du mode d’acquisition, comptant, crédit, démembrement ou assurance-vie, pèse autant sur la rentabilité nette que le choix de la SCPI elle-même."],
         rev=True, checklist=["Ticket d’entrée de quelques centaines d’euros","Gestion totalement déléguée","Diversification sur des centaines de baux"]))
 
     # L'essentiel à retenir
@@ -1816,7 +1816,7 @@ def build_scpi_page():
     # Sélectionner
     body += section(head("Méthode","Comment sélectionner une SCPI ?", center=False) +
         cards([
-            ("chart","Taux de distribution (TD)","Le rendement courant d’une année — à ne pas lire seul."),
+            ("chart","Taux de distribution (TD)","Le rendement courant d’une année, à ne pas lire seul."),
             ("growth","TRI 5-10-15 ans","Intègre revenus et évolution du prix : l’indicateur clé."),
             ("building","Taux d’occupation (TOF)","Qualité locative ; les mieux gérées affichent 95-100 %."),
             ("shield","Report à nouveau (RAN)","Réserve, en jours de distribution, pour amortir les baisses."),
@@ -1849,7 +1849,7 @@ def build_scpi_page():
     body += section(head("Questions fréquentes","Vos questions sur les SCPI") +
         '<div style="max-width:880px;margin:40px auto 0" data-reveal>' + faq([
             ("Quel montant minimum pour investir en SCPI ?",
-             "<p>Le minimum correspond au prix d’une part — parfois quelques centaines d’euros. Pour une diversification pertinente sur 2 à 3 SCPI complémentaires, un budget de 5 000 à 10 000 € permet une allocation équilibrée.</p>"),
+             "<p>Le minimum correspond au prix d’une part, parfois quelques centaines d’euros. Pour une diversification pertinente sur 2 à 3 SCPI complémentaires, un budget de 5 000 à 10 000 € permet une allocation équilibrée.</p>"),
             ("Quel rendement attendre en 2026 ?",
              "<p>Le taux de distribution moyen s’est établi à 4,72 % en 2024 ; les SCPI les plus performantes dépassent 6-7 %, avec un profil de risque plus marqué. Le TRI sur 10 ans reste l’indicateur le plus robuste.</p>"),
             ("Les revenus de SCPI sont-ils imposables ?",
@@ -1960,7 +1960,7 @@ def build_produits_structures_page():
 
     body += section('<div class="quote" data-reveal><p>« Nous intervenons comme architectes de solutions, et non comme distributeurs : chaque produit est sélectionné ou structuré selon votre cahier des charges patrimonial. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
     body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Les produits structurés comportent un risque de perte en capital et un risque de crédit de l’émetteur. Les performances passées ne préjugent pas des performances futures. Toute souscription suppose la lecture de la documentation réglementaire (term sheet, prospectus / EMTN, DIC).</p>', cls="section--tight")
-    body += cta_band("Étudions une solution sur-mesure","Définissons ensemble le sous-jacent, l’horizon, le niveau de protection et l’enveloppe les plus adaptés — puis mettons les meilleures salles de marché en concurrence.")
+    body += cta_band("Étudions une solution sur-mesure","Définissons ensemble le sous-jacent, l’horizon, le niveau de protection et l’enveloppe les plus adaptés, puis mettons les meilleures salles de marché en concurrence.")
     page("produits-structures.html","Produits structurés",
          "Produits structurés sur-mesure : définition, paramètres clés, sous-jacents, formats (autocall, Phoenix, Athéna), risques, enveloppes et mise en concurrence des salles de marché.", body)
 
@@ -1968,7 +1968,7 @@ def build_structures_tresorerie_page():
     crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
               ("Trésorerie d’entreprise","tresorerie-entreprise.html"),("Produits structurés de trésorerie",None)]
     body = page_hero("Produits structurés de trésorerie",
-        "Optimiser le rendement de capitaux disponibles avec un niveau de risque défini en amont — sans basculer dans une gestion actions classique.",
+        "Optimiser le rendement de capitaux disponibles avec un niveau de risque défini en amont, sans basculer dans une gestion actions classique.",
         crumbs)
 
     body += section(feature_row("assets/img/mansion.jpg","Produits structurés de trésorerie","En bref",
@@ -2009,15 +2009,15 @@ def build_structures_tresorerie_page():
          ("checklist","Les critères comparés sur chaque structuration",
             ["Coupon proposé et conditions de rappel (autocall)","Niveau des barrières de protection","Qualité de crédit de l’émetteur","Maturité et univers sous-jacent","Liquidité secondaire","Volatilité implicite utilisée dans le pricing","Documentation EMTN / cadre juridique","Fiscalité de l’enveloppe de détention"]),
          ("text","Architectes, pas distributeurs",
-            ["Nous ne travaillons avec aucun broker imposé ni plateforme captive : chaque structure est sélectionnée selon votre politique de trésorerie — excédents de moyen terme, réserves stratégiques, recherche de rendement prudent ou diversification."])])
+            ["Nous ne travaillons avec aucun broker imposé ni plateforme captive : chaque structure est sélectionnée selon votre politique de trésorerie, excédents de moyen terme, réserves stratégiques, recherche de rendement prudent ou diversification."])])
 
     body += section(faq_block("Questions fréquentes","Vos questions", [
         ("Pourquoi des produits structurés pour la trésorerie ?",
-         "<p>Pour viser un rendement supérieur aux placements monétaires sur la part durablement excédentaire, avec un niveau de risque défini à l’avance et une protection calibrée — sans gestion actions classique.</p>"),
+         "<p>Pour viser un rendement supérieur aux placements monétaires sur la part durablement excédentaire, avec un niveau de risque défini à l’avance et une protection calibrée, sans gestion actions classique.</p>"),
         ("Quelle protection du capital ?",
          "<p>Selon la structure : protection totale (capital garanti) ou conditionnelle via une barrière. Le niveau de protection se définit en contrepartie du rendement visé ; un risque de perte en capital subsiste.</p>"),
         ("Quelles enveloppes pour une société ?",
-         "<p>Compte-titres personne morale, contrat de capitalisation ou contrat luxembourgeois dédié — selon votre fiscalité (IS), vos objectifs de capitalisation et votre gouvernance.</p>"),
+         "<p>Compte-titres personne morale, contrat de capitalisation ou contrat luxembourgeois dédié, selon votre fiscalité (IS), vos objectifs de capitalisation et votre gouvernance.</p>"),
         ("Comment garantissez-vous le meilleur produit ?",
          "<p>Par la mise en concurrence institutionnelle des salles de marché et l’analyse de chaque term sheet, sans dépendance commerciale à une contrepartie unique.</p>"),
     ]))
@@ -2068,7 +2068,7 @@ def build_luxembourgeois_page():
             ("scale","Contrôle indépendant","Supervision par le Commissariat aux Assurances et la banque dépositaire."),
          ]),
          ("text","Le triangle de sécurité, concrètement",
-            ["Trois acteurs encadrent le contrat — la compagnie d’assurance, la banque dépositaire et le Commissariat aux Assurances (avec l’État luxembourgeois comme garant). Les actifs des souscripteurs sont ségrégués, contrôlés régulièrement et transmis automatiquement en cas de défaillance de l’assureur."])])
+            ["Trois acteurs encadrent le contrat, la compagnie d’assurance, la banque dépositaire et le Commissariat aux Assurances (avec l’État luxembourgeois comme garant). Les actifs des souscripteurs sont ségrégués, contrôlés régulièrement et transmis automatiquement en cas de défaillance de l’assureur."])])
 
     # Neutralité fiscale
     body += blocks_section("Fiscalité","La neutralité fiscale",
@@ -2082,9 +2082,9 @@ def build_luxembourgeois_page():
     # Univers d'investissement
     body += blocks_section("Investissement","Un univers quasi illimité",
         [("cards","Les véhicules dédiés",[
-            ("chart","FID — Fonds Interne Dédié","Gestion sous mandat individualisée, supports sophistiqués et internationaux."),
-            ("puzzle","FAS — Fonds d’Assurance Spécialisé","Le souscripteur averti compose son portefeuille, coté ou non coté."),
-            ("treasury","FIC — Fonds Interne Collectif","Gestion mutualisée, plus accessible en montant."),
+            ("chart","FID, Fonds Interne Dédié","Gestion sous mandat individualisée, supports sophistiqués et internationaux."),
+            ("puzzle","FAS, Fonds d’Assurance Spécialisé","Le souscripteur averti compose son portefeuille, coté ou non coté."),
+            ("treasury","FIC, Fonds Interne Collectif","Gestion mutualisée, plus accessible en montant."),
          ]),
          ("tags","Les supports accessibles",
             ["Fonds en euros (limité)","Actions","Obligations","OPCVM & ETF","Private equity","Produits structurés sur-mesure","Immobilier (OPCI / OPPCI)","Fonds alternatifs","Multi-devises"])])
@@ -2119,7 +2119,7 @@ def build_luxembourgeois_page():
     # Inconvénients
     body += blocks_section("Vigilance","Les points à considérer",
         [("checklist","Avant de souscrire",
-            ["Ticket d’entrée élevé (125 000 à 250 000 €)","Pas d’accès aux SCPI (mais OPCI / OPPCI possibles)","Souscription encadrée : justificatifs sur l’origine des fonds","Restrictions selon la nationalité (hors EEE) — résidents français éligibles","Fonds en euros moins rémunérateur qu’en France"])])
+            ["Ticket d’entrée élevé (125 000 à 250 000 €)","Pas d’accès aux SCPI (mais OPCI / OPPCI possibles)","Souscription encadrée : justificatifs sur l’origine des fonds","Restrictions selon la nationalité (hors EEE), résidents français éligibles","Fonds en euros moins rémunérateur qu’en France"])])
 
     # Frais
     body += blocks_section("Frais","Une tarification transparente",
@@ -2159,7 +2159,7 @@ def build_comptes_titres_page():
 
     body += section(feature_row("assets/img/paris-colonnade.jpg","Compte-titres ordinaire","En bref",
         "La liberté patrimoniale, sans contrainte",
-        ["Le compte-titres ordinaire (CTO) permet de détenir actions, obligations, OPCVM, ETF, produits structurés ou titres non cotés — en France comme à l’international.",
+        ["Le compte-titres ordinaire (CTO) permet de détenir actions, obligations, OPCVM, ETF, produits structurés ou titres non cotés, en France comme à l’international.",
          "Sa fiscalité n’offre pas d’avantage spécifique : il se conçoit en complément d’enveloppes comme l’assurance-vie, le PEA ou le contrat de capitalisation."],
         rev=True, checklist=["Aucun plafond de versement","Accès à tous les marchés et classes d’actifs","Accessible aux particuliers comme aux personnes morales"]))
 
@@ -2224,23 +2224,23 @@ def build_comptes_titres_page():
             ("doc","Associations & fondations","Selon leur régime et leur activité."),
          ]),
          ("text","La fiscalité à l’IS",
-            ["Les gains (dividendes, intérêts, plus-values) sont imposés à l’impôt sur les sociétés — 15 % jusqu’à 42 500 € de bénéfices (sous conditions), 25 % au-delà. Pas d’abattement pour durée de détention, mais des provisions pour dépréciation possibles en cas de baisse de valeur."])],
+            ["Les gains (dividendes, intérêts, plus-values) sont imposés à l’impôt sur les sociétés, 15 % jusqu’à 42 500 € de bénéfices (sous conditions), 25 % au-delà. Pas d’abattement pour durée de détention, mais des provisions pour dépréciation possibles en cas de baisse de valeur."])],
         cls="section band-cream")
 
     body += section(faq_block("Questions fréquentes","Vos questions sur le compte-titres", [
         ("Le compte-titres a-t-il un plafond ?",
          "<p>Non. Contrairement au PEA (plafonné à 150 000 €), le compte-titres n’a aucun plafond de versement et vous pouvez en détenir plusieurs.</p>"),
         ("Comment sont imposés les gains ?",
-         "<p>Par défaut au PFU (flat tax), avec une option possible pour le barème de l’IR — parfois plus favorable à TMI basse, grâce notamment à l’abattement de 40 % sur les dividendes. L’imposition n’intervient qu’à la cession des titres ou à l’encaissement des revenus.</p>"),
+         "<p>Par défaut au PFU (flat tax), avec une option possible pour le barème de l’IR, parfois plus favorable à TMI basse, grâce notamment à l’abattement de 40 % sur les dividendes. L’imposition n’intervient qu’à la cession des titres ou à l’encaissement des revenus.</p>"),
         ("Une société peut-elle ouvrir un compte-titres ?",
          "<p>Oui. Sociétés, holdings, SCI, associations : le compte-titres permet de placer la trésorerie. Les gains sont alors soumis à l’impôt sur les sociétés.</p>"),
         ("CTO ou PEA ?",
          "<p>Le PEA est plus avantageux fiscalement sur les actions européennes de long terme ; le CTO offre une diversification mondiale et l’accès au non coté. Les deux sont souvent complémentaires.</p>"),
         ("Le transfert d’un compte-titres est-il possible ?",
-         "<p>Oui, d’un établissement à un autre, sans clôture ni perte d’antériorité — nous vous accompagnons dans la procédure.</p>"),
+         "<p>Oui, d’un établissement à un autre, sans clôture ni perte d’antériorité, nous vous accompagnons dans la procédure.</p>"),
     ]))
 
-    body += section('<div class="quote" data-reveal><p>« L’enveloppe la plus souple pour bâtir, diversifier et piloter un portefeuille sur-mesure — en complément des enveloppes fiscalement privilégiées. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<div class="quote" data-reveal><p>« L’enveloppe la plus souple pour bâtir, diversifier et piloter un portefeuille sur-mesure, en complément des enveloppes fiscalement privilégiées. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
     body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Tout investissement comporte un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
     body += cta_band("Construisons votre portefeuille","Allocation, sélection des supports et articulation avec vos autres enveloppes : définissons une stratégie cohérente et fiscalement optimisée.")
     page("comptes-titres.html","Compte-titres (CTO)",
@@ -2249,8 +2249,8 @@ def build_comptes_titres_page():
 def build_pea_page():
     crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
               ("Placements financiers","placements-financiers.html"),("PEA",None)]
-    body = page_hero("PEA — Plan d’Épargne en Actions",
-        "L’une des stratégies les plus efficaces pour investir en actions européennes avec une fiscalité allégée — l’exonération d’impôt sur le revenu après 5 ans reste l’avantage décisif de l’enveloppe.",
+    body = page_hero("PEA, Plan d’Épargne en Actions",
+        "L’une des stratégies les plus efficaces pour investir en actions européennes avec une fiscalité allégée, l’exonération d’impôt sur le revenu après 5 ans reste l’avantage décisif de l’enveloppe.",
         crumbs)
 
     body += section(feature_row("assets/img/paris-courtyard.jpg","Plan d’Épargne en Actions","En bref",
@@ -2311,7 +2311,7 @@ def build_pea_page():
             ("coins","Retraits partiels","Après 5 ans, ils ne ferment plus le plan (loi PACTE)."),
          ]),
          ("text","Impact de la hausse de CSG (LFSS 2026)",
-            ["Les prélèvements sociaux passent de 17,2 % à 18,6 % sur les revenus mobiliers, PEA inclus. L’assurance-vie en est exclue (PS maintenus à 17,2 %). Malgré cela, le PEA conserve sa supériorité après 5 ans grâce à l’exonération d’IR — un avantage que ni le CTO ni l’assurance-vie n’offrent sur les plus-values mobilières."])],
+            ["Les prélèvements sociaux passent de 17,2 % à 18,6 % sur les revenus mobiliers, PEA inclus. L’assurance-vie en est exclue (PS maintenus à 17,2 %). Malgré cela, le PEA conserve sa supériorité après 5 ans grâce à l’exonération d’IR, un avantage que ni le CTO ni l’assurance-vie n’offrent sur les plus-values mobilières."])],
         cls="section band-cream")
 
     body += section(sec_head("Comparatif","PEA, assurance-vie, CTO & PER", "Chaque enveloppe répond à un objectif patrimonial distinct.", center=True) +
@@ -2353,7 +2353,7 @@ def build_pea_page():
             ("chart","4 · Sélectionner les supports","ETF Monde ou Europe, actions en direct ou fonds éligibles."),
          ]),
          ("text","Pourquoi ouvrir le plus tôt possible",
-            ["Le délai de 5 ans court dès le premier versement, indépendamment des suivants. Ouvrir un PEA avec quelques euros aujourd’hui, c’est sécuriser l’exonération sur tous les gains futurs — y compris ceux des sommes investies dans plusieurs années."])])
+            ["Le délai de 5 ans court dès le premier versement, indépendamment des suivants. Ouvrir un PEA avec quelques euros aujourd’hui, c’est sécuriser l’exonération sur tous les gains futurs, y compris ceux des sommes investies dans plusieurs années."])])
 
     body += section(faq_block("Questions fréquentes","Vos questions sur le PEA", [
         ("Quand démarre le délai des 5 ans ?",
@@ -2371,13 +2371,13 @@ def build_pea_page():
     body += section('<div class="quote" data-reveal><p>« Le PEA couvre le pilier actions d’un patrimoine ; bien articulé avec l’assurance-vie et le PER, il optimise rendement et fiscalité sur le long terme. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
     body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Tout investissement en actions comporte un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
     body += cta_band("Structurons votre pilier actions","Choix de l’enveloppe, allocation en ETF et articulation avec vos autres placements : construisons une stratégie cohérente et fiscalement optimisée.")
-    page("pea.html","PEA — Plan d’Épargne en Actions",
+    page("pea.html","PEA, Plan d’Épargne en Actions",
          "PEA en 2026 : fonctionnement, rendement, fiscalité (CSG 18,6 %, exonération d’IR après 5 ans), plafonds, comparatif PEA / PEA-PME / assurance-vie / CTO / PER et ouverture.", body)
 
 def build_per_page():
     crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
               ("Placements financiers","placements-financiers.html"),("Solutions retraite",None)]
-    body = page_hero("Solutions retraite — le PER",
+    body = page_hero("Solutions retraite, le PER",
         "Entre 30 % et 50 % des revenus disparaissent au passage à la retraite. Le Plan d’Épargne Retraite (PER) permet de se constituer un capital tout en réduisant son impôt sur le revenu.",
         crumbs)
 
@@ -2397,7 +2397,7 @@ def build_per_page():
         '<ul class="checklist">' + "".join("<li>%s</li>" % x for x in [
             "Sortie au choix : capital, rente viagère ou panachage",
             "Plafonds non utilisés reportables sur 3 ans, mutualisables entre conjoints",
-            "Complémentaire de l’assurance-vie — pas un concurrent",
+            "Complémentaire de l’assurance-vie, pas un concurrent",
         ]) + '</ul></div>', cls="section band-cream")
 
     body += blocks_section("Mécanisme","L’avantage fiscal à l’entrée",
@@ -2413,9 +2413,9 @@ def build_per_page():
 
     body += blocks_section("Architecture","Les 3 compartiments du PER",
         [("cards","Une origine de fonds par compartiment",[
-            ("coins","C1 · Versements volontaires","Épargne personnelle — sortie en capital ou en rente."),
-            ("treasury","C2 · Épargne salariale","Intéressement, participation, abondement — capital ou rente."),
-            ("retire","C3 · Versements obligatoires","Cotisations employeur — sortie en rente uniquement."),
+            ("coins","C1 · Versements volontaires","Épargne personnelle, sortie en capital ou en rente."),
+            ("treasury","C2 · Épargne salariale","Intéressement, participation, abondement, capital ou rente."),
+            ("retire","C3 · Versements obligatoires","Cotisations employeur, sortie en rente uniquement."),
          ]),
          ("text","Trois types de PER",
             ["PER individuel (PERIN) : accessible à tous, sans condition de statut. PER collectif (PERECO) : proposé par l’employeur, alimenté par l’épargne salariale. PER obligatoire (PERO) : pour certaines catégories de salariés, à adhésion obligatoire."])],
@@ -2467,7 +2467,7 @@ def build_per_page():
     body += section('<div class="quote" data-reveal><p>« Le PER ne remplace pas l’assurance-vie : il la complète, en transformant votre impôt en capacité d’épargne pour la retraite. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
     body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Les supports en unités de compte comportent un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
     body += cta_band("Préparons votre retraite","Calibrons ensemble vos versements, l’arbitrage déduction / non-déduction et la répartition entre PER, assurance-vie et autres enveloppes.")
-    page("solutions-retraite.html","Solutions retraite — le PER",
+    page("solutions-retraite.html","Solutions retraite, le PER",
          "PER en 2026 : avantage fiscal à l’entrée, plafonds, 3 compartiments, comparatif PER / assurance-vie, déblocage, transmission et erreurs à éviter.", body)
 
 def build_capitalisation_page():
@@ -2480,7 +2480,7 @@ def build_capitalisation_page():
     body += section(feature_row("assets/img/mansion.jpg","Contrat de capitalisation","En bref",
         "Le cousin de l’assurance-vie, taillé pour la transmission",
         ["Multisupport (fonds en euros, unités de compte, actions, obligations, SCPI…), il offre une fiscalité des rachats identique à celle de l’assurance-vie pour les personnes physiques.",
-         "Sa spécificité : il ne se dénoue pas au décès et peut être transmis du vivant — un atout majeur de structuration patrimoniale, y compris pour les sociétés et holdings."],
+         "Sa spécificité : il ne se dénoue pas au décès et peut être transmis du vivant, un atout majeur de structuration patrimoniale, y compris pour les sociétés et holdings."],
         rev=True, checklist=["Transmissible par donation (pleine propriété ou démembrement)","Accessible aux personnes morales (sociétés, holdings)","Antériorité fiscale conservée par les héritiers"]))
 
     body += blocks_section("Fonctionnement","Comment ça marche ?",
@@ -2506,7 +2506,7 @@ def build_capitalisation_page():
     body += blocks_section("Transmission","Un outil de transmission puissant",
         [("text","La donation en démembrement",
             ["Le donateur conserve l’usufruit (et les revenus) tandis que la nue-propriété est transmise aux héritiers, valorisée selon l’âge de l’usufruitier. Au décès, la pleine propriété se reconstitue sans droits supplémentaires, l’antériorité fiscale étant conservée.",
-             "Combiné aux abattements de droit commun (100 000 € par enfant et par parent, renouvelables tous les 15 ans), c’est un levier efficace de transmission — y compris après 70 ans."]),
+             "Combiné aux abattements de droit commun (100 000 € par enfant et par parent, renouvelables tous les 15 ans), c’est un levier efficace de transmission, y compris après 70 ans."]),
          ("checklist","Pourquoi le démembrement",
             ["Acquisition de la nue-propriété avec décote liée à l’âge","Abattements de donation optimisés","Reconstitution de la pleine propriété sans fiscalité au décès","Conservation des revenus par l’usufruitier"])])
 
@@ -2528,7 +2528,7 @@ def build_capitalisation_page():
          "<p>Identique à l’assurance-vie : selon l’ancienneté et la date des versements, avec abattement annuel après 8 ans (4 600 € / 9 200 €) et prélèvements sociaux de 17,2 %.</p>"),
     ]))
 
-    body += section('<div class="quote" data-reveal><p>« Là où l’assurance-vie excelle dans la transmission au décès, le contrat de capitalisation organise la transmission du vivant — et s’ouvre aux personnes morales. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
+    body += section('<div class="quote" data-reveal><p>« Là où l’assurance-vie excelle dans la transmission au décès, le contrat de capitalisation organise la transmission du vivant, et s’ouvre aux personnes morales. »</p><cite>La Financière de Rochechouart</cite></div>', cls="section--tight band-dark")
     body += section('<p class="muted center" style="max-width:80ch;margin-inline:auto" data-reveal>Information non contractuelle. La fiscalité dépend de votre situation et est susceptible d’évoluer. Les supports en unités de compte comportent un risque de perte en capital ; les performances passées ne préjugent pas des performances futures.</p>', cls="section--tight")
     body += cta_band("Structurons votre transmission","Détention, donation ou démembrement, personne physique ou morale : étudions le rôle du contrat de capitalisation dans votre stratégie.")
     page("contrat-capitalisation.html","Contrat de capitalisation",
@@ -2538,7 +2538,7 @@ def build_assurance_vie_page():
     crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),
               ("Placements financiers","placements-financiers.html"),("Contrats d’assurance-vie",None)]
     body = page_hero("Contrats d’assurance-vie",
-        "Pilier central du patrimoine en France, l’assurance-vie réunit capitalisation, transmission et liquidité dans une seule enveloppe — un avantage renforcé en 2026.",
+        "Pilier central du patrimoine en France, l’assurance-vie réunit capitalisation, transmission et liquidité dans une seule enveloppe, un avantage renforcé en 2026.",
         crumbs)
 
     body += section(feature_row("assets/img/serenite.jpg","Assurance-vie","En bref",
@@ -2562,7 +2562,7 @@ def build_assurance_vie_page():
 
     body += blocks_section("Fonctionnement","Une enveloppe capitalisante multisupport",
         [("text","Le principe",
-            ["L’assurance-vie n’est pas une assurance décès : c’est un produit d’épargne. Les gains restent dans l’enveloppe sans imposition tant qu’aucun rachat n’est effectué — la croissance se fait en capitalisation, sans l’érosion fiscale annuelle d’un compte-titres.",
+            ["L’assurance-vie n’est pas une assurance décès : c’est un produit d’épargne. Les gains restent dans l’enveloppe sans imposition tant qu’aucun rachat n’est effectué, la croissance se fait en capitalisation, sans l’érosion fiscale annuelle d’un compte-titres.",
              "Aucun plafond de versement ; la détention de plusieurs contrats est autorisée et même recommandée."]),
          ("cards","Disponibilité & souplesse",[
             ("coins","Versements libres","Initial, complémentaires ou programmés, sans plafond."),
@@ -2584,7 +2584,7 @@ def build_assurance_vie_page():
             ("8 ans + (primes ≤ 150 000 €)","7,5 %","17,2 %","24,7 %","4 600 € / 9 200 €"),
             ("8 ans + (primes > 150 000 €)","12,8 %","17,2 %","30 %","4 600 € / 9 200 €"),
         ]) + '</tbody></table></div>'
-        '<p class="muted" style="margin-top:16px;max-width:80ch" data-reveal>Avantage 2026 : les PS de l’assurance-vie restent à 17,2 % alors qu’ils passent à 18,6 % sur le CTO et le PER — un différentiel structurel pour les patrimoines importants. La sortie en rente viagère et l’IFI (pour les UC immobilières) obéissent à des règles spécifiques.</p>',
+        '<p class="muted" style="margin-top:16px;max-width:80ch" data-reveal>Avantage 2026 : les PS de l’assurance-vie restent à 17,2 % alors qu’ils passent à 18,6 % sur le CTO et le PER, un différentiel structurel pour les patrimoines importants. La sortie en rente viagère et l’IFI (pour les UC immobilières) obéissent à des règles spécifiques.</p>',
         cls="section")
 
     body += blocks_section("Supports","L’univers d’investissement",
@@ -2635,7 +2635,7 @@ def build_assurance_vie_page():
         ("Quelle fiscalité après 8 ans ?",
          "<p>7,5 % d’IR (primes ≤ 150 000 €) + 17,2 % de PS, soit 24,7 %, avec un abattement annuel de 4 600 € (seul) ou 9 200 € (couple) sur les gains retirés.</p>"),
         ("Peut-on avoir plusieurs contrats ?",
-         "<p>Oui, sans limite — c’est recommandé pour diversifier les assureurs (garantie FGAP de 70 000 €), segmenter les objectifs et adapter chaque clause bénéficiaire.</p>"),
+         "<p>Oui, sans limite, c’est recommandé pour diversifier les assureurs (garantie FGAP de 70 000 €), segmenter les objectifs et adapter chaque clause bénéficiaire.</p>"),
         ("Assurance-vie ou PER ?",
          "<p>L’assurance-vie offre liquidité et PS à 17,2 % ; le PER, une déduction à l’entrée mais un blocage jusqu’à la retraite. Les deux se combinent selon votre TMI et vos objectifs.</p>"),
     ]))
@@ -2651,7 +2651,7 @@ def build_pe_detail_page():
     crumbs = [("Accueil","index.html"),("Nos solutions","nos-solutions.html"), parent,
               ("Fonds de Private Equity",None)]
     body = page_hero("Fonds de Private Equity & Capital-Investissement",
-        "Investir dans le private equity, c’est miser sur l’économie réelle, loin de la volatilité des marchés cotés — un potentiel de performance élevé en contrepartie d’un horizon long et d’une liquidité réduite.",
+        "Investir dans le private equity, c’est miser sur l’économie réelle, loin de la volatilité des marchés cotés, un potentiel de performance élevé en contrepartie d’un horizon long et d’une liquidité réduite.",
         crumbs)
 
     body += section(feature_row("assets/img/mansion.jpg","Fonds de private equity","En bref",
@@ -2744,7 +2744,7 @@ def build_structuration():
     body += intro("Notre approche","Une architecture patrimoniale cohérente",
         "Une stratégie performante ne repose pas seulement sur le rendement : elle exige une architecture intégrant droit civil, fiscalité, gouvernance, protection et transmission.",
         ["Chef d’entreprise, investisseur, famille patrimoniale, profession libérale ou détenteur d’actifs : une structuration adaptée transforme un patrimoine « détenu » en patrimoine « piloté ».",
-         "Notre approche est globale, indépendante et sur-mesure — en lien étroit avec vos notaires, avocats et experts-comptables, dans le strict respect du cadre réglementaire."],
+         "Notre approche est globale, indépendante et sur-mesure, en lien étroit avec vos notaires, avocats et experts-comptables, dans le strict respect du cadre réglementaire."],
         "assets/img/paris-colonnade.jpg","Ingénierie patrimoniale", rev=True)
     body += section('<div class="quote" data-reveal><p>« Transformer un patrimoine “détenu” en patrimoine “piloté” : créer une cohérence durable entre performance, sécurité, flexibilité et transmission. »</p><cite>Notre objectif</cite></div>', cls="section--tight band-dark")
     body += section('<div class="center" style="max-width:680px;margin-inline:auto" data-reveal>'
@@ -2758,7 +2758,7 @@ def build_structuration_pages():
     parent = ("Structuration juridique et fiscale","structuration-juridique.html")
 
     sub_page("organisation-patrimoniale.html","Organisation patrimoniale & structures de détention","Comment détenir intelligemment ses actifs",
-        "Avant de sélectionner des investissements, déterminer comment les actifs seront détenus et articulés — pour optimiser leur efficacité juridique, fiscale et successorale.",
+        "Avant de sélectionner des investissements, déterminer comment les actifs seront détenus et articulés, pour optimiser leur efficacité juridique, fiscale et successorale.",
         "assets/img/mansion.jpg","Organisation patrimoniale",
         ["La question centrale n’est pas seulement « dans quoi investir », mais « comment détenir intelligemment ses actifs » : le mode de détention influence la fiscalité, la gouvernance, la protection, la transmission et le financement.",
          "Dès que le patrimoine se développe, se diversifie ou intègre des enjeux familiaux ou entrepreneuriaux, une structuration plus élaborée devient souvent nécessaire."],
@@ -2821,7 +2821,7 @@ def build_structuration_pages():
         quote="Transformer le patrimoine en héritage organisé plutôt qu’en succession subie.")
 
     sub_page("structuration-dirigeant.html","Structuration du dirigeant, cession & ingénierie long terme","Articuler patrimoine professionnel et privé",
-        "Le patrimoine du dirigeant, souvent concentré autour de l’entreprise, exige une véritable ingénierie stratégique — pas une simple logique d’investissement.",
+        "Le patrimoine du dirigeant, souvent concentré autour de l’entreprise, exige une véritable ingénierie stratégique, pas une simple logique d’investissement.",
         "assets/img/serenite.jpg","Structuration patrimoniale du dirigeant",
         ["Titres, dividendes, trésorerie, immobilier d’exploitation, garanties personnelles : cette concentration crée autant d’opportunités considérables que de vulnérabilités majeures.",
          "Organiser la création de valeur entrepreneuriale pour la sécuriser, l’optimiser et, le moment venu, la transformer efficacement en patrimoine durable."],
@@ -2856,11 +2856,11 @@ def build_family_office():
         "Pour les dirigeants, familles patrimoniales, entrepreneurs et investisseurs recherchant bien plus qu’un conseil financier : une vision stratégique globale, indépendante et durable de leur patrimoine.",
         [("Accueil","index.html"),("Nos solutions","nos-solutions.html"),("Accès à notre Family Office",None)])
     body += intro("Notre approche","L’architecte central de votre patrimoine",
-        "Là où les enjeux deviennent complexes — juridique, financier, immobilier, private equity, fiscalité, transmission, gouvernance —, la véritable valeur réside dans la coordination, la cohérence et le pilotage global.",
+        "Là où les enjeux deviennent complexes, juridique, financier, immobilier, private equity, fiscalité, transmission, gouvernance , , la véritable valeur réside dans la coordination, la cohérence et le pilotage global.",
         ["Nous ne nous limitons pas à la sélection de produits : nous construisons une gouvernance patrimoniale complète, pensée pour protéger, développer, structurer et transmettre votre patrimoine dans la durée.",
          "Totalement indépendants, nous travaillons en architecture ouverte, sans solutions captives, afin de sélectionner librement les meilleures expertises et partenaires selon vos objectifs exclusifs."],
         "assets/img/paris-courtyard.jpg","Family Office", rev=True)
-    body += section('<div class="quote" data-reveal><p>« Agir comme l’architecte central de votre patrimoine — protéger, développer, structurer et transmettre dans la durée. »</p><cite>Notre rôle</cite></div>', cls="section--tight band-dark")
+    body += section('<div class="quote" data-reveal><p>« Agir comme l’architecte central de votre patrimoine, protéger, développer, structurer et transmettre dans la durée. »</p><cite>Notre rôle</cite></div>', cls="section--tight band-dark")
     body += section('<div class="center" style="max-width:700px;margin-inline:auto" data-reveal>'
         '<p class="eyebrow">Notre approche</p><h2 class="title-lg">Quatre piliers, une gouvernance complète</h2><hr class="rule">'
         '<div class="tags" style="justify-content:center;margin-top:8px">'
@@ -2868,7 +2868,7 @@ def build_family_office():
         '<span class="tag">Sélection indépendante</span><span class="tag">Accompagnement long terme</span></div></div>'
         '<div class="grid grid-4" style="margin-top:48px">' + tiles(FO_SOLUTIONS) + '</div>', cls="section band-cream")
     body += cta_band("Découvrez notre Family Office","L’accès à notre Family Office est réservé à un cercle restreint. Rencontrons-nous pour en évaluer la pertinence, en toute confidentialité.")
-    page("family-office.html","Accès à notre Family Office","Pilotage patrimonial global, ingénierie avancée, allocation en architecture ouverte et gouvernance familiale — l’architecte central de votre patrimoine.", body)
+    page("family-office.html","Accès à notre Family Office","Pilotage patrimonial global, ingénierie avancée, allocation en architecture ouverte et gouvernance familiale, l’architecte central de votre patrimoine.", body)
 
 def build_family_office_pages():
     parent = ("Accès à notre Family Office","family-office.html")
@@ -2876,7 +2876,7 @@ def build_family_office_pages():
     sub_page("pilotage-patrimonial-global.html","Pilotage patrimonial global & stratégie sur-mesure","La tour de contrôle de votre patrimoine",
         "Orchestrer l’ensemble de votre patrimoine comme un écosystème cohérent, structuré et piloté selon une vision de long terme.",
         "assets/img/mansion.jpg","Pilotage patrimonial global",
-        ["Entreprises, holdings, immobilier, portefeuilles, trésorerie, private equity, enjeux successoraux, structures internationales : sans coordination, ces composantes évoluent de façon fragmentée — inefficiences, sur-risques, incohérences fiscales.",
+        ["Entreprises, holdings, immobilier, portefeuilles, trésorerie, private equity, enjeux successoraux, structures internationales : sans coordination, ces composantes évoluent de façon fragmentée, inefficiences, sur-risques, incohérences fiscales.",
          "Nous devenons votre tour de contrôle patrimoniale : agréger, structurer, analyser et piloter l’ensemble de vos enjeux dans une logique consolidée."],
         ["Une vision consolidée de tout votre patrimoine","Du fragmenté à une gouvernance structurée","Chef d’orchestre de tous vos conseils"],
         [("checklist","Une cartographie patrimoniale exhaustive",
@@ -2890,13 +2890,13 @@ def build_family_office_pages():
          ("tags","Concrètement, nous coordonnons",
             ["Patrimoine entrepreneurial & privé","Trésorerie & capitalisation","Immobilier, finance & non coté","Cession & transmission","Holdings & réserves","Allocations selon les cycles de vie"]),
          ("text","Chef d’orchestre de vos experts",
-            ["Experts-comptables, notaires, avocats, fiscalistes, banques privées, sociétés de gestion, assureurs : la performance patrimoniale ne dépend pas seulement de la qualité individuelle des experts, mais de la cohérence stratégique de leurs interventions — que nous coordonnons."]),
+            ["Experts-comptables, notaires, avocats, fiscalistes, banques privées, sociétés de gestion, assureurs : la performance patrimoniale ne dépend pas seulement de la qualité individuelle des experts, mais de la cohérence stratégique de leurs interventions, que nous coordonnons."]),
         ],
         [("Ingénierie patrimoniale avancée","ingenierie-patrimoniale.html"),("Allocation & architecture ouverte","allocation-architecture-ouverte.html"),("Gouvernance familiale","gouvernance-familiale.html")],
         "Pilotage patrimonial global : une tour de contrôle qui agrège, structure et pilote l’ensemble de vos actifs et enjeux.", parent)
 
     sub_page("ingenierie-patrimoniale.html","Ingénierie patrimoniale, fiscale & juridique avancée","Le cœur technique du Family Office",
-        "Structurer le patrimoine dans toutes ses dimensions — juridiques, fiscales, civiles, entrepreneuriales et successorales.",
+        "Structurer le patrimoine dans toutes ses dimensions, juridiques, fiscales, civiles, entrepreneuriales et successorales.",
         "assets/img/paris-colonnade.jpg","Ingénierie patrimoniale avancée",
         ["La question n’est plus de choisir des investissements, mais d’organiser comment le patrimoine est détenu, piloté, protégé, transmis et optimisé dans le temps.",
          "Sans ingénierie globale, même un patrimoine important souffre d’inefficience : fiscalité mal calibrée, structures inadaptées, dilution ou gouvernance fragile."],
@@ -2921,7 +2921,7 @@ def build_family_office_pages():
         "Concevoir une architecture d’investissement sur-mesure, totalement indépendante, intégrant l’ensemble des classes d’actifs pertinentes.",
         "assets/img/hero.jpg","Allocation et architecture ouverte",
         ["Une gestion sophistiquée ne repose pas sur une accumulation d’opportunités, mais sur une construction méthodique d’allocations cohérentes, adaptées à votre horizon, votre profil de risque et votre stratégie.",
-         "Architecture ouverte : aucun établissement captif, aucune banque ou société de gestion imposée — nous sélectionnons librement les meilleures solutions du marché, dans votre seul intérêt."],
+         "Architecture ouverte : aucun établissement captif, aucune banque ou société de gestion imposée, nous sélectionnons librement les meilleures solutions du marché, dans votre seul intérêt."],
         ["Un sélectionneur institutionnel indépendant","Mise en concurrence des meilleures expertises","Une allocation pilotée dans le temps"],
         [("cards","Toutes les classes d’actifs",[
             ("chart","Gestion financière","Actions, obligations, ETF, fonds spécialisés."),
@@ -2957,7 +2957,7 @@ def build_family_office_pages():
          ("tags","Transmettre bien plus que des actifs",
             ["Une vision patrimoniale","Une gouvernance","Des responsabilités","Une culture de gestion","Une continuité stratégique"]),
          ("text","L’accompagnement intergénérationnel",
-            ["Sensibilisation financière, préparation des repreneurs, organisation des pouvoirs, coordination familiale et préservation de l’unité — une dimension particulièrement critique dans les familles entrepreneuriales."]),
+            ["Sensibilisation financière, préparation des repreneurs, organisation des pouvoirs, coordination familiale et préservation de l’unité, une dimension particulièrement critique dans les familles entrepreneuriales."]),
         ],
         [("Transmission & gouvernance","transmission-gouvernance.html"),("Céder ou transmettre","ceder-transmettre.html"),("Pilotage patrimonial global","pilotage-patrimonial-global.html")],
         "Gouvernance familiale, transmission et accompagnement intergénérationnel : faire du patrimoine un projet qui traverse les générations.", parent,
@@ -3014,15 +3014,15 @@ def build_contact():
           '<div data-reveal data-delay="1">' + form + '</div>'
         '</div>')
     osm = ('https://www.openstreetmap.org/export/embed.html?bbox=2.3019%%2C48.8737%%2C2.3219%%2C48.8837&amp;layer=mapnik&amp;marker=%s%%2C%s' % (lat, lon))
-    body += section('<div class="map" data-reveal><iframe title="Plan — 58 rue de Monceau, 75008 Paris" loading="lazy" src="%s"></iframe></div>' % osm, cls="section--tight")
-    page("contact.html","Nous contacter","Contactez La Financière de Rochechouart — 58 rue de Monceau, 75008 Paris — contact@lfd-rochechouart.com.", body)
+    body += section('<div class="map" data-reveal><iframe title="Plan, 58 rue de Monceau, 75008 Paris" loading="lazy" src="%s"></iframe></div>' % osm, cls="section--tight")
+    page("contact.html","Nous contacter","Contactez La Financière de Rochechouart, 58 rue de Monceau, 75008 Paris, contact@lfd-rochechouart.com.", body)
 
 def build_mentions():
     body = page_hero("Mentions légales",
         "Informations légales relatives au site de La Financière de Rochechouart.",
         [("Accueil","index.html"),("Mentions légales",None)])
     blocks = [
-        ("Éditeur du site","La Financière de Rochechouart — Cabinet de gestion privée et de placement de trésorerie.<br>Adresse : %s.<br>Email : <a href=\"mailto:%s\">%s</a>." % (ADDRESS, EMAIL, EMAIL)),
+        ("Éditeur du site","La Financière de Rochechouart, Cabinet de gestion privée et de placement de trésorerie.<br>Adresse : %s.<br>Email : <a href=\"mailto:%s\">%s</a>." % (ADDRESS, EMAIL, EMAIL)),
         ("Hébergement","Le présent site est hébergé par l’hébergeur retenu par l’éditeur. Les coordonnées complètes peuvent être obtenues sur simple demande à l’adresse de contact."),
         ("Propriété intellectuelle","L’ensemble des contenus (textes, identité visuelle, illustrations, mise en page) est protégé par le droit de la propriété intellectuelle. Toute reproduction, totale ou partielle, est soumise à autorisation préalable."),
         ("Données personnelles","Conformément au RGPD, vous disposez d’un droit d’accès, de rectification et de suppression des données vous concernant. Les informations transmises via le formulaire de contact sont utilisées aux seules fins de traiter votre demande et ne sont jamais cédées à des tiers. Pour exercer vos droits, écrivez-nous à <a href=\"mailto:%s\">%s</a>." % (EMAIL, EMAIL)),

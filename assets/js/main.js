@@ -161,7 +161,7 @@
         status.textContent = 'Merci de renseigner votre nom, un email valide et votre message.';
         return;
       }
-      var subject = encodeURIComponent('Demande de contact — ' + name.value.trim());
+      var subject = encodeURIComponent('Demande de contact : ' + name.value.trim());
       var bodyLines = [
         'Nom : ' + name.value.trim(),
         'Email : ' + email.value.trim(),
