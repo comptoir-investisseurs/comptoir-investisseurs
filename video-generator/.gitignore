@@ -1,4 +1,8 @@
+.venv/
+videos/
 out/
 _tmp/
+.env
+_article_colle.txt
 __pycache__/
 *.pyc

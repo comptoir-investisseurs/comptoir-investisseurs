@@ -17,7 +17,29 @@ Article ──► [Étape 1 · Claude] Narratif voix off engageant (hook, dérou
         ──► video.mp4 + caption.txt
 ```
 
-## Installation
+## Le plus simple : le lanceur en un clic
+
+Pas besoin de connaître le terminal. Une seule fois, installez **Python**
+(https://www.python.org/downloads/) et **ffmpeg** (`brew install ffmpeg` sur
+Mac, `winget install Gyan.FFmpeg` sur Windows). Ensuite :
+
+1. **Mac** : double-cliquez `Lancer-Mac.command`
+   **Windows** : double-cliquez `Lancer-Windows.bat`
+2. La première fois, collez votre **clé API Anthropic** quand elle est
+   demandée (elle est mémorisée dans un fichier `.env` — jamais publiée).
+   La clé Pexels est optionnelle.
+3. Glissez votre article `.txt` ou collez votre texte.
+4. La vidéo se fabrique et le dossier `videos/` s'ouvre tout seul, avec le
+   `video.mp4` et la légende `caption.txt`.
+
+Le lanceur installe automatiquement tout le reste la première fois.
+
+> Astuce : vous pouvez aussi glisser directement un fichier `.txt` sur
+> l'icône du lanceur.
+
+---
+
+## Installation manuelle (pour les utilisateurs à l'aise avec le terminal)
 
 ```bash
 cd video-generator

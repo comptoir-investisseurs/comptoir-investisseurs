@@ -9,6 +9,21 @@ PKG_DIR = Path(__file__).resolve().parent
 ROOT_DIR = PKG_DIR.parent
 FONTS_DIR = ROOT_DIR / "assets" / "fonts"
 
+
+def load_env(path: Path | None = None) -> None:
+    """Charge un fichier .env (KEY=valeur) dans os.environ, sans dépendance.
+    Les variables déjà définies dans l'environnement ont la priorité."""
+    env_path = path or (ROOT_DIR / ".env")
+    if not env_path.exists():
+        return
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip().strip('"').strip("'")
+        os.environ.setdefault(key, value)
+
 # --- Identité de la chaîne ---------------------------------------------------
 CHANNEL_NAME = "Le Comptoir des Investisseurs"
 BADGE_LINE_1 = "LE COMPTOIR"
