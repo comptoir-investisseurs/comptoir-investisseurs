@@ -52,7 +52,7 @@ p{ margin:0 0 1.1em; }
   text-transform:uppercase; color:var(--gold); margin:0 0 18px;
 }
 .eyebrow--light{ color:var(--gold-light); }
-.lede{ font-size:1.1rem; line-height:1.7; color:var(--muted); font-weight:300; }
+.lede{ line-height:1.7; color:var(--ink); font-weight:300; }
 /* Justify reading paragraphs; keep centered/label contexts as they are */
 main p{ text-align:justify; text-justify:inter-word; }
 .center p, .quote p{ text-align:center; }
