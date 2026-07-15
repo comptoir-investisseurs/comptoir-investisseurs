@@ -1,0 +1,5 @@
+anthropic>=0.116.0
+pydantic>=2.7
+edge-tts>=6.1
+requests>=2.31
+pillow>=10.0
