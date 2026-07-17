@@ -26,7 +26,10 @@ ROOT = Path(__file__).resolve().parent
 # ce qui évite de tout réinstaller à chaque téléchargement.
 VENV = Path.home() / ".comptoir-investisseurs" / "venv"
 REQ_HASH_FILE = VENV.parent / "requirements.hash"
-ENV_FILE = ROOT / ".env"
+# Clés mémorisées hors du projet : conservées d'une version à l'autre.
+# (Reprend une éventuelle ancienne clé rangée dans le projet, une fois.)
+ENV_FILE = VENV.parent / ".env"
+_LEGACY_ENV_FILE = ROOT / ".env"
 SENTINEL = "COMPTOIR_IN_VENV"
 
 
@@ -101,6 +104,14 @@ def check_ffmpeg() -> None:
 # ---------------------------------------------------------------------------
 def ensure_keys() -> None:
     from comptoir import config
+
+    # Migre une éventuelle clé rangée dans l'ancien projet vers l'emplacement
+    # permanent, pour ne pas la redemander après un nouveau téléchargement.
+    if not ENV_FILE.exists() and _LEGACY_ENV_FILE.exists():
+        ENV_FILE.parent.mkdir(parents=True, exist_ok=True)
+        ENV_FILE.write_text(_LEGACY_ENV_FILE.read_text(encoding="utf-8"),
+                            encoding="utf-8")
+
     config.load_env(ENV_FILE)
 
     lines: list[str] = []
