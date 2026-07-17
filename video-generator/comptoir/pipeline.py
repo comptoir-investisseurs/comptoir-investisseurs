@@ -25,6 +25,9 @@ def run(article_text: str | None, settings: Settings,
     """Exécute le pipeline. Fournir soit `article_text` (pipeline complet),
     soit un `storyboard` déjà généré (rendu seul)."""
     from .ffmpeg_setup import ensure as ensure_ffmpeg
+    from .netfix import apply as apply_netfix
+
+    apply_netfix()  # certificats HTTPS (Anthropic, Pexels, TTS, téléchargements)
 
     out = settings.output_dir
     tmp = settings.temp_dir

@@ -67,15 +67,20 @@ def _api_version() -> str:
 
 
 def _fetch_json(url: str) -> dict:
+    from .netfix import ssl_context
+
     req = urllib.request.Request(url, headers={"User-Agent": "comptoir-video/1.0"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
+    with urllib.request.urlopen(req, timeout=60, context=ssl_context()) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
 
 def _download_zip(url: str, dst_dir: Path) -> None:
+    from .netfix import ssl_context
+
     tmp = dst_dir / "_dl.zip"
     req = urllib.request.Request(url, headers={"User-Agent": "comptoir-video/1.0"})
-    with urllib.request.urlopen(req, timeout=180) as resp, open(tmp, "wb") as fh:
+    with urllib.request.urlopen(req, timeout=180, context=ssl_context()) as resp, \
+            open(tmp, "wb") as fh:
         shutil.copyfileobj(resp, fh)
     with zipfile.ZipFile(tmp) as zf:
         zf.extractall(dst_dir)
@@ -123,6 +128,9 @@ def ensure() -> tuple[str, str]:
     """Garantit la présence de ffmpeg/ffprobe et renvoie leurs chemins.
     Ajoute leur dossier au PATH du processus. Idempotent."""
     global _resolved
+
+    from .netfix import apply as apply_netfix
+    apply_netfix()
 
     # 1. dossier explicite
     override = os.environ.get("COMPTOIR_FFMPEG_DIR")

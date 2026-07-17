@@ -181,6 +181,9 @@ def main() -> int:
     print("  Le Comptoir des Investisseurs — fabrique de vidéos")
     print("=" * 56)
 
+    from comptoir.netfix import apply as apply_netfix
+    apply_netfix()  # évite les erreurs de certificats HTTPS
+
     check_ffmpeg()
     ensure_keys()
     article = get_article_path()
