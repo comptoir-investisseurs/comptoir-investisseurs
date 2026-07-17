@@ -88,13 +88,25 @@ def _hex_to_rgb(value: str) -> tuple[int, int, int]:
     return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))  # type: ignore[return-value]
 
 
-def make_fallback_background(keywords: str, out_path: Path) -> Path:
+# Palettes sombres à la charte (haut, bas) — variées mais cohérentes.
+_FALLBACK_PALETTES = [
+    ("#0B1220", "#1B2C4A"),   # bleu nuit
+    ("#0A1512", "#123028"),   # vert profond
+    ("#160B12", "#3A1626"),   # bordeaux
+    ("#0E0E12", "#242433"),   # charbon
+    ("#0B1524", "#123A4A"),   # sarcelle
+]
+
+
+def make_fallback_background(keywords: str, out_path: Path, variant: int = 0) -> Path:
     """Fond de secours quand aucune séquence libre de droits n'est trouvée :
-    dégradé sombre + filets or, sobre et à la charte. `keywords` est ignoré
-    (conservé pour la signature)."""
+    dégradé sombre + trame façon graphique boursier. La palette et l'angle
+    varient selon `variant` pour éviter la monotonie d'une scène à l'autre.
+    `keywords` est conservé pour la signature (non affiché)."""
     w, h = config.WIDTH, config.HEIGHT
-    top = _hex_to_rgb(config.COLOR_BG_TOP)
-    bottom = _hex_to_rgb(config.COLOR_BG_BOTTOM)
+    pal_top, pal_bottom = _FALLBACK_PALETTES[variant % len(_FALLBACK_PALETTES)]
+    top = _hex_to_rgb(pal_top)
+    bottom = _hex_to_rgb(pal_bottom)
 
     img = Image.new("RGB", (w, h))
     px = img.load()
@@ -106,9 +118,29 @@ def make_fallback_background(keywords: str, out_path: Path) -> Path:
 
     draw = ImageDraw.Draw(img, "RGBA")
     gold = _hex_to_rgb(config.COLOR_GOLD)
-    # Filets diagonaux discrets, façon courbe de marché
-    draw.line([(0, int(h * 0.72)), (w, int(h * 0.38))], fill=(*gold, 60), width=6)
-    draw.line([(0, int(h * 0.80)), (w, int(h * 0.46))], fill=(*gold, 28), width=3)
+
+    # Trame façon chandeliers/courbe de marché (pente alternée selon la scène).
+    up = variant % 2 == 0
+    base_y = h * (0.66 if up else 0.40)
+    step_y = -h * 0.020 if up else h * 0.020
+    x = -40
+    col = 0
+    while x < w + 40:
+        bar_h = 26 + (col * 37) % 150
+        cy = int(base_y + step_y * col)
+        # mèche
+        draw.line([(x, cy - bar_h), (x, cy + bar_h)], fill=(*gold, 40), width=2)
+        # corps
+        draw.rectangle([x - 9, cy - bar_h // 2, x + 9, cy + bar_h // 2],
+                       fill=(*gold, 26))
+        x += 58
+        col += 1
+
+    # Deux filets diagonaux nets par-dessus.
+    y1 = int(h * (0.74 if up else 0.30))
+    y2 = int(h * (0.36 if up else 0.68))
+    draw.line([(0, y1), (w, y2)], fill=(*gold, 70), width=6)
+    draw.line([(0, y1 + 70), (w, y2 + 70)], fill=(*gold, 30), width=3)
 
     img.save(out_path)
     return out_path

@@ -103,5 +103,6 @@ def fetch_scene_asset(scene: Scene, index: int, settings: Settings,
             print(f"  ! Pexels indisponible pour la scène {index + 1} ({exc}) — fond de secours.")
 
     path = make_fallback_background(scene.search_keywords,
-                                    tmp / f"asset_{index:02d}_fallback.png")
+                                    tmp / f"asset_{index:02d}_fallback.png",
+                                    variant=index)
     return SceneAsset(path=path, media="photo")

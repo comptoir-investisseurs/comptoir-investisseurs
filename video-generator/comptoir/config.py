@@ -41,6 +41,10 @@ FONT_DISPLAY = FONTS_DIR / "Anton-Regular.ttf"        # titres, badge, sous-titr
 FONT_SUB = FONTS_DIR / "ArchivoBlack-Regular.ttf"     # secondaire
 SUBTITLE_FONT_NAME = "Anton"                          # nom interne du TTF
 
+# Musique de fond (générée, libre de droits). Utilisée par défaut, à bas volume.
+DEFAULT_MUSIC = ROOT_DIR / "assets" / "music" / "bed.mp3"
+DEFAULT_MUSIC_VOLUME = 0.09
+
 # --- Format vidéo -------------------------------------------------------------
 WIDTH = 1080
 HEIGHT = 1920
@@ -59,8 +63,12 @@ DEFAULT_MODEL = "claude-opus-4-8"
 
 # --- TTS ------------------------------------------------------------------------
 DEFAULT_TTS = "edge"
-DEFAULT_EDGE_VOICE = "fr-FR-HenriNeural"   # alternatives : fr-FR-DeniseNeural, fr-FR-RemyMultilingualNeural
-DEFAULT_EDGE_RATE = "+12%"                 # léger boost de rythme = rendu plus punchy
+# Voix « Multilingual » de dernière génération : nettement plus naturelle/humaine
+# que les voix neurales classiques.
+DEFAULT_EDGE_VOICE = "fr-FR-RemyMultilingualNeural"
+# Voix de secours si la voix principale est indisponible (toujours présentes) :
+EDGE_FALLBACK_VOICES = ["fr-FR-HenriNeural", "fr-FR-DeniseNeural"]
+DEFAULT_EDGE_RATE = "+6%"                   # léger boost, sans effet « robot pressé »
 DEFAULT_ELEVENLABS_MODEL = "eleven_multilingual_v2"
 
 
@@ -72,8 +80,10 @@ class Settings:
     tts_backend: str = DEFAULT_TTS
     voice: str = DEFAULT_EDGE_VOICE
     rate: str = DEFAULT_EDGE_RATE
-    music: Path | None = None
-    music_volume: float = 0.10
+    music: Path | None = field(
+        default_factory=lambda: DEFAULT_MUSIC if DEFAULT_MUSIC.exists() else None
+    )
+    music_volume: float = DEFAULT_MUSIC_VOLUME
     banner_seconds: float = BANNER_SECONDS
     keep_temp: bool = False
     pexels_api_key: str | None = field(default_factory=lambda: os.environ.get("PEXELS_API_KEY"))

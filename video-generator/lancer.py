@@ -22,7 +22,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-VENV = ROOT / ".venv"
+# Environnement isolé rangé hors du projet : réutilisé d'une version à l'autre,
+# ce qui évite de tout réinstaller à chaque téléchargement.
+VENV = Path.home() / ".comptoir-investisseurs" / "venv"
+REQ_HASH_FILE = VENV.parent / "requirements.hash"
 ENV_FILE = ROOT / ".env"
 SENTINEL = "COMPTOIR_IN_VENV"
 
@@ -36,21 +39,31 @@ def _venv_python() -> Path:
     )
 
 
+def _requirements_hash() -> str:
+    import hashlib
+    return hashlib.sha256((ROOT / "requirements.txt").read_bytes()).hexdigest()
+
+
 def ensure_venv_and_reexec() -> None:
-    """Crée le venv, installe les deps, puis relance ce script dedans."""
+    """Crée (si besoin) l'environnement isolé, installe les deps seulement
+    quand elles changent, puis relance ce script dedans."""
     if os.environ.get(SENTINEL) == "1":
         return  # déjà dans le venv : rien à faire
 
     py = _venv_python()
-    first_time = not py.exists()
-    if first_time:
+    need_create = not py.exists()
+    if need_create:
         print("• Première utilisation : préparation de l'environnement "
               "(1 à 2 minutes)…", flush=True)
+        VENV.parent.mkdir(parents=True, exist_ok=True)
         import venv
         venv.EnvBuilder(with_pip=True).create(VENV)
 
-    # Installe / met à jour les dépendances (rapide si déjà présentes)
-    if first_time:
+    # Réinstalle uniquement si l'environnement est neuf ou si les dépendances
+    # ont changé depuis la dernière fois (réutilisation entre versions).
+    current = _requirements_hash()
+    stored = REQ_HASH_FILE.read_text().strip() if REQ_HASH_FILE.exists() else ""
+    if need_create or stored != current:
         print("• Installation des composants…", flush=True)
         subprocess.run([str(py), "-m", "pip", "install", "--quiet",
                         "--upgrade", "pip"], check=False)
@@ -60,6 +73,7 @@ def ensure_venv_and_reexec() -> None:
             print("  ! L'installation a échoué. Vérifiez votre connexion "
                   "internet et relancez.", file=sys.stderr)
             sys.exit(1)
+        REQ_HASH_FILE.write_text(current)
 
     # Relance ce même script à l'intérieur du venv
     env = dict(os.environ, **{SENTINEL: "1"})

@@ -45,8 +45,12 @@ def main() -> int:
     parser.add_argument("--rate", default=config.DEFAULT_EDGE_RATE,
                         help="Vitesse edge-tts (ex. +12%%).")
     parser.add_argument("--music", type=Path, default=None,
-                        help="Musique de fond (mp3/wav), mixée à bas volume.")
-    parser.add_argument("--music-volume", type=float, default=0.10,
+                        help="Musique de fond (mp3/wav). Par défaut : la nappe "
+                             "fournie. Mixée à bas volume.")
+    parser.add_argument("--no-music", action="store_true",
+                        help="Désactive la musique de fond.")
+    parser.add_argument("--music-volume", type=float,
+                        default=config.DEFAULT_MUSIC_VOLUME,
                         help="Volume de la musique (0.0-1.0).")
     parser.add_argument("--banner-seconds", type=float, default=config.BANNER_SECONDS,
                         help="Durée d'affichage du bandeau-titre.")
@@ -77,11 +81,15 @@ def main() -> int:
         tts_backend=args.tts,
         voice=args.voice,
         rate=args.rate,
-        music=args.music,
         music_volume=args.music_volume,
         banner_seconds=args.banner_seconds,
         keep_temp=args.keep_temp,
     )
+    # Musique : --no-music désactive ; --music xxx force un fichier ; sinon défaut.
+    if args.no_music:
+        settings.music = None
+    elif args.music is not None:
+        settings.music = args.music
     result = run(article_text, settings, storyboard=storyboard)
     print(f"\nDurée : {result.duration_seconds}s — bonne publication !")
     return 0

@@ -71,10 +71,12 @@ def _estimate_words(text: str, duration: float) -> list[Word]:
 def _synth_edge(text: str, out_wav: Path, settings: Settings) -> SceneAudio:
     import edge_tts
 
+    from .config import EDGE_FALLBACK_VOICES
+
     mp3_path = out_wav.with_suffix(".mp3")
 
-    async def run() -> list[Word]:
-        communicate = edge_tts.Communicate(text, settings.voice, rate=settings.rate)
+    async def run(voice: str) -> list[Word]:
+        communicate = edge_tts.Communicate(text, voice, rate=settings.rate)
         words: list[Word] = []
         with open(mp3_path, "wb") as fh:
             async for chunk in communicate.stream():
@@ -86,7 +88,24 @@ def _synth_edge(text: str, out_wav: Path, settings: Settings) -> SceneAudio:
                     words.append(Word(text=chunk["text"], start=start, end=end))
         return words
 
-    words = asyncio.run(run())
+    # Voix principale, puis voix de secours si elle est indisponible.
+    voices = [settings.voice] + [v for v in EDGE_FALLBACK_VOICES if v != settings.voice]
+    last_error: Exception | None = None
+    words: list[Word] = []
+    for i, voice in enumerate(voices):
+        try:
+            words = asyncio.run(run(voice))
+            if i > 0:
+                print(f"  (voix « {settings.voice} » indisponible → « {voice} »)")
+            break
+        except Exception as exc:  # voix inconnue, coupure réseau ponctuelle…
+            last_error = exc
+            mp3_path.unlink(missing_ok=True)
+    else:
+        raise RuntimeError(
+            f"Échec de la synthèse vocale edge-tts : {last_error}"
+        )
+
     _to_wav(mp3_path, out_wav)
     mp3_path.unlink(missing_ok=True)
     duration = _probe_duration(out_wav)
