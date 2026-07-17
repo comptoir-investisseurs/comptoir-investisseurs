@@ -124,24 +124,43 @@ def ensure_keys() -> None:
 # ---------------------------------------------------------------------------
 # 4. Récupération de l'article
 # ---------------------------------------------------------------------------
+def _clean_path(raw: str) -> str:
+    """Nettoie un chemin saisi ou glissé (guillemets, espaces échappés)."""
+    value = raw.strip().strip('"').strip("'")
+    value = value.replace("\\ ", " ")  # Terminal échappe les espaces d'un glissé
+    return value.strip()
+
+
+def _safe_is_file(value: str) -> bool:
+    """Teste si `value` est un fichier existant, sans planter si c'est en fait
+    un long texte collé (chemin trop long → OSError)."""
+    if not value:
+        return False
+    try:
+        return Path(value).is_file()
+    except OSError:
+        return False
+
+
 def get_article_path() -> Path:
     from comptoir import config
 
     # a) fichier passé en argument (glisser-déposer sur l'icône)
-    if len(sys.argv) > 1 and Path(sys.argv[1]).is_file():
-        return Path(sys.argv[1])
+    if len(sys.argv) > 1:
+        arg = _clean_path(sys.argv[1])
+        if _safe_is_file(arg):
+            return Path(arg)
 
     print("\n📝 Votre article :")
-    print("   • glissez un fichier .txt ici puis Entrée,")
-    print("   • ou collez directement le texte (terminez par une ligne vide).")
-    first = input("   > ").strip().strip('"').strip("'")
-
-    candidate = Path(first)
-    if first and candidate.is_file():
-        return candidate
+    print("   • RECOMMANDÉ : glissez votre fichier .txt ici, puis Entrée,")
+    print("   • ou collez le texte, puis appuyez deux fois sur Entrée pour terminer.")
+    first = input("   > ")
+    cleaned = _clean_path(first)
+    if _safe_is_file(cleaned):
+        return Path(cleaned)
 
     # b) texte collé : on lit jusqu'à une ligne vide
-    collected = [first] if first else []
+    collected = [first.rstrip("\n")] if first.strip() else []
     while True:
         try:
             line = input()
