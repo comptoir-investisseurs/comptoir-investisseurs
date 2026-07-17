@@ -71,17 +71,15 @@ def ensure_venv_and_reexec() -> None:
 # 2. Vérification ffmpeg
 # ---------------------------------------------------------------------------
 def check_ffmpeg() -> None:
+    """ffmpeg est installé automatiquement s'il manque (voir ffmpeg_setup)."""
     if shutil.which("ffmpeg") and shutil.which("ffprobe"):
         return
-    print("\n⚠  ffmpeg est requis mais introuvable. Installez-le puis "
-          "relancez :", file=sys.stderr)
-    if sys.platform == "darwin":
-        print("    brew install ffmpeg", file=sys.stderr)
-    elif os.name == "nt":
-        print("    winget install Gyan.FFmpeg", file=sys.stderr)
-    else:
-        print("    sudo apt install ffmpeg", file=sys.stderr)
-    sys.exit(1)
+    from comptoir.ffmpeg_setup import ensure
+    try:
+        ensure()  # télécharge des binaires statiques si nécessaire
+    except Exception as exc:
+        print(f"\n⚠  {exc}", file=sys.stderr)
+        sys.exit(1)
 
 
 # ---------------------------------------------------------------------------

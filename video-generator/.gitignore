@@ -1,4 +1,5 @@
 .venv/
+bin/
 videos/
 out/
 _tmp/

@@ -24,10 +24,15 @@ def run(article_text: str | None, settings: Settings,
         narrative: str | None = None) -> GenerationResult:
     """Exécute le pipeline. Fournir soit `article_text` (pipeline complet),
     soit un `storyboard` déjà généré (rendu seul)."""
+    from .ffmpeg_setup import ensure as ensure_ffmpeg
+
     out = settings.output_dir
     tmp = settings.temp_dir
     out.mkdir(parents=True, exist_ok=True)
     tmp.mkdir(parents=True, exist_ok=True)
+
+    # Garantit ffmpeg/ffprobe (téléchargement auto au besoin) avant tout rendu.
+    ensure_ffmpeg()
 
     # --- Étapes LLM ---------------------------------------------------------
     if storyboard is None:
