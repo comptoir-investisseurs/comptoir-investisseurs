@@ -41,7 +41,16 @@ class Storyboard(BaseModel):
         description="Ligne 2 du bandeau-titre, en MAJUSCULES, l'angle choc "
                     "(ex. : 'LA NOMINATION POLÉMIQUE')."
     )
-    scenes: List[Scene] = Field(description="6 à 12 scènes qui couvrent tout le narratif.")
+    scenes: List[Scene] = Field(
+        description="10 à 16 scènes COURTES qui couvrent tout le narratif "
+                    "(une phrase par scène : le montage doit rester rapide)."
+    )
+    music_mood: Literal["tension", "neutre", "dynamique"] = Field(
+        default="neutre",
+        description="Ambiance musicale adaptée au sujet : 'tension' (scandale, "
+                    "crise, polémique, argent disparu), 'neutre' (analyse, "
+                    "dossier), 'dynamique' (croissance, résultats, innovation).",
+    )
     caption: str = Field(
         description="Légende du post TikTok/Instagram : accroche 1 ligne, 2-3 lignes "
                     "de contexte, question d'engagement, puis 5-8 hashtags finance FR. "
@@ -52,6 +61,7 @@ class Storyboard(BaseModel):
 class GenerationResult(BaseModel):
     """Ce que le pipeline écrit sur disque."""
     video_path: str
+    cover_path: str = ""
     caption_path: str
     storyboard_path: str
     narrative_path: str

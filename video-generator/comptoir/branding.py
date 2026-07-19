@@ -18,10 +18,11 @@ def _text_size(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFon
 
 
 def make_badge(out_path: Path) -> Path:
-    """Badge de chaîne (coin haut droit) : deux blocs empilés, noir puis or."""
-    font1 = _font(config.FONT_DISPLAY, 54)
-    font2 = _font(config.FONT_DISPLAY, 34)
-    pad_x, pad_y, gap = 22, 12, 0
+    """Badge de chaîne (haut droit, sous l'interface TikTok) : deux blocs
+    empilés, noir puis or. Taille réduite pour rester discret."""
+    font1 = _font(config.FONT_DISPLAY, 40)
+    font2 = _font(config.FONT_DISPLAY, 25)
+    pad_x, pad_y, gap = 16, 9, 0
 
     probe = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
     w1, h1, l1, t1 = _text_size(probe, config.BADGE_LINE_1, font1)

@@ -41,8 +41,15 @@ FONT_DISPLAY = FONTS_DIR / "Anton-Regular.ttf"        # titres, badge, sous-titr
 FONT_SUB = FONTS_DIR / "ArchivoBlack-Regular.ttf"     # secondaire
 SUBTITLE_FONT_NAME = "Anton"                          # nom interne du TTF
 
-# Musique de fond (générée, libre de droits). Utilisée par défaut, à bas volume.
-DEFAULT_MUSIC = ROOT_DIR / "assets" / "music" / "bed.mp3"
+# Musiques de fond (générées, 100 % libres de droits), choisies selon le ton
+# de l'article par l'étape storyboard. Mixées à bas volume.
+MUSIC_DIR = ROOT_DIR / "assets" / "music"
+MUSIC_BY_MOOD = {
+    "tension": MUSIC_DIR / "tension.mp3",     # scandale, crise, polémique
+    "neutre": MUSIC_DIR / "neutre.mp3",       # analyse, dossier de fond
+    "dynamique": MUSIC_DIR / "dynamique.mp3", # résultats, croissance, innovation
+}
+DEFAULT_MUSIC = MUSIC_DIR / "neutre.mp3"
 DEFAULT_MUSIC_VOLUME = 0.09
 
 # --- Format vidéo -------------------------------------------------------------
@@ -52,11 +59,18 @@ FPS = 30
 SCENE_PAD_S = 0.18          # respiration ajoutée après la narration de chaque scène
 BANNER_SECONDS = 6.0        # durée d'affichage du bandeau-titre (début de vidéo)
 
+# Position de l'habillage (zones sûres TikTok : l'interface masque ~200 px en
+# haut et ~320 px en bas de l'écran).
+BADGE_Y = 220               # badge de chaîne : sous la barre de recherche TikTok
+BADGE_X_MARGIN = 42
+BANNER_Y = 430              # bandeau-titre : sous le badge
+
 # --- Sous-titres ---------------------------------------------------------------
-SUB_MAX_WORDS = 3           # mots max par carton de sous-titre
-SUB_MAX_CHARS = 20          # caractères max par carton
-SUB_FONT_SIZE = 92          # sur une grille 1080x1920
-SUB_MARGIN_V = 480          # distance du bas (zone sûre TikTok/Reels)
+SUB_MAX_LINES = 2           # cartons de 2 lignes
+SUB_MAX_CHARS = 19          # caractères max par ligne
+SUB_FONT_SIZE = 88          # sur une grille 1080x1920
+SUB_TOP_Y = 1270            # ancre FIXE du haut du bloc de sous-titres
+                            # (le texte pousse vers le bas, jamais vers le haut)
 
 # --- LLM ------------------------------------------------------------------------
 DEFAULT_MODEL = "claude-opus-4-8"

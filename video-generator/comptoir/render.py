@@ -92,8 +92,9 @@ def render_final(video: Path, voiceover: Path, badge: Path, banner: Path,
     banner_end = min(banner_seconds, total_duration)
     fontsdir = config.FONTS_DIR.as_posix()
     filters = [
-        "[0:v][2:v]overlay=W-w-42:64[v1]",
-        f"[v1][3:v]overlay=(W-w)/2:330:enable='between(t,0,{banner_end:.2f})'[v2]",
+        f"[0:v][2:v]overlay=W-w-{config.BADGE_X_MARGIN}:{config.BADGE_Y}[v1]",
+        f"[v1][3:v]overlay=(W-w)/2:{config.BANNER_Y}"
+        f":enable='between(t,0,{banner_end:.2f})'[v2]",
         f"[v2]ass={ass_path.as_posix()}:fontsdir={fontsdir}[vout]",
     ]
     if music is not None:
@@ -116,4 +117,12 @@ def render_final(video: Path, voiceover: Path, badge: Path, banner: Path,
             "-movflags", "+faststart",
             str(out_path)])
     _run(cmd)
+    return out_path
+
+
+def make_cover(video: Path, out_path: Path, at_seconds: float = 1.2) -> Path:
+    """Couverture verticale 1080x1920 (miniature TikTok/Instagram) : image
+    extraite pendant l'affichage du bandeau-titre, donc titre + badge inclus."""
+    _run(["ffmpeg", "-y", "-v", "error", "-ss", f"{at_seconds:.2f}",
+          "-i", str(video), "-frames:v", "1", "-q:v", "2", str(out_path)])
     return out_path

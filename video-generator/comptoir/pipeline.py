@@ -10,7 +10,8 @@ from .assets import fetch_scene_asset
 from .branding import make_badge, make_title_banner
 from .config import Settings
 from .models import GenerationResult, Storyboard
-from .render import build_voiceover, concat_clips, make_scene_clip, render_final
+from .render import (build_voiceover, concat_clips, make_cover,
+                     make_scene_clip, render_final)
 from .subtitles import _normalize, build_cards, write_ass
 from .tts import synthesize_scene
 
@@ -107,13 +108,25 @@ def run(article_text: str | None, settings: Settings,
     _log("• Étape 5/5 — Rendu final…")
     video_concat = concat_clips(clips, tmp / "video_concat.mp4")
     voiceover = build_voiceover(scene_wavs, scene_durations, tmp / "voiceover.wav")
+
+    # Musique : si l'utilisateur n'a pas fourni la sienne, on prend l'ambiance
+    # choisie par le storyboard (tension / neutre / dynamique).
+    music = settings.music
+    if music is not None and Path(music) == config.DEFAULT_MUSIC:
+        mood_track = config.MUSIC_BY_MOOD.get(storyboard.music_mood)
+        if mood_track and mood_track.exists():
+            music = mood_track
+            _log(f"  Musique : ambiance « {storyboard.music_mood} ».")
+
     video_path = out / "video.mp4"
     render_final(
         video=video_concat, voiceover=voiceover, badge=badge, banner=banner,
         ass_path=ass_path, total_duration=total_duration,
         banner_seconds=settings.banner_seconds, out_path=video_path,
-        music=settings.music, music_volume=settings.music_volume,
+        music=music, music_volume=settings.music_volume,
     )
+    cover_path = make_cover(video_path, out / "cover.jpg")
+    _log(f"✔ Couverture : {cover_path}")
 
     if not settings.keep_temp:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -122,6 +135,7 @@ def run(article_text: str | None, settings: Settings,
     _log(f"✔ Légende : {caption_path}")
     return GenerationResult(
         video_path=str(video_path),
+        cover_path=str(cover_path),
         caption_path=str(caption_path),
         storyboard_path=str(storyboard_path),
         narrative_path=str(narrative_path),

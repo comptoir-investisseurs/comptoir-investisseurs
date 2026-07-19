@@ -1,8 +1,9 @@
-"""Sous-titres ASS : cartons courts en majuscules, synchronisés mot à mot."""
+"""Sous-titres ASS : cartons de deux lignes en majuscules, à POSITION FIXE,
+synchronisés sur les timings mot à mot de la voix off."""
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from . import config
@@ -14,10 +15,11 @@ _WHITE_ASS = "&HFFFFFF&"
 
 @dataclass
 class SubCard:
+    """Un carton : 1 à 2 lignes de mots, avec leur drapeau d'emphase."""
     start: float
     end: float
-    words: list[str]
-    highlighted: list[bool]
+    lines: list[list[str]] = field(default_factory=list)
+    highlighted: list[list[bool]] = field(default_factory=list)
 
 
 def _normalize(token: str) -> str:
@@ -26,30 +28,42 @@ def _normalize(token: str) -> str:
 
 def build_cards(words: list[Word], emphasis: set[str],
                 offset: float) -> list[SubCard]:
-    """Groupe les mots d'une scène en cartons de 2-3 mots max."""
+    """Groupe les mots d'une scène en cartons de 2 lignes maximum.
+    Un mot n'est JAMAIS coupé : il passe entier à la ligne ou au carton
+    suivant si la ligne est pleine (apostrophes et traits d'union compris)."""
     cards: list[SubCard] = []
-    current: list[Word] = []
+    lines: list[list[Word]] = [[]]
 
     def flush() -> None:
-        if not current:
+        nonlocal lines
+        full = [ln for ln in lines if ln]
+        if not full:
+            lines = [[]]
             return
+        flat = [w for ln in full for w in ln]
         cards.append(SubCard(
-            start=offset + current[0].start,
-            end=offset + current[-1].end + 0.05,
-            words=[w.text for w in current],
-            highlighted=[_normalize(w.text) in emphasis for w in current],
+            start=offset + flat[0].start,
+            end=offset + flat[-1].end + 0.05,
+            lines=[[w.text for w in ln] for ln in full],
+            highlighted=[[_normalize(w.text) in emphasis for w in ln]
+                         for ln in full],
         ))
-        current.clear()
+        lines = [[]]
 
     for word in words:
-        candidate_len = sum(len(w.text) + 1 for w in current) + len(word.text)
-        if current and (len(current) >= config.SUB_MAX_WORDS
-                        or candidate_len > config.SUB_MAX_CHARS):
+        current = lines[-1]
+        width = sum(len(w.text) + 1 for w in current) + len(word.text)
+        if current and width > config.SUB_MAX_CHARS:
+            if len(lines) >= config.SUB_MAX_LINES:
+                flush()
+            else:
+                lines.append([])
+        lines[-1].append(word)
+        # Ponctuation forte : fin de carton. Virgule : fin de ligne.
+        if re.search(r"[.!?:;]$", word.text):
             flush()
-        current.append(word)
-        # Coupe naturelle sur la ponctuation forte
-        if re.search(r"[.!?:;,]$", word.text):
-            flush()
+        elif word.text.endswith(",") and len(lines) < config.SUB_MAX_LINES:
+            lines.append([])
     flush()
 
     # Étire chaque carton jusqu'au début du suivant (pas de trou d'affichage)
@@ -69,18 +83,27 @@ def _ass_time(seconds: float) -> str:
     return f"{h}:{m:02d}:{s:02d}.{cs:02d}"
 
 
-def _card_text(card: SubCard) -> str:
+def _line_text(tokens: list[str], flags: list[bool]) -> str:
     parts = []
-    for token, hot in zip(card.words, card.highlighted):
+    for token, hot in zip(tokens, flags):
         text = token.upper().replace("{", "(").replace("}", ")")
         if hot:
             parts.append(rf"{{\1c{_GOLD_ASS}}}{text}{{\1c{_WHITE_ASS}}}")
         else:
             parts.append(text)
-    return r"{\fad(70,40)}" + " ".join(parts)
+    return " ".join(parts)
+
+
+def _card_text(card: SubCard) -> str:
+    lines = [_line_text(tokens, flags)
+             for tokens, flags in zip(card.lines, card.highlighted)]
+    return r"{\fad(70,40)}" + r"\N".join(lines)
 
 
 def write_ass(cards: list[SubCard], out_path: Path) -> Path:
+    # Alignment 8 = ancré en HAUT-centre : la première ligne reste toujours à
+    # la même hauteur (SUB_TOP_Y) ; une éventuelle 2e ligne pousse vers le bas.
+    # Résultat : le bloc ne « saute » jamais pendant le défilement.
     header = f"""[Script Info]
 Title: Le Comptoir des Investisseurs
 ScriptType: v4.00+
@@ -91,16 +114,15 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Punch,{config.SUBTITLE_FONT_NAME},{config.SUB_FONT_SIZE},&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,0,0,0,0,100,100,1,0,1,8,3,2,60,60,{config.SUB_MARGIN_V},1
+Style: Punch,{config.SUBTITLE_FONT_NAME},{config.SUB_FONT_SIZE},&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,0,0,0,0,100,100,1,0,1,8,3,8,50,50,{config.SUB_TOP_Y},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
-    lines = [header]
-    for card in cards:
-        lines.append(
-            f"Dialogue: 0,{_ass_time(card.start)},{_ass_time(card.end)},"
-            f"Punch,,0,0,0,,{_card_text(card)}\n"
-        )
-    out_path.write_text("".join(lines), encoding="utf-8")
+    events = [
+        f"Dialogue: 0,{_ass_time(c.start)},{_ass_time(c.end)},"
+        f"Punch,,0,0,0,,{_card_text(c)}\n"
+        for c in cards
+    ]
+    out_path.write_text(header + "".join(events), encoding="utf-8")
     return out_path

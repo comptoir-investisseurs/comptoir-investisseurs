@@ -33,6 +33,12 @@ apporte une information nouvelle — jamais de remplissage.
 INTERDITS : conseil d'achat/vente, conditionnel alarmiste non sourcé, \
 superlatifs vides (« incroyable », « choquant »), jargon non expliqué.
 
+ÉCRIT POUR ÊTRE LU À VOIX HAUTE : ce texte part directement en synthèse \
+vocale. Pas de parenthèses, pas de symboles (« pour cent » plutôt que « % », \
+« euros » plutôt que « € », « environ » plutôt que « ~ »), nombres simples à \
+prononcer (« treize milliards d'euros » plutôt que « 13 000 000 000 € »), \
+sigles usuels uniquement (BCE, PIB) et épelés sinon.
+
 Réponds UNIQUEMENT avec le texte de la voix off, sans titre ni commentaire.\
 """
 
@@ -46,11 +52,16 @@ plein écran (bandeau-titre en ouverture, images d'archives, sous-titres \
 majuscules synchronisés).
 
 À partir de la voix off fournie, découpe un storyboard :
-- Découpe TOUTE la voix off en scènes de 1 à 2 phrases. L'intégralité du texte \
-doit se retrouver, mot pour mot, dans les champs `narration` (ne reformule pas, \
-ne coupe pas de mots).
-- Rythme : une scène = 4 à 8 secondes. Alterne les échelles (plan large / plan \
-serré) et les types (video / photo) pour garder un montage dynamique.
+- Découpe TOUTE la voix off en scènes d'UNE SEULE phrase (exceptionnellement \
+deux très courtes). L'intégralité du texte doit se retrouver, mot pour mot, \
+dans les champs `narration` (ne reformule pas, ne coupe pas de mots). Vise \
+10 à 16 scènes : le plan doit changer toutes les 3 à 5 secondes, jamais plus \
+de 7 secondes sur le même visuel.
+- Alterne les échelles (plan large / plan serré) et les types (video / photo) \
+pour garder un montage nerveux ; deux scènes consécutives ne montrent jamais \
+la même chose.
+- `music_mood` : choisis l'ambiance qui colle au sujet (tension / neutre / \
+dynamique).
 - La scène 1 (le hook) doit avoir le visuel le plus fort.
 - `search_keywords` : mots-clés ANGLAIS efficaces sur une banque d'images \
 (Pexels) : lieux, institutions, gestes financiers, écrans de trading. Évite \

@@ -50,6 +50,35 @@ def _to_wav(src: Path, dst: Path) -> None:
     )
 
 
+# Symboles et abréviations que les voix lisent mal : on les écrit en toutes
+# lettres AVANT la synthèse (la même forme se retrouve dans les sous-titres,
+# construits sur les mots réellement prononcés).
+_TTS_REPLACEMENTS = [
+    (re.compile(r"(\d)\s*%"), r"\1 pour cent"),
+    (re.compile(r"%"), " pour cent"),
+    (re.compile(r"(\d)\s*Mds?\s*€"), r"\1 milliards d'euros"),
+    (re.compile(r"(\d)\s*M€"), r"\1 millions d'euros"),
+    (re.compile(r"(\d)\s*€"), r"\1 euros"),
+    (re.compile(r"€"), " euros"),
+    (re.compile(r"(\d)\s*\$"), r"\1 dollars"),
+    (re.compile(r"\$"), " dollars"),
+    (re.compile(r"£"), " livres"),
+    (re.compile(r"\bnº|\bn°"), "numéro "),
+    (re.compile(r"[«»“”]"), ""),
+    (re.compile(r"\s*&\s*"), " et "),
+    (re.compile(r"\s*/\s*"), " sur "),
+    (re.compile(r"[\(\)\[\]]"), " "),
+    (re.compile(r"\s{2,}"), " "),
+]
+
+
+def normalize_for_speech(text: str) -> str:
+    """Rend le texte imprononçable prononçable (symboles, sigles monétaires)."""
+    for pattern, repl in _TTS_REPLACEMENTS:
+        text = pattern.sub(repl, text)
+    return text.strip()
+
+
 def _estimate_words(text: str, duration: float) -> list[Word]:
     """Répartit la durée totale au prorata de la longueur des mots."""
     tokens = [t for t in re.split(r"\s+", text.strip()) if t]
@@ -203,4 +232,4 @@ def synthesize_scene(text: str, out_wav: Path, settings: Settings) -> SceneAudio
             f"Backend TTS inconnu : {settings.tts_backend!r} "
             f"(choix : {', '.join(_BACKENDS)})"
         ) from None
-    return backend(text, out_wav, settings)
+    return backend(normalize_for_speech(text), out_wav, settings)

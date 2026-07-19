@@ -252,9 +252,10 @@ def main() -> int:
 
     print("\n" + "=" * 56)
     print("  ✔ Terminé !")
-    print(f"  Vidéo   : {result.video_path}")
-    print(f"  Légende : {result.caption_path}")
-    print(f"  Durée   : {result.duration_seconds}s")
+    print(f"  Vidéo      : {result.video_path}")
+    print(f"  Couverture : {result.cover_path}")
+    print(f"  Légende    : {result.caption_path}")
+    print(f"  Durée      : {result.duration_seconds}s")
     print("=" * 56)
     open_folder(out_dir)
     if os.name != "nt":
