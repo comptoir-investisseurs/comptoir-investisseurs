@@ -37,13 +37,22 @@ Tout est dans `index.html` :
 3. **La carte** : chaque plat est un bloc `<div class="dish">` — dupliquez, modifiez, supprimez.
 4. **Les boissons** : mêmes principes, blocs `<div class="drink">`.
 5. **Horaires** : section `#reservation`, liste `resa-info`.
-6. **Photos réelles** : les visuels sont des illustrations SVG de démonstration ;
-   remplacez-les par les photos du client pour la version finale.
+6. **Photos** : les visuels sont des photos Unsplash (libres de droits) chargées
+   par URL, avec un décor illustré de secours si une image ne charge pas.
+   Pour la version vendue, remplacez les URL par les photos du client
+   (ex. `assets/hero.jpg`) — cherchez `images.unsplash.com` dans le fichier.
 
-## Brancher une vraie réservation
+## Le module de réservation (type Zenchef)
 
-Le formulaire affiche pour l'instant une confirmation de démonstration (aucune
-donnée n'est envoyée). Trois options selon le budget du client :
+Le site embarque un planning de réservation en 3 étapes, comme les solutions
+professionnelles : nombre de couverts → calendrier avec jours complets →
+créneaux horaires (déjeuner/dîner) avec liste d'attente, récapitulatif et
+confirmation.
+
+**Démonstration** : les disponibilités sont simulées de façon déterministe
+(fonction `availabilityFor` / `slotStatus` dans le script) et aucune donnée
+n'est envoyée. Pour la production, remplacez ces fonctions par un appel à
+votre système de réservation. Trois options selon le budget du client :
 
 | Option | Coût | Mise en place |
 |---|---|---|

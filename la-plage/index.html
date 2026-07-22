@@ -20,6 +20,8 @@
     --ink:#22333b;
     --white:#fdfcf9;
     --accent:#c98a4b;
+    --ok:#3a9e5f;
+    --wait:#e08a2e;
     --serif:'Cormorant Garamond', Georgia, serif;
     --sans:'Jost', 'Segoe UI', sans-serif;
   }
@@ -29,6 +31,7 @@
   img{max-width:100%}
   h1,h2,h3{font-family:var(--serif);font-weight:500}
   a{color:inherit}
+  button{font-family:var(--sans)}
 
   /* ---------- Nav ---------- */
   header{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .4s ease, box-shadow .4s ease;padding:1.1rem 5vw;display:flex;align-items:center;justify-content:space-between}
@@ -53,21 +56,23 @@
   /* ---------- Hero ---------- */
   .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;overflow:hidden;
     background:linear-gradient(180deg,#b9cdd1 0%, #9dbfc3 30%, #6fa3a8 55%, #4f868c 75%, #3d7a80 100%)}
-  .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:34vh;
-    background:linear-gradient(180deg, rgba(246,241,231,0) 0%, rgba(246,241,231,.35) 55%, var(--sand) 100%)}
-  .hero-inner{position:relative;z-index:2;padding:0 1.5rem;color:var(--white)}
+  .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .hero-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg, rgba(42,86,91,.25) 0%, rgba(42,86,91,.35) 60%, rgba(42,86,91,.55) 100%)}
+  .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:20vh;z-index:2;pointer-events:none;
+    background:linear-gradient(180deg, rgba(246,241,231,0) 0%, rgba(246,241,231,.25) 60%, rgba(246,241,231,.55) 100%)}
+  .hero-inner{position:relative;z-index:3;padding:0 1.5rem;color:var(--white)}
   .hero .kicker{letter-spacing:.45em;text-transform:uppercase;font-size:.8rem;margin-bottom:1.4rem;opacity:.9}
-  .hero h1{font-size:clamp(3rem, 9vw, 6.5rem);line-height:1.02;letter-spacing:.06em;text-transform:uppercase;font-weight:500;text-shadow:0 2px 30px rgba(42,86,91,.35)}
-  .hero p.sub{font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,2.5vw,1.6rem);margin-top:1.2rem;opacity:.95}
+  .hero h1{font-size:clamp(3rem, 9vw, 6.5rem);line-height:1.02;letter-spacing:.06em;text-transform:uppercase;font-weight:500;text-shadow:0 2px 30px rgba(42,86,91,.5)}
+  .hero p.sub{font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,2.5vw,1.6rem);margin-top:1.2rem;opacity:.95;text-shadow:0 1px 12px rgba(42,86,91,.5)}
   .hero-cta{margin-top:2.6rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
   .btn{display:inline-block;text-decoration:none;font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;padding:.95rem 2.2rem;border-radius:2.5rem;transition:.3s;cursor:pointer;font-family:var(--sans);font-weight:400}
   .btn-solid{background:var(--white);color:var(--sea-deep);border:1px solid var(--white)}
   .btn-solid:hover{background:transparent;color:var(--white)}
   .btn-ghost{border:1px solid rgba(255,255,255,.8);color:var(--white)}
   .btn-ghost:hover{background:var(--white);color:var(--sea-deep)}
-  .waves{position:absolute;bottom:-2px;left:0;width:100%;z-index:1}
-  .umbrellas{position:absolute;inset:0;z-index:1;opacity:.5}
-  .scroll-hint{position:absolute;bottom:2.2rem;left:50%;transform:translateX(-50%);z-index:3;color:var(--sea-deep);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;text-decoration:none;animation:bob 2.4s ease-in-out infinite}
+  .waves{position:absolute;bottom:-2px;left:0;width:100%;z-index:4}
+  .umbrellas{position:absolute;inset:0;z-index:0;opacity:.5}
+  .scroll-hint{position:absolute;bottom:2.2rem;left:50%;transform:translateX(-50%);z-index:5;color:var(--sea-deep);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;text-decoration:none;animation:bob 2.4s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
 
   /* ---------- Sections communes ---------- */
@@ -87,14 +92,23 @@
   .apropos-text .signature{font-family:var(--serif);font-style:italic;font-size:1.35rem;color:var(--sea);margin-top:1.6rem}
   .apropos-visual{position:relative;border-radius:1rem;overflow:hidden;aspect-ratio:4/5;box-shadow:0 25px 60px rgba(42,86,91,.18)}
   .apropos-visual svg{width:100%;height:100%;display:block}
+  .apropos-visual .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .badges{display:flex;gap:2.5rem;margin-top:2.2rem;flex-wrap:wrap}
   .badge b{display:block;font-family:var(--serif);font-size:2rem;color:var(--sea-deep);font-weight:500}
   .badge span{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;color:#7d8b91}
 
+  /* ---------- Galerie ---------- */
+  .galerie{padding-top:0;background:var(--sand)}
+  .galerie-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;max-width:1100px;margin:0 auto}
+  .galerie-grid figure{border-radius:.8rem;overflow:hidden;aspect-ratio:4/3;box-shadow:0 12px 35px rgba(42,86,91,.14);position:relative}
+  .galerie-grid img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
+  .galerie-grid figure:hover img{transform:scale(1.05)}
+  @media(max-width:700px){.galerie-grid{grid-template-columns:1fr}}
+
   /* ---------- Menu ---------- */
   .menu{background:linear-gradient(180deg,var(--sand) 0%, var(--sand-dark) 100%)}
   .menu-tabs{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;margin-bottom:3rem}
-  .menu-tab{background:transparent;border:1px solid var(--sea);color:var(--sea-deep);font-family:var(--sans);font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;padding:.7rem 1.6rem;border-radius:2rem;cursor:pointer;transition:.3s}
+  .menu-tab{background:transparent;border:1px solid var(--sea);color:var(--sea-deep);font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;padding:.7rem 1.6rem;border-radius:2rem;cursor:pointer;transition:.3s}
   .menu-tab:hover{background:rgba(61,122,128,.1)}
   .menu-tab.active{background:var(--sea);color:var(--white)}
   .menu-panel{display:none;max-width:820px;margin:0 auto}
@@ -130,15 +144,78 @@
   .resa-info li{padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.15);display:flex;justify-content:space-between;gap:1rem;font-size:.93rem}
   .resa-info li:last-child{border-bottom:none}
   .resa-info .note{margin-top:1.4rem;font-size:.85rem;font-style:italic;opacity:.85}
-  form{background:var(--white);border-radius:1rem;padding:2.6rem 2.4rem;box-shadow:0 15px 45px rgba(34,51,59,.08)}
-  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
-  .field{margin-bottom:1.2rem}
-  label{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:#6b7b82;margin-bottom:.4rem}
-  input,select,textarea{width:100%;border:1px solid #d8d2c4;background:var(--sand);border-radius:.5rem;padding:.8rem .95rem;font-family:var(--sans);font-size:.95rem;color:var(--ink);transition:border .3s, box-shadow .3s}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--sea);box-shadow:0 0 0 3px rgba(61,122,128,.15)}
-  textarea{resize:vertical;min-height:90px}
-  .btn-submit{width:100%;background:var(--sea);color:var(--white);border:1px solid var(--sea);margin-top:.4rem}
-  .btn-submit:hover{background:var(--sea-deep);border-color:var(--sea-deep)}
+
+  /* ----- Module de réservation façon planning ----- */
+  .booking{background:var(--white);border-radius:1rem;box-shadow:0 15px 45px rgba(34,51,59,.1);overflow:hidden}
+  .acc{border-bottom:1px solid #eee7d8}
+  .acc-head{width:100%;display:flex;align-items:center;gap:.85rem;padding:1.15rem 1.5rem;background:none;border:none;cursor:pointer;font-size:.98rem;font-weight:400;color:var(--ink);text-align:left}
+  .acc-head .ico{width:20px;height:20px;stroke:var(--sea);flex:none}
+  .acc-head .val{flex:1}
+  .acc-head .val small{display:block;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:#98a5aa}
+  .acc-head .chev{width:16px;height:16px;stroke:#98a5aa;transition:transform .3s}
+  .acc.open .acc-head .chev{transform:rotate(180deg)}
+  .acc-body{display:none;padding:.4rem 1.5rem 1.5rem}
+  .acc.open .acc-body{display:block;animation:fadeUp .35s ease}
+  .acc.done .acc-head .ico{stroke:var(--ok)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:.6rem}
+  .chip{border:1px solid #d8d2c4;background:var(--sand);border-radius:.6rem;padding:.6rem 1rem;cursor:pointer;font-size:.92rem;color:var(--ink);transition:.25s;min-width:52px;text-align:center}
+  .chip:hover{border-color:var(--sea)}
+  .chip.sel{background:var(--sea);border-color:var(--sea);color:var(--white)}
+
+  .quick-dates{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem}
+  .qd{border:1px solid #d8d2c4;background:var(--sand);border-radius:.7rem;padding:.7rem;cursor:pointer;text-align:center;transition:.25s}
+  .qd:hover{border-color:var(--sea)}
+  .qd.sel{background:var(--sea);border-color:var(--sea);color:var(--white)}
+  .qd b{display:block;font-weight:500;font-size:.95rem}
+  .qd span{font-size:.75rem;opacity:.75}
+
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin:.4rem 0 .7rem}
+  .cal-nav b{font-family:var(--serif);font-size:1.15rem;font-weight:500;color:var(--sea-deep);text-transform:capitalize}
+  .cal-nav button{width:34px;height:34px;border-radius:.5rem;border:1px solid #d8d2c4;background:var(--sand);cursor:pointer;color:var(--sea-deep);font-size:1rem;transition:.25s}
+  .cal-nav button:hover:not(:disabled){border-color:var(--sea)}
+  .cal-nav button:disabled{opacity:.35;cursor:default}
+  .cal{width:100%;border-collapse:collapse;table-layout:fixed}
+  .cal th{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#98a5aa;font-weight:400;padding:.3rem 0}
+  .cal td{text-align:center;padding:.15rem 0}
+  .day{width:38px;height:38px;line-height:36px;border-radius:50%;border:1px solid transparent;background:none;cursor:pointer;font-size:.88rem;color:var(--ink);transition:.2s;margin:0 auto;display:inline-block}
+  .day.free{border-color:#cfd8d9}
+  .day.free:hover{border-color:var(--sea);background:rgba(61,122,128,.08)}
+  .day.full{border:1px dashed #cfc6b2;color:#b3aa96;cursor:default;text-decoration:line-through}
+  .day.off{color:#d3ccbc;cursor:default}
+  .day.sel{background:var(--sea);border-color:var(--sea);color:var(--white)}
+  .cal-legend{display:flex;gap:1.2rem;margin-top:.7rem;font-size:.72rem;color:#98a5aa}
+  .cal-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.35rem;vertical-align:middle}
+
+  .slots h4{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:#98a5aa;font-weight:500;margin:.9rem 0 .55rem}
+  .slots h4:first-child{margin-top:0}
+  .slot-list{display:flex;flex-direction:column;gap:.5rem}
+  .slot{display:flex;align-items:center;gap:.7rem;border:1px solid #d8d2c4;background:var(--sand);border-radius:.7rem;padding:.7rem 1rem;cursor:pointer;font-size:.93rem;transition:.25s;color:var(--ink)}
+  .slot:hover{border-color:var(--sea)}
+  .slot .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);flex:none}
+  .slot.wait .dot{background:var(--wait)}
+  .slot .wl{margin-left:auto;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;border:1px dashed var(--wait);color:var(--wait);border-radius:.5rem;padding:.15rem .6rem}
+  .slot.sel{background:var(--sea);border-color:var(--sea);color:var(--white)}
+  .slot.sel .dot{background:var(--white)}
+  .slot.sel .wl{border-color:rgba(255,255,255,.7);color:var(--white)}
+  .slots-empty{font-size:.88rem;color:#98a5aa;font-style:italic;padding:.4rem 0}
+
+  .booking-contact{padding:1.4rem 1.5rem;border-bottom:1px solid #eee7d8}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .field{margin-bottom:1rem}
+  label{display:block;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#6b7b82;margin-bottom:.35rem}
+  input,textarea{width:100%;border:1px solid #d8d2c4;background:var(--sand);border-radius:.5rem;padding:.75rem .9rem;font-family:var(--sans);font-size:.93rem;color:var(--ink);transition:border .3s, box-shadow .3s}
+  input:focus,textarea:focus{outline:none;border-color:var(--sea);box-shadow:0 0 0 3px rgba(61,122,128,.15)}
+  textarea{resize:vertical;min-height:70px}
+  .booking-foot{padding:1.3rem 1.5rem}
+  .btn-submit{width:100%;background:var(--sea);color:var(--white);border:1px solid var(--sea)}
+  .btn-submit:hover:not(:disabled){background:var(--sea-deep);border-color:var(--sea-deep)}
+  .btn-submit:disabled{background:#cfd6d2;border-color:#cfd6d2;color:#f4f4f0;cursor:default}
+  .booking-brand{text-align:center;font-size:.72rem;color:#a8b3b8;padding:0 1.5rem 1.1rem;letter-spacing:.06em}
+  .recap{font-size:.85rem;color:#5a6b72;text-align:center;margin-bottom:1rem;display:none}
+  .recap.on{display:block}
+  .recap strong{color:var(--sea-deep)}
+
   .confirmation{display:none;text-align:center;padding:3rem 2rem}
   .confirmation.visible{display:block;animation:fadeUp .5s ease}
   .confirmation .check{width:74px;height:74px;border-radius:50%;background:rgba(61,122,128,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 1.4rem}
@@ -160,6 +237,11 @@
   /* ---------- Reveal ---------- */
   .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease, transform .7s ease}
   .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    .scroll-hint{animation:none}
+    html{scroll-behavior:auto}
+  }
 
   /* ---------- Responsive ---------- */
   @media(max-width:860px){
@@ -208,6 +290,9 @@
       <path d="M550 655 Q720 500 890 655 Q805 625 720 640 Q635 625 550 655Z"/>
     </g>
   </svg>
+  <!-- Photo d'ambiance : remplacez l'URL par la photo du client (ex. assets/hero.jpg) -->
+  <img class="hero-photo" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1900&q=72&fm=jpg&fit=crop" alt="" aria-hidden="true" onerror="this.remove()">
+  <div class="hero-veil"></div>
   <div class="hero-inner">
     <p class="kicker">Cavalaire-sur-Mer · Golfe de Saint-Tropez</p>
     <h1>La Plage</h1>
@@ -243,8 +328,8 @@
         <div class="badge"><b>80</b><span>Couverts sur le sable</span></div>
       </div>
     </div>
-    <div class="apropos-visual reveal" aria-hidden="true">
-      <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+    <div class="apropos-visual reveal">
+      <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <rect width="400" height="230" fill="#a8c8cb"/>
         <rect y="150" width="400" height="120" fill="#5f9297"/>
         <rect y="240" width="400" height="260" fill="#e9e0cd"/>
@@ -264,12 +349,19 @@
           <rect x="60" y="375" width="26" height="42" rx="3"/>
           <rect x="185" y="375" width="26" height="42" rx="3"/>
         </g>
-        <g fill="#fdfcf9" opacity=".9">
-          <path d="M250 300 q10 -18 20 0 q-10 6 -20 0" />
-          <path d="M300 320 q10 -18 20 0 q-10 6 -20 0" />
-        </g>
       </svg>
+      <!-- Photo : table dressée en bord de mer — remplacez par la photo du client -->
+      <img class="photo" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=72&fm=jpg&fit=crop" alt="Table dressée du restaurant face à la mer" onerror="this.remove()">
     </div>
+  </div>
+</section>
+
+<!-- ================= GALERIE ================= -->
+<section class="galerie" id="galerie" hidden>
+  <div class="galerie-grid">
+    <figure class="reveal"><img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=900&q=72&fm=jpg&fit=crop" alt="Transats et parasol face à la mer" onerror="this.closest('figure').remove()"></figure>
+    <figure class="reveal"><img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=72&fm=jpg&fit=crop" alt="Poisson du jour aux herbes fraîches" onerror="this.closest('figure').remove()"></figure>
+    <figure class="reveal"><img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=72&fm=jpg&fit=crop" alt="Cocktails servis au bar de plage" onerror="this.closest('figure').remove()"></figure>
   </div>
 </section>
 
@@ -358,7 +450,7 @@
     <p class="kicker">Réservation</p>
     <h2>Réservez votre table sur le sable</h2>
     <div class="divider"></div>
-    <p>Laissez-nous vos coordonnées, nous confirmons chaque réservation par téléphone.</p>
+    <p>Choisissez votre créneau en direct — disponibilités mises à jour en temps réel.</p>
   </div>
   <div class="resa-wrap">
     <div class="resa-info reveal">
@@ -373,44 +465,73 @@
       <p class="note">Pour les groupes de plus de 8 personnes ou une privatisation, appelez-nous directement au 04 94 00 00 00.</p>
     </div>
     <div class="reveal">
-      <form id="resa-form" novalidate>
-        <div class="form-row">
-          <div class="field"><label for="nom">Nom</label><input id="nom" name="nom" type="text" placeholder="Votre nom" required></div>
-          <div class="field"><label for="tel">Téléphone</label><input id="tel" name="tel" type="tel" placeholder="06 00 00 00 00" required></div>
-        </div>
-        <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" placeholder="vous@exemple.fr" required></div>
-        <div class="form-row">
-          <div class="field"><label for="date">Date</label><input id="date" name="date" type="date" required></div>
-          <div class="field"><label for="heure">Heure</label>
-            <select id="heure" name="heure" required>
-              <option value="">Choisir…</option>
-              <optgroup label="Déjeuner"><option>12h00</option><option>12h30</option><option>13h00</option><option>13h30</option><option>14h00</option></optgroup>
-              <optgroup label="Dîner"><option>19h30</option><option>20h00</option><option>20h30</option><option>21h00</option><option>21h30</option></optgroup>
-            </select>
+      <div class="booking" id="booking">
+        <!-- Étape 1 : couverts -->
+        <div class="acc open" id="acc-couverts">
+          <button type="button" class="acc-head" data-acc="acc-couverts">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><path d="M7 2v8M4 2v5a3 3 0 0 0 6 0V2M7 13v9M17 2c-2 2-2.5 5-2.5 8H17m0-8v20"/></svg>
+            <span class="val"><small>Couverts</small><span id="val-couverts">Choisir le nombre de personnes</span></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body">
+            <div class="chips" id="chips-couverts"></div>
+            <p style="font-size:.78rem;color:#98a5aa;margin-top:.8rem">Plus de 8 personnes ? Appelez-nous au 04 94 00 00 00.</p>
           </div>
         </div>
-        <div class="form-row">
-          <div class="field"><label for="couverts">Nombre de personnes</label>
-            <select id="couverts" name="couverts" required>
-              <option value="">Choisir…</option>
-              <option>1 personne</option><option>2 personnes</option><option>3 personnes</option><option>4 personnes</option>
-              <option>5 personnes</option><option>6 personnes</option><option>7 personnes</option><option>8 personnes</option>
-            </select>
-          </div>
-          <div class="field"><label for="emplacement">Emplacement souhaité</label>
-            <select id="emplacement" name="emplacement">
-              <option>Indifférent</option><option>Sur le sable</option><option>Terrasse ombragée</option><option>Première ligne face mer</option>
-            </select>
+        <!-- Étape 2 : date -->
+        <div class="acc" id="acc-date">
+          <button type="button" class="acc-head" data-acc="acc-date">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span class="val"><small>Date</small><span id="val-date">Choisir une date</span></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body">
+            <div class="quick-dates" id="quick-dates"></div>
+            <div class="cal-nav">
+              <button type="button" id="cal-prev" aria-label="Mois précédent">‹</button>
+              <b id="cal-title"></b>
+              <button type="button" id="cal-next" aria-label="Mois suivant">›</button>
+            </div>
+            <table class="cal" aria-label="Calendrier des disponibilités">
+              <thead><tr><th>Lun</th><th>Mar</th><th>Mer</th><th>Jeu</th><th>Ven</th><th>Sam</th><th>Dim</th></tr></thead>
+              <tbody id="cal-body"></tbody>
+            </table>
+            <div class="cal-legend">
+              <span><i style="border:1px solid #cfd8d9"></i>Disponible</span>
+              <span><i style="border:1px dashed #cfc6b2"></i>Complet</span>
+            </div>
           </div>
         </div>
-        <div class="field"><label for="message">Message (optionnel)</label><textarea id="message" name="message" placeholder="Anniversaire, allergies, chaise bébé…"></textarea></div>
-        <button type="submit" class="btn btn-submit">Demander une réservation</button>
-      </form>
+        <!-- Étape 3 : horaire -->
+        <div class="acc" id="acc-heure">
+          <button type="button" class="acc-head" data-acc="acc-heure">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span class="val"><small>Horaire</small><span id="val-heure">Choisir un horaire</span></span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body">
+            <div class="slots" id="slots"><p class="slots-empty">Sélectionnez d'abord une date.</p></div>
+          </div>
+        </div>
+        <!-- Coordonnées -->
+        <div class="booking-contact">
+          <div class="form-row">
+            <div class="field"><label for="nom">Nom</label><input id="nom" type="text" placeholder="Votre nom" autocomplete="name"></div>
+            <div class="field"><label for="tel">Téléphone</label><input id="tel" type="tel" placeholder="06 00 00 00 00" autocomplete="tel"></div>
+          </div>
+          <div class="field" style="margin-bottom:0"><label for="email">E-mail</label><input id="email" type="email" placeholder="vous@exemple.fr" autocomplete="email"></div>
+        </div>
+        <div class="booking-foot">
+          <p class="recap" id="recap"></p>
+          <button type="button" class="btn btn-submit" id="btn-book" disabled>Réserver</button>
+        </div>
+        <p class="booking-brand">Réservation en ligne — sans commission ni intermédiaire</p>
+      </div>
       <div class="confirmation" id="confirmation">
         <div class="check">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#3d7a80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
         </div>
-        <h3>Merci, c'est noté !</h3>
+        <h3 id="confirm-title">Merci, c'est noté !</h3>
         <p id="confirm-text">Votre demande de réservation a bien été enregistrée.</p>
         <p style="margin-top:.8rem">Notre équipe vous confirmera votre table par téléphone dans les plus brefs délais.<br>À très vite les pieds dans le sable ! 🌊</p>
       </div>
@@ -452,7 +573,7 @@
 <footer>
   <p class="logo-f">La Plage</p>
   <p>Restaurant de bord de mer — Cavalaire-sur-Mer, Golfe de Saint-Tropez</p>
-  <p style="margin-top:.8rem;font-size:.75rem">© 2026 La Plage. Site de démonstration — établissement fictif.</p>
+  <p style="margin-top:.8rem;font-size:.75rem">© 2026 La Plage. Site de démonstration — établissement fictif. Photos d'illustration : Unsplash.</p>
 </footer>
 
 <script>
@@ -460,6 +581,12 @@
   const header = document.getElementById('header');
   const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 60);
   window.addEventListener('scroll', onScroll); onScroll();
+
+  // Galerie : ne montrer la section que si au moins une photo charge
+  document.querySelectorAll('#galerie img').forEach(img => {
+    img.addEventListener('load', () => document.getElementById('galerie').hidden = false);
+    if (img.complete && img.naturalWidth) document.getElementById('galerie').hidden = false;
+  });
 
   // Onglets du menu
   document.querySelectorAll('.menu-tab').forEach(tab => {
@@ -477,20 +604,194 @@
   }, { threshold: .15 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  // Formulaire de réservation (démonstration : confirmation côté client)
-  const form = document.getElementById('resa-form');
-  const dateInput = document.getElementById('date');
-  dateInput.min = new Date().toISOString().split('T')[0];
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    if (!form.checkValidity()) { form.reportValidity(); return; }
-    const d = new Date(dateInput.value).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    document.getElementById('confirm-text').innerHTML =
-      `Merci <strong>${form.nom.value.trim()}</strong> ! Votre demande de table pour <strong>${form.couverts.value}</strong> le <strong>${d}</strong> à <strong>${form.heure.value}</strong> a bien été enregistrée.`;
-    form.style.display = 'none';
-    document.getElementById('confirmation').classList.add('visible');
-    document.getElementById('confirmation').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  /* =====================================================================
+     Module de réservation avec planning de disponibilités
+     Démonstration : les disponibilités sont simulées de façon déterministe.
+     Pour la production, remplacez availabilityFor() par un appel à votre
+     système de réservation (API maison, Zenchef, TheFork Manager…).
+     ===================================================================== */
+  const state = { couverts: null, date: null, heure: null, waitlist: false };
+  const fmtJour = d => d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+  const fmtLong = d => d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const iso = d => d.toISOString().split('T')[0];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const maxDate = new Date(today); maxDate.setDate(maxDate.getDate() + 60);
+
+  // Pseudo-aléa déterministe par date/créneau (stable d'une visite à l'autre)
+  function hash(str){ let h = 5381; for (const c of str) h = (h * 33 + c.charCodeAt(0)) >>> 0; return h; }
+  // Jour complet ? (~1 jour sur 8, jamais demain ni après-demain pour la démo)
+  function dayFull(d){
+    const diff = Math.round((d - today) / 864e5);
+    if (diff <= 2) return false;
+    return hash('jour' + iso(d)) % 8 === 0;
+  }
+  // Statut d'un créneau : 'free' | 'wait' | 'full'
+  function slotStatus(d, h){
+    const v = hash(iso(d) + h) % 10;
+    if (v < 6) return 'free';
+    if (v < 8) return 'wait';
+    return 'full';
+  }
+  const LUNCH = ['12:00','12:30','13:00','13:30','14:00'];
+  const DINNER = ['19:30','20:00','20:30','21:00','21:30'];
+
+  // Accordéons
+  function openAcc(id){
+    document.querySelectorAll('.acc').forEach(a => a.classList.toggle('open', a.id === id));
+  }
+  document.querySelectorAll('.acc-head').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const acc = document.getElementById(btn.dataset.acc);
+      const wasOpen = acc.classList.contains('open');
+      document.querySelectorAll('.acc').forEach(a => a.classList.remove('open'));
+      if (!wasOpen) acc.classList.add('open');
+    });
   });
+
+  // Étape 1 : couverts
+  const chipsWrap = document.getElementById('chips-couverts');
+  for (let i = 1; i <= 8; i++) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = i;
+    b.addEventListener('click', () => {
+      state.couverts = i;
+      chipsWrap.querySelectorAll('.chip').forEach(c => c.classList.toggle('sel', c === b));
+      document.getElementById('val-couverts').textContent = i + (i > 1 ? ' couverts' : ' couvert');
+      document.getElementById('acc-couverts').classList.add('done');
+      openAcc('acc-date');
+      update();
+    });
+    chipsWrap.appendChild(b);
+  }
+
+  // Étape 2 : date — raccourcis + calendrier
+  const quick = document.getElementById('quick-dates');
+  [[1, 'Demain'], [2, 'Dans 2 jours']].forEach(([offset, label]) => {
+    const d = new Date(today); d.setDate(d.getDate() + offset);
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'qd';
+    b.innerHTML = '<b>' + fmtJour(d) + '</b><span>' + label + '</span>';
+    b.addEventListener('click', () => selectDate(d));
+    quick.appendChild(b);
+  });
+
+  let calMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const calBody = document.getElementById('cal-body');
+  function renderCal(){
+    document.getElementById('cal-title').textContent =
+      calMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    document.getElementById('cal-prev').disabled =
+      calMonth <= new Date(today.getFullYear(), today.getMonth(), 1);
+    document.getElementById('cal-next').disabled =
+      calMonth >= new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+    calBody.innerHTML = '';
+    const first = new Date(calMonth);
+    let start = (first.getDay() + 6) % 7; // lundi = 0
+    const days = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 0).getDate();
+    let tr = document.createElement('tr');
+    for (let i = 0; i < start; i++) tr.appendChild(document.createElement('td'));
+    for (let day = 1; day <= days; day++) {
+      if (tr.children.length === 7) { calBody.appendChild(tr); tr = document.createElement('tr'); }
+      const d = new Date(calMonth.getFullYear(), calMonth.getMonth(), day);
+      const td = document.createElement('td');
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = day;
+      if (d < today || d > maxDate) { b.className = 'day off'; b.disabled = true; }
+      else if (dayFull(d)) { b.className = 'day full'; b.disabled = true; b.title = 'Complet'; }
+      else {
+        b.className = 'day free' + (state.date && iso(d) === iso(state.date) ? ' sel' : '');
+        b.addEventListener('click', () => selectDate(d));
+      }
+      td.appendChild(b); tr.appendChild(td);
+    }
+    calBody.appendChild(tr);
+  }
+  document.getElementById('cal-prev').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() - 1); renderCal(); });
+  document.getElementById('cal-next').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() + 1); renderCal(); });
+
+  function selectDate(d){
+    state.date = d; state.heure = null; state.waitlist = false;
+    quick.querySelectorAll('.qd').forEach((q, i) => {
+      const qd = new Date(today); qd.setDate(qd.getDate() + i + 1);
+      q.classList.toggle('sel', iso(qd) === iso(d));
+    });
+    calMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+    renderCal();
+    document.getElementById('val-date').textContent = fmtJour(d);
+    document.getElementById('val-heure').textContent = 'Choisir un horaire';
+    document.getElementById('acc-date').classList.add('done');
+    document.getElementById('acc-heure').classList.remove('done');
+    renderSlots();
+    openAcc('acc-heure');
+    update();
+  }
+
+  // Étape 3 : créneaux horaires
+  function renderSlots(){
+    const wrap = document.getElementById('slots');
+    wrap.innerHTML = '';
+    if (!state.date) { wrap.innerHTML = '<p class="slots-empty">Sélectionnez d\'abord une date.</p>'; return; }
+    [['Déjeuner', LUNCH], ['Dîner', DINNER]].forEach(([label, slots]) => {
+      const h4 = document.createElement('h4'); h4.textContent = label; wrap.appendChild(h4);
+      const list = document.createElement('div'); list.className = 'slot-list';
+      let shown = 0;
+      slots.forEach(h => {
+        const st = slotStatus(state.date, h);
+        if (st === 'full') return;
+        shown++;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'slot' + (st === 'wait' ? ' wait' : '');
+        b.innerHTML = '<span class="dot"></span>' + h.replace(':', 'h') +
+          (st === 'wait' ? '<span class="wl">Liste d\'attente</span>' : '');
+        b.addEventListener('click', () => {
+          state.heure = h; state.waitlist = (st === 'wait');
+          wrap.querySelectorAll('.slot').forEach(s => s.classList.toggle('sel', s === b));
+          document.getElementById('val-heure').textContent = h.replace(':', 'h') + (st === 'wait' ? ' — liste d\'attente' : '');
+          document.getElementById('acc-heure').classList.add('done');
+          openAcc('');
+          update();
+        });
+        list.appendChild(b);
+      });
+      if (!shown) list.innerHTML = '<p class="slots-empty">Service complet ce jour-là.</p>';
+      wrap.appendChild(list);
+    });
+  }
+
+  // Récapitulatif + activation du bouton
+  const nom = document.getElementById('nom'), tel = document.getElementById('tel'), email = document.getElementById('email');
+  [nom, tel, email].forEach(i => i.addEventListener('input', update));
+  function update(){
+    const ready = state.couverts && state.date && state.heure &&
+      nom.value.trim() && tel.value.trim() && email.checkValidity() && email.value.trim();
+    document.getElementById('btn-book').disabled = !ready;
+    const recap = document.getElementById('recap');
+    if (state.couverts && state.date && state.heure) {
+      recap.classList.add('on');
+      recap.innerHTML = 'Table pour <strong>' + state.couverts + (state.couverts > 1 ? ' personnes' : ' personne') +
+        '</strong> · <strong>' + fmtLong(state.date) + '</strong> · <strong>' + state.heure.replace(':', 'h') + '</strong>' +
+        (state.waitlist ? ' <em>(liste d\'attente)</em>' : '');
+    } else recap.classList.remove('on');
+  }
+
+  // Confirmation (démonstration : aucune donnée n'est envoyée)
+  document.getElementById('btn-book').addEventListener('click', () => {
+    document.getElementById('confirm-title').textContent =
+      state.waitlist ? 'Vous êtes sur liste d\'attente' : 'Merci, c\'est noté !';
+    document.getElementById('confirm-text').innerHTML =
+      'Merci <strong>' + nom.value.trim() + '</strong> ! Votre ' +
+      (state.waitlist ? 'inscription en liste d\'attente' : 'demande de table') +
+      ' pour <strong>' + state.couverts + (state.couverts > 1 ? ' personnes' : ' personne') +
+      '</strong> le <strong>' + fmtLong(state.date) + '</strong> à <strong>' +
+      state.heure.replace(':', 'h') + '</strong> a bien été enregistrée.';
+    document.getElementById('booking').style.display = 'none';
+    const conf = document.getElementById('confirmation');
+    conf.classList.add('visible');
+    conf.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  renderCal();
 </script>
 </body>
 </html>
