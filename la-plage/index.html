@@ -99,7 +99,8 @@
 
   /* ---------- Galerie ---------- */
   .galerie{padding-top:0;background:var(--sand)}
-  .galerie-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;max-width:1100px;margin:0 auto}
+  .galerie-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;max-width:1200px;margin:0 auto}
+  @media(max-width:1000px){.galerie-grid{grid-template-columns:repeat(2,1fr)}}
   .galerie-grid figure{border-radius:.8rem;overflow:hidden;aspect-ratio:4/3;box-shadow:0 12px 35px rgba(42,86,91,.14);position:relative}
   .galerie-grid img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;display:block}
   .galerie-grid figure:hover img{transform:scale(1.05)}
@@ -290,8 +291,7 @@
       <path d="M550 655 Q720 500 890 655 Q805 625 720 640 Q635 625 550 655Z"/>
     </g>
   </svg>
-  <!-- Photo d'ambiance : remplacez l'URL par la photo du client (ex. assets/hero.jpg) -->
-  <img class="hero-photo" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1900&q=72&fm=jpg&fit=crop" alt="" aria-hidden="true" onerror="this.remove()">
+  <img class="hero-photo" src="assets/photos/hero.jpg" alt="" aria-hidden="true" onerror="this.remove()">
   <div class="hero-veil"></div>
   <div class="hero-inner">
     <p class="kicker">Cavalaire-sur-Mer · Golfe de Saint-Tropez</p>
@@ -350,18 +350,18 @@
           <rect x="185" y="375" width="26" height="42" rx="3"/>
         </g>
       </svg>
-      <!-- Photo : table dressée en bord de mer — remplacez par la photo du client -->
-      <img class="photo" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=72&fm=jpg&fit=crop" alt="Table dressée du restaurant face à la mer" onerror="this.remove()">
+      <img class="photo" src="assets/photos/terrasse.jpg" alt="La terrasse du restaurant sous les parasols blancs" onerror="this.remove()">
     </div>
   </div>
 </section>
 
 <!-- ================= GALERIE ================= -->
-<section class="galerie" id="galerie" hidden>
+<section class="galerie" id="galerie">
   <div class="galerie-grid">
-    <figure class="reveal"><img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=900&q=72&fm=jpg&fit=crop" alt="Transats et parasol face à la mer" onerror="this.closest('figure').remove()"></figure>
-    <figure class="reveal"><img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=72&fm=jpg&fit=crop" alt="Poisson du jour aux herbes fraîches" onerror="this.closest('figure').remove()"></figure>
-    <figure class="reveal"><img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=72&fm=jpg&fit=crop" alt="Cocktails servis au bar de plage" onerror="this.closest('figure').remove()"></figure>
+    <figure class="reveal"><img src="assets/photos/table.jpg" alt="Table dressée, verres et serviette blanche" onerror="this.closest('figure').remove()"></figure>
+    <figure class="reveal"><img src="assets/photos/plat-saint-jacques.jpg" alt="Saint-Jacques snackées, sauce romesco et brocolettis" onerror="this.closest('figure').remove()"></figure>
+    <figure class="reveal"><img src="assets/photos/plat-volaille.jpg" alt="Volaille dorée, tomate confite et jus corsé" onerror="this.closest('figure').remove()"></figure>
+    <figure class="reveal"><img src="assets/photos/comptoir.jpg" alt="Le comptoir du bar, serviettes roulées" onerror="this.closest('figure').remove()"></figure>
   </div>
 </section>
 
@@ -581,12 +581,6 @@
   const header = document.getElementById('header');
   const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 60);
   window.addEventListener('scroll', onScroll); onScroll();
-
-  // Galerie : ne montrer la section que si au moins une photo charge
-  document.querySelectorAll('#galerie img').forEach(img => {
-    img.addEventListener('load', () => document.getElementById('galerie').hidden = false);
-    if (img.complete && img.naturalWidth) document.getElementById('galerie').hidden = false;
-  });
 
   // Onglets du menu
   document.querySelectorAll('.menu-tab').forEach(tab => {

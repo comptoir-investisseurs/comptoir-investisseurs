@@ -37,10 +37,10 @@ Tout est dans `index.html` :
 3. **La carte** : chaque plat est un bloc `<div class="dish">` — dupliquez, modifiez, supprimez.
 4. **Les boissons** : mêmes principes, blocs `<div class="drink">`.
 5. **Horaires** : section `#reservation`, liste `resa-info`.
-6. **Photos** : les visuels sont des photos Unsplash (libres de droits) chargées
-   par URL, avec un décor illustré de secours si une image ne charge pas.
-   Pour la version vendue, remplacez les URL par les photos du client
-   (ex. `assets/hero.jpg`) — cherchez `images.unsplash.com` dans le fichier.
+6. **Photos** : dans `assets/photos/` (recadrées et compressées pour le web,
+   sources Unsplash libres de droits). Pour un nouveau client, remplacez
+   simplement les fichiers en gardant les mêmes noms : `hero.jpg` (1920×1280),
+   `terrasse.jpg` (900×1125), et 4 visuels 1000×750 pour la galerie.
 
 ## Le module de réservation (type Zenchef)
 
