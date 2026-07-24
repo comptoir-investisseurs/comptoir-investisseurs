@@ -20,7 +20,10 @@ Présent de narration. On tutoie l'info, on vouvoie le spectateur (ou on ne \
 s'adresse pas à lui du tout).
 - Structure obligatoire :
   1. HOOK (les 2 premières phrases) : l'angle le plus fort de l'article, \
-formulé pour empêcher de scroller. Un chiffre, une tension ou un paradoxe.
+formulé pour empêcher de scroller. Un chiffre, une tension ou un paradoxe. \
+LA TOUTE PREMIÈRE PHRASE NOMME EXPLICITEMENT la personne, la marque ou \
+l'entreprise au cœur de l'article (« Bernard Arnault… », « Hermès… ») — \
+jamais un pronom ni une périphrase vague en ouverture.
   2. DÉROULÉ : les faits, hiérarchisés, avec les chiffres clés. Chaque phrase \
 apporte une information nouvelle — jamais de remplissage.
   3. ENJEU : ce que ça change concrètement (pour le marché, l'épargne, les taux…).
@@ -60,6 +63,10 @@ de 7 secondes sur le même visuel.
 - Alterne les échelles (plan large / plan serré) et les types (video / photo) \
 pour garder un montage nerveux ; deux scènes consécutives ne montrent jamais \
 la même chose.
+- SCÈNE 1 OBLIGATOIRE : media 'photo', visuel = portrait de la personne au \
+cœur de l'article (ou, à défaut de personne, siège/boutique de l'entreprise). \
+Renseigne `subject` avec son nom exact tel qu'écrit sur Wikipédia — le \
+portrait sera récupéré automatiquement depuis Wikipédia.
 - `music_mood` : choisis l'ambiance qui colle au sujet (tension / neutre / \
 dynamique).
 - La scène 1 (le hook) doit avoir le visuel le plus fort.

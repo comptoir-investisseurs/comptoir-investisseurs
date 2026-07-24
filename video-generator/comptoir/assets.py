@@ -13,6 +13,9 @@ from .models import Scene
 PEXELS_VIDEO_URL = "https://api.pexels.com/videos/search"
 PEXELS_PHOTO_URL = "https://api.pexels.com/v1/search"
 
+# Wikimedia impose un User-Agent identifiable.
+_WIKI_HEADERS = {"User-Agent": "comptoir-video/1.0 (outil editorial video)"}
+
 
 @dataclass
 class SceneAsset:
@@ -74,6 +77,111 @@ def _search_pexels_photo(query: str, api_key: str, exclude: set[int]) -> tuple[s
         if link:
             return link, photo["id"]
     return None
+
+
+# ---------------------------------------------------------------------------
+# Portrait du sujet (personne / entreprise) via Wikipédia
+# ---------------------------------------------------------------------------
+def _wiki_summary(title: str, lang: str) -> dict | None:
+    url = f"https://{lang}.wikipedia.org/api/rest_v1/page/summary/" + \
+        requests.utils.quote(title, safe="")
+    resp = requests.get(url, headers=_WIKI_HEADERS, timeout=30)
+    if resp.status_code != 200:
+        return None
+    return resp.json()
+
+
+def _wiki_search_title(query: str, lang: str) -> str | None:
+    resp = requests.get(
+        f"https://{lang}.wikipedia.org/w/api.php",
+        params={"action": "query", "list": "search", "srsearch": query,
+                "srlimit": 1, "format": "json"},
+        headers=_WIKI_HEADERS, timeout=30,
+    )
+    if resp.status_code != 200:
+        return None
+    hits = resp.json().get("query", {}).get("search", [])
+    return hits[0]["title"] if hits else None
+
+
+def _wiki_image_url(summary: dict) -> str | None:
+    """URL d'image exploitable (jamais de SVG brut : on prend le rendu PNG)."""
+    original = (summary.get("originalimage") or {}).get("source")
+    thumb = (summary.get("thumbnail") or {}).get("source")
+    if original and not original.lower().endswith(".svg"):
+        return original
+    if thumb:
+        # Agrandit le rendu (les vignettes sont servies en /XXXpx-)
+        import re
+        return re.sub(r"/(\d+)px-", "/1200px-", thumb)
+    return None
+
+
+def _commons_credit(image_url: str) -> str | None:
+    """Auteur + licence du fichier Commons, pour créditer le portrait."""
+    try:
+        filename = image_url.rsplit("/", 1)[-1]
+        # Les rendus de vignettes gardent le nom original après 'px-'
+        if "px-" in filename:
+            filename = filename.split("px-", 1)[1]
+        resp = requests.get(
+            "https://commons.wikimedia.org/w/api.php",
+            params={"action": "query", "titles": f"File:{filename}",
+                    "prop": "imageinfo", "iiprop": "extmetadata",
+                    "format": "json"},
+            headers=_WIKI_HEADERS, timeout=30,
+        )
+        pages = resp.json().get("query", {}).get("pages", {})
+        for page in pages.values():
+            info = (page.get("imageinfo") or [{}])[0].get("extmetadata", {})
+            import re as _re
+            artist = _re.sub(r"<[^>]+>", "",
+                             info.get("Artist", {}).get("value", "")).strip()
+            licence = info.get("LicenseShortName", {}).get("value", "").strip()
+            if artist or licence:
+                parts = [p for p in (artist, licence) if p]
+                return " — ".join(parts) + " (Wikimedia Commons)"
+    except Exception:
+        pass
+    return None
+
+
+def fetch_subject_portrait(subject: str, settings: Settings) -> tuple[SceneAsset, str | None] | None:
+    """Portrait libre de droits de la personne/entreprise via Wikipédia.
+    Renvoie (asset, crédit photo) ou None si introuvable."""
+    if not subject.strip():
+        return None
+    tmp = settings.temp_dir
+    try:
+        summary = None
+        for lang in ("fr", "en"):
+            summary = _wiki_summary(subject, lang)
+            if summary and _wiki_image_url(summary):
+                break
+            resolved = _wiki_search_title(subject, lang)
+            if resolved and resolved != subject:
+                summary = _wiki_summary(resolved, lang)
+                if summary and _wiki_image_url(summary):
+                    break
+            summary = None
+        if not summary:
+            return None
+        image_url = _wiki_image_url(summary)
+        if not image_url:
+            return None
+        suffix = ".png" if ".png" in image_url.lower() else ".jpg"
+        path = tmp / f"asset_00_portrait{suffix}"
+        with requests.get(image_url, headers=_WIKI_HEADERS, stream=True,
+                          timeout=120) as resp:
+            resp.raise_for_status()
+            with open(path, "wb") as fh:
+                for chunk in resp.iter_content(chunk_size=1 << 16):
+                    fh.write(chunk)
+        credit = _commons_credit(image_url)
+        return SceneAsset(path=path, media="photo"), credit
+    except requests.RequestException as exc:
+        print(f"  ! Portrait Wikipédia indisponible ({exc}).")
+        return None
 
 
 def fetch_scene_asset(scene: Scene, index: int, settings: Settings,

@@ -51,6 +51,14 @@ class Storyboard(BaseModel):
                     "crise, polémique, argent disparu), 'neutre' (analyse, "
                     "dossier), 'dynamique' (croissance, résultats, innovation).",
     )
+    subject: str = Field(
+        default="",
+        description="Nom EXACT (orthographe Wikipédia) de la personne, marque ou "
+                    "entreprise au cœur de l'article — ex. 'Bernard Arnault', "
+                    "'Hermès International'. Sert à récupérer le portrait "
+                    "d'ouverture. Préférer une personne si l'article en met une "
+                    "en scène.",
+    )
     caption: str = Field(
         description="Légende du post TikTok/Instagram : accroche 1 ligne, 2-3 lignes "
                     "de contexte, question d'engagement, puis 5-8 hashtags finance FR. "

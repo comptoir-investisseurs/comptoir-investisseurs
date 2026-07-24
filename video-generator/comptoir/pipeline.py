@@ -6,7 +6,7 @@ import shutil
 from pathlib import Path
 
 from . import config
-from .assets import fetch_scene_asset
+from .assets import fetch_scene_asset, fetch_subject_portrait
 from .branding import make_badge, make_title_banner
 from .config import Settings
 from .models import GenerationResult, Storyboard
@@ -67,7 +67,7 @@ def run(article_text: str | None, settings: Settings,
         encoding="utf-8",
     )
     caption_path = out / "caption.txt"
-    caption_path.write_text(storyboard.caption, encoding="utf-8")
+    caption_text = storyboard.caption
 
     # --- Voix off + visuels, scène par scène ---------------------------------
     _log(f"• Étape 3/5 — Voix off ({settings.tts_backend}) et visuels…")
@@ -78,12 +78,28 @@ def run(article_text: str | None, settings: Settings,
     used_asset_ids: set[int] = set()
     cursor = 0.0
 
+    # Scène 1 : portrait de la personne/entreprise au cœur de l'article
+    # (Wikipédia, libre de droits), avec crédit photo ajouté à la légende.
+    portrait = None
+    if storyboard.subject:
+        _log(f"  Portrait d'ouverture : {storyboard.subject}…")
+        found = fetch_subject_portrait(storyboard.subject, settings)
+        if found:
+            portrait, credit = found
+            if credit:
+                caption_text += f"\n\n📷 {credit}"
+        else:
+            _log("  (portrait introuvable — visuel de remplacement)")
+
     for i, scene in enumerate(storyboard.scenes):
         _log(f"  Scène {i + 1}/{len(storyboard.scenes)} : {scene.visual[:70]}")
         audio = synthesize_scene(scene.narration, tmp / f"vo_{i:02d}.wav", settings)
         duration = audio.duration + config.SCENE_PAD_S
 
-        asset = fetch_scene_asset(scene, i, settings, used_asset_ids)
+        if i == 0 and portrait is not None:
+            asset = portrait
+        else:
+            asset = fetch_scene_asset(scene, i, settings, used_asset_ids)
         clip = make_scene_clip(asset, duration, i, tmp / f"clip_{i:02d}.mp4")
 
         emphasis = {_normalize(word)
@@ -96,6 +112,7 @@ def run(article_text: str | None, settings: Settings,
         cursor += duration
 
     total_duration = cursor
+    caption_path.write_text(caption_text, encoding="utf-8")
 
     # --- Habillage + sous-titres ---------------------------------------------
     _log("• Étape 4/5 — Habillage et sous-titres…")
