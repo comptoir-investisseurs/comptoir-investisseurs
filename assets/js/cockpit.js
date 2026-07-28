@@ -208,28 +208,15 @@
     return {kind:'client', client:c, members:[c], ids:[c.id]};
   }
 
-  // Allocations structurées (sp_positions) déjà représentées par un support réel → à masquer du book.
   function linkedPositionIds(){ return new Set(supports.map(s=>s.sp_position_id).filter(Boolean).map(String)); }
   function buildData(subj){
     const members=subj.members;
-    const linked=linkedPositionIds();
     const envRows=[];
+    // Les enveloppes (AV, PER, CTO…) et leurs supports. Les produits structurés
+    // sont une CLASSE D'ACTIF (support), logée dans ces enveloppes — jamais une enveloppe.
     members.forEach(m=>{
-      const realIsins=new Set();
-      // enveloppes réelles + leurs supports
-      clientEnvs(m.id).forEach(e=>{ const sup=envSupports(e.id); sup.forEach(s=>{ if(s.isin) realIsins.add(s.isin); });
-        const v=envValo(e), inv=envInvesti(e);
+      clientEnvs(m.id).forEach(e=>{ const sup=envSupports(e.id); const v=envValo(e), inv=envInvesti(e);
         envRows.push({e:Object.assign({}, e, {_owner:m}), sup, valo:v, investi:inv, perf:inv?(v-inv)/inv:null, owner:m, virtual:false}); });
-      // passerelle : allocations structurées (module Produits structurés) non liées / non doublonnées
-      const mine=positions.filter(p=>!p._deleted && String(p.client_id)===String(m.id) && !linked.has(String(p.id)) && !(p.isin && realIsins.has(p.isin)));
-      const byCompte=new Map(); mine.forEach(p=>{ const k=(p.compte||'').trim()||'Produits structurés'; if(!byCompte.has(k)) byCompte.set(k,[]); byCompte.get(k).push(p); });
-      byCompte.forEach((arr,compte)=>{
-        const sup=arr.map(p=>{ const pr=productsMap.get(p.isin)||{}; const inv=toEur(p.nominal,p.dev); const valo=toEur((+p.nominal||0)*(1+(+p.gt||0)),p.dev);
-          return {id:'book:'+p.id, libelle:pr.lib||p.isin, isin:p.isin, classe:'Produit structuré', montant_investi:inv, valorisation:valo, _virtual:true}; });
-        const v=sup.reduce((s,x)=>s+x.valorisation,0), inv=sup.reduce((s,x)=>s+x.montant_investi,0);
-        const e={id:'book:'+m.id+':'+compte, type:'Produits structurés', etablissement:(compte==='Produits structurés'?'Book · module structurés':compte), _virtual:true, client_id:m.id, _owner:m};
-        envRows.push({e, sup, valo:v, investi:inv, perf:inv?(v-inv)/inv:null, owner:m, virtual:true});
-      });
     });
     envRows.sort((a,b)=>b.valo-a.valo);
     const docs=[]; members.forEach(m=>clientDocs(m.id).forEach(d=>docs.push(Object.assign({}, d, {_owner:m}))));
@@ -319,7 +306,7 @@
       <div class="ck-grid">
         ${membersCard}
         <div class="sp-card">
-          <h4>Encours par enveloppe <span class="ck-card-act"><button class="ck-mini-btn" id="ck-add-env">＋ Enveloppe</button></span></h4>
+          <h4>Encours par enveloppe <span class="ck-card-act"><button class="ck-mini-btn" id="ck-import-releve">⤓ Importer un relevé</button> <button class="ck-mini-btn" id="ck-add-env">＋ Enveloppe</button></span></h4>
           <div class="ck-envs">${d.envRows.map(r=>envRowHTML(r,isPole)).join('')||'<p class="sp-muted sm">Aucune enveloppe. Cliquez sur « ＋ Enveloppe ».</p>'}</div>
         </div>
         <div class="sp-card">
@@ -439,6 +426,7 @@
     const on=(id,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener('click',fn); };
     on('ck-brief-cta',()=>openBrief(d)); on('ck-brief-copy',()=>copyBrief(d)); on('ck-brief-print',()=>openBrief(d));
     on('ck-add-env',()=>openEnvForm(subj)); on('ck-add-piece',()=>openDocForm(subj,'piece')); on('ck-add-proc',()=>openDocForm(subj,'procedure'));
+    on('ck-import-releve',()=>importReleveNew(subj));
     on('ck-tgt-save',()=>{ const map={}; document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>{ map[i.dataset.cls]=Math.max(0,Math.min(100,parseFloat(i.value)||0)); }); saveTarget(targetKey(subj),map); const st=document.getElementById('ck-tgt-status'); if(st){ st.textContent='✓ Cible enregistrée'; st.style.color='#2e7d32'; } });
     on('ck-tgt-auto',()=>{ saveTarget(targetKey(subj),null); renderCockpit(); });
     document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>i.addEventListener('input',()=>updateAllocGaps(d)));
@@ -674,6 +662,73 @@
     });
   }
 
+  // Détection best-effort des métadonnées de l'enveloppe (assureur, type, n°, valo).
+  function guessEnvelope(txt){
+    var T=(txt||'').replace(/\s+/g,' '); var out={};
+    var insurers=['Generali','Spirica','Suravenir','Cardif','Axa','AXA','Swiss Life','SwissLife','Allianz','Apicil','Intencial','Nortia','Oradéa','Oradea','Abeille','Aviva','Prudential','UBS','BNP Paribas','BNP','Société Générale','Crédit Agricole','Rothschild','Milleis','Neuflize','Lombard','OneLife','One Life','Wealins','Bâloise','Baloise','Vie Plus','Ageas','Generali Luxembourg'];
+    for(var i=0;i<insurers.length;i++){ if(new RegExp(insurers[i].replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(T)){ out.etablissement=insurers[i]; break; } }
+    if(/luxembourg|wealins|lombard|one\s?life/i.test(T)) out.type='Assurance-vie luxembourgeoise';
+    else if(/\bPER\b|plan d.?[ée]pargne retraite|[ée]pargne retraite/i.test(T)) out.type='PER';
+    else if(/capitalisation/i.test(T)) out.type='Contrat de capitalisation';
+    else if(/PEA[- ]?PME/i.test(T)) out.type='PEA-PME';
+    else if(/\bPEA\b/i.test(T)) out.type='PEA';
+    else if(/compte[- ]?titres|\bCTO\b/i.test(T)) out.type='Compte-titres (CTO)';
+    else if(/assurance[- ]?vie|contrat d.?assurance/i.test(T)) out.type='Assurance-vie';
+    var num=(T.match(/(?:n[°ºo]\s?(?:de\s?)?(?:contrat|police|compte)|contrat|police|r[ée]f[ée]rence)\s*[:#]?\s*([A-Z0-9][A-Z0-9\-\/. ]{4,22})/i)||[])[1];
+    if(num) out.numero=num.trim();
+    var val=(T.match(/(?:valorisation|valeur\s*(?:de\s*rachat|acquise|du\s*contrat)|contre[- ]?valeur|total\s*(?:du\s*)?portefeuille|encours)\s*[:]?\s*([0-9][0-9  .]*[0-9])(?:[,](\d{2}))?\s*€/i)||[]);
+    if(val[1]) out.valorisation=parseFloat(val[1].replace(/[  .]/g,''));
+    return out;
+  }
+  function importReleveNew(subj){
+    var inp=document.createElement('input'); inp.type='file'; inp.accept='application/pdf,.pdf,.txt';
+    inp.addEventListener('change',function(){ var f=inp.files[0]; if(f) readReleveNew(f, subj); }); inp.click();
+  }
+  function readReleveNew(f, subj){
+    toast('Lecture du relevé…'); var reader=new FileReader();
+    if(/pdf$/i.test(f.name)||f.type==='application/pdf'){
+      reader.onload=function(){ extractPdfText(reader.result).then(function(txt){ reviewReleveNew(parseReleve(txt), guessEnvelope(txt), subj, f.name); }).catch(function(err){ console.warn(err); toast('PDF illisible — saisie manuelle.',true); reviewReleveNew([], {}, subj, f.name); }); };
+      reader.readAsArrayBuffer(f);
+    } else { reader.onload=function(){ var txt=String(reader.result||''); reviewReleveNew(parseReleve(txt), guessEnvelope(txt), subj, f.name); }; reader.readAsText(f); }
+  }
+  function reviewReleveNew(rows, meta, subj, fname){
+    openModal('Importer un relevé — nouveau contrat');
+    var head='<p class="sp-muted sm">'+(rows.length?(rows.length+' support(s) détecté(s) dans « '+esc(fname)+' ». Complétez l\'enveloppe et vérifiez les lignes avant d\'importer.'):('Peu de lignes détectées dans « '+esc(fname)+' ». Renseignez l\'enveloppe et ajoutez les supports.'))+'</p>';
+    var envForm=(subj.kind==='pole'?memberSelect(subj):'')
+      +'<div class="sp-form-grid">'
+      +fld('im-type','Type d\'enveloppe','select',meta.type||'Assurance-vie',ENV_TYPES)
+      +fld('im-etab','Établissement / Assureur','text',meta.etablissement||'')
+      +fld('im-num','N° de contrat','text',meta.numero||'')
+      +fld('im-valo','Valorisation totale (€, optionnel)','number',meta.valorisation!=null?Math.round(meta.valorisation):'')
+      +'</div>';
+    var rowHTML=function(r,i){ return '<div class="ck-imp-row" data-i="'+i+'">'
+      +'<input class="imp-lib" placeholder="Libellé" value="'+esc(r.libelle||'')+'">'
+      +'<input class="imp-isin" placeholder="ISIN" value="'+esc(r.isin||'')+'" style="width:118px">'
+      +'<select class="imp-cls">'+ASSET_CLASSES.map(function(c){return '<option '+(c===r.classe?'selected':'')+'>'+c+'</option>';}).join('')+'</select>'
+      +'<input class="imp-inv" type="number" placeholder="Investi" value="'+(r.montant_investi!=null?r.montant_investi:'')+'" style="width:90px">'
+      +'<input class="imp-valo" type="number" placeholder="Valo" value="'+(r.valorisation!=null?r.valorisation:'')+'" style="width:90px">'
+      +'<button class="ck-icon imp-del" title="Retirer">×</button></div>'; };
+    document.getElementById('ck-modal-body').innerHTML = head + envForm
+      + '<div class="ck-reg__h" style="margin-top:12px">Supports</div><div class="ck-imp-list" id="ck-imp-list">'+rows.map(rowHTML).join('')+'</div>'
+      + '<div class="ck-imp-foot"><button class="ck-mini-btn" id="imp-add">＋ Ligne</button></div>'
+      + '<div class="sp-save-bar"><button class="btn btn--solid" id="imp-save">Créer l\'enveloppe et importer</button><span class="sp-save-status" id="imp-status"></span></div>';
+    var listEl=document.getElementById('ck-imp-list');
+    var bindDel=function(){ listEl.querySelectorAll('.imp-del').forEach(function(b){ b.onclick=function(){ b.closest('.ck-imp-row').remove(); }; }); };
+    bindDel();
+    document.getElementById('imp-add').addEventListener('click',function(){ var div=document.createElement('div'); div.innerHTML=rowHTML({classe:'OPCVM'},'x'); listEl.appendChild(div.firstChild); bindDel(); });
+    document.getElementById('imp-save').addEventListener('click',function(){
+      var envPayload={ client_id:pickClientId(subj), type:val('im-type'), libelle:val('im-type'), etablissement:val('im-etab'), numero:val('im-num'), valorisation:numv('im-valo'), devise:'EUR' };
+      persistInsert('enveloppes',enveloppes,envPayload).then(function(env){
+        var proms=[]; listEl.querySelectorAll('.ck-imp-row').forEach(function(row){
+          var lib=row.querySelector('.imp-lib').value.trim(); var isin=row.querySelector('.imp-isin').value.trim().toUpperCase();
+          var cls=row.querySelector('.imp-cls').value; var inv=parseFloat(row.querySelector('.imp-inv').value)||null; var valo=parseFloat(row.querySelector('.imp-valo').value)||null;
+          if(!lib && !isin) return; proms.push(persistInsert('supports',supports,{enveloppe_id:env.id, libelle:lib||isin, isin:isin||null, classe:cls, montant_investi:inv, valorisation:valo, date_valo:todayStrSp()}));
+        });
+        return Promise.all(proms);
+      }).then(function(){ modal.classList.remove('is-open'); refresh(); toast('Relevé importé — enveloppe créée.'); });
+    });
+  }
+
   /* ---------------- BRIEF ---------------- */
   function briefLines(d){
     const subj=d.subj, L=[]; const isPole=subj.kind==='pole'; const title=isPole?(subj.pole.nom||'Pôle'):clientName(subj.client);
@@ -740,15 +795,10 @@ ${body}
   /* ---------------- STATS (en-tête module) ---------------- */
   function renderStats(){
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
-    const linked=linkedPositionIds();
-    const withHoldings=crmClients.filter(c=>clientEnvs(c.id).length || positions.some(p=>!p._deleted && String(p.client_id)===String(c.id) && !linked.has(String(p.id))));
-    set('stat-clients', withHoldings.length);
-    let enc=0; enveloppes.forEach(e=>enc+=envValo(e));
-    positions.forEach(p=>{ if(!p._deleted && p.client_id && !linked.has(String(p.id))) enc+=toEur((+p.nominal||0)*(1+(+p.gt||0)),p.dev); });
-    set('stat-encours', compact(enc));
+    set('stat-clients', crmClients.filter(c=>clientEnvs(c.id).length).length);
+    let enc=0; enveloppes.forEach(e=>enc+=envValo(e)); set('stat-encours', compact(enc));
     const tod=today(), in30=addDays(tod,30); let due=0;
     supports.forEach(s=>{ if(s.classe==='Produit structuré' && s.isin && productsMap.has(s.isin)){ const p=productsMap.get(s.isin); if(productStatus(p)!=='LIVE') return; const o=nextObsDate(p); if(o&&o>=tod&&o<=in30) due++; } });
-    positions.forEach(p=>{ if(p._deleted || !p.client_id || linked.has(String(p.id))) return; if(p.isin && productsMap.has(p.isin)){ const pr=productsMap.get(p.isin); if(productStatus(pr)!=='LIVE') return; const o=nextObsDate(pr); if(o&&o>=tod&&o<=in30) due++; } });
     documents.forEach(d=>{ if(d.categorie!=='piece' && d.statut!=='fait' && d.date_echeance){ const de=pd(d.date_echeance); if(de>=tod&&de<=in30) due++; } });
     set('stat-due', due);
     // dossiers à régulariser : pièce non à jour OU procédure en retard
