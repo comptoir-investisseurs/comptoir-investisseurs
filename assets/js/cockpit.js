@@ -555,6 +555,7 @@
     const del=document.getElementById('su-del'); if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer ce support ?')){ const pid=sup.sp_position_id; persistDelete('supports',supports,sup.id).then(()=>{ if(pid) persistDelete('sp_positions',positions,pid); modal.classList.remove('is-open'); refresh(); }); } });
   }
 
+  function champRowHTML(c){ c=c||{}; return '<div class="ck-champ"><input class="ch-label" placeholder="Libellé" value="'+esc(c.label||'')+'"><input class="ch-val" placeholder="Valeur" value="'+esc(c.valeur||'')+'"><button class="ck-icon ch-del" type="button" title="Retirer">×</button></div>'; }
   // Document : pièce justificative OU procédure
   function openDocForm(subj, categorie, doc){ doc=doc||{}; categorie=doc.categorie||categorie||'procedure';
     const isPiece=categorie==='piece';
@@ -578,12 +579,27 @@
     }
     body.push(fld('dc-ref','Référence','text',doc.reference));
     body.push('</div>');
+    if(isPiece){
+      var champs=Array.isArray(doc.donnees)?doc.donnees:[];
+      body.push('<div class="ck-reg__h" style="margin-top:10px">Informations de la pièce <span class="sp-h4-note">— extraites, modifiables</span></div>');
+      body.push('<div id="dc-champs" class="ck-champs">'+champs.map(champRowHTML).join('')+'</div>');
+      body.push('<div class="ck-imp-foot"><button class="ck-mini-btn" id="dc-champ-add" type="button">＋ Champ</button></div>');
+    }
     body.push(fld('dc-notes','Notes','textarea',doc.notes));
     body.push(`<div class="sp-save-bar"><button class="btn btn--solid" id="dc-save">Enregistrer</button>${doc.id?'<button class="btn" id="dc-del" style="border-color:#c0392b;color:#c0392b">Supprimer</button>':''}<span class="sp-save-status" id="dc-status"></span></div>`);
     document.getElementById('ck-modal-body').innerHTML=body.join('');
+    if(isPiece){
+      var champsBox=document.getElementById('dc-champs');
+      var bindChDel=function(){ champsBox.querySelectorAll('.ch-del').forEach(function(b){ b.onclick=function(){ b.closest('.ck-champ').remove(); }; }); };
+      bindChDel();
+      var addCh=document.getElementById('dc-champ-add'); if(addCh) addCh.addEventListener('click',function(){ var d=document.createElement('div'); d.innerHTML=champRowHTML({}); champsBox.appendChild(d.firstChild); bindChDel(); });
+    }
     document.getElementById('dc-save').addEventListener('click',()=>{
       const payload={ client_id:pickClientId(subj, doc.client_id), categorie, type:val('dc-type'), libelle:val('dc-lib'), reference:val('dc-ref'), notes:val('dc-notes') };
-      if(isPiece){ payload.date_document=val('dc-docdate'); payload.date_validite=val('dc-valid'); }
+      if(isPiece){ payload.date_document=val('dc-docdate'); payload.date_validite=val('dc-valid');
+        var champs=[]; document.querySelectorAll('#dc-champs .ck-champ').forEach(function(r){ var l=r.querySelector('.ch-label').value.trim(); var v=r.querySelector('.ch-val').value.trim(); if(l||v) champs.push({label:l, valeur:v}); });
+        payload.donnees=champs.length?champs:null;
+      }
       else { payload.statut=val('dc-statut'); payload.date_echeance=val('dc-ech'); payload.date_signature=val('dc-sign'); payload.enveloppe_id=val('dc-env')||null; }
       (doc.id?persistUpdate('documents',documents,doc.id,payload):persistInsert('documents',documents,payload)).then(()=>{ modal.classList.remove('is-open'); refresh(); toast(isPiece?'Pièce enregistrée.':'Procédure enregistrée.'); });
     });
@@ -818,10 +834,11 @@
     extractDoc(f,'piece').then(function(ai){
       if(ai){ var doc={ categorie:'piece' };
         if(PIECE_TYPES.indexOf(ai.type)>=0) doc.type=ai.type;
+        if(ai.titulaire) doc.libelle=ai.titulaire;
         if(ai.date_document) doc.date_document=ai.date_document;
         if(ai.date_validite) doc.date_validite=ai.date_validite;
         if(ai.numero) doc.reference=ai.numero;
-        if(ai.titulaire) doc.notes='Titulaire : '+ai.titulaire;
+        if(Array.isArray(ai.champs) && ai.champs.length) doc.donnees=ai.champs;
         openDocForm(subj,'piece',doc);
         toast('Pièce lue par l\'IA — vérifiez puis enregistrez.'); return;
       }

@@ -51,7 +51,17 @@ function prompt(kind: string): string {
   if (kind === "releve") {
     return "Tu es un assistant pour un cabinet de gestion de patrimoine. On te fournit un reporting / relevé de situation d'un contrat d'assurance-vie, de capitalisation, PER, ou d'un compte-titres/PEA émis par un assureur ou une banque. Extrais l'enveloppe (type, établissement, numéro de contrat, date et montant de valorisation, devise) et la liste complète des supports détenus (chaque unité de compte, fonds euro, ligne titre). Pour chaque support : libellé, ISIN si présent, classe d'actif, montant investi et valorisation en euros (nombres sans symbole ni espace). Rappel important : un produit structuré (note, autocall, Phoenix, Athéna…) est un SUPPORT de classe 'Produit structuré' logé dans l'enveloppe, ce n'est jamais un type d'enveloppe. N'invente aucun chiffre : mets null pour ce qui n'est pas lisible. Toutes les dates au format AAAA-MM-JJ.";
   }
-  return "Tu es un assistant pour un cabinet de gestion de patrimoine. On te fournit une pièce justificative (pièce d'identité, justificatif de domicile, avis d'imposition, RIB, extrait KBIS, statuts, registre des bénéficiaires effectifs, livret de famille…). Identifie précisément la nature du document, le titulaire, son numéro/référence, sa date d'émission, et sa date d'expiration/fin de validité si elle existe (ex : date d'expiration d'une carte d'identité ou d'un passeport). Toutes les dates au format AAAA-MM-JJ. Mets null pour ce qui n'est pas présent.";
+  return "Tu es un assistant pour un cabinet de gestion de patrimoine. On te fournit une pièce justificative. Identifie précisément la nature du document (type), le titulaire principal, son numéro/référence, sa date d'émission/délivrance (date_document) et sa date d'expiration/fin de validité (date_validite) si elle existe.\n\n" +
+    "De plus, dans 'champs', renseigne TOUTES les informations pertinentes du document sous forme de paires label/valeur (labels courts et clairs), selon le type :\n" +
+    "• Pièce d'identité (CNI, passeport, titre de séjour, permis) : Type de pièce, Nom, Nom d'usage, Tous les prénoms, Sexe, Date de naissance, Lieu de naissance, Nationalité, Numéro du document, Date de délivrance, Autorité de délivrance, Date d'expiration.\n" +
+    "• Justificatif de domicile : Nature (facture EDF/eau/téléphone, quittance de loyer, avis de taxe…), Émetteur, Titulaire, Adresse complète, Date du document.\n" +
+    "• Avis d'imposition : Déclarant(s), Année des revenus, Revenu fiscal de référence, Nombre de parts, Numéro fiscal, Date de mise en recouvrement.\n" +
+    "• RIB : Titulaire, Banque, IBAN, BIC, Domiciliation.\n" +
+    "• Extrait KBIS : Dénomination, Forme juridique, SIREN, RCS, Capital social, Adresse du siège, Dirigeant(s), Activité, Date d'immatriculation, Date de l'extrait.\n" +
+    "• Statuts : Dénomination, Forme juridique, Capital social, Date, Objet social.\n" +
+    "• Registre des bénéficiaires effectifs : Société, et pour chaque bénéficiaire : Nom Prénom, % de détention, Nature du contrôle.\n" +
+    "• Livret de famille : Époux, Épouse, et chaque enfant avec sa date de naissance.\n\n" +
+    "Toutes les dates au format AAAA-MM-JJ. N'invente rien : n'inclus dans 'champs' que ce qui est réellement lisible sur le document.";
 }
 
 // ---------- Schémas ----------------------------------------------------------
@@ -96,6 +106,14 @@ const PIECE_JSON = {
     numero: { type: ["string", "null"] },
     date_document: { type: ["string", "null"] },
     date_validite: { type: ["string", "null"] },
+    champs: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { label: { type: "string" }, valeur: { type: "string" } },
+        required: ["label", "valeur"], additionalProperties: false,
+      },
+    },
   },
   required: ["type"], additionalProperties: false,
 };
@@ -140,6 +158,14 @@ const PIECE_GEMINI = {
     numero: { type: "STRING", nullable: true },
     date_document: { type: "STRING", nullable: true },
     date_validite: { type: "STRING", nullable: true },
+    champs: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: { label: { type: "STRING" }, valeur: { type: "STRING" } },
+        required: ["label", "valeur"],
+      },
+    },
   },
   required: ["type"],
 };
