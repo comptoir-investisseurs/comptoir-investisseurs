@@ -153,11 +153,11 @@
     }).catch(err => console.error(err));
   }
 
-  // Portefeuille réel d'un client : enveloppes + supports (+ structurés du book non liés)
+  // Portefeuille réel d'un client : enveloppes (AV, PER, CTO…) + leurs supports.
+  // Les produits structurés sont une CLASSE de support, logée dans ces enveloppes.
   function clientPortfolio(id){
     const envs = enveloppes.filter(e => String(e.client_id) === String(id));
-    const linked = new Set(supports.map(s => s.sp_position_id).filter(Boolean).map(String));
-    const contracts = envs.map(e => {
+    return envs.map(e => {
       const lines = supports.filter(s => String(s.enveloppe_id) === String(e.id)).map(s => ({
         name:s.libelle||'—', isin:s.isin||'—', type:s.classe||'Autre', invested:+s.montant_investi||0, value:+s.valorisation||0
       }));
@@ -165,12 +165,6 @@
       const invested = (lines.length && lines.some(l=>l.invested)) ? lines.reduce((a,l)=>a+l.invested,0) : (e.montant_investi!=null?+e.montant_investi:value);
       return {name:e.type||'Enveloppe', provider:(e.etablissement||'')+(e.numero?' · '+e.numero:''), openDate:e.date_souscription, invested, value, lines};
     });
-    const pos = spPositions.filter(p => !p.deleted && String(p.client_id) === String(id) && !linked.has(String(p.id)));
-    if(pos.length){
-      const lines = pos.map(p => { const pr = spProducts.get(p.isin)||{}; const inv=+p.nominal||0; return {name:pr.lib||p.isin, isin:p.isin||'—', type:'Produit structuré', invested:inv, value:inv*(1+(+p.gt||0))}; });
-      contracts.push({name:'Produits structurés', provider:'Book · module Produits structurés', openDate:null, invested:lines.reduce((a,l)=>a+l.invested,0), value:lines.reduce((a,l)=>a+l.value,0), lines, book:true});
-    }
-    return contracts;
   }
 
   // Résout un pôle par son nom (crée la fiche pôle si nécessaire), renvoie l'id (ou null).
