@@ -305,7 +305,7 @@
 
       <div class="ck-grid">
         ${membersCard}
-        <div class="sp-card">
+        <div class="sp-card" id="ck-card-envs">
           <h4>Encours par enveloppe <span class="ck-card-act"><button class="ck-mini-btn" id="ck-import-releve">⤓ Importer un relevé</button> <button class="ck-mini-btn" id="ck-add-env">＋ Enveloppe</button></span></h4>
           <div class="ck-envs">${d.envRows.map(r=>envRowHTML(r,isPole)).join('')||'<p class="sp-muted sm">Aucune enveloppe. Cliquez sur « ＋ Enveloppe ».</p>'}</div>
         </div>
@@ -313,8 +313,8 @@
           <h4>Allocation par classe d'actif <span class="sp-h4-note">— actuelle vs cible</span></h4>
           <div class="ck-alloc" id="ck-alloc">${allocVsTargetHTML(d, target, classTotal)}</div>
         </div>
-        <div class="sp-card">
-          <h4>Pièces justificatives <span class="sp-h4-note">— à jour / à renouveler</span><span class="ck-card-act"><button class="ck-mini-btn" id="ck-add-piece">＋ Pièce</button></span></h4>
+        <div class="sp-card" id="ck-card-pieces">
+          <h4>Pièces justificatives <span class="sp-h4-note">— à jour / à renouveler</span><span class="ck-card-act"><button class="ck-mini-btn" id="ck-import-piece">⤓ Lire une pièce</button> <button class="ck-mini-btn" id="ck-add-piece">＋ Pièce</button></span></h4>
           <div class="ck-pieces">${d.perMember.map(pm=>pieceBlockHTML(pm,isPole)).join('')}</div>
         </div>
         <div class="sp-card">
@@ -427,6 +427,9 @@
     on('ck-brief-cta',()=>openBrief(d)); on('ck-brief-copy',()=>copyBrief(d)); on('ck-brief-print',()=>openBrief(d));
     on('ck-add-env',()=>openEnvForm(subj)); on('ck-add-piece',()=>openDocForm(subj,'piece')); on('ck-add-proc',()=>openDocForm(subj,'procedure'));
     on('ck-import-releve',()=>importReleveNew(subj));
+    on('ck-import-piece',()=>importPiece(subj));
+    setupDrop('ck-card-envs',function(f){ readReleveNew(f, subj); });
+    setupDrop('ck-card-pieces',function(f){ readPiece(f, subj); });
     on('ck-tgt-save',()=>{ const map={}; document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>{ map[i.dataset.cls]=Math.max(0,Math.min(100,parseFloat(i.value)||0)); }); saveTarget(targetKey(subj),map); const st=document.getElementById('ck-tgt-status'); if(st){ st.textContent='✓ Cible enregistrée'; st.style.color='#2e7d32'; } });
     on('ck-tgt-auto',()=>{ saveTarget(targetKey(subj),null); renderCockpit(); });
     document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>i.addEventListener('input',()=>updateAllocGaps(d)));
@@ -587,20 +590,68 @@
     const del=document.getElementById('dc-del'); if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer ?')) persistDelete('documents',documents,doc.id).then(()=>{ modal.classList.remove('is-open'); refresh(); }); });
   }
 
+  /* ---------------- LECTURE IA (Edge Function extract-doc) ----------------
+     La clé Anthropic reste côté serveur. Si la fonction n'est pas déployée,
+     on retombe proprement sur l'heuristique PDF / la saisie manuelle. */
+  const EXTRACT_URL = SB ? (SB + '/functions/v1/extract-doc') : '';
+  function fileToBase64(file){
+    return new Promise(function(resolve,reject){ var r=new FileReader();
+      r.onload=function(){ var s=String(r.result||''); var i=s.indexOf(','); resolve(i>=0?s.slice(i+1):s); };
+      r.onerror=reject; r.readAsDataURL(file); });
+  }
+  function mediaTypeOf(file){
+    if(/pdf$/i.test(file.name)||file.type==='application/pdf') return 'application/pdf';
+    if(file.type && /^image\//.test(file.type)) return file.type;
+    if(/\.png$/i.test(file.name)) return 'image/png';
+    if(/\.(jpe?g)$/i.test(file.name)) return 'image/jpeg';
+    if(/\.webp$/i.test(file.name)) return 'image/webp';
+    return 'application/pdf';
+  }
+  // Renvoie les données structurées extraites, ou null si l'IA est indisponible.
+  function extractDoc(file, kind){
+    if(!EXTRACT_URL) return Promise.resolve(null);
+    return fileToBase64(file).then(function(b64){
+      return fetch(EXTRACT_URL,{ method:'POST', headers:headers(), body:JSON.stringify({ data:b64, media_type:mediaTypeOf(file), kind:kind }) })
+        .then(function(r){ if(!r.ok) return r.json().catch(function(){return {error:r.status};}).then(function(e){ return Promise.reject(e); }); return r.json(); })
+        .then(function(j){ return j && j.result ? j.result : null; });
+    }).catch(function(e){ console.warn('extract-doc', e); return null; });
+  }
+  function aiSupToRow(s){ return { libelle:s.libelle||'', isin:s.isin||'', classe:ASSET_CLASSES.indexOf(s.classe)>=0?s.classe:guessClasse(s.libelle), montant_investi:(s.montant_investi!=null?s.montant_investi:null), valorisation:(s.valorisation!=null?s.valorisation:null) }; }
+  function aiEnvToMeta(e){ e=e||{}; return { type:(ENV_TYPES.indexOf(e.type)>=0?e.type:undefined), etablissement:e.etablissement||'', numero:e.numero||'', valorisation:(e.valorisation_totale!=null?e.valorisation_totale:null) }; }
+  // Ajoute une zone de dépôt (drag & drop) à une carte du cockpit.
+  function setupDrop(cardId, onFile){
+    var el=document.getElementById(cardId); if(!el) return;
+    var stop=function(e){ e.preventDefault(); e.stopPropagation(); };
+    el.addEventListener('dragover',function(e){ stop(e); el.classList.add('ck-drop-over'); });
+    el.addEventListener('dragleave',function(e){ stop(e); el.classList.remove('ck-drop-over'); });
+    el.addEventListener('drop',function(e){ stop(e); el.classList.remove('ck-drop-over');
+      var f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f) onFile(f); });
+  }
+
   /* ---------------- IMPORT RELEVÉ PDF ---------------- */
   function importReleve(env){
     if(!env){ toast('Enveloppe introuvable.',true); return; }
-    const inp=document.createElement('input'); inp.type='file'; inp.accept='application/pdf,.pdf,.txt';
+    const inp=document.createElement('input'); inp.type='file'; inp.accept='application/pdf,.pdf,.txt,image/*';
     inp.addEventListener('change',()=>{ const f=inp.files[0]; if(f) readReleve(f, env); });
     inp.click();
   }
   function readReleve(f, env){
     toast('Lecture du relevé…');
+    extractDoc(f,'releve').then(function(ai){
+      if(ai && ai.supports && ai.supports.length){
+        reviewReleve(ai.supports.map(aiSupToRow), env, f.name);
+        toast(ai.supports.length+' support(s) lus par l\'IA — vérifiez.'); return;
+      }
+      fallbackReadReleve(f, env);
+    });
+  }
+  function fallbackReadReleve(f, env){
     const reader=new FileReader();
     if(/pdf$/i.test(f.name)||f.type==='application/pdf'){
       reader.onload=()=>extractPdfText(reader.result).then(txt=>reviewReleve(parseReleve(txt), env, f.name)).catch(err=>{ console.warn(err); toast('PDF illisible — saisie manuelle.',true); reviewReleve([], env, f.name); });
       reader.readAsArrayBuffer(f);
-    } else { reader.onload=()=>reviewReleve(parseReleve(String(reader.result||'')), env, f.name); reader.readAsText(f); }
+    } else if(/^image\//.test(f.type)){ toast('Image non lue automatiquement (IA non configurée) — saisie manuelle.',true); reviewReleve([], env, f.name); }
+    else { reader.onload=()=>reviewReleve(parseReleve(String(reader.result||'')), env, f.name); reader.readAsText(f); }
   }
   function extractPdfText(buf){ if(!window.pdfjsLib) return Promise.reject('pdfjs absent');
     return pdfjsLib.getDocument({data:buf}).promise.then(doc=>{ const pages=[]; const N=Math.min(doc.numPages,15); const seq=[]; for(let i=1;i<=N;i++) seq.push(i);
@@ -685,11 +736,46 @@
     inp.addEventListener('change',function(){ var f=inp.files[0]; if(f) readReleveNew(f, subj); }); inp.click();
   }
   function readReleveNew(f, subj){
-    toast('Lecture du relevé…'); var reader=new FileReader();
+    toast('Lecture du relevé…');
+    extractDoc(f,'releve').then(function(ai){
+      if(ai && ai.supports){
+        reviewReleveNew((ai.supports||[]).map(aiSupToRow), aiEnvToMeta(ai.enveloppe), subj, f.name);
+        toast((ai.supports.length||0)+' support(s) lus par l\'IA — vérifiez.'); return;
+      }
+      fallbackReadReleveNew(f, subj);
+    });
+  }
+  function fallbackReadReleveNew(f, subj){
+    var reader=new FileReader();
     if(/pdf$/i.test(f.name)||f.type==='application/pdf'){
       reader.onload=function(){ extractPdfText(reader.result).then(function(txt){ reviewReleveNew(parseReleve(txt), guessEnvelope(txt), subj, f.name); }).catch(function(err){ console.warn(err); toast('PDF illisible — saisie manuelle.',true); reviewReleveNew([], {}, subj, f.name); }); };
       reader.readAsArrayBuffer(f);
-    } else { reader.onload=function(){ var txt=String(reader.result||''); reviewReleveNew(parseReleve(txt), guessEnvelope(txt), subj, f.name); }; reader.readAsText(f); }
+    } else if(/^image\//.test(f.type)){ toast('Image non lue automatiquement (IA non configurée) — saisie manuelle.',true); reviewReleveNew([], {}, subj, f.name); }
+    else { reader.onload=function(){ var txt=String(reader.result||''); reviewReleveNew(parseReleve(txt), guessEnvelope(txt), subj, f.name); }; reader.readAsText(f); }
+  }
+
+  /* ---------------- IMPORT PIÈCE JUSTIFICATIVE (PDF / photo) ---------------- */
+  function importPiece(subj){
+    var inp=document.createElement('input'); inp.type='file'; inp.accept='application/pdf,.pdf,image/*';
+    inp.addEventListener('change',function(){ var f=inp.files[0]; if(f) readPiece(f, subj); }); inp.click();
+  }
+  function readPiece(f, subj){
+    toast('Lecture de la pièce…');
+    extractDoc(f,'piece').then(function(ai){
+      var doc={ categorie:'piece' };
+      if(ai){
+        if(PIECE_TYPES.indexOf(ai.type)>=0) doc.type=ai.type;
+        if(ai.date_document) doc.date_document=ai.date_document;
+        if(ai.date_validite) doc.date_validite=ai.date_validite;
+        if(ai.numero) doc.reference=ai.numero;
+        if(ai.titulaire) doc.notes='Titulaire : '+ai.titulaire;
+        openDocForm(subj,'piece',doc);
+        toast('Pièce lue par l\'IA — vérifiez puis enregistrez.');
+      } else {
+        openDocForm(subj,'piece',doc);
+        toast(EXTRACT_URL?'Lecture auto indisponible — saisie manuelle.':'IA non configurée — saisie manuelle.', !!EXTRACT_URL);
+      }
+    });
   }
   function reviewReleveNew(rows, meta, subj, fname){
     openModal('Importer un relevé — nouveau contrat');
