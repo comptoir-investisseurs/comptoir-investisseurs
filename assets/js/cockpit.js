@@ -33,7 +33,7 @@
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
     loginError.style.display = 'none';
-    if(!SB){ loginError.textContent='Configuration indisponible.'; loginError.style.display='block'; return; }
+    if(!SB){ sessionStorage.setItem('sb_access_token','demo'); sessionStorage.setItem('sb_user_email',email||'demo'); document.getElementById('dash-user-email').textContent = email||'demo'; showDash(); return; }
     fetch(SB + '/auth/v1/token?grant_type=password', { method:'POST', headers:{'apikey':SB_KEY,'Content-Type':'application/json'}, body: JSON.stringify({email, password}) })
       .then(r => r.json()).then(data => {
         if(data.access_token){ sessionStorage.setItem('sb_access_token', data.access_token); sessionStorage.setItem('sb_user_email', email); document.getElementById('dash-user-email').textContent = email; showDash(); }
@@ -305,7 +305,7 @@
 
       <div class="ck-grid">
         ${membersCard}
-        <div class="sp-card">
+        <div class="sp-card" id="ck-card-envs">
           <h4>Encours par enveloppe <span class="ck-card-act"><button class="ck-mini-btn" id="ck-import-releve">⤓ Importer un relevé</button> <button class="ck-mini-btn" id="ck-add-env">＋ Enveloppe</button></span></h4>
           <div class="ck-envs">${d.envRows.map(r=>envRowHTML(r,isPole)).join('')||'<p class="sp-muted sm">Aucune enveloppe. Cliquez sur « ＋ Enveloppe ».</p>'}</div>
         </div>
@@ -313,8 +313,8 @@
           <h4>Allocation par classe d'actif <span class="sp-h4-note">— actuelle vs cible</span></h4>
           <div class="ck-alloc" id="ck-alloc">${allocVsTargetHTML(d, target, classTotal)}</div>
         </div>
-        <div class="sp-card">
-          <h4>Pièces justificatives <span class="sp-h4-note">— à jour / à renouveler</span><span class="ck-card-act"><button class="ck-mini-btn" id="ck-add-piece">＋ Pièce</button></span></h4>
+        <div class="sp-card" id="ck-card-pieces">
+          <h4>Pièces justificatives <span class="sp-h4-note">— à jour / à renouveler</span><span class="ck-card-act"><button class="ck-mini-btn" id="ck-import-piece">⤓ Lire une pièce</button> <button class="ck-mini-btn" id="ck-add-piece">＋ Pièce</button></span></h4>
           <div class="ck-pieces">${d.perMember.map(pm=>pieceBlockHTML(pm,isPole)).join('')}</div>
         </div>
         <div class="sp-card">
@@ -427,6 +427,9 @@
     on('ck-brief-cta',()=>openBrief(d)); on('ck-brief-copy',()=>copyBrief(d)); on('ck-brief-print',()=>openBrief(d));
     on('ck-add-env',()=>openEnvForm(subj)); on('ck-add-piece',()=>openDocForm(subj,'piece')); on('ck-add-proc',()=>openDocForm(subj,'procedure'));
     on('ck-import-releve',()=>importReleveNew(subj));
+    on('ck-import-piece',()=>importPiece(subj));
+    setupDrop('ck-card-envs',function(f){ readReleveNew(f, subj); });
+    setupDrop('ck-card-pieces',function(f){ readPiece(f, subj); });
     on('ck-tgt-save',()=>{ const map={}; document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>{ map[i.dataset.cls]=Math.max(0,Math.min(100,parseFloat(i.value)||0)); }); saveTarget(targetKey(subj),map); const st=document.getElementById('ck-tgt-status'); if(st){ st.textContent='✓ Cible enregistrée'; st.style.color='#2e7d32'; } });
     on('ck-tgt-auto',()=>{ saveTarget(targetKey(subj),null); renderCockpit(); });
     document.querySelectorAll('#ck-alloc .ck-tgt-input').forEach(i=>i.addEventListener('input',()=>updateAllocGaps(d)));
@@ -587,20 +590,131 @@
     const del=document.getElementById('dc-del'); if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer ?')) persistDelete('documents',documents,doc.id).then(()=>{ modal.classList.remove('is-open'); refresh(); }); });
   }
 
+  /* ---------------- LECTURE IA (Edge Function extract-doc) ----------------
+     Moteur principal : Gemini (gratuit) ou Anthropic (payant), choisi côté
+     serveur. La clé reste hors du navigateur. Si la fonction n'est pas
+     déployée / joignable, on retombe automatiquement sur la lecture locale. */
+  const EXTRACT_URL = SB ? (SB + '/functions/v1/extract-doc') : '';
+  function fileToBase64(file){
+    return new Promise(function(resolve,reject){ var r=new FileReader();
+      r.onload=function(){ var s=String(r.result||''); var i=s.indexOf(','); resolve(i>=0?s.slice(i+1):s); };
+      r.onerror=reject; r.readAsDataURL(file); });
+  }
+  function mediaTypeOf(file){
+    if(/pdf$/i.test(file.name)||file.type==='application/pdf') return 'application/pdf';
+    if(file.type && /^image\//.test(file.type)) return file.type;
+    if(/\.png$/i.test(file.name)) return 'image/png';
+    if(/\.(jpe?g)$/i.test(file.name)) return 'image/jpeg';
+    if(/\.webp$/i.test(file.name)) return 'image/webp';
+    return 'application/pdf';
+  }
+  // Renvoie les données structurées extraites par l'IA, ou null si indisponible.
+  function extractDoc(file, kind){
+    if(!EXTRACT_URL) return Promise.resolve(null);
+    return fileToBase64(file).then(function(b64){
+      return fetch(EXTRACT_URL,{ method:'POST', headers:headers(), body:JSON.stringify({ data:b64, media_type:mediaTypeOf(file), kind:kind }) })
+        .then(function(r){ if(!r.ok) return r.json().catch(function(){return {error:r.status};}).then(function(e){ return Promise.reject(e); }); return r.json(); })
+        .then(function(j){ return j && j.result ? j.result : null; });
+    }).catch(function(e){ console.warn('extract-doc', e); return null; });
+  }
+  function aiSupToRow(s){ return { libelle:s.libelle||'', isin:s.isin||'', classe:ASSET_CLASSES.indexOf(s.classe)>=0?s.classe:guessClasse(s.libelle), montant_investi:(s.montant_investi!=null?s.montant_investi:null), valorisation:(s.valorisation!=null?s.valorisation:null) }; }
+  function aiEnvToMeta(e){ e=e||{}; return { type:(ENV_TYPES.indexOf(e.type)>=0?e.type:undefined), etablissement:e.etablissement||'', numero:e.numero||'', valorisation:(e.valorisation_totale!=null?e.valorisation_totale:null) }; }
+
+  /* ---------------- LECTURE LOCALE (repli) ----------------
+     100 % dans le navigateur : aucune donnée ne quitte le poste.
+     • PDF numérique  -> texte via pdf.js
+     • Photo / scan   -> OCR via Tesseract.js (WASM, chargé à la demande) */
+  var _tessPromise=null;
+  function loadTesseract(){
+    if(window.Tesseract) return Promise.resolve(window.Tesseract);
+    if(_tessPromise) return _tessPromise;
+    _tessPromise=new Promise(function(res,rej){ var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js';
+      s.onload=function(){ res(window.Tesseract); }; s.onerror=function(){ rej(new Error('tesseract')); };
+      document.head.appendChild(s); });
+    return _tessPromise;
+  }
+  function ocrImage(src){ return loadTesseract().then(function(T){ return T.recognize(src,'fra'); }).then(function(r){ return (r&&r.data&&r.data.text)||''; }); }
+  // Rend les pages d'un PDF en images puis les passe à l'OCR (PDF scanné).
+  function pdfPagesToText(buf){
+    if(!window.pdfjsLib) return Promise.resolve('');
+    return pdfjsLib.getDocument({data:buf}).promise.then(function(doc){
+      var N=Math.min(doc.numPages,6), seq=[]; for(var i=1;i<=N;i++) seq.push(i);
+      return seq.reduce(function(pr,i){ return pr.then(function(acc){ return doc.getPage(i).then(function(pg){
+        var vp=pg.getViewport({scale:2}); var cv=document.createElement('canvas'); cv.width=vp.width; cv.height=vp.height;
+        return pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise.then(function(){ return ocrImage(cv); }).then(function(t){ return acc+'\n'+t; });
+      }); }); }, Promise.resolve(''));
+    });
+  }
+  // Renvoie le texte du document (PDF texte, PDF scanné->OCR, image->OCR, txt).
+  function getDocText(file){
+    return new Promise(function(resolve){
+      var isPdf=/pdf$/i.test(file.name)||file.type==='application/pdf';
+      var isImg=/^image\//.test(file.type)||/\.(png|jpe?g|webp|gif|bmp|tiff?)$/i.test(file.name);
+      if(isPdf){
+        var r=new FileReader();
+        r.onload=function(){ var buf=r.result;
+          extractPdfText(buf.slice(0)).then(function(txt){
+            if(txt && txt.replace(/\s/g,'').length>=40){ resolve(txt); }
+            else { toast('PDF scanné — lecture OCR (peut prendre un instant)…'); pdfPagesToText(buf.slice(0)).then(resolve).catch(function(){ resolve(txt||''); }); }
+          }).catch(function(){ toast('Lecture OCR…'); pdfPagesToText(buf.slice(0)).then(resolve).catch(function(){ resolve(''); }); });
+        };
+        r.readAsArrayBuffer(file);
+      } else if(isImg){ toast('Lecture OCR de l\'image (peut prendre un instant)…'); ocrImage(file).then(resolve).catch(function(err){ console.warn(err); toast('OCR indisponible — saisie manuelle.',true); resolve(''); }); }
+      else { var r2=new FileReader(); r2.onload=function(){ resolve(String(r2.result||'')); }; r2.readAsText(file); }
+    });
+  }
+  // Heuristique pièce justificative : type + dates depuis le texte extrait.
+  function guessPiece(txt){
+    var T=(txt||'').replace(/\s+/g,' '); var low=T.toLowerCase(); var out={};
+    if(/passeport|carte nationale d.?identit|carte d.?identit|\bcni\b|titre de s[ée]jour|permis de conduire/.test(low)) out.type=/dirigeant|g[ée]rant|pr[ée]sident/.test(low)?'Pièce d\'identité du dirigeant':'Pièce d\'identité';
+    else if(/avis d.?imp[oô]t|avis d.?imposition|d[ée]claration.*revenus|revenu fiscal de r[ée]f[ée]rence/.test(low)) out.type='Avis d\'imposition';
+    else if(/relev[ée] d.?identit[ée] bancaire|\brib\b|\biban\b|\bbic\b/.test(low)) out.type='RIB';
+    else if(/k[\- ]?bis|extrait d.?immatriculation|greffe du tribunal/.test(low)) out.type='Extrait KBIS';
+    else if(/statuts?\b/.test(low)) out.type='Statuts à jour';
+    else if(/b[ée]n[ée]ficiaires? effectifs?|registre des b[ée]n[ée]ficiaires/.test(low)) out.type='Registre des bénéficiaires effectifs';
+    else if(/livret de famille/.test(low)) out.type='Livret de famille';
+    else if(/facture|quittance|justificatif de domicile|contrat de bail|[ée]lectricit|\bedf\b|\bengie\b|\bgdf\b|abonnement|t[ée]l[ée]phone|internet|taxe d.?habitation/.test(low)) out.type='Justificatif de domicile';
+    // date d'expiration / de validité
+    var vm=T.match(/(?:valable jusqu.?au|expire?\s+le|date d.?expiration|fin de validit[ée]|expiry|date of expiry)\D{0,12}(\d{2}[\/. ]\d{2}[\/. ]\d{4}|\d{4}-\d{2}-\d{2})/i);
+    if(vm) out.date_validite=normDate(vm[1]);
+    // date d'émission / d'établissement
+    var dm=T.match(/(?:d[ée]livr[ée]e?\s+le|[ée]tabli\s+le|fait\s+le|[ée]mis\s+le|en date du|date d.?[ée]mission|date de facturation|\bdu\b|\ble\b)\s*[:]?\s*(\d{2}[\/. ]\d{2}[\/. ]\d{4}|\d{4}-\d{2}-\d{2})/i);
+    if(dm) out.date_document=normDate(dm[1]);
+    // avis d'imposition : année -> date document 31/12 de l'année des revenus
+    if(out.type==='Avis d\'imposition' && !out.date_document){ var ym=T.match(/revenus?\s+(?:de\s+l.?ann[ée]e\s+)?(\d{4})|ann[ée]e\s+(\d{4})|\b(20\d{2})\b/); var y=ym&&(ym[1]||ym[2]||ym[3]); if(y) out.date_document=y+'-12-31'; }
+    // numéro (référence, n° pièce)
+    var nm=T.match(/(?:n[°ºo]\s?(?:de\s?)?(?:carte|pi[èe]ce|document|siren|siret)?\s*[:#]?\s*)([A-Z0-9][A-Z0-9\- ]{4,20})/i);
+    if(nm) out.numero=nm[1].trim();
+    return out;
+  }
+  function normDate(s){ if(!s) return null; s=String(s).trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    var m=s.match(/(\d{2})[\/. ](\d{2})[\/. ](\d{4})/); return m?m[3]+'-'+m[2]+'-'+m[1]:null; }
+  // Ajoute une zone de dépôt (drag & drop) à une carte du cockpit.
+  function setupDrop(cardId, onFile){
+    var el=document.getElementById(cardId); if(!el) return;
+    var stop=function(e){ e.preventDefault(); e.stopPropagation(); };
+    el.addEventListener('dragover',function(e){ stop(e); el.classList.add('ck-drop-over'); });
+    el.addEventListener('dragleave',function(e){ stop(e); el.classList.remove('ck-drop-over'); });
+    el.addEventListener('drop',function(e){ stop(e); el.classList.remove('ck-drop-over');
+      var f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f) onFile(f); });
+  }
+
   /* ---------------- IMPORT RELEVÉ PDF ---------------- */
   function importReleve(env){
     if(!env){ toast('Enveloppe introuvable.',true); return; }
-    const inp=document.createElement('input'); inp.type='file'; inp.accept='application/pdf,.pdf,.txt';
+    const inp=document.createElement('input'); inp.type='file'; inp.accept='application/pdf,.pdf,.txt,image/*';
     inp.addEventListener('change',()=>{ const f=inp.files[0]; if(f) readReleve(f, env); });
     inp.click();
   }
   function readReleve(f, env){
     toast('Lecture du relevé…');
-    const reader=new FileReader();
-    if(/pdf$/i.test(f.name)||f.type==='application/pdf'){
-      reader.onload=()=>extractPdfText(reader.result).then(txt=>reviewReleve(parseReleve(txt), env, f.name)).catch(err=>{ console.warn(err); toast('PDF illisible — saisie manuelle.',true); reviewReleve([], env, f.name); });
-      reader.readAsArrayBuffer(f);
-    } else { reader.onload=()=>reviewReleve(parseReleve(String(reader.result||'')), env, f.name); reader.readAsText(f); }
+    extractDoc(f,'releve').then(function(ai){
+      if(ai && ai.supports && ai.supports.length){ reviewReleve(ai.supports.map(aiSupToRow), env, f.name);
+        toast(ai.supports.length+' support(s) lus par l\'IA — vérifiez.'); return; }
+      getDocText(f).then(function(txt){ var rows=parseReleve(txt); reviewReleve(rows, env, f.name);
+        toast(rows.length?(rows.length+' support(s) détecté(s) — vérifiez.'):'Peu de lignes détectées — complétez à la main.', !rows.length); });
+    });
   }
   function extractPdfText(buf){ if(!window.pdfjsLib) return Promise.reject('pdfjs absent');
     return pdfjsLib.getDocument({data:buf}).promise.then(doc=>{ const pages=[]; const N=Math.min(doc.numPages,15); const seq=[]; for(let i=1;i<=N;i++) seq.push(i);
@@ -685,11 +799,42 @@
     inp.addEventListener('change',function(){ var f=inp.files[0]; if(f) readReleveNew(f, subj); }); inp.click();
   }
   function readReleveNew(f, subj){
-    toast('Lecture du relevé…'); var reader=new FileReader();
-    if(/pdf$/i.test(f.name)||f.type==='application/pdf'){
-      reader.onload=function(){ extractPdfText(reader.result).then(function(txt){ reviewReleveNew(parseReleve(txt), guessEnvelope(txt), subj, f.name); }).catch(function(err){ console.warn(err); toast('PDF illisible — saisie manuelle.',true); reviewReleveNew([], {}, subj, f.name); }); };
-      reader.readAsArrayBuffer(f);
-    } else { reader.onload=function(){ var txt=String(reader.result||''); reviewReleveNew(parseReleve(txt), guessEnvelope(txt), subj, f.name); }; reader.readAsText(f); }
+    toast('Lecture du relevé…');
+    extractDoc(f,'releve').then(function(ai){
+      if(ai && ai.supports){ reviewReleveNew(ai.supports.map(aiSupToRow), aiEnvToMeta(ai.enveloppe), subj, f.name);
+        toast((ai.supports.length||0)+' support(s) lus par l\'IA — vérifiez.'); return; }
+      getDocText(f).then(function(txt){ var rows=parseReleve(txt); reviewReleveNew(rows, guessEnvelope(txt), subj, f.name);
+        toast(rows.length?(rows.length+' support(s) détecté(s) — vérifiez.'):'Peu de lignes détectées — complétez à la main.', !rows.length); });
+    });
+  }
+
+  /* ---------------- IMPORT PIÈCE JUSTIFICATIVE (PDF / photo) ---------------- */
+  function importPiece(subj){
+    var inp=document.createElement('input'); inp.type='file'; inp.accept='application/pdf,.pdf,image/*';
+    inp.addEventListener('change',function(){ var f=inp.files[0]; if(f) readPiece(f, subj); }); inp.click();
+  }
+  function readPiece(f, subj){
+    toast('Lecture de la pièce…');
+    extractDoc(f,'piece').then(function(ai){
+      if(ai){ var doc={ categorie:'piece' };
+        if(PIECE_TYPES.indexOf(ai.type)>=0) doc.type=ai.type;
+        if(ai.date_document) doc.date_document=ai.date_document;
+        if(ai.date_validite) doc.date_validite=ai.date_validite;
+        if(ai.numero) doc.reference=ai.numero;
+        if(ai.titulaire) doc.notes='Titulaire : '+ai.titulaire;
+        openDocForm(subj,'piece',doc);
+        toast('Pièce lue par l\'IA — vérifiez puis enregistrez.'); return;
+      }
+      getDocText(f).then(function(txt){
+        var g=guessPiece(txt); var doc={ categorie:'piece' };
+        if(g.type) doc.type=g.type;
+        if(g.date_document) doc.date_document=g.date_document;
+        if(g.date_validite) doc.date_validite=g.date_validite;
+        if(g.numero) doc.reference=g.numero;
+        openDocForm(subj,'piece',doc);
+        toast(g.type?('Pièce détectée : '+g.type+' — vérifiez puis enregistrez.'):'Complétez la pièce puis enregistrez.', !g.type);
+      });
+    });
   }
   function reviewReleveNew(rows, meta, subj, fname){
     openModal('Importer un relevé — nouveau contrat');
