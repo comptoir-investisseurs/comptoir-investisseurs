@@ -590,7 +590,37 @@
     const del=document.getElementById('dc-del'); if(del) del.addEventListener('click',()=>{ if(confirm('Supprimer ?')) persistDelete('documents',documents,doc.id).then(()=>{ modal.classList.remove('is-open'); refresh(); }); });
   }
 
-  /* ---------------- LECTURE LOCALE DES DOCUMENTS ----------------
+  /* ---------------- LECTURE IA (Edge Function extract-doc) ----------------
+     Moteur principal : Gemini (gratuit) ou Anthropic (payant), choisi côté
+     serveur. La clé reste hors du navigateur. Si la fonction n'est pas
+     déployée / joignable, on retombe automatiquement sur la lecture locale. */
+  const EXTRACT_URL = SB ? (SB + '/functions/v1/extract-doc') : '';
+  function fileToBase64(file){
+    return new Promise(function(resolve,reject){ var r=new FileReader();
+      r.onload=function(){ var s=String(r.result||''); var i=s.indexOf(','); resolve(i>=0?s.slice(i+1):s); };
+      r.onerror=reject; r.readAsDataURL(file); });
+  }
+  function mediaTypeOf(file){
+    if(/pdf$/i.test(file.name)||file.type==='application/pdf') return 'application/pdf';
+    if(file.type && /^image\//.test(file.type)) return file.type;
+    if(/\.png$/i.test(file.name)) return 'image/png';
+    if(/\.(jpe?g)$/i.test(file.name)) return 'image/jpeg';
+    if(/\.webp$/i.test(file.name)) return 'image/webp';
+    return 'application/pdf';
+  }
+  // Renvoie les données structurées extraites par l'IA, ou null si indisponible.
+  function extractDoc(file, kind){
+    if(!EXTRACT_URL) return Promise.resolve(null);
+    return fileToBase64(file).then(function(b64){
+      return fetch(EXTRACT_URL,{ method:'POST', headers:headers(), body:JSON.stringify({ data:b64, media_type:mediaTypeOf(file), kind:kind }) })
+        .then(function(r){ if(!r.ok) return r.json().catch(function(){return {error:r.status};}).then(function(e){ return Promise.reject(e); }); return r.json(); })
+        .then(function(j){ return j && j.result ? j.result : null; });
+    }).catch(function(e){ console.warn('extract-doc', e); return null; });
+  }
+  function aiSupToRow(s){ return { libelle:s.libelle||'', isin:s.isin||'', classe:ASSET_CLASSES.indexOf(s.classe)>=0?s.classe:guessClasse(s.libelle), montant_investi:(s.montant_investi!=null?s.montant_investi:null), valorisation:(s.valorisation!=null?s.valorisation:null) }; }
+  function aiEnvToMeta(e){ e=e||{}; return { type:(ENV_TYPES.indexOf(e.type)>=0?e.type:undefined), etablissement:e.etablissement||'', numero:e.numero||'', valorisation:(e.valorisation_totale!=null?e.valorisation_totale:null) }; }
+
+  /* ---------------- LECTURE LOCALE (repli) ----------------
      100 % dans le navigateur : aucune donnée ne quitte le poste.
      • PDF numérique  -> texte via pdf.js
      • Photo / scan   -> OCR via Tesseract.js (WASM, chargé à la demande) */
@@ -679,8 +709,12 @@
   }
   function readReleve(f, env){
     toast('Lecture du relevé…');
-    getDocText(f).then(function(txt){ var rows=parseReleve(txt); reviewReleve(rows, env, f.name);
-      toast(rows.length?(rows.length+' support(s) détecté(s) — vérifiez.'):'Peu de lignes détectées — complétez à la main.', !rows.length); });
+    extractDoc(f,'releve').then(function(ai){
+      if(ai && ai.supports && ai.supports.length){ reviewReleve(ai.supports.map(aiSupToRow), env, f.name);
+        toast(ai.supports.length+' support(s) lus par l\'IA — vérifiez.'); return; }
+      getDocText(f).then(function(txt){ var rows=parseReleve(txt); reviewReleve(rows, env, f.name);
+        toast(rows.length?(rows.length+' support(s) détecté(s) — vérifiez.'):'Peu de lignes détectées — complétez à la main.', !rows.length); });
+    });
   }
   function extractPdfText(buf){ if(!window.pdfjsLib) return Promise.reject('pdfjs absent');
     return pdfjsLib.getDocument({data:buf}).promise.then(doc=>{ const pages=[]; const N=Math.min(doc.numPages,15); const seq=[]; for(let i=1;i<=N;i++) seq.push(i);
@@ -766,8 +800,12 @@
   }
   function readReleveNew(f, subj){
     toast('Lecture du relevé…');
-    getDocText(f).then(function(txt){ var rows=parseReleve(txt); reviewReleveNew(rows, guessEnvelope(txt), subj, f.name);
-      toast(rows.length?(rows.length+' support(s) détecté(s) — vérifiez.'):'Peu de lignes détectées — complétez à la main.', !rows.length); });
+    extractDoc(f,'releve').then(function(ai){
+      if(ai && ai.supports){ reviewReleveNew(ai.supports.map(aiSupToRow), aiEnvToMeta(ai.enveloppe), subj, f.name);
+        toast((ai.supports.length||0)+' support(s) lus par l\'IA — vérifiez.'); return; }
+      getDocText(f).then(function(txt){ var rows=parseReleve(txt); reviewReleveNew(rows, guessEnvelope(txt), subj, f.name);
+        toast(rows.length?(rows.length+' support(s) détecté(s) — vérifiez.'):'Peu de lignes détectées — complétez à la main.', !rows.length); });
+    });
   }
 
   /* ---------------- IMPORT PIÈCE JUSTIFICATIVE (PDF / photo) ---------------- */
@@ -777,14 +815,25 @@
   }
   function readPiece(f, subj){
     toast('Lecture de la pièce…');
-    getDocText(f).then(function(txt){
-      var g=guessPiece(txt); var doc={ categorie:'piece' };
-      if(g.type) doc.type=g.type;
-      if(g.date_document) doc.date_document=g.date_document;
-      if(g.date_validite) doc.date_validite=g.date_validite;
-      if(g.numero) doc.reference=g.numero;
-      openDocForm(subj,'piece',doc);
-      toast(g.type?('Pièce détectée : '+g.type+' — vérifiez puis enregistrez.'):'Complétez la pièce puis enregistrez.', !g.type);
+    extractDoc(f,'piece').then(function(ai){
+      if(ai){ var doc={ categorie:'piece' };
+        if(PIECE_TYPES.indexOf(ai.type)>=0) doc.type=ai.type;
+        if(ai.date_document) doc.date_document=ai.date_document;
+        if(ai.date_validite) doc.date_validite=ai.date_validite;
+        if(ai.numero) doc.reference=ai.numero;
+        if(ai.titulaire) doc.notes='Titulaire : '+ai.titulaire;
+        openDocForm(subj,'piece',doc);
+        toast('Pièce lue par l\'IA — vérifiez puis enregistrez.'); return;
+      }
+      getDocText(f).then(function(txt){
+        var g=guessPiece(txt); var doc={ categorie:'piece' };
+        if(g.type) doc.type=g.type;
+        if(g.date_document) doc.date_document=g.date_document;
+        if(g.date_validite) doc.date_validite=g.date_validite;
+        if(g.numero) doc.reference=g.numero;
+        openDocForm(subj,'piece',doc);
+        toast(g.type?('Pièce détectée : '+g.type+' — vérifiez puis enregistrez.'):'Complétez la pièce puis enregistrez.', !g.type);
+      });
     });
   }
   function reviewReleveNew(rows, meta, subj, fname){
