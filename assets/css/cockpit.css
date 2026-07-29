@@ -179,3 +179,11 @@
 .ck-champ .ch-label{flex:0 0 40%}
 .ck-champ .ch-val{flex:1}
 .ck-champ input:focus{border-color:var(--gold)}
+
+/* ---------- CONVENTION DE CONSEIL ---------- */
+.ck-chks{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin:2px 0 4px}
+.ck-chk{display:flex;align-items:flex-start;gap:7px;font-size:.82rem;color:var(--green);cursor:pointer;line-height:1.35}
+.ck-chk input{margin-top:2px;flex-shrink:0}
+.cv-warn{background:#fff4e5;color:#b06f15;border-radius:6px;padding:7px 10px;font-size:.8rem;margin:2px 0 8px}
+.cv-ok{background:#e8f5e9;color:#2e7d32;border-radius:6px;padding:7px 10px;font-size:.8rem;margin:2px 0 8px}
+@media(max-width:560px){.ck-chks{grid-template-columns:1fr}}
