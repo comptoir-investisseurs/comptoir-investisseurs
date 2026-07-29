@@ -1,0 +1,174 @@
+/* Diagnostic patrimonial — mini-quiz lead-gen (LFDR) ------------------------
+   Parcours plein écran, une question par écran, avancée automatique.
+   Réutilise les variables du design system (assets/css/styles.css). */
+
+.dg-body{
+  min-height:100vh;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, var(--green-700), var(--green) 60%);
+  color:#fff;
+  display:flex;flex-direction:column;
+}
+
+/* --- Header minimal --- */
+.dg-top{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;justify-content:center;
+  padding:18px var(--gutter);
+}
+.dg-top img{height:34px;width:auto}
+
+/* --- Barre de progression --- */
+.dg-progress{
+  position:fixed;top:0;left:0;right:0;height:3px;
+  background:rgba(255,255,255,.12);z-index:30;
+}
+.dg-progress__fill{
+  height:100%;width:0;background:var(--gold);
+  transition:width .5s var(--ease);
+}
+
+/* --- Scène : contient les cartes de questions --- */
+.dg-stage{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:24px var(--gutter) 64px;
+}
+.dg-inner{width:100%;max-width:680px}
+
+/* --- Carte de question (une seule visible) --- */
+.dg-card{display:none;animation:dgIn .5s var(--ease)}
+.dg-card.is-active{display:block}
+@keyframes dgIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.dg-card{animation:none}}
+
+.dg-step-index{
+  font-family:var(--sans);font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--gold-light);margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.dg-step-index::before{content:"";width:22px;height:1px;background:var(--gold)}
+
+.dg-question{
+  font-family:var(--serif);font-weight:500;line-height:1.15;
+  font-size:clamp(1.6rem,4.4vw,2.5rem);margin-bottom:8px;
+}
+.dg-hint{color:rgba(255,255,255,.6);font-size:.9rem;margin-bottom:26px}
+
+/* --- Choix --- */
+.dg-choices{display:flex;flex-direction:column;gap:12px}
+.dg-choices.is-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.dg-choices.is-grid{grid-template-columns:1fr}}
+
+.dg-choice{
+  position:relative;display:flex;align-items:center;gap:14px;
+  padding:16px 18px;border:1px solid rgba(255,255,255,.18);border-radius:12px;
+  background:rgba(255,255,255,.04);cursor:pointer;text-align:left;width:100%;
+  color:#fff;font-family:var(--sans);font-size:1rem;font-weight:300;
+  transition:border-color .2s,background .2s,transform .1s;
+}
+.dg-choice:hover{border-color:var(--gold-soft);background:rgba(169,133,63,.12)}
+.dg-choice:active{transform:scale(.99)}
+.dg-choice.is-selected{border-color:var(--gold);background:rgba(169,133,63,.18)}
+.dg-choice__key{
+  flex-shrink:0;width:26px;height:26px;border-radius:7px;
+  border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;
+  font-size:.78rem;font-weight:500;color:rgba(255,255,255,.75);transition:all .2s;
+}
+.dg-choice.is-selected .dg-choice__key{background:var(--gold);border-color:var(--gold);color:#fff}
+.dg-choice__key svg{width:14px;height:14px;display:none}
+.dg-choice.is-selected .dg-choice__key svg{display:block}
+.dg-choice.is-selected .dg-choice__key span{display:none}
+
+/* --- Navigation --- */
+.dg-nav{display:flex;align-items:center;gap:16px;margin-top:28px}
+.dg-back{
+  background:none;border:0;color:rgba(255,255,255,.55);cursor:pointer;
+  font-family:var(--sans);font-size:.85rem;display:inline-flex;align-items:center;gap:6px;
+  padding:8px 0;transition:color .2s;
+}
+.dg-back:hover{color:#fff}
+.dg-back svg{width:18px;height:18px}
+.dg-next{
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer;border:0;
+  font-family:var(--sans);font-weight:500;font-size:.95rem;letter-spacing:.02em;
+  padding:13px 26px;border-radius:999px;background:var(--gold);color:#06210f;
+  transition:filter .2s,transform .1s;
+}
+.dg-next:hover{filter:brightness(1.08)}
+.dg-next:active{transform:scale(.98)}
+.dg-next[disabled]{opacity:.4;cursor:not-allowed}
+.dg-next svg{width:16px;height:16px}
+.dg-help{margin-left:auto;font-size:.76rem;color:rgba(255,255,255,.4)}
+
+/* --- Étape coordonnées --- */
+.dg-fields{display:flex;flex-direction:column;gap:16px;margin-bottom:8px}
+.dg-fieldrow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.dg-fieldrow{grid-template-columns:1fr}}
+.dg-field label{
+  display:block;font-family:var(--sans);font-size:.78rem;letter-spacing:.02em;
+  color:rgba(255,255,255,.72);margin-bottom:7px;
+}
+.dg-field input{
+  width:100%;padding:14px 16px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);
+  color:#fff;font-family:var(--sans);font-size:1rem;font-weight:300;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.dg-field input::placeholder{color:rgba(255,255,255,.4)}
+.dg-field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,133,63,.22)}
+.dg-field.has-error input{border-color:#e08b7d}
+.dg-field .dg-err{display:none;color:#f0b4a8;font-size:.76rem;margin-top:5px}
+.dg-field.has-error .dg-err{display:block}
+
+.dg-consent{
+  display:flex;align-items:flex-start;gap:11px;margin-top:6px;cursor:pointer;
+  font-size:.82rem;color:rgba(255,255,255,.62);line-height:1.5;
+}
+.dg-consent input{flex-shrink:0;width:18px;height:18px;margin-top:2px;accent-color:var(--gold)}
+.dg-consent a{color:var(--gold-light);text-decoration:underline}
+.dg-consent.has-error{color:#f0b4a8}
+
+.dg-secure{
+  display:inline-flex;align-items:center;gap:7px;margin-top:20px;
+  font-size:.74rem;color:rgba(255,255,255,.45);
+}
+.dg-secure svg{width:14px;height:14px;color:var(--gold-soft)}
+
+.dg-submit-status{display:none;color:#f0b4a8;font-size:.85rem;margin-top:14px}
+
+/* --- Écran de résultat --- */
+.dg-result{display:none;text-align:center;max-width:620px;margin-inline:auto}
+.dg-result.is-active{display:block;animation:dgIn .6s var(--ease)}
+
+.dg-gauge{position:relative;width:220px;height:130px;margin:0 auto 8px}
+.dg-gauge svg{width:100%;height:100%;overflow:visible}
+.dg-gauge__track{fill:none;stroke:rgba(255,255,255,.14);stroke-width:14;stroke-linecap:round}
+.dg-gauge__val{fill:none;stroke:var(--gold);stroke-width:14;stroke-linecap:round;
+  transition:stroke-dashoffset 1.2s var(--ease)}
+.dg-gauge__num{
+  position:absolute;left:0;right:0;bottom:6px;text-align:center;
+  font-family:var(--serif);font-size:2.8rem;font-weight:500;line-height:1;
+}
+.dg-gauge__num small{font-size:1.1rem;color:rgba(255,255,255,.55)}
+.dg-gauge__cap{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);margin-top:2px}
+
+.dg-result h2{
+  font-family:var(--serif);font-weight:500;font-size:clamp(1.6rem,4vw,2.3rem);
+  margin:22px 0 12px;
+}
+.dg-result p{color:rgba(255,255,255,.72);font-size:1rem;max-width:520px;margin:0 auto 14px;text-align:center}
+.dg-result__cta{
+  display:inline-flex;align-items:center;gap:9px;margin-top:20px;
+  padding:15px 30px;border-radius:999px;background:var(--gold);color:#06210f;
+  font-family:var(--sans);font-weight:500;font-size:1rem;transition:filter .2s,transform .1s;
+}
+.dg-result__cta:hover{filter:brightness(1.08)}
+.dg-result__cta svg{width:17px;height:17px}
+.dg-result__sub{display:block;margin-top:18px;font-size:.88rem;color:var(--gold-light);text-decoration:underline}
+.dg-result__note{margin-top:26px;font-size:.78rem;color:rgba(255,255,255,.4)}
+
+/* --- Pied minimal --- */
+.dg-foot{
+  text-align:center;padding:22px var(--gutter);
+  font-size:.74rem;color:rgba(255,255,255,.4);
+}
+.dg-foot a{color:rgba(255,255,255,.6);text-decoration:underline}
