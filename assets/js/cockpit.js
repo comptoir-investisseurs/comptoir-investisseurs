@@ -318,7 +318,7 @@
           <div class="ck-pieces">${d.perMember.map(pm=>pieceBlockHTML(pm,isPole)).join('')}</div>
         </div>
         <div class="sp-card">
-          <h4>Procédures en cours <span class="sp-h4-note">— suivi</span><span class="ck-card-act"><button class="ck-mini-btn" id="ck-add-proc">＋ Procédure</button></span></h4>
+          <h4>Procédures en cours <span class="sp-h4-note">— suivi</span><span class="ck-card-act"><button class="ck-mini-btn" id="ck-conv">⤓ Convention de conseil</button> <button class="ck-mini-btn" id="ck-add-proc">＋ Procédure</button></span></h4>
           <div class="ck-procs">${proceduresHTML(d)}</div>
         </div>
         <div class="sp-card">
@@ -426,6 +426,7 @@
     const on=(id,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener('click',fn); };
     on('ck-brief-cta',()=>openBrief(d)); on('ck-brief-copy',()=>copyBrief(d)); on('ck-brief-print',()=>openBrief(d));
     on('ck-add-env',()=>openEnvForm(subj)); on('ck-add-piece',()=>openDocForm(subj,'piece')); on('ck-add-proc',()=>openDocForm(subj,'procedure'));
+    on('ck-conv',()=>openConventionForm(subj));
     on('ck-import-releve',()=>importReleveNew(subj));
     on('ck-import-piece',()=>importPiece(subj));
     setupDrop('ck-card-envs',function(f){ readReleveNew(f, subj); });
@@ -889,6 +890,193 @@
         return Promise.all(proms);
       }).then(function(){ modal.classList.remove('is-open'); refresh(); toast('Relevé importé — enveloppe créée.'); });
     });
+  }
+
+  /* ===================================================================
+     CONVENTION DE CONSEIL (Lettre de mission) — préparation & signature
+     Pré-remplie depuis le CRM ; contrôle à l'écran ; document généré
+     (client + conseiller). Envoi DocuSign prévu (activation ultérieure).
+     =================================================================== */
+  const CABINET_DEFAULT = { raison:'La Financière de Rochechouart', forme:'SASU', capital:'5 000 €',
+    siege:'58 rue de Monceau, 75008 Paris', rcs:'Paris', siren:'', orias:'', conseiller:'', email:'' };
+  function loadCabinet(){ try{ return Object.assign({}, CABINET_DEFAULT, JSON.parse(localStorage.getItem('lfdr:cabinet')||'{}')); }catch(e){ return Object.assign({}, CABINET_DEFAULT); } }
+  function saveCabinet(o){ try{ localStorage.setItem('lfdr:cabinet', JSON.stringify(o)); }catch(e){} }
+  const CV_MISSIONS = ['Assistance aux placements financiers','Audit patrimonial et financier','Analyse de portefeuilles','Réception / Transmission d’Ordres','Suivi annuel de patrimoine et produits financiers externes','Optimisation juridique et fiscale','Transmission & succession','Accompagnement déclarations (IR, IFI)','Création de sociétés patrimoniales (SCI, SARL de famille, Holding familiale)','Accès à notre réseau de partenaires'];
+  const CV_OBJECTIFS = ['Préparation de la retraite','Transmission d’un capital au moment du décès','Constitution d’une épargne de précaution','Investissement à long, moyen ou court terme'];
+  const CV_ESG = ['Pas d’exigence ESG','25 %','50 %','75 %','100 %'];
+
+  function conventionClient(m){
+    if(!m) return {nom:'',adresse:'',email:'',profil:'',morale:false};
+    var nom = isMorale(m) ? (m.raison_sociale||m.nom||'') : (((m.prenom||'')+' '+(m.nom||'')).trim());
+    var adresse = m.adresse || [m.adresse_postale||m.adresse_1, m.code_postal, m.ville].filter(Boolean).join(' ') || '';
+    return {nom:nom, adresse:adresse, email:m.email||'', profil:m.couple_rendement_risque||m.profil_risque||'', morale:isMorale(m)};
+  }
+  function preObjectifs(m){ var raw=m&&m.objectifs; var arr=Array.isArray(raw)?raw:(raw?String(raw).split(/[,;]/):[]); var s=arr.join(' ').toLowerCase(); var out=[];
+    if(/retraite/.test(s)) out.push('Préparation de la retraite');
+    if(/transmi|succession|d[ée]c[èe]s/.test(s)) out.push('Transmission d’un capital au moment du décès');
+    if(/[ée]pargne|pr[ée]caution|s[ée]curit/.test(s)) out.push('Constitution d’une épargne de précaution');
+    if(/investi|long terme|moyen terme|valoris|rendement|croissance/.test(s)) out.push('Investissement à long, moyen ou court terme');
+    return out;
+  }
+
+  function openConventionForm(subj){
+    var members = subj.members||[]; var cur = subj.kind==='pole' ? members[0] : subj.client;
+    if(!cur){ toast('Sélectionnez un client.', true); return; }
+    var cab=loadCabinet();
+    openModal('Préparer la convention de conseil');
+    var cli=conventionClient(cur); var preObj=preObjectifs(cur);
+    var missionsHTML=CV_MISSIONS.map(function(m){ return '<label class="ck-chk"><input type="checkbox" class="cv-mission" value="'+esc(m)+'"> '+esc(m)+'</label>'; }).join('');
+    var objHTML=CV_OBJECTIFS.map(function(o){ return '<label class="ck-chk"><input type="checkbox" class="cv-obj" value="'+esc(o)+'" '+(preObj.indexOf(o)>=0?'checked':'')+'> '+esc(o)+'</label>'; }).join('');
+    var esgHTML=CV_ESG.map(function(o,i){ return '<label class="ck-chk"><input type="radio" name="cv-esg" class="cv-esg" value="'+esc(o)+'" '+(i===0?'checked':'')+'> '+esc(o)+'</label>'; }).join('');
+    var memberSel = subj.kind==='pole' ? '<div class="sp-fld"><label>Signataire (membre du pôle)</label><select id="cv-member">'+members.map(function(m){return '<option value="'+esc(m.id)+'">'+esc(clientName(m))+'</option>';}).join('')+'</select></div>' : '';
+    var miss=[]; if(!cli.adresse) miss.push('adresse'); if(!cli.email) miss.push('e-mail'); if(!cli.profil) miss.push('profil de risque');
+    var missWarn = miss.length ? '<p class="cv-warn">⚠ À compléter (absent du CRM) : '+esc(miss.join(', '))+'</p>' : '<p class="cv-ok">✓ Coordonnées et profil récupérés du CRM.</p>';
+    document.getElementById('ck-modal-body').innerHTML =
+      memberSel + missWarn +
+      '<div class="ck-reg__h">Le client</div><div class="sp-form-grid">'
+        + fld('cv-cli-nom','Nom / Prénom (ou raison sociale)','text',cli.nom)
+        + fld('cv-cli-mail','Mail','text',cli.email)
+        + '<div class="sp-fld" style="grid-column:1/-1">'+fld('cv-cli-adr','Adresse','text',cli.adresse).replace('<div class="sp-fld">','').replace(/<\/div>$/,'')+'</div>'
+      + '</div>'
+      + '<div class="ck-reg__h">Le conseiller (cabinet)</div><div class="sp-form-grid">'
+        + fld('cv-cab-conseiller','Conseiller signataire','text',cab.conseiller)
+        + fld('cv-cab-email','E-mail de contact','text',cab.email)
+        + fld('cv-cab-siren','SIREN','text',cab.siren)
+        + fld('cv-cab-orias','N° ORIAS','text',cab.orias)
+        + fld('cv-cab-siege','Siège social','text',cab.siege)
+        + fld('cv-cab-capital','Capital','text',cab.capital)
+      + '</div>'
+      + '<div class="ck-reg__h">Nature de la mission</div><div class="ck-chks">'+missionsHTML+'</div>'
+      + '<div class="ck-reg__h">Objectifs du client <span class="sp-h4-note">— pré-cochés depuis le questionnaire</span></div><div class="ck-chks">'+objHTML+'</div>'
+      + fld('cv-obj-autre','Autres objectifs déclarés','text','')
+      + '<div class="ck-reg__h">Politique ESG</div><div class="ck-chks">'+esgHTML+'</div>'
+      + '<div class="ck-reg__h">Typologie</div><div class="sp-form-grid">'
+        + fld('cv-profil','Profil de risque','text',cli.profil)
+      + '</div>'
+      + '<div class="ck-reg__h">Honoraires / commission <span class="sp-h4-note">— optionnel</span></div><div class="sp-form-grid">'
+        + fld('cv-hono','Honoraires (montant / modalités)','text','')
+        + fld('cv-commission','Commission (le cas échéant)','text','')
+      + '</div>'
+      + '<div class="sp-save-bar" style="flex-wrap:wrap;gap:10px">'
+        + '<button class="btn btn--solid" id="cv-gen">Générer la convention (PDF)</button>'
+        + '<button class="btn" id="cv-save-proc">Enregistrer la procédure</button>'
+        + '<button class="btn" id="cv-docusign" disabled title="À activer une fois DocuSign configuré" style="opacity:.5;cursor:not-allowed">Envoyer en signature DocuSign</button>'
+        + '<span class="sp-save-status" id="cv-status"></span></div>'
+      + '<p class="sp-muted sm" style="margin-top:6px">DocuSign : compte à créer (offre avec accès API). Le document ci-dessus sera envoyé en signature au client puis au conseiller (double signature). En attendant, générez le PDF pour relecture / signature manuscrite.</p>';
+
+    if(subj.kind==='pole'){ var msel=document.getElementById('cv-member'); if(msel) msel.addEventListener('change',function(){ modal.classList.remove('is-open'); var m=members.find(function(x){return String(x.id)===msel.value;}); openConventionForm({kind:'client',client:m,members:[m],ids:[m.id]}); }); }
+
+    function collectConv(){
+      var cabinet={ raison:cab.raison, forme:cab.forme, rcs:cab.rcs,
+        conseiller:val('cv-cab-conseiller')||'', email:val('cv-cab-email')||'', siren:val('cv-cab-siren')||'', orias:val('cv-cab-orias')||'', siege:val('cv-cab-siege')||cab.siege, capital:val('cv-cab-capital')||cab.capital };
+      saveCabinet(cabinet);
+      var missions=[]; document.querySelectorAll('.cv-mission:checked').forEach(function(c){ missions.push(c.value); });
+      var objectifs=[]; document.querySelectorAll('.cv-obj:checked').forEach(function(c){ objectifs.push(c.value); });
+      var oa=val('cv-obj-autre'); if(oa) objectifs.push(oa);
+      var esgEl=document.querySelector('.cv-esg:checked'); var esg=esgEl?esgEl.value:CV_ESG[0];
+      return { client:{ nom:val('cv-cli-nom')||'', email:val('cv-cli-mail')||'', adresse:val('cv-cli-adr')||'', profil:val('cv-profil')||'' },
+        cabinet:cabinet, missions:missions, objectifs:objectifs, esg:esg, honoraires:val('cv-hono')||'', commission:val('cv-commission')||'',
+        subject:cur };
+    }
+    document.getElementById('cv-gen').addEventListener('click',function(){ renderConventionDoc(collectConv()); });
+    document.getElementById('cv-save-proc').addEventListener('click',function(){
+      var data=collectConv();
+      var payload={ client_id:cur.id, categorie:'procedure', type:'Convention de conseil', libelle:'Convention de conseil — '+data.client.nom, statut:'en_cours', date_echeance:null, reference:'', notes:'Missions : '+(data.missions.join(', ')||'—')+'. Générée le '+new Date().toLocaleDateString('fr-FR')+'.' };
+      persistInsert('documents',documents,payload).then(function(){ modal.classList.remove('is-open'); refresh(); toast('Procédure « Convention de conseil » enregistrée.'); });
+    });
+  }
+
+  function cvBox(on){ return on?'☑':'☐'; }
+  function renderConventionDoc(data){
+    var c=data.client, cab=data.cabinet;
+    var tday=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+    var missionSet=data.missions;
+    var volFin=['Assistance aux placements financiers','Audit patrimonial et financier','Analyse de portefeuilles','Réception / Transmission d’Ordres','Suivi annuel de patrimoine et produits financiers externes'];
+    var volJur=['Optimisation juridique et fiscale','Transmission & succession','Accompagnement déclarations (IR, IFI)','Création de sociétés patrimoniales (SCI, SARL de famille, Holding familiale)','Accès à notre réseau de partenaires'];
+    var chkList=function(arr){ return arr.map(function(m){ return '<div class="cvk">'+cvBox(missionSet.indexOf(m)>=0)+' '+esc(m)+'</div>'; }).join(''); };
+    var objList=CV_OBJECTIFS.map(function(o){ return '<div class="cvk">'+cvBox(data.objectifs.indexOf(o)>=0)+' '+esc(o)+'</div>'; }).join('')
+      + (data.objectifs.filter(function(o){return CV_OBJECTIFS.indexOf(o)<0;}).map(function(o){ return '<div class="cvk">'+cvBox(true)+' '+esc(o)+'</div>'; }).join(''));
+    var esgList=CV_ESG.map(function(e){ return '<div class="cvk">'+cvBox(data.esg===e)+' '+esc(e)+'</div>'; }).join('');
+    var honoBlock = (data.honoraires||data.commission)
+      ? (data.honoraires?'<p><b>Honoraires :</b> '+esc(data.honoraires)+'</p>':'')+(data.commission?'<p><b>Commission :</b> '+esc(data.commission)+'</p>':'')
+      : '<p>□ Honoraires — □ Commission (à préciser). Une information précise sera fournie à la demande, une fois connus les supports préconisés.</p>';
+    var societe = cab.raison+', '+cab.forme+' au capital de '+cab.capital+', dont le siège social est situé '+cab.siege+', immatriculée au RCS de '+cab.rcs+' sous le numéro '+(cab.siren||'[SIREN]')+', et sur le registre unique des intermédiaires (ORIAS) sous le numéro '+(cab.orias||'[N° ORIAS]')+'.';
+    var conseillerNom = cab.conseiller||'[Conseiller]';
+    var LEGAL = [
+      ['Déroulement de la mission', [
+        cab.raison+' sera en relation permanente avec le client afin de mettre à jour les données patrimoniales le concernant et vérifier que les solutions mises en place sont toujours en adéquation avec sa situation personnelle et financière ainsi que ses objectifs.',
+        'Un minimum d’un entretien annuel sera effectué. Dans le cas où le portefeuille du client réagirait de manière inattendue, une alerte spécifique lui sera adressée dans les meilleurs délais.',
+        'Le CIF rédige une lettre de mission qui contractualise la relation entre les parties, et remet un rapport d’adéquation justifiant l’adéquation du conseil fourni, avant la souscription.',
+        'La convention est conclue pour une durée indéterminée, susceptible d’avenants (notamment en cas d’évolution du droit). Elle peut être résiliée à tout moment par lettre recommandée avec accusé de réception par le client, avec un préavis de huit (8) jours à compter de la réception.'
+      ]],
+      ['Modalités de la prestation', [
+        cab.raison+' pourra, dans l’intérêt de ses clients et en accord avec ceux-ci, faire appel à des professionnels spécialisés (avocats, notaires, experts-comptables).'
+      ]],
+      ['Modalités d’information du client', [
+        'Le rapport d’adéquation formalisera la prestation de conseil.',
+        'En cas de modification des informations de la fiche d’informations légales, '+cab.raison+' s’engage à en informer le client au plus tard 1 mois après la modification.',
+        'En cas de relation durable, le CIF informe le client de tout changement lié à sa structure par l’envoi d’un DER actualisé, et assure une information régulière relative à son activité de conseil.',
+        'En cas d’engagement de suivi, l’adéquation fait l’objet d’une vérification au moins une fois par an.'
+      ]],
+      ['Nature du conseil', [
+        'Le conseiller délivre un conseil non indépendant, dans le respect de l’obligation d’œuvrer au mieux des intérêts du client ; les conséquences relatives à la rémunération sont mentionnées dans le document d’entrée en relation. L’analyse se limite aux instruments financiers émis ou proposés par les partenaires avec lesquels il existe une relation juridique ou économique.',
+        'Dans l’hypothèse où la conclusion de la présente lettre de mission fait suite à un acte de démarchage, le client dispose, en application de l’article L341-16 du Code monétaire et financier, d’un délai de rétractation de 14 jours à compter de la signature.'
+      ]],
+      ['Protection des données à caractère personnel', [
+        'L’utilisation des données personnelles est encadrée par le RGPD (Règlement 2016/679) et la loi n° 78-17 du 6 janvier 1978 modifiée. La personne en charge de collecter les données clients au sein de la société est '+conseillerNom+', président.',
+        'Les informations recueillies sont conservées pendant 5 ans après la fin des missions et destinées à l’usage unique de la société. Vous pouvez exercer vos droits d’accès, d’opposition, d’effacement, de limitation, de portabilité et de rectification en contactant : '+(cab.email||'[e-mail de contact]')+'. Vous pouvez également saisir la CNIL.'
+      ]],
+      ['Droit applicable et litige', [
+        'Les parties conviennent d’appliquer la loi française. En cas de litige, le client consommateur peut formuler une réclamation selon les règles du DER ; à défaut de résolution, il peut recourir gratuitement au Médiateur de l’AMF avant toute démarche contentieuse. Tout litige relève de la juridiction française compétente. Le conseiller est tenu au secret professionnel.'
+      ]]
+    ];
+    var legalHTML=LEGAL.map(function(s){ return '<h2>'+esc(s[0])+'</h2>'+s[1].map(function(p){return '<p>'+esc(p)+'</p>';}).join(''); }).join('');
+
+    var html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Convention de conseil — '+esc(c.nom)+'</title>'
+      +'<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">'
+      +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Jost,Arial,sans-serif;color:#1E211C;padding:44px 54px;max-width:900px;margin:0 auto;font-size:12.5px;line-height:1.6}'
+      +'.header{text-align:center;border-bottom:2px solid #A9853F;padding-bottom:18px;margin-bottom:20px}'
+      +'.header h1{font-family:"Cormorant Garamond",serif;color:#001B00;font-size:22px;font-weight:600}.header .sub{color:#5B6058;font-size:12px;margin-top:5px}'
+      +'h2{font-family:"Cormorant Garamond",serif;color:#001B00;font-size:15px;margin:18px 0 6px;border-bottom:1px solid #e8e6df;padding-bottom:3px}'
+      +'p{margin:0 0 6px}.parties{display:flex;gap:16px;margin:8px 0 4px}.parties>div{flex:1;background:#f6f4ee;border-radius:8px;padding:12px 14px}'
+      +'.parties .l{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#5B6058;margin-top:6px}.parties .v{font-weight:600;color:#001B00}'
+      +'.cvk{margin:2px 0;font-size:12.5px}.cols{columns:2;column-gap:24px}'
+      +'table{width:100%;border-collapse:collapse;margin:8px 0;font-size:10.5px}th,td{border:1px solid #ddd;padding:5px 6px;text-align:left;vertical-align:top}th{background:#001B00;color:#fff;font-weight:500}'
+      +'.sign{display:flex;gap:24px;margin-top:26px}.sign>div{flex:1;border:1px dashed #A9853F;border-radius:8px;padding:16px;min-height:120px}'
+      +'.sign .who{font-weight:600;color:#001B00;margin-bottom:4px}.sign .mention{font-size:10.5px;color:#5B6058}'
+      +'.footer{text-align:center;font-size:10px;color:#999;margin-top:30px;border-top:1px solid #e8e6df;padding-top:12px}'
+      +'.print-btn{position:fixed;top:16px;right:16px;background:#A9853F;color:#fff;border:0;padding:10px 20px;border-radius:8px;font-family:Jost;font-size:13px;cursor:pointer}'
+      +'@media print{.print-btn{display:none}body{padding:14px}h2{break-after:avoid}.sign,table{break-inside:avoid}}</style></head><body>'
+      +'<button class="print-btn" onclick="window.print()">Imprimer / PDF</button>'
+      +'<div class="header"><h1>Lettre de mission — Convention de conseil</h1><div class="sub">'+esc(cab.raison)+' · '+tday+'</div></div>'
+      +'<p>Lors de l’entrée en relation, le client s’est vu remettre le document d’entrée en relation (DER) présentant les statuts légaux du conseiller, conformément à l’article 325-5 du Règlement général de l’AMF.</p>'
+      +'<h2>Présentation des parties</h2><div class="parties">'
+        +'<div><div class="who" style="font-weight:700">Le client</div><div class="l">Nom / Prénom</div><div class="v">'+esc(c.nom||'—')+'</div><div class="l">Adresse</div><div class="v">'+esc(c.adresse||'—')+'</div><div class="l">Mail</div><div class="v">'+esc(c.email||'—')+'</div></div>'
+        +'<div><div class="who" style="font-weight:700">Le conseiller</div><div class="l">Société</div><div class="v">'+esc(cab.raison)+'</div><div class="l">Représentée par</div><div class="v">'+esc(cab.conseiller||'—')+'</div><div class="l">Mail</div><div class="v">'+esc(cab.email||'—')+'</div></div>'
+      +'</div><p style="font-size:11px;color:#5B6058">'+esc(societe)+'</p>'
+      +'<h2>Nature de la mission ou des missions principales</h2>'
+        +'<p style="font-weight:600;margin-bottom:2px">Volet financier</p>'+chkList(volFin)
+        +'<p style="font-weight:600;margin:6px 0 2px">Volet juridique et fiscal</p>'+chkList(volJur)
+      +'<h2>Objectifs du client</h2>'+objList
+      +'<h2>Politique ESG</h2><p style="font-size:11px;color:#5B6058">'+cab.raison+' travaille en sur-mesure, en intégrant les critères ESG selon les préférences du client. Volonté du client :</p>'+esgList
+      +'<h2>Typologie du client</h2><p>Classification : client non professionnel.</p><p><b>Profil de risque :</b> '+esc(c.profil||'—')+'</p>'
+      +legalHTML
+      +'<h2>Information sur les coûts et frais liés au conseil</h2>'+honoBlock
+      +'<h2>Synthèse des offres possiblement proposées</h2>'
+      +'<table><thead><tr><th>Type</th><th>Frais totaux</th><th>Risque</th><th>Mode de règlement</th><th>Mise en garde</th></tr></thead><tbody>'
+        +'<tr><td>OPC / FIA</td><td>Entrée jusqu’à 5%, gestion jusqu’à 3%/an, surperf. jusqu’à 20%</td><td>1 à 7</td><td>Initial, périodique, prélèvement</td><td>Perte en capital, rendement non garanti, marché, liquidité, taux, crédit, change, fiscal</td></tr>'
+        +'<tr><td>EMTN</td><td>Frais annualisés 2% max</td><td>1 à 7</td><td>Initial, prélèvement</td><td>Perte en capital, rendement non garanti, liquidité limitée, blocage, taux, crédit, change, fiscal</td></tr>'
+        +'<tr><td>ETF</td><td>Gestion jusqu’à 1%/an</td><td>1 à 7</td><td>Initial, périodique, prélèvement</td><td>Perte en capital, marché, volatilité, liquidité, change, fiscal</td></tr>'
+        +'<tr><td>Titres vifs</td><td>Selon enveloppes (dépôt, transaction)</td><td>1 à 7</td><td>Initial, périodique, prélèvement</td><td>Perte en capital, marché, volatilité, liquidité, change, fiscal</td></tr>'
+        +'<tr><td>SCPI</td><td>Souscription et/ou sortie jusqu’à 10%</td><td>1 à 7</td><td>Initial, périodique, prélèvement</td><td>Perte en capital, liquidité limitée, blocage, marché, fiscal</td></tr>'
+      +'</tbody></table><p style="font-size:10.5px;color:#5B6058">La politique de rémunération est disponible dans le document d’entrée en relation. Les instruments financiers proposés n’offrent pas de garantie en capital.</p>'
+      +'<h2>Dates et signatures</h2><p>Fait à ……………………………, le '+tday+'.</p>'
+      +'<div class="sign"><div><div class="who">Le client</div><div class="mention">'+esc(c.nom||'')+'<br>« Lu et approuvé »</div></div>'
+        +'<div><div class="who">Le conseiller</div><div class="mention">'+esc(cab.conseiller||'')+' — '+esc(cab.raison)+'</div></div></div>'
+      +'<div class="footer"><strong>'+esc(cab.raison)+'</strong> · '+esc(cab.siege)+' · Document contractuel</div>'
+      +'</body></html>';
+    var w=window.open('','_blank'); if(!w){ toast('Autorisez les pop-ups.',true); return; } w.document.write(html); w.document.close();
+    toast('Convention générée — relisez puis imprimez / signez.');
   }
 
   /* ---------------- BRIEF ---------------- */
