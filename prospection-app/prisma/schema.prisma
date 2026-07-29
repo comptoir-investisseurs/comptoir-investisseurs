@@ -1,0 +1,296 @@
+// Schéma Prisma — Mini-CRM de prospection locale.
+//
+// Provider par défaut : SQLite (aucune configuration requise en local).
+// Pour PostgreSQL / Supabase : remplacez `provider = "sqlite"` par
+// `provider = "postgresql"` et adaptez DATABASE_URL. Les types utilisés
+// (String, Int, Float, DateTime, Boolean, Json via chaînes JSON) sont
+// volontairement portables entre les deux moteurs.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Utilisateurs & espaces de travail
+// ─────────────────────────────────────────────────────────────
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  memberships  Membership[]
+  notes        ProspectNote[]
+  tasks        ProspectTask[]
+}
+
+model Workspace {
+  id          String       @id @default(cuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  memberships Membership[]
+  prospects   Prospect[]
+  offers      Offer[]
+  templates   MessageTemplate[]
+  demos       WebsiteDemo[]
+  campaigns   SearchCampaign[]
+  imports     ImportJob[]
+  settings    AppSetting[]
+}
+
+model Membership {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        String    @default("owner") // owner | member
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, workspaceId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Prospects
+// ─────────────────────────────────────────────────────────────
+
+model Prospect {
+  id             String    @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  externalId     String?
+  source         String?   // demo | csv | manual | <api>
+
+  businessName   String
+  normalizedName String?
+  category       String?
+  description    String?
+
+  address        String?
+  city           String?
+  postalCode     String?
+  country        String?   @default("France")
+  latitude       Float?
+  longitude      Float?
+
+  phone          String?
+  email          String?
+  websiteUrl     String?
+  facebookUrl    String?
+  instagramUrl   String?
+  listingUrl     String?
+
+  rating         Float?
+  reviewCount    Int?
+  openingHours   String?   // JSON encodé (portable SQLite/PG)
+  services       String?   // JSON encodé (liste de prestations)
+  photos         String?   // JSON encodé (liste d'URLs publiques)
+
+  status         String    @default("nouveau")
+  score          Int?
+  priority       String?   // faible | moyenne | elevee | tres_elevee
+  doNotContact   Boolean   @default(false)
+  consent        String?   // note de consentement / opposition
+
+  potentialAmount Float?
+  offerId        String?
+  offer          Offer?    @relation(fields: [offerId], references: [id])
+
+  lostReason     String?
+  channel        String?   // dernier canal utilisé
+  lastContactedAt DateTime?
+  firstContactedAt DateTime?
+  nextAction     String?
+  nextActionAt   DateTime?
+
+  collectedAt    DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  analysis       ProspectAnalysis?
+  audit          AuditReport?
+  notes          ProspectNote[]
+  tasks          ProspectTask[]
+  statusHistory  ProspectStatusHistory[]
+  messages       GeneratedMessage[]
+  contacts       ProspectContact[]
+  demos          WebsiteDemo[]
+
+  @@index([workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, normalizedName])
+}
+
+model ProspectAnalysis {
+  id            String   @id @default(cuid())
+  prospectId    String   @unique
+  prospect      Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  hasWebsite    Boolean  @default(false)
+  data          String   // JSON encodé : résultat complet SiteAnalysis + signaux
+  scoreBreakdown String? // JSON encodé : détail du calcul de score
+  analyzedAt    DateTime @default(now())
+}
+
+model AuditReport {
+  id         String   @id @default(cuid())
+  prospectId String   @unique
+  prospect   Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  data       String   // JSON encodé : ProspectAudit structuré
+  generator  String   @default("rules") // rules | anthropic
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ProspectNote {
+  id         String   @id @default(cuid())
+  prospectId String
+  prospect   Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  body       String
+  createdAt  DateTime @default(now())
+}
+
+model ProspectTask {
+  id         String    @id @default(cuid())
+  prospectId String
+  prospect   Prospect  @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id])
+  title      String
+  dueAt      DateTime?
+  done       Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+}
+
+model ProspectStatusHistory {
+  id         String   @id @default(cuid())
+  prospectId String
+  prospect   Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  fromStatus String?
+  toStatus   String
+  createdAt  DateTime @default(now())
+}
+
+model ProspectContact {
+  id         String   @id @default(cuid())
+  prospectId String
+  prospect   Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  channel    String   // facebook | instagram | email | phone | site | autre
+  direction  String   @default("outbound") // outbound | inbound
+  body       String?
+  outcome    String?  // envoye | reponse_positive | reponse_negative | sans_reponse
+  createdAt  DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// Messages & modèles
+// ─────────────────────────────────────────────────────────────
+
+model MessageTemplate {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  channel     String    // facebook | instagram | email | phone
+  kind        String    @default("outreach") // outreach | followup1 | followup2
+  subject     String?
+  body        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model GeneratedMessage {
+  id          String   @id @default(cuid())
+  prospectId  String
+  prospect    Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  channel     String
+  kind        String   @default("outreach")
+  subject     String?
+  body        String
+  usedData    String?  // JSON encodé : données réellement utilisées (transparence)
+  generator   String   @default("rules")
+  createdAt   DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// Démonstrations de sites
+// ─────────────────────────────────────────────────────────────
+
+model WebsiteDemo {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  prospectId  String
+  prospect    Prospect  @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  slug        String    @unique
+  template    String    // coiffeur | barbier | institut | artisan | restaurant | sante | garage | photographe | coach
+  content     String    // JSON encodé : WebsiteContent
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────
+// Offres, campagnes, imports, réglages
+// ─────────────────────────────────────────────────────────────
+
+model Offer {
+  id          String     @id @default(cuid())
+  workspaceId String
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  features    String?    // JSON encodé : liste
+  setupPrice  Float?     // prix de création (€)
+  monthlyPrice Float?    // abonnement mensuel (€)
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  prospects   Prospect[]
+}
+
+model SearchCampaign {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  category    String
+  city        String
+  radiusKm    Int?
+  maxResults  Int       @default(20)
+  provider    String    @default("demo")
+  createdCount Int      @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+model ImportJob {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  filename    String?
+  total       Int       @default(0)
+  imported    Int       @default(0)
+  duplicates  Int       @default(0)
+  errors      String?   // JSON encodé
+  createdAt   DateTime  @default(now())
+}
+
+model AppSetting {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  key         String
+  value       String    // JSON encodé
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([workspaceId, key])
+}

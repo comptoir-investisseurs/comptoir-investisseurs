@@ -1,0 +1,6 @@
+nom,categorie,adresse,ville,code postal,telephone,email,site,facebook,instagram,note,avis
+Salon Lumière,coiffeur,12 rue des Fleurs,Nantes,44000,02 40 12 34 56,contact@salon-lumiere.fr,,https://facebook.com/salonlumiere,,4.6,52
+Barber Corner,barbier,3 place Royale,Nantes,44000,02 40 98 76 54,,,https://facebook.com/barbercorner,https://instagram.com/barbercorner,4.8,140
+Garage Central Auto,garage,45 avenue de la Gare,Nantes,44300,02 40 55 66 77,garage.central@example.fr,https://www.garage-central-auto.fr,,,4.1,23
+Institut Zen,institut de beauté,8 rue du Calvaire,Nantes,44000,02 40 11 22 33,,,https://facebook.com/institutzen,,4.9,88
+Plomberie Rapide,plombier,Zone artisanale Est,Rezé,44400,02 40 44 55 66,contact@plomberie-rapide.fr,http://www.plomberie-rapide.fr,,,3.9,17
