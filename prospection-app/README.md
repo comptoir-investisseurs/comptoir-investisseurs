@@ -6,6 +6,8 @@ L'outil automatise la recherche, l'analyse, la qualification, la génération d'
 
 > Ce projet est indépendant du site LFDR présent à la racine du dépôt. Il vit dans le sous-dossier `prospection-app/`.
 
+> 🚀 **Mise en ligne sans rien installer** (recommandé si vous n'êtes pas développeur) : suivez **[GUIDE-DEPLOIEMENT.md](./GUIDE-DEPLOIEMENT.md)** — tout se fait dans le navigateur avec GitHub + Supabase + Vercel, gratuitement.
+
 ---
 
 ## Sommaire
@@ -65,18 +67,22 @@ L'outil automatise la recherche, l'analyse, la qualification, la génération d'
 
 ## Démarrage rapide
 
-Prérequis : **Node.js ≥ 20**.
+Prérequis : **Node.js ≥ 20** et une base **PostgreSQL** (locale, ou gratuite via Supabase/Neon).
 
 ```bash
 cd prospection-app
-cp .env.example .env          # ajustez au besoin (AUTH_SECRET, etc.)
+cp .env.example .env          # renseignez DATABASE_URL, DIRECT_URL et AUTH_SECRET
 npm install
-npm run db:push               # crée le schéma SQLite (prisma/dev.db)
+npm run db:push               # crée le schéma dans PostgreSQL
 npm run db:seed               # crée le compte démo + données fictives
 npm run dev                   # http://localhost:3000
 ```
 
 Ou en une commande : `npm run setup` (install + db:push + seed).
+
+> 💡 **Développement 100 % local sans PostgreSQL ?** Vous pouvez repasser en SQLite : dans
+> `prisma/schema.prisma`, mettez `provider = "sqlite"`, retirez la ligne `directUrl`, et utilisez
+> `DATABASE_URL="file:./dev.db"`. Le déploiement en ligne (guide ci-dessous) utilise PostgreSQL.
 
 **Connexion de démonstration** (créée par le seed) :
 
@@ -214,24 +220,27 @@ Voir la page **Conformité** dans l'application.
 
 ---
 
-## Passer à PostgreSQL / Supabase
+## Base de données PostgreSQL / Supabase
 
-1. Dans `prisma/schema.prisma`, remplacer `provider = "sqlite"` par `provider = "postgresql"`.
-2. Définir `DATABASE_URL` (ex. Supabase : `postgresql://...`).
-3. `npm run db:push` (ou `npm run db:migrate` pour des migrations versionnées), puis `npm run db:seed`.
+Le projet est configuré pour **PostgreSQL** par défaut (`provider = "postgresql"`).
 
-Aucune modification de code applicatif n'est nécessaire (types portables).
+1. Renseigner `DATABASE_URL` et `DIRECT_URL` (Supabase les fournit dans « Connect » → onglet « ORM / Prisma »).
+2. `npm run db:push` (ou `npm run db:migrate` pour des migrations versionnées), puis `npm run db:seed`.
+
+Aucune modification de code applicatif n'est nécessaire. Pour du dev local en SQLite, voir la note dans « Démarrage rapide ».
 
 ---
 
 ## Déploiement
 
+👉 **Guide pas-à-pas pour non-développeurs : [GUIDE-DEPLOIEMENT.md](./GUIDE-DEPLOIEMENT.md)** (tout dans le navigateur, gratuit).
+
 **Vercel** (recommandé) ou tout hébergeur Node.
 
 1. Base PostgreSQL managée (Supabase, Neon, RDS…).
-2. Variables d'environnement : `DATABASE_URL`, `AUTH_SECRET` (fort), éventuellement `AI_PROVIDER`/`ANTHROPIC_API_KEY`, `DEMO_BASE_URL`.
-3. Build : `npm run build`. Démarrage : `npm run start`.
-4. Appliquer le schéma : `prisma migrate deploy` (ou `db push`).
+2. **Root Directory** = `prospection-app` dans Vercel.
+3. Variables d'environnement : `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET` (fort), éventuellement `AI_PROVIDER`/`ANTHROPIC_API_KEY`, `DEMO_BASE_URL`.
+4. Le fichier `vercel.json` applique automatiquement le schéma et le seed au build (`prisma db push` + seed + `next build`). Pour un usage réel, retirez le seed de cette commande.
 
 Le rendu des démonstrations est servi par la route `/demo/[slug]` avec en-tête `X-Robots-Tag: noindex, nofollow`.
 
