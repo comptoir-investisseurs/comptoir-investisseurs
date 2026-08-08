@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getCurrentUser } from "@/lib/auth";
+import { nombreArticles } from "@/lib/cart";
 import { Wordmark } from "./logo";
 
 const NAV = [
@@ -17,6 +18,7 @@ const NAV = [
  */
 export async function SiteHeader() {
   const user = await getCurrentUser();
+  const articles = await nombreArticles(user);
 
   return (
     <header className="sticky top-0 z-50 border-b border-gris-trait bg-gris-clair">
@@ -38,6 +40,13 @@ export async function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-5">
+          <Link
+            href="/panier"
+            className="flex items-center gap-2 text-[0.9375rem] text-encre transition-colors hover:text-laiton"
+          >
+            Panier
+            {articles > 0 && <span className="pastille">{articles}</span>}
+          </Link>
           {user ? (
             <>
               {user.role === "admin" && (

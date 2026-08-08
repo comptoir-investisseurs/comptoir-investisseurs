@@ -524,7 +524,7 @@ export const GUIDES: SeedGuide[] = CALIBERS.map((c) => ({
   slug: `guide-${c.slug}`,
   title: `${c.name.replace("Omega calibre", "Omega").toUpperCase()} — Guide complet d'entretien`,
   shortDescription: `Le guide d'atelier Cronostic consacré au calibre ${c.reference} : démontage, nettoyage, contrôle, lubrification, remontage et points de vigilance.`,
-  priceCents: 1490,
+  priceCents: 2490,
   pageCount: null,
   includedInSubscription: true,
   // Aucun PDF n'est encore attaché : les guides restent dépubliés

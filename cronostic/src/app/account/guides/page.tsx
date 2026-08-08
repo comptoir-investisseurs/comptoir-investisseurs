@@ -66,6 +66,7 @@ export default async function MesGuidesPage() {
             <li key={guide.id} className="cadre flex flex-wrap items-center gap-6 p-5">
               <Link href={`/calibres/${guide.caliberSlug}#guide`} className="w-24 shrink-0">
                 <GuideCover
+                  compact
                   caliberReference={guide.caliberReference}
                   coverImageUrl={guide.coverImageUrl}
                 />

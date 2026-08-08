@@ -108,6 +108,60 @@ Créer une application sur developer.ebay.com, puis renseigner
 revalidés toutes les 15 minutes. En cas d'erreur ou de quota, la page retombe
 automatiquement sur les liens marchands.
 
+La recherche est restreinte aux **catégories de fournitures** (`173699`,
+`175776`, surchargeables par `EBAY_CATEGORY_IDS`) et les intitulés de montres
+complètes sont écartés : sans cela, « Omega 265 » remonte surtout des montres
+entières. La page affiche une **estimation de prix** — moyenne des annonces
+retenues, hors décile haut et bas au-delà de cinq offres, avec la fourchette et
+l'effectif — et un accès direct à l'annonce la moins chère.
+
+---
+
+## Tarification
+
+| Formule | Prix | Rationnel |
+| --- | --- | --- |
+| Guide à l'unité | 24,90 € | Accès définitif à un calibre |
+| Cronostic Pro mensuel | 19,90 € / mois | Moins qu'un guide : franchi dès le deuxième calibre |
+| Cronostic Pro annuel | 149 € / an | Deux mois offerts, pour l'atelier qui travaille la famille |
+
+La grille précédente — 14,90 € l'unité contre 9,90 € par mois — rendait l'achat
+unitaire absurde : l'abonnement coûtait moins cher qu'un seul guide. La règle
+retenue est qu'un mois d'abonnement doit rester **en deçà** d'un guide, pour que
+l'abonnement s'impose à partir de deux calibres, tout en laissant l'achat
+unitaire pertinent pour une révision isolée — le seul cas où l'accès définitif
+vaut mieux qu'un abonnement.
+
+Les prix sont modifiables sans redéploiement : le prix d'un guide se saisit
+depuis `/admin/guides`, ceux de l'abonnement viennent de
+`NEXT_PUBLIC_PRO_PRICE_CENTS` et `NEXT_PUBLIC_PRO_ANNUAL_PRICE_CENTS`.
+
+---
+
+## Rattacher les PDF
+
+Deux voies, qui coexistent.
+
+**Dépôt** — poser `guides-pdf/omega-265.pdf` suffit : le fichier est rattaché
+au guide du calibre correspondant. Ce dossier est hors de `public/` et n'est
+jamais servi statiquement ; le PDF ne sort que par la route de téléchargement,
+après contrôle des droits. Voir `guides-pdf/README.md`.
+
+**Cloudflare R2** — le téléversement depuis `/admin/guides` prend le pas sur le
+fichier du dépôt, guide par guide. À privilégier en production : les fichiers ne
+pèsent plus ni sur le dépôt ni sur chaque déploiement, et le remplacement d'un
+guide n'impose plus de redéployer.
+
+---
+
+## Panier
+
+Le panier vit dans un cookie et ne contient que des identifiants de guides — un
+fichier n'a ni quantité, ni stock, ni frais de port. Il survit à la connexion :
+on le remplit avant d'avoir un compte, on se connecte au moment de payer. Les
+guides déjà acquis en sont retirés à la lecture, et une session Stripe
+multi-articles enregistre un achat par ligne.
+
 ---
 
 ## Mettre un guide en vente

@@ -42,5 +42,10 @@ export function adminEmails(): string[] {
 
 export function proPriceCents(): number {
   const raw = Number(process.env.NEXT_PUBLIC_PRO_PRICE_CENTS);
-  return Number.isFinite(raw) && raw > 0 ? raw : 990;
+  return Number.isFinite(raw) && raw > 0 ? raw : 1990;
+}
+
+export function proAnnualPriceCents(): number {
+  const raw = Number(process.env.NEXT_PUBLIC_PRO_ANNUAL_PRICE_CENTS);
+  return Number.isFinite(raw) && raw > 0 ? raw : 14900;
 }

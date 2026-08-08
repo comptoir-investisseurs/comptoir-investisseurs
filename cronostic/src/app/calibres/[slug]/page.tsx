@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { GuidePanel } from "@/components/guide-panel";
 import { getCurrentUser } from "@/lib/auth";
+import { panierContient } from "@/lib/cart";
 import { guideAccessFor } from "@/lib/entitlements";
 import { toParagraphs } from "@/lib/format";
 import { getCaliberBySlug, getGuideForCaliber, listCalibers } from "@/lib/repo";
@@ -67,6 +68,7 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
   const access = guide
     ? await guideAccessFor(user, guide)
     : { owned: false, viaSubscription: false, canDownload: false };
+  const dansLePanier = guide ? await panierContient(guide.id) : false;
 
   const indicatives = caliber.specs.filter((s) => !s.isVerified).length;
 
@@ -157,6 +159,7 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
             access={access}
             isSignedIn={Boolean(user)}
             caliberSlug={caliber.slug}
+            dansLePanier={dansLePanier}
           />
 
           {caliber.history && (

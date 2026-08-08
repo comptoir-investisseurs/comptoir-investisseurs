@@ -1,7 +1,10 @@
+import { readFile } from "node:fs/promises";
+
 import { NextResponse } from "next/server";
 
 import { getCurrentUser, signInPath } from "@/lib/auth";
 import { guideAccessFor } from "@/lib/entitlements";
+import { pdfDuDepot } from "@/lib/guide-files";
 import { readObject, signedDownloadUrl } from "@/lib/r2";
 import { getGuideById } from "@/lib/repo";
 
@@ -11,8 +14,13 @@ export const dynamic = "force-dynamic";
  * Téléchargement d'un guide.
  *
  * L'URL du bucket R2 n'est jamais exposée : la route vérifie la session, puis
- * le droit (achat OU abonnement Cronostic Pro actif couvrant ce guide), et ne délivre
- * qu'ensuite une URL signée à durée de vie courte.
+ * le droit (achat OU abonnement Cronostic Pro actif couvrant ce guide), et ne
+ * délivre qu'ensuite le fichier.
+ *
+ * Trois sources, dans cet ordre : le bucket R2 quand un PDF y a été téléversé,
+ * le stockage local qui le remplace en développement, puis le PDF déposé dans
+ * `guides-pdf/` au sein du dépôt. Ce dernier n'est jamais servi statiquement :
+ * il ne sort que par ici, après contrôle des droits.
  */
 export async function GET(
   request: Request,
@@ -43,24 +51,28 @@ export async function GET(
     );
   }
 
-  if (!guide.r2FileKey) {
-    return NextResponse.json(
-      { error: "Aucun fichier n'est encore associé à ce guide." },
-      { status: 404 },
-    );
+  const filename = `Cronostic_Omega_${guide.caliberReference}_manuel_de_service.pdf`;
+
+  // 1. Bucket R2, quand un fichier y a été téléversé.
+  if (guide.r2FileKey) {
+    const url = await signedDownloadUrl(guide.r2FileKey, filename);
+    if (url) return NextResponse.redirect(url);
+
+    const buffer = await readObject(guide.r2FileKey);
+    if (buffer) return servirPdf(buffer, filename);
   }
 
-  const filename = `Cronostic-${guide.caliberReference}.pdf`;
+  // 2. PDF déposé dans le dépôt.
+  const chemin = pdfDuDepot(guide.caliberSlug);
+  if (chemin) return servirPdf(await readFile(chemin), filename);
 
-  const url = await signedDownloadUrl(guide.r2FileKey, filename);
-  if (url) return NextResponse.redirect(url);
+  return NextResponse.json(
+    { error: "Aucun fichier n'est encore associé à ce guide." },
+    { status: 404 },
+  );
+}
 
-  // Stockage local (R2 non configuré) : la route sert elle-même le flux.
-  const buffer = await readObject(guide.r2FileKey);
-  if (!buffer) {
-    return NextResponse.json({ error: "Fichier introuvable dans le stockage." }, { status: 404 });
-  }
-
+function servirPdf(buffer: Buffer, filename: string) {
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",

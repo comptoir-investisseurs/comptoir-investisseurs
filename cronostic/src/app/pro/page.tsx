@@ -3,28 +3,28 @@ import Link from "next/link";
 
 import { openBillingPortal, startProCheckout } from "@/app/actions";
 import { getCurrentUser, signInPath } from "@/lib/auth";
-import { proPriceCents } from "@/lib/env";
+import { proAnnualPriceCents, proPriceCents } from "@/lib/env";
 import { formatDate, formatPrice } from "@/lib/format";
 import { getSubscriptionForUser, isSubscriptionActive, listGuides } from "@/lib/repo";
 
 export const metadata: Metadata = {
   title: "Cronostic Pro",
   description:
-    "Tous les guides d'atelier Cronostic inclus dans un abonnement mensuel, avec accès aux nouveaux manuels dès leur publication.",
+    "Tous les guides d'atelier Cronostic dans un abonnement mensuel ou annuel, avec accès aux nouveaux manuels dès leur publication.",
 };
 
 const FREE = [
   "Encyclopédie des calibres",
   "Fiches techniques complètes",
   "Nomenclature des fournitures",
-  "Recherche de pièces",
+  "Recherche de pièces et estimation de prix",
   "Références d'huiles et consommables",
 ];
 
 const PRO = [
-  "Accès aux guides Cronostic inclus dans l'abonnement",
-  "Téléchargement des PDF",
-  "Accès aux nouveaux guides ajoutés à l’abonnement",
+  "Tous les guides inclus dans l'abonnement",
+  "Téléchargement des PDF, sans limite",
+  "Nouveaux guides dès leur publication",
   "Résiliation à tout moment",
 ];
 
@@ -38,110 +38,125 @@ export default async function ProPage({
   const subscription = user ? await getSubscriptionForUser(user.id) : null;
   const active = isSubscriptionActive(subscription);
   const guides = await listGuides({ activeOnly: true });
-  const inclus = guides.filter((g) => g.includedInSubscription).length;
+  const inclus = guides.filter((g) => g.includedInSubscription);
+
+  const mensuel = proPriceCents();
+  const annuel = proAnnualPriceCents();
+  const prixUnitaire = inclus[0]?.priceCents ?? 2490;
+  const valeurCatalogue = inclus.reduce((s, g) => s + g.priceCents, 0);
+  const moisOfferts = Math.round(12 - annuel / mensuel);
 
   return (
-    <div className="mx-auto max-w-5xl px-5 py-16">
+    <div className="mx-auto max-w-5xl px-5 py-12">
       <p className="surtitre-marque">Cronostic Pro</p>
-      <h1 className="titre mt-4 text-couverture text-encre sm:text-couverture">
-        Tous les guides. Un seul abonnement.
-      </h1>
+      <div className="filet mt-2" />
+      <h1 className="titre mt-5 text-couverture">Tous les guides. Un seul abonnement.</h1>
 
       {(sp.abonnement === "succes" || sp.simule === "1") && (
-        <p className="mt-8 border-l-2 border-laiton bg-papier px-5 py-4 text-encre/72">
-          Votre abonnement Cronostic Pro est actif.
-          {sp.simule === "1" && (
-            <span className="mt-1 block text-legende text-encre/55">
-              Abonnement simulé : Stripe n&apos;est pas encore configuré sur cette instance.
-            </span>
-          )}{" "}
-          <Link href="/account/guides" className="underline underline-offset-4">
-            Accéder aux guides
-          </Link>
-        </p>
+        <div className="encart encart-methode mt-8">
+          <p className="encart-titre">Conseil d&apos;atelier</p>
+          <p className="mt-2">
+            Votre abonnement est actif.{" "}
+            <Link href="/account/guides" className="lien-souligne">
+              Accéder aux guides
+            </Link>
+            {sp.simule === "1" && (
+              <span className="legende mt-1 block">
+                Abonnement simulé : Stripe n&apos;est pas encore configuré sur cette instance.
+              </span>
+            )}
+          </p>
+        </div>
       )}
 
-      <div className="mt-14 grid gap-8 lg:grid-cols-2">
-        {/* FREE */}
-        <section className="cadre flex flex-col p-8">
-          <p className="surtitre-marque">Cronostic Free</p>
-          <p className="font-titre mt-4 text-section text-encre">Gratuit</p>
-          <p className="mt-2 text-legende text-encre/55">Sans compte, sans limite de consultation.</p>
-          <ul className="mt-8 space-y-3 text-legende text-encre/72">
+      <div className="mt-12 grid gap-8 lg:grid-cols-3">
+        {/* ── Gratuit ─────────────────────────────────────── */}
+        <section className="cadre flex flex-col p-7">
+          <p className="surtitre">Cronostic Free</p>
+          <p className="titre mt-3 text-section">Gratuit</p>
+          <p className="legende mt-1">Sans compte, sans limite de consultation</p>
+          <ul className="mt-7 space-y-2.5 text-legende not-italic">
             {FREE.map((item) => (
-              <li key={item} className="flex items-baseline gap-3">
-                <span className="text-encre/55">✓</span>
+              <li key={item} className="flex items-baseline gap-2.5">
+                <span className="text-laiton">·</span>
                 {item}
               </li>
             ))}
           </ul>
-          <Link
-            href="/calibres"
-            className="mt-auto pt-8 text-surtitre tracking-[0.16em] text-encre/72 uppercase underline underline-offset-4"
-          >
+          <Link href="/calibres" className="lien-souligne mt-auto pt-7 text-legende not-italic">
             Parcourir l&apos;encyclopédie
           </Link>
         </section>
 
-        {/* PRO */}
-        <section className="cadre relative flex flex-col overflow-hidden p-8">
-          <div className="pointer-events-none absolute inset-3 border border-laiton" />
-          <p className="surtitre-marque relative">Cronostic Pro</p>
-          <p className="font-titre relative mt-4 text-section text-laiton">
-            {formatPrice(subscription?.priceCents ?? proPriceCents())}
-            <span className="ml-1 text-legende text-encre/55">/ mois</span>
+        {/* ── Mensuel ─────────────────────────────────────── */}
+        <section className="cadre-papier flex flex-col border-l-[3px] border-l-laiton p-7">
+          <p className="surtitre">Mensuel</p>
+          <p className="titre mt-3 text-section">
+            {formatPrice(mensuel)}
+            <span className="legende ml-1 not-italic">par mois</span>
           </p>
-          <p className="relative mt-2 text-legende text-encre/55">
-            {inclus > 0
-              ? `${inclus} guide${inclus > 1 ? "s" : ""} inclus à ce jour`
-              : "Les guides sont ajoutés à l'abonnement au fil des publications."}
-          </p>
+          <p className="legende mt-1">Sans engagement</p>
 
-          <ul className="relative mt-8 space-y-3 text-legende text-encre/72">
+          <ul className="mt-7 space-y-2.5 text-legende not-italic">
             {PRO.map((item) => (
-              <li key={item} className="flex items-baseline gap-3">
-                <span className="text-laiton">✓</span>
+              <li key={item} className="flex items-baseline gap-2.5">
+                <span className="text-laiton">·</span>
                 {item}
               </li>
             ))}
           </ul>
 
-          <div className="relative mt-auto pt-8">
+          <div className="mt-auto pt-7">
             {!user ? (
-              <Link
-                href={signInPath("/pro")}
-                className="bouton w-full"
-              >
+              <Link href={signInPath("/pro")} className="bouton w-full">
                 S&apos;abonner
               </Link>
             ) : active ? (
-              <div className="space-y-4">
-                <p className="text-legende text-laiton">
-                  Abonnement actif
-                  {subscription?.currentPeriodEnd && (
-                    <span className="text-encre/55">
-                      {" "}
-                      · {subscription.cancelAtPeriodEnd ? "prend fin le" : "renouvelé le"}{" "}
-                      {formatDate(subscription.currentPeriodEnd)}
-                    </span>
-                  )}
-                </p>
-                <form action={openBillingPortal}>
-                  <button
-                    type="submit"
-                    className="bouton-secondaire w-full"
-                  >
-                    Gérer mon abonnement
-                  </button>
-                </form>
-              </div>
+              <p className="legende">Abonnement en cours</p>
             ) : (
               <form action={startProCheckout}>
-                <button
-                  type="submit"
-                  className="bouton w-full"
-                >
+                <input type="hidden" name="periode" value="mensuel" />
+                <button type="submit" className="bouton w-full">
                   S&apos;abonner
+                </button>
+              </form>
+            )}
+          </div>
+        </section>
+
+        {/* ── Annuel ──────────────────────────────────────── */}
+        <section className="cadre-papier flex flex-col border-l-[3px] border-l-laiton p-7">
+          <p className="surtitre">Annuel</p>
+          <p className="titre mt-3 text-section">
+            {formatPrice(annuel)}
+            <span className="legende ml-1 not-italic">par an</span>
+          </p>
+          <p className="legende mt-1">
+            Soit {formatPrice(Math.round(annuel / 12))} par mois
+            {moisOfferts > 0 ? ` — ${moisOfferts} mois offerts` : ""}
+          </p>
+
+          <ul className="mt-7 space-y-2.5 text-legende not-italic">
+            {PRO.map((item) => (
+              <li key={item} className="flex items-baseline gap-2.5">
+                <span className="text-laiton">·</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-auto pt-7">
+            {!user ? (
+              <Link href={signInPath("/pro")} className="bouton w-full">
+                S&apos;abonner à l&apos;année
+              </Link>
+            ) : active ? (
+              <p className="legende">Abonnement en cours</p>
+            ) : (
+              <form action={startProCheckout}>
+                <input type="hidden" name="periode" value="annuel" />
+                <button type="submit" className="bouton w-full">
+                  S&apos;abonner à l&apos;année
                 </button>
               </form>
             )}
@@ -149,9 +164,75 @@ export default async function ProPage({
         </section>
       </div>
 
-      <p className="mt-10 max-w-2xl text-legende leading-relaxed text-encre/55">
-        Les guides achetés à l&apos;unité restent accessibles définitivement, même après
-        résiliation de l&apos;abonnement.
+      {active && (
+        <div className="cadre mt-10 flex flex-wrap items-center justify-between gap-6 p-6">
+          <div>
+            <p className="text-encre">Abonnement actif</p>
+            {subscription?.currentPeriodEnd && (
+              <p className="legende mt-1">
+                {subscription.cancelAtPeriodEnd ? "Prend fin le " : "Renouvelé le "}
+                {formatDate(subscription.currentPeriodEnd)}
+              </p>
+            )}
+          </div>
+          <form action={openBillingPortal}>
+            <button type="submit" className="bouton-secondaire">
+              Gérer
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ── Quand l'unité, quand l'abonnement ─────────────── */}
+      <section className="mt-16">
+        <h2 className="surtitre">Choisir</h2>
+        <div className="filet mt-2" />
+        <div className="mt-6 overflow-x-auto">
+          <table className="tableau">
+            <thead>
+              <tr>
+                <th scope="col">Usage</th>
+                <th scope="col">Formule</th>
+                <th scope="col">Coût</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Un calibre à réviser</td>
+                <td>Guide à l&apos;unité</td>
+                <td className="font-technique">{formatPrice(prixUnitaire)}, à vie</td>
+              </tr>
+              <tr>
+                <td>Deux ou trois calibres</td>
+                <td>Guides à l&apos;unité</td>
+                <td className="font-technique">
+                  {formatPrice(prixUnitaire * 2)} à {formatPrice(prixUnitaire * 3)}
+                </td>
+              </tr>
+              <tr>
+                <td>Un chantier de quelques mois</td>
+                <td>Abonnement mensuel</td>
+                <td className="font-technique">{formatPrice(mensuel)} par mois</td>
+              </tr>
+              <tr>
+                <td>Atelier travaillant la famille entière</td>
+                <td>Abonnement annuel</td>
+                <td className="font-technique">{formatPrice(annuel)} par an</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="legende mt-2">
+          {inclus.length > 0
+            ? `${inclus.length} guide${inclus.length > 1 ? "s" : ""} inclus à ce jour, soit ${formatPrice(valeurCatalogue)} à l'unité`
+            : "Les guides rejoignent l'abonnement au fil des publications"}
+        </p>
+      </section>
+
+      <p className="mt-10 max-w-[68ch] text-legende not-italic text-encre/72">
+        Un guide acheté à l&apos;unité reste accessible définitivement, y compris après
+        résiliation de l&apos;abonnement. Les guides ouverts au seul titre de l&apos;abonnement
+        cessent de l&apos;être à la fin de la période payée.
       </p>
     </div>
   );

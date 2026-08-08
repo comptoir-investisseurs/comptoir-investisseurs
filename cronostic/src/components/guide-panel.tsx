@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { startGuideCheckout } from "@/app/actions";
+import { ajouterAuPanierAction, startGuideCheckout } from "@/app/actions";
 import { GUIDE_HIGHLIGHTS } from "@/data/catalog";
 import { formatPrice } from "@/lib/format";
 import type { GuideAccess, GuideRow } from "@/lib/types";
@@ -18,11 +18,14 @@ export function GuidePanel({
   guide,
   access,
   isSignedIn,
+  caliberSlug,
+  dansLePanier = false,
 }: {
   guide: GuideRow | null;
   access: GuideAccess;
   isSignedIn: boolean;
   caliberSlug: string;
+  dansLePanier?: boolean;
 }) {
   if (!guide || !guide.isActive) {
     return (
@@ -92,21 +95,39 @@ export function GuidePanel({
                 {formatPrice(guide.priceCents, guide.currency)}
               </p>
 
-              {isSignedIn ? (
-                <form action={startGuideCheckout}>
-                  <input type="hidden" name="guideId" value={guide.id} />
-                  <button type="submit" className="bouton">
+              <div className="flex flex-wrap items-center gap-3">
+                {isSignedIn ? (
+                  <form action={startGuideCheckout}>
+                    <input type="hidden" name="guideId" value={guide.id} />
+                    <button type="submit" className="bouton">
+                      Acheter
+                    </button>
+                  </form>
+                ) : (
+                  <Link
+                    href={`/connexion?redirect=${encodeURIComponent(`/purchase/guide/${guide.id}`)}`}
+                    className="bouton"
+                  >
                     Acheter
-                  </button>
-                </form>
-              ) : (
-                <Link
-                  href={`/connexion?redirect=${encodeURIComponent(`/purchase/guide/${guide.id}`)}`}
-                  className="bouton"
-                >
-                  Acheter
-                </Link>
-              )}
+                  </Link>
+                )}
+
+                {/* Le panier n'exige pas de compte : on le remplit d'abord,
+                    on se connecte au moment de payer. */}
+                {dansLePanier ? (
+                  <Link href="/panier" className="bouton-secondaire">
+                    Dans le panier
+                  </Link>
+                ) : (
+                  <form action={ajouterAuPanierAction}>
+                    <input type="hidden" name="guideId" value={guide.id} />
+                    <input type="hidden" name="retour" value={`/calibres/${caliberSlug}`} />
+                    <button type="submit" className="bouton-secondaire">
+                      Ajouter au panier
+                    </button>
+                  </form>
+                )}
+              </div>
 
               {guide.includedInSubscription && (
                 <Link href="/pro" className="lien-souligne">

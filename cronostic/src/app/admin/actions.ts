@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
+import { aUnPdfDansLeDepot } from "@/lib/guide-files";
 import { slugify } from "@/lib/format";
 import {
   createGuide,
@@ -60,7 +61,7 @@ export async function updateGuideAction(formData: FormData) {
 
   const patch = readGuideForm(formData);
   // La publication reste impossible tant que le PDF final n'est pas téléversé.
-  if (patch.isActive && !existing.r2FileKey) {
+  if (patch.isActive && !existing.r2FileKey && !aUnPdfDansLeDepot(existing.caliberSlug)) {
     await updateGuide(id, { ...patch, isActive: false });
     refresh(existing.caliberSlug);
     redirect(`/admin/guides/${id}?erreur=pdf-manquant`);
@@ -77,7 +78,7 @@ export async function togglePublishAction(formData: FormData) {
   const guide = await getGuideById(id);
   if (!guide) throw new Error("Guide introuvable.");
 
-  if (!guide.isActive && !guide.r2FileKey) {
+  if (!guide.isActive && !guide.r2FileKey && !aUnPdfDansLeDepot(guide.caliberSlug)) {
     redirect(`/admin/guides/${id}?erreur=pdf-manquant`);
   }
 

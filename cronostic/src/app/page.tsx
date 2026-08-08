@@ -18,26 +18,37 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Ouverture ────────────────────────────────────── */}
+      {/* ── Ouverture ────────────────────────────────────────
+          La photographie occupe toute la largeur ; le texte est posé dessus
+          dans un cartouche papier plein. Le fond de l'image comporte le
+          bracelet noir : du texte directement incrusté y tomberait à 3,5:1,
+          en deçà du seuil de lisibilité. Le cartouche, lui, est un aplat —
+          la charte proscrit les dégradés, pas les aplats. */}
       <section className="relative border-b border-gris-trait bg-gris-fond">
         {hero && (
-          <figure className="absolute inset-y-0 right-0 hidden w-[42%] border-l border-gris-trait lg:block">
+          <figure className="absolute inset-0 hidden lg:block">
             <Image
               src={hero.src}
               alt={hero.legende}
               fill
-              sizes="42vw"
+              sizes="100vw"
               priority
-              className="object-cover"
+              className="object-cover object-[68%_center]"
             />
-            <figcaption className="legende absolute bottom-0 left-0 bg-papier px-3 py-1 not-italic">
+            <figcaption className="legende absolute right-0 bottom-0 bg-papier px-3 py-1 not-italic">
               {hero.legende}
             </figcaption>
           </figure>
         )}
 
-        <div className="mx-auto max-w-6xl px-5 pt-16 pb-14 lg:py-24">
-          <div className={hero ? "lg:max-w-[52%]" : undefined}>
+        <div className="relative mx-auto max-w-6xl px-5 py-12 lg:py-16">
+          <div
+            className={
+              hero
+                ? "max-w-2xl border-l-[3px] border-l-laiton bg-papier px-7 py-9 lg:px-9 lg:py-11"
+                : undefined
+            }
+          >
             <p className="surtitre">Documentation technique horlogère</p>
             <div className="filet mt-3" />
             <h1 className="titre mt-6 max-w-[20ch] text-couverture">
@@ -47,7 +58,7 @@ export default async function HomePage() {
               Guides d&apos;atelier et pièces détachées pour mouvements horlogers vintage.
             </p>
 
-            <div className="mt-9 max-w-2xl">
+            <div className="mt-8">
               <p className="mb-2 text-legende not-italic text-encre/60">
                 Quel calibre recherchez-vous&nbsp;?
               </p>
@@ -58,7 +69,7 @@ export default async function HomePage() {
 
         {hero && (
           <figure className="border-t border-gris-trait lg:hidden">
-            <div className="relative h-60">
+            <div className="relative h-56">
               <Image src={hero.src} alt={hero.legende} fill sizes="100vw" className="object-cover" />
             </div>
             <figcaption className="legende bg-papier px-5 py-1.5 not-italic">

@@ -116,7 +116,7 @@ export const guides = pgTable(
     title: text("title").notNull(),
     slug: text("slug").notNull().unique(),
     shortDescription: text("short_description"),
-    priceCents: integer("price_cents").notNull().default(1490),
+    priceCents: integer("price_cents").notNull().default(2490),
     currency: text("currency").notNull().default("EUR"),
     // Clé de l'objet dans le bucket privé — ex. premium/guides/omega-265.pdf
     r2FileKey: text("r2_file_key"),

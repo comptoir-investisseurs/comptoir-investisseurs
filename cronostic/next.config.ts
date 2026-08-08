@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["pg"],
+  // Lus au runtime par la route de téléchargement : sans cette déclaration,
+  // ils ne seraient pas embarqués dans la fonction déployée.
+  outputFileTracingIncludes: {
+    "/api/guides/**": ["./guides-pdf/**"],
+  },
 };
 
 export default nextConfig;

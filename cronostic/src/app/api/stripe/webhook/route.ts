@@ -98,23 +98,36 @@ export async function POST(request: Request) {
 }
 
 async function handleGuidePayment(session: Stripe.Checkout.Session) {
-  const guideId = session.metadata?.guideId;
   const userId = session.metadata?.userId ?? session.client_reference_id ?? null;
-  if (!guideId || !userId) return;
-  if (session.payment_status !== "paid") return;
+  if (!userId || session.payment_status !== "paid") return;
 
-  const [user, guide] = await Promise.all([findUserById(userId), getGuideById(guideId)]);
-  if (!user || !guide) return;
+  // Une session peut porter plusieurs guides quand elle vient du panier.
+  const ids = (session.metadata?.guideIds ?? session.metadata?.guideId ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (ids.length === 0) return;
 
-  await recordPurchase({
-    userId: user.id,
-    guideId: guide.id,
-    amountCents: session.amount_total ?? guide.priceCents,
-    currency: (session.currency ?? guide.currency).toUpperCase(),
-    stripeCheckoutSessionId: session.id,
-    stripePaymentIntentId:
-      typeof session.payment_intent === "string" ? session.payment_intent : null,
-  });
+  const user = await findUserById(userId);
+  if (!user) return;
+
+  for (const guideId of ids) {
+    const guide = await getGuideById(guideId);
+    if (!guide) continue;
+    await recordPurchase({
+      userId: user.id,
+      guideId: guide.id,
+      // Le montant de la session couvre l'ensemble : on rattache à chaque
+      // ligne son propre prix, seul montant qui ait un sens par guide.
+      amountCents: guide.priceCents,
+      currency: (session.currency ?? guide.currency).toUpperCase(),
+      // La contrainte d'unicité porte sur cet identifiant : une session
+      // multi-articles ne peut donc pas le porter pour chaque ligne.
+      stripeCheckoutSessionId: ids.length === 1 ? session.id : null,
+      stripePaymentIntentId:
+        typeof session.payment_intent === "string" ? session.payment_intent : null,
+    });
+  }
 }
 
 async function handleSubscription(subscription: Stripe.Subscription, fallbackUserId: string | null) {

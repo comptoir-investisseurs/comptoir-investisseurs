@@ -13,6 +13,7 @@ export function GuideCover({
   subtitle = "Guide complet d'entretien",
   coverImageUrl,
   pageCount,
+  compact = false,
   className = "",
 }: {
   caliberReference: string;
@@ -20,6 +21,8 @@ export function GuideCover({
   subtitle?: string;
   coverImageUrl?: string | null;
   pageCount?: number | null;
+  /** Vignette de liste : seuls la marque et la référence restent lisibles. */
+  compact?: boolean;
   className?: string;
 }) {
   if (coverImageUrl) {
@@ -38,27 +41,37 @@ export function GuideCover({
 
   return (
     <div
-      className={`flex aspect-[3/4] flex-col justify-between border border-gris-trait border-l-[3px] border-l-laiton bg-papier p-4 ${className}`}
+      className={`flex aspect-[3/4] flex-col justify-between border border-gris-trait border-l-[3px] border-l-laiton bg-papier ${compact ? "p-2.5" : "p-4"} ${className}`}
       aria-hidden="true"
     >
       {/* Le logotype n'apparaît pas ici : en vignette il passerait sous les
           32 px imposés et sa zone de protection ne tiendrait pas. Le nom est
           donc simplement composé — ce n'est pas une recomposition du tracé. */}
-      <p className="text-legende font-medium tracking-[0.06em] text-encre">Cronostic</p>
+      {!compact && (
+        <p className="text-legende font-medium tracking-[0.06em] text-encre">Cronostic</p>
+      )}
 
       <div>
         <p className="surtitre">{brand}</p>
-        <p className="titre mt-1 text-couverture">{caliberReference}</p>
-        <div className="filet mt-3" />
-        <p className="mt-3 max-w-[16ch] text-legende not-italic leading-snug text-encre/70">
-          {subtitle}
+        <p className={`titre mt-1 ${compact ? "text-section" : "text-couverture"}`}>
+          {caliberReference}
         </p>
+        {!compact && (
+          <>
+            <div className="filet mt-3" />
+            <p className="mt-3 max-w-[16ch] text-legende not-italic leading-snug text-encre/70">
+              {subtitle}
+            </p>
+          </>
+        )}
       </div>
 
-      <div className="flex items-end justify-between text-surtitre tracking-[0.14em] text-encre/50 uppercase">
-        <span>Atelier</span>
-        {pageCount ? <span>{pageCount} p.</span> : null}
-      </div>
+      {!compact && (
+        <div className="flex items-end justify-between text-surtitre tracking-[0.14em] text-encre/50 uppercase">
+          <span>Atelier</span>
+          {pageCount ? <span>{pageCount} p.</span> : null}
+        </div>
+      )}
     </div>
   );
 }
