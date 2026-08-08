@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { GuideCard } from "@/components/guide-card";
+import { PageHeader } from "@/components/page-header";
 import { GUIDE_HIGHLIGHTS } from "@/data/catalog";
 import { getCurrentUser } from "@/lib/auth";
 import { hasActivePro, ownedGuideIds } from "@/lib/entitlements";
@@ -22,24 +23,25 @@ export default async function GuidesPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-16">
-      <p className="surtitre-marque">Guides Cronostic</p>
-      <h1 className="titre mt-4 max-w-2xl text-couverture text-encre sm:text-couverture">
-        Des manuels conçus pour être utilisés directement à l&apos;établi.
-      </h1>
-      <p className="mt-6 max-w-2xl leading-relaxed text-encre/72">
-        Chaque guide couvre le cycle complet d&apos;un calibre, planche par planche, avec les
-        points de vigilance relevés à la réparation. Format PDF, téléchargeable à vie.
-      </p>
+    <>
+      <PageHeader
+        surtitre="Guides Cronostic"
+        marque
+        titre="Des manuels conçus pour être utilisés directement à l'établi."
+        chapeau="Chaque guide couvre le cycle complet d'un calibre, planche par planche, avec les points de vigilance relevés à la réparation. Format PDF, téléchargeable à vie."
+        cle="guides"
+      >
+        <ul className="mt-7 flex flex-wrap gap-x-7 gap-y-2">
+          {GUIDE_HIGHLIGHTS.map((h, i) => (
+            <li key={h} className="flex items-center gap-2.5">
+              <span className="pastille-cerclee">{i + 1}</span>
+              {h}
+            </li>
+          ))}
+        </ul>
+      </PageHeader>
 
-      <ul className="mt-8 flex flex-wrap gap-x-8 gap-y-2 text-legende text-encre/72">
-        {GUIDE_HIGHLIGHTS.map((h) => (
-          <li key={h} className="flex items-baseline gap-2">
-            <span className="text-laiton">✓</span>
-            {h}
-          </li>
-        ))}
-      </ul>
+      <div className="mx-auto max-w-6xl px-5 py-14">
 
       {guides.length === 0 ? (
         <div className="cadre mt-14 p-10 text-center">
@@ -76,6 +78,7 @@ export default async function GuidesPage() {
           Découvrir
         </Link>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

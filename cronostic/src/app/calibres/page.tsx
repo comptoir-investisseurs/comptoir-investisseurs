@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CaliberSearch } from "@/components/caliber-search";
+import { PageHeader } from "@/components/page-header";
 import { listCalibers } from "@/lib/repo";
 
 export const revalidate = 3600;
@@ -16,20 +17,19 @@ export default async function CalibresPage() {
   const calibers = await listCalibers();
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-16">
-      <p className="surtitre">Encyclopédie</p>
-      <h1 className="titre mt-4 text-couverture text-encre sm:text-couverture">Calibres</h1>
-      <p className="mt-5 max-w-2xl leading-relaxed text-encre/72">
-        Le catalogue de lancement couvre la famille des mouvements Omega de 30 millimètres à
-        remontage manuel. Chaque fiche est gratuite et s&apos;enrichit au fil des relectures
-        d&apos;atelier.
-      </p>
+    <>
+      <PageHeader
+        surtitre="Encyclopédie"
+        titre="Calibres"
+        chapeau="Le catalogue de lancement couvre la famille des mouvements Omega de 30 millimètres à remontage manuel. Chaque fiche est gratuite et s'enrichit au fil des relectures d'atelier."
+        cle="calibres"
+      >
+        <div className="mt-8 max-w-xl">
+          <CaliberSearch calibers={calibers} size="compact" />
+        </div>
+      </PageHeader>
 
-      <div className="mt-10 max-w-xl">
-        <CaliberSearch calibers={calibers} size="compact" />
-      </div>
-
-      <ul className="mt-12 grid gap-px border border-gris-trait bg-gris-trait sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mx-auto mt-12 mb-16 grid max-w-6xl gap-px border border-gris-trait bg-gris-trait sm:grid-cols-2 lg:grid-cols-3 grid gap-px border border-gris-trait bg-gris-trait">
         {calibers.map((c) => (
           <li key={c.slug}>
             <Link
@@ -53,6 +53,6 @@ export default async function CalibresPage() {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 }

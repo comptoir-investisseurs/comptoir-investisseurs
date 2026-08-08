@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { CaliberSearch } from "@/components/caliber-search";
@@ -5,6 +6,7 @@ import { GuideCover } from "@/components/guide-cover";
 import { GUIDE_HIGHLIGHTS } from "@/data/catalog";
 import { proPriceCents } from "@/lib/env";
 import { formatPrice } from "@/lib/format";
+import { heroPhoto } from "@/lib/photos";
 import { listCalibers, listGuides } from "@/lib/repo";
 
 export const revalidate = 3600;
@@ -12,28 +14,58 @@ export const revalidate = 3600;
 export default async function HomePage() {
   const [calibers, guides] = await Promise.all([listCalibers(), listGuides({ activeOnly: true })]);
   const vitrine = guides.slice(0, 4);
+  const hero = heroPhoto();
 
   return (
     <>
       {/* ── Ouverture ────────────────────────────────────── */}
-      <section className="border-b border-gris-trait">
-        <div className="mx-auto max-w-6xl px-5 pt-16 pb-14">
-          <p className="surtitre">Documentation technique horlogère</p>
-          <div className="filet mt-3" />
-          <h1 className="titre mt-6 max-w-3xl text-couverture">
-            La documentation technique de l&apos;horloger.
-          </h1>
-          <p className="mt-5 max-w-[60ch] text-encre/72">
-            Guides d&apos;atelier et pièces détachées pour mouvements horlogers vintage.
-          </p>
+      <section className="relative border-b border-gris-trait">
+        {hero && (
+          <figure className="absolute inset-y-0 right-0 hidden w-[42%] border-l border-gris-trait lg:block">
+            <Image
+              src={hero.src}
+              alt={hero.legende}
+              fill
+              sizes="42vw"
+              priority
+              className="object-cover"
+            />
+            <figcaption className="legende absolute bottom-0 left-0 bg-papier px-3 py-1 not-italic">
+              {hero.legende}
+            </figcaption>
+          </figure>
+        )}
 
-          <div className="mt-9 max-w-2xl">
-            <p className="mb-2 text-legende not-italic text-encre/60">
-              Quel calibre recherchez-vous&nbsp;?
+        <div className="mx-auto max-w-6xl px-5 pt-16 pb-14 lg:py-24">
+          <div className={hero ? "lg:max-w-[52%]" : undefined}>
+            <p className="surtitre">Documentation technique horlogère</p>
+            <div className="filet mt-3" />
+            <h1 className="titre mt-6 max-w-[20ch] text-couverture">
+              La documentation technique de l&apos;horloger.
+            </h1>
+            <p className="mt-5 max-w-[56ch] text-encre/72">
+              Guides d&apos;atelier et pièces détachées pour mouvements horlogers vintage.
             </p>
-            <CaliberSearch calibers={calibers} />
+
+            <div className="mt-9 max-w-2xl">
+              <p className="mb-2 text-legende not-italic text-encre/60">
+                Quel calibre recherchez-vous&nbsp;?
+              </p>
+              <CaliberSearch calibers={calibers} />
+            </div>
           </div>
         </div>
+
+        {hero && (
+          <figure className="border-t border-gris-trait lg:hidden">
+            <div className="relative h-60">
+              <Image src={hero.src} alt={hero.legende} fill sizes="100vw" className="object-cover" />
+            </div>
+            <figcaption className="legende bg-papier px-5 py-1.5 not-italic">
+              {hero.legende}
+            </figcaption>
+          </figure>
+        )}
       </section>
 
       {/* ── Calibres disponibles ─────────────────────────── */}

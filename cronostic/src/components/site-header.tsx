@@ -19,7 +19,7 @@ export async function SiteHeader() {
   const user = await getCurrentUser();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gris-trait bg-white">
+    <header className="sticky top-0 z-50 border-b border-gris-trait bg-gris-clair">
       <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center px-5">
         <Link href="/" aria-label="Cronostic — accueil">
           <Wordmark hauteur={32} />
@@ -60,7 +60,7 @@ export async function SiteHeader() {
         </div>
       </div>
 
-      <nav className="flex gap-6 overflow-x-auto border-t border-gris-clair px-5 py-2.5 md:hidden">
+      <nav className="flex gap-6 overflow-x-auto border-t border-gris-trait px-5 py-2.5 md:hidden">
         {NAV.map((item) => (
           <Link
             key={item.href}

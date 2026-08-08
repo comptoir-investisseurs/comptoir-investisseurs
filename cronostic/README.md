@@ -240,13 +240,22 @@ capitales d'imprimerie. Les intertitres qui portent la marque utilisent
 
 ### Typographie
 
-| Rôle | Famille | Substitution métrique |
-| --- | --- | --- |
-| Titrage | Caladea | Cambria |
-| Texte | Carlito | Calibri |
-| Technique | DejaVu Sans Mono | Consolas |
+| Rôle | Famille |
+| --- | --- |
+| Titrage | EB Garamond |
+| Texte, interface | Jost |
+| Technique | DejaVu Sans Mono |
 
-Caladea et Carlito sont chargées par `next/font` et auto-hébergées ; DejaVu
+La charte impose Caladea et Carlito pour les **manuels**, où la compatibilité
+métrique avec Cambria et Calibri garantit une mise en page stable en
+circulation bureautique. Un site web ne circule pas en bureautique : le site
+retient donc un couple choisi pour la tenue à l'écran, en gardant la même
+intention — sobriété, contraste franc, peu de graisses. EB Garamond donne le
+grain d'un ouvrage ; Jost, grotesque géométrique de lignée Futura, est
+contemporaine des mouvements documentés. La police technique reste celle de la
+charte.
+
+EB Garamond et Jost sont chargées par `next/font` et auto-hébergées ; DejaVu
 Sans Mono est embarquée dans `src/fonts/`. Aucun appel externe au runtime.
 
 Six tailles seulement, exposées en tokens : `surtitre`, `legende`, `courant`,
@@ -258,6 +267,18 @@ l'identité — pas de septième taille.
 `.tableau` (en-tête laiton plein, lignes alternées sur papier, aucun filet
 vertical), `.encart` / `.encart-alerte` / `.encart-methode`, `.pastille` et
 `.pastille-cerclee`, `.filet` (2 px laiton), `.cadre` et `.cadre-papier`.
+
+### Photographies
+
+`public/photos/` est lu au rendu : déposer un fichier suffit à le faire
+apparaître, en retirer un suffit à le faire disparaître, et le site retombe
+proprement sur une mise en page sans image. `hero.*` ouvre la page d'accueil en
+fuite à droite ; `mouvement-*.*` illustre les pages éditoriales en marge,
+rogné par le bord. Le nom du fichier porte la légende. Voir
+`public/photos/README.md`.
+
+La charte proscrit la photographie décorative sans fonction technique : chaque
+image est donc légendée, et les illustrations de marge s'effacent sous 1280 px.
 
 ### Statut des données
 

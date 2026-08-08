@@ -25,8 +25,8 @@
   --color-technique: #2f5d8a; /* rubis, pierres, lubrification */
 
   /* Familles — chargées dans app/layout.tsx */
-  --font-titre: var(--caladea), Cambria, Georgia, serif;
-  --font-texte: var(--carlito), Calibri, Carlito, sans-serif;
+  --font-titre: var(--eb-garamond), Cambria, Georgia, serif;
+  --font-texte: var(--jost), Calibri, ui-sans-serif, sans-serif;
   --font-technique: var(--dejavu-mono), Consolas, ui-monospace, monospace;
 
   /* Échelle typographique, transposée du document (10,4 pt = corps de
@@ -36,8 +36,8 @@
   --text-legende: 0.8125rem;
   --text-courant: 1rem;
   --text-etape: 1.1875rem;
-  --text-section: 1.5rem;
-  --text-couverture: 2.25rem;
+  --text-section: 1.625rem;
+  --text-couverture: 2.5rem;
 }
 
 :root {
@@ -65,7 +65,7 @@ body {
   .surtitre {
     font-family: var(--font-texte);
     font-size: var(--text-surtitre);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--color-laiton);
@@ -76,7 +76,7 @@ body {
   .surtitre-marque {
     font-family: var(--font-texte);
     font-size: 0.875rem;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.04em;
     color: var(--color-laiton);
   }
@@ -84,7 +84,8 @@ body {
   .titre {
     font-family: var(--font-titre);
     font-weight: 400;
-    line-height: 1.15;
+    line-height: 1.14;
+    letter-spacing: -0.005em;
     text-wrap: balance;
   }
 
@@ -130,7 +131,7 @@ body {
 
   .encart-titre {
     font-size: var(--text-surtitre);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
   }
@@ -198,7 +199,7 @@ body {
     background: var(--color-laiton);
     color: #ffffff;
     font-size: var(--text-surtitre);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     padding: 0.55rem 0.9rem;
@@ -251,7 +252,7 @@ body {
     background: var(--color-laiton);
     color: #ffffff;
     font-size: 0.8125rem;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     transition: background-color 140ms ease;
@@ -269,7 +270,7 @@ body {
     border: 1px solid var(--color-laiton);
     color: var(--color-laiton);
     font-size: 0.8125rem;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     transition: background-color 140ms ease;

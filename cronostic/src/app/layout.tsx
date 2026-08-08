@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Caladea, Carlito } from "next/font/google";
+import { EB_Garamond, Jost } from "next/font/google";
 import localFont from "next/font/local";
 
 import { SiteFooter } from "@/components/site-footer";
@@ -9,23 +9,32 @@ import { hasClerk, siteUrl } from "@/lib/env";
 import "./globals.css";
 
 /**
- * Typographie imposée par la charte : Caladea au titrage, Carlito au texte,
- * DejaVu Sans Mono pour les références et les valeurs. Les deux premières
- * sont métriquement compatibles avec Cambria et Calibri, ce qui garantit une
- * mise en page stable quand un document circule en bureautique.
+ * Typographie du site.
+ *
+ * La charte impose Caladea et Carlito pour les manuels, où la compatibilité
+ * métrique avec Cambria et Calibri garantit une mise en page stable en
+ * circulation bureautique. Un site web ne circule pas en bureautique : on y
+ * retient donc un couple choisi pour la tenue à l'écran, en gardant la même
+ * intention — sobriété, contraste franc, peu de graisses.
+ *
+ * EB Garamond au titrage : garalde du XVIᵉ siècle, chaude et sans effet, qui
+ * donne le grain d'un ouvrage plutôt que d'une plaquette. Jost à l'interface :
+ * grotesque géométrique de lignée Futura, contemporaine des mouvements
+ * documentés. DejaVu Sans Mono reste la police technique de la charte.
  */
-const titre = Caladea({
+const titre = EB_Garamond({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
   display: "swap",
-  variable: "--caladea",
+  variable: "--eb-garamond",
 });
 
-const texte = Carlito({
+const texte = Jost({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["300", "400", "500", "600"],
   display: "swap",
-  variable: "--carlito",
+  variable: "--jost",
 });
 
 const technique = localFont({

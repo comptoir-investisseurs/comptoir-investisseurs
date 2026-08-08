@@ -44,7 +44,7 @@ export function GuideCover({
       {/* Le logotype n'apparaît pas ici : en vignette il passerait sous les
           32 px imposés et sa zone de protection ne tiendrait pas. Le nom est
           donc simplement composé — ce n'est pas une recomposition du tracé. */}
-      <p className="text-legende font-bold tracking-[0.04em] text-encre">Cronostic</p>
+      <p className="text-legende font-medium tracking-[0.06em] text-encre">Cronostic</p>
 
       <div>
         <p className="surtitre">{brand}</p>
