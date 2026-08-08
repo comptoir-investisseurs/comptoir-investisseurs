@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { mouvementPour } from "@/lib/photos";
+import { illustrationPour } from "@/lib/photos";
 
 /**
  * En-tête de page éditoriale.
@@ -26,7 +26,7 @@ export function PageHeader({
   marque?: boolean;
   children?: React.ReactNode;
 }) {
-  const photo = mouvementPour(cle);
+  const photo = illustrationPour(cle);
 
   return (
     <section className="relative border-b border-gris-trait">
@@ -37,7 +37,7 @@ export function PageHeader({
             alt={photo.legende}
             fill
             sizes="26vw"
-            className="object-cover object-left"
+            className="object-cover"
             priority={false}
           />
           <figcaption className="legende absolute bottom-0 left-0 bg-papier px-3 py-1 not-italic">

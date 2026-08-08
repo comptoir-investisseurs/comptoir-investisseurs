@@ -7,12 +7,12 @@ configuration.
 | Nom du fichier | Emplacement |
 | --- | --- |
 | `hero.jpg` | Ouverture de la page d'accueil, en fuite à droite |
-| `mouvement-*.jpg` | Illustration en marge des pages éditoriales, rognée par le bord |
+|  `marge-*.jpg` | Illustration en marge des pages éditoriales, rognée par le bord |
 
 Extensions acceptées : `.jpg` `.jpeg` `.png` `.webp` `.avif`.
 
-Le nom du fichier porte la légende : `mouvement-omega-266-cote-ponts.jpg`
-s'affiche « Omega 266, côté ponts ». Le préfixe et les tirets sont retirés.
+Le nom du fichier porte la légende : `marge-Omega-266-cote-ponts.jpg`
+s'affiche « Omega 266 cote ponts ». Le préfixe et les tirets sont retirés.
 
 La charte proscrit la photographie décorative sans fonction technique : chaque
 image est donc légendée, et les illustrations de marge s'effacent sous 1280 px

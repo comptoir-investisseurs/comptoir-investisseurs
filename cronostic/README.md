@@ -273,7 +273,7 @@ vertical), `.encart` / `.encart-alerte` / `.encart-methode`, `.pastille` et
 `public/photos/` est lu au rendu : déposer un fichier suffit à le faire
 apparaître, en retirer un suffit à le faire disparaître, et le site retombe
 proprement sur une mise en page sans image. `hero.*` ouvre la page d'accueil en
-fuite à droite ; `mouvement-*.*` illustre les pages éditoriales en marge,
+fuite à droite ; `marge-*.*` illustre les pages éditoriales en marge,
 rogné par le bord. Le nom du fichier porte la légende. Voir
 `public/photos/README.md`.
 
