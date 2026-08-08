@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Caladea, Carlito } from "next/font/google";
+import localFont from "next/font/local";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -8,39 +9,38 @@ import { hasClerk, siteUrl } from "@/lib/env";
 import "./globals.css";
 
 /**
- * Typographie.
- *
- * Fraunces pour les titres : serif à contraste bas, formes chaudes et
- * légèrement irrégulières, qui tient sur fond sombre là où un didone se
- * casse. IBM Plex pour le texte et les références : dessiné pour la
- * documentation technique, avec le monospace assorti pour les numéros de
- * nomenclature. Le logotype, lui, est un tracé vectoriel (public/logo.svg).
+ * Typographie imposée par la charte : Caladea au titrage, Carlito au texte,
+ * DejaVu Sans Mono pour les références et les valeurs. Les deux premières
+ * sont métriquement compatibles avec Cambria et Calibri, ce qui garantit une
+ * mise en page stable quand un document circule en bureautique.
  */
-const display = Fraunces({
+const titre = Caladea({
   subsets: ["latin"],
-  axes: ["SOFT", "WONK", "opsz"],
+  weight: ["400", "700"],
   display: "swap",
-  variable: "--fraunces",
+  variable: "--caladea",
 });
 
-const sans = IBM_Plex_Sans({
+const texte = Carlito({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "700"],
   display: "swap",
-  variable: "--plex-sans",
+  variable: "--carlito",
 });
 
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const technique = localFont({
+  src: [
+    { path: "../fonts/DejaVuSansMono.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/DejaVuSansMono-Bold.woff2", weight: "700", style: "normal" },
+  ],
   display: "swap",
-  variable: "--plex-mono",
+  variable: "--dejavu-mono",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: "Cronostic — La documentation technique de l'horloger",
+    default: "Cronostic — Documentation technique horlogère",
     template: "%s · Cronostic",
   },
   description:
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_FR",
     siteName: "Cronostic",
-    title: "Cronostic — La documentation technique de l'horloger",
+    title: "Cronostic — Documentation technique horlogère",
     description: "Guides d'atelier et pièces détachées pour mouvements horlogers vintage.",
   },
   robots: { index: true, follow: true },
@@ -57,12 +57,9 @@ export const metadata: Metadata = {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="fr"
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
-    >
+    <html lang="fr" className={`${titre.variable} ${texte.variable} ${technique.variable}`}>
       <body className="min-h-screen antialiased">
-        <div className="relative z-10 flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col">
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />

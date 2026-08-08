@@ -49,7 +49,7 @@ export function CaliberSearch({
         Quel calibre recherchez-vous ?
       </label>
       <div
-        className={`flex items-center gap-3 border border-parchemin/20 bg-encre/70 transition-colors focus-within:border-laiton/60 ${
+        className={`flex items-center gap-3 border border-gris-trait bg-papier transition-colors focus-within:border-laiton ${
           isLarge ? "px-5 py-4" : "px-4 py-2.5"
         }`}
       >
@@ -94,8 +94,8 @@ export function CaliberSearch({
           }}
           placeholder="30T2, 265, 266, 267..."
           aria-label="Quel calibre recherchez-vous ?"
-          className={`w-full bg-transparent text-ivoire outline-none ${
-            isLarge ? "text-lg" : "text-sm"
+          className={`w-full bg-transparent text-encre outline-none ${
+            isLarge ? "text-etape" : "text-legende"
           }`}
         />
         {query && (
@@ -105,7 +105,7 @@ export function CaliberSearch({
               setQuery("");
               setOpen(false);
             }}
-            className="text-xs tracking-wider text-acier uppercase hover:text-ivoire"
+            className="text-legende tracking-wider text-encre/55 uppercase hover:text-encre"
           >
             Effacer
           </button>
@@ -113,9 +113,9 @@ export function CaliberSearch({
       </div>
 
       {open && query.trim() !== "" && (
-        <ul className="absolute inset-x-0 top-full z-40 mt-2 max-h-80 overflow-auto border border-parchemin/18 bg-encre shadow-2xl shadow-black/60">
+        <ul className="absolute inset-x-0 top-full z-40 mt-2 max-h-80 overflow-auto border border-gris-trait bg-white">
           {results.length === 0 && (
-            <li className="px-5 py-4 text-sm text-acier">
+            <li className="px-5 py-4 text-legende text-encre/55">
               Aucun calibre ne correspond à « {query} » dans le catalogue actuel.
             </li>
           )}
@@ -128,13 +128,13 @@ export function CaliberSearch({
                   if (blurTimer.current) clearTimeout(blurTimer.current);
                 }}
                 className={`flex items-baseline gap-4 px-5 py-3 transition-colors ${
-                  i === highlight ? "bg-laiton/10" : ""
+                  i === highlight ? "bg-papier" : ""
                 }`}
               >
-                <span className="font-display text-lg text-ivoire">{c.reference}</span>
-                <span className="truncate text-sm text-parchemin/65">{c.name}</span>
+                <span className="font-titre text-etape text-encre">{c.reference}</span>
+                <span className="truncate text-legende text-encre/72">{c.name}</span>
                 {c.introducedYear && (
-                  <span className="ml-auto text-xs text-acier">{c.introducedYear}</span>
+                  <span className="ml-auto text-legende text-encre/55">{c.introducedYear}</span>
                 )}
               </Link>
             </li>

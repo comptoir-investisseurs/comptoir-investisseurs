@@ -43,15 +43,15 @@ export default async function ProPage({
   return (
     <div className="mx-auto max-w-5xl px-5 py-16">
       <p className="surtitre-marque">Cronostic Pro</p>
-      <h1 className="titre mt-4 text-4xl text-ivoire sm:text-6xl">
+      <h1 className="titre mt-4 text-couverture text-encre sm:text-couverture">
         Tous les guides. Un seul abonnement.
       </h1>
 
       {(sp.abonnement === "succes" || sp.simule === "1") && (
-        <p className="mt-8 border-l-2 border-laiton bg-graphite/50 px-5 py-4 text-parchemin/80">
+        <p className="mt-8 border-l-2 border-laiton bg-papier px-5 py-4 text-encre/72">
           Votre abonnement Cronostic Pro est actif.
           {sp.simule === "1" && (
-            <span className="mt-1 block text-xs text-acier">
+            <span className="mt-1 block text-legende text-encre/55">
               Abonnement simulé : Stripe n&apos;est pas encore configuré sur cette instance.
             </span>
           )}{" "}
@@ -63,41 +63,41 @@ export default async function ProPage({
 
       <div className="mt-14 grid gap-8 lg:grid-cols-2">
         {/* FREE */}
-        <section className="carte flex flex-col p-8">
+        <section className="cadre flex flex-col p-8">
           <p className="surtitre-marque">Cronostic Free</p>
-          <p className="font-display mt-4 text-3xl text-ivoire">Gratuit</p>
-          <p className="mt-2 text-sm text-acier">Sans compte, sans limite de consultation.</p>
-          <ul className="mt-8 space-y-3 text-sm text-parchemin/75">
+          <p className="font-titre mt-4 text-section text-encre">Gratuit</p>
+          <p className="mt-2 text-legende text-encre/55">Sans compte, sans limite de consultation.</p>
+          <ul className="mt-8 space-y-3 text-legende text-encre/72">
             {FREE.map((item) => (
               <li key={item} className="flex items-baseline gap-3">
-                <span className="text-acier">✓</span>
+                <span className="text-encre/55">✓</span>
                 {item}
               </li>
             ))}
           </ul>
           <Link
             href="/calibres"
-            className="mt-auto pt-8 text-[0.78rem] tracking-[0.16em] text-parchemin/70 uppercase underline underline-offset-4"
+            className="mt-auto pt-8 text-surtitre tracking-[0.16em] text-encre/72 uppercase underline underline-offset-4"
           >
             Parcourir l&apos;encyclopédie
           </Link>
         </section>
 
         {/* PRO */}
-        <section className="carte relative flex flex-col overflow-hidden p-8">
-          <div className="pointer-events-none absolute inset-3 border border-laiton/18" />
+        <section className="cadre relative flex flex-col overflow-hidden p-8">
+          <div className="pointer-events-none absolute inset-3 border border-laiton" />
           <p className="surtitre-marque relative">Cronostic Pro</p>
-          <p className="font-display relative mt-4 text-3xl text-laiton-clair">
+          <p className="font-titre relative mt-4 text-section text-laiton">
             {formatPrice(subscription?.priceCents ?? proPriceCents())}
-            <span className="ml-1 text-sm text-acier">/ mois</span>
+            <span className="ml-1 text-legende text-encre/55">/ mois</span>
           </p>
-          <p className="relative mt-2 text-sm text-acier">
+          <p className="relative mt-2 text-legende text-encre/55">
             {inclus > 0
               ? `${inclus} guide${inclus > 1 ? "s" : ""} inclus à ce jour`
               : "Les guides sont ajoutés à l'abonnement au fil des publications."}
           </p>
 
-          <ul className="relative mt-8 space-y-3 text-sm text-parchemin/85">
+          <ul className="relative mt-8 space-y-3 text-legende text-encre/72">
             {PRO.map((item) => (
               <li key={item} className="flex items-baseline gap-3">
                 <span className="text-laiton">✓</span>
@@ -110,16 +110,16 @@ export default async function ProPage({
             {!user ? (
               <Link
                 href={signInPath("/pro")}
-                className="block bg-laiton px-6 py-3 text-center text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
+                className="bouton w-full"
               >
                 S&apos;abonner
               </Link>
             ) : active ? (
               <div className="space-y-4">
-                <p className="text-sm text-laiton-clair">
+                <p className="text-legende text-laiton">
                   Abonnement actif
                   {subscription?.currentPeriodEnd && (
-                    <span className="text-acier">
+                    <span className="text-encre/55">
                       {" "}
                       · {subscription.cancelAtPeriodEnd ? "prend fin le" : "renouvelé le"}{" "}
                       {formatDate(subscription.currentPeriodEnd)}
@@ -129,7 +129,7 @@ export default async function ProPage({
                 <form action={openBillingPortal}>
                   <button
                     type="submit"
-                    className="w-full border border-laiton/50 px-6 py-3 text-[0.8rem] tracking-[0.16em] text-laiton-clair uppercase transition-colors hover:bg-laiton/10"
+                    className="bouton-secondaire w-full"
                   >
                     Gérer mon abonnement
                   </button>
@@ -139,7 +139,7 @@ export default async function ProPage({
               <form action={startProCheckout}>
                 <button
                   type="submit"
-                  className="w-full bg-laiton px-6 py-3 text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
+                  className="bouton w-full"
                 >
                   S&apos;abonner
                 </button>
@@ -149,7 +149,7 @@ export default async function ProPage({
         </section>
       </div>
 
-      <p className="mt-10 max-w-2xl text-sm leading-relaxed text-acier">
+      <p className="mt-10 max-w-2xl text-legende leading-relaxed text-encre/55">
         Les guides achetés à l&apos;unité restent accessibles définitivement, même après
         résiliation de l&apos;abonnement.
       </p>

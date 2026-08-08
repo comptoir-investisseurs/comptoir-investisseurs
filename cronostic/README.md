@@ -218,28 +218,62 @@ projet hôte.
 
 ## Identité
 
+Le site applique la **charte graphique Cronostic v1.0**. Trois principes la
+gouvernent : la lisibilité prime sur l'effet, l'ornement est fonctionnel, la
+sobriété matérielle. Concrètement — pas de dégradé, pas d'ombre portée, pas de
+reflet, un seul niveau d'encadrement, et le laiton signale sans jamais remplir.
+
 Le nom s'écrit **toujours « Cronostic »** — capitale initiale, jamais en
-capitales d'imprimerie. Aucun libellé ne doit lui appliquer `uppercase` : les
-intertitres qui portent la marque utilisent `.surtitre-marque`, les autres
-`.surtitre`.
+capitales d'imprimerie. Les intertitres qui portent la marque utilisent
+`.surtitre-marque`, les autres `.surtitre`.
 
-Le logotype vit dans `public/logo.svg`, vectorisé depuis l'original par
-`brand/vectorise-logo.py`. Il est posé en `mask-image` rempli par
-`currentColor` : un seul fichier sert tous les contextes — ivoire en en-tête,
-laiton sur les couvertures de guides, noir sur fond clair. Voir
-`public/README.md` pour le remplacer.
+### Couleurs
 
-**Typographie** (chargée par `next/font`, auto-hébergée, aucun appel externe
-au runtime) :
-
-| Rôle | Police | Pourquoi |
+| Rôle | Valeur | Emploi |
 | --- | --- | --- |
-| Titres | Fraunces | Serif à contraste bas, formes chaudes, tient sur fond sombre |
-| Texte, interface | IBM Plex Sans | Dessinée pour la documentation technique |
-| Références, numéros | IBM Plex Mono | Nomenclature lisible, assortie au texte |
+| Encre | `#232019` | Texte, titres, traits. Remplace le noir pur |
+| Laiton | `#A8762C` | Identité : filets, en-têtes de tableau, pastilles, surtitres |
+| Laiton clair | `#C9A35F` | Surbrillance de pièce — illustration uniquement |
+| Papier | `#FBF9F4` | Fond d'encart et de planche, jamais de page pleine |
+| Gris trait / fond / clair | `#CFC9BD` `#E8E4DB` `#F4F1EA` | Filets, aplats en retrait, lignes alternées |
+| Alerte / Méthode / Technique | `#94301F` `#4A6B3A` `#2F5D8A` | Codes fonctionnels, un sens chacun |
 
-**Palette** : noir de platine `#0a0a0b`, greige `#cbc7bb` (repris du
-logotype), ivoire `#f2efe6`, laiton `#c39b48`.
+### Typographie
+
+| Rôle | Famille | Substitution métrique |
+| --- | --- | --- |
+| Titrage | Caladea | Cambria |
+| Texte | Carlito | Calibri |
+| Technique | DejaVu Sans Mono | Consolas |
+
+Caladea et Carlito sont chargées par `next/font` et auto-hébergées ; DejaVu
+Sans Mono est embarquée dans `src/fonts/`. Aucun appel externe au runtime.
+
+Six tailles seulement, exposées en tokens : `surtitre`, `legende`, `courant`,
+`etape`, `section`, `couverture`. Le silence typographique fait partie de
+l'identité — pas de septième taille.
+
+### Composants normalisés
+
+`.tableau` (en-tête laiton plein, lignes alternées sur papier, aucun filet
+vertical), `.encart` / `.encart-alerte` / `.encart-methode`, `.pastille` et
+`.pastille-cerclee`, `.filet` (2 px laiton), `.cadre` et `.cadre-papier`.
+
+### Statut des données
+
+La charte rédactionnelle impose de signaler toute valeur non relevée sur une
+source constructeur. Les caractéristiques dont `is_verified` est faux portent
+donc le repère **◆** et la fiche affiche un encart d'alerte les récapitulant.
+
+### Logotype
+
+`public/logo.svg`, vectorisé depuis l'original par `brand/vectorise-logo.py`.
+Deux versions autorisées et pas une de plus : encre sur fond clair, blanc en
+réserve sur fond sombre. Zone de protection égale à la hauteur du « C » de
+chaque côté, 32 px de haut minimum à l'écran — c'est pourquoi les vignettes de
+couverture composent le nom en Carlito plutôt que d'afficher le tracé sous sa
+taille plancher. L'icône de favori est un fragment du lettrage lui-même, jamais
+un dessin de substitution.
 
 ---
 

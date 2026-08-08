@@ -1,12 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import { Wordmark } from "./logo";
-
 /**
  * Représentation de la couverture d'un guide.
  *
- * Tant qu'aucune image de couverture n'a été téléversée depuis le back-office,
- * la couverture est composée : mêmes codes que les manuels Cronostic imprimés
- * (filet de laiton, tranche à gauche, référence du calibre en display).
+ * Composée selon la charte : fond papier, filet de laiton, référence du
+ * calibre en Caladea. Aucun dégradé, aucune
+ * ombre portée — la charte les proscrit. La tranche est marquée par un filet
+ * plein, qui code l'objet « manuel » plutôt qu'il ne l'imite.
  */
 export function GuideCover({
   caliberReference,
@@ -25,7 +24,9 @@ export function GuideCover({
 }) {
   if (coverImageUrl) {
     return (
-      <div className={`tranche relative aspect-[3/4] overflow-hidden bg-encre ${className}`}>
+      <div
+        className={`relative aspect-[3/4] overflow-hidden border border-gris-trait border-l-[3px] border-l-laiton bg-papier ${className}`}
+      >
         <img
           src={coverImageUrl}
           alt={`Couverture du guide Cronostic ${brand} ${caliberReference}`}
@@ -37,29 +38,26 @@ export function GuideCover({
 
   return (
     <div
-      className={`tranche relative flex aspect-[3/4] flex-col justify-between overflow-hidden border border-parchemin/15 bg-[linear-gradient(155deg,#1c1c20_0%,#101012_55%,#0b0b0c_100%)] p-5 ${className}`}
+      className={`flex aspect-[3/4] flex-col justify-between border border-gris-trait border-l-[3px] border-l-laiton bg-papier p-4 ${className}`}
       aria-hidden="true"
     >
-      <div className="pointer-events-none absolute inset-3 border border-laiton/22" />
+      {/* Le logotype n'apparaît pas ici : en vignette il passerait sous les
+          32 px imposés et sa zone de protection ne tiendrait pas. Le nom est
+          donc simplement composé — ce n'est pas une recomposition du tracé. */}
+      <p className="text-legende font-bold tracking-[0.04em] text-encre">Cronostic</p>
 
-      <div className="relative text-laiton">
-        <Wordmark className="text-[0.95rem]" />
-        <div className="mt-2 h-px w-8 bg-laiton/60" />
+      <div>
+        <p className="surtitre">{brand}</p>
+        <p className="titre mt-1 text-couverture">{caliberReference}</p>
+        <div className="filet mt-3" />
+        <p className="mt-3 max-w-[16ch] text-legende not-italic leading-snug text-encre/70">
+          {subtitle}
+        </p>
       </div>
 
-      <div className="relative">
-        <p className="text-[0.6rem] tracking-[0.3em] text-parchemin/60 uppercase">{brand}</p>
-        <p className="font-display mt-1 text-3xl leading-none text-ivoire">{caliberReference}</p>
-        <p className="mt-3 max-w-[14ch] text-[0.7rem] leading-snug text-parchemin/70">{subtitle}</p>
-      </div>
-
-      <div className="relative flex items-end justify-between">
-        <span className="text-[0.55rem] tracking-[0.24em] text-acier uppercase">Atelier</span>
-        {pageCount ? (
-          <span className="text-[0.55rem] tracking-[0.2em] text-acier uppercase">
-            {pageCount} p.
-          </span>
-        ) : null}
+      <div className="flex items-end justify-between text-surtitre tracking-[0.14em] text-encre/50 uppercase">
+        <span>Atelier</span>
+        {pageCount ? <span>{pageCount} p.</span> : null}
       </div>
     </div>
   );

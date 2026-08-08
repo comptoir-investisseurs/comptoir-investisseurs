@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
-@theme {
-  /* Palette d'atelier : noir de platine, greige du logotype, laiton. */
-  --color-noir: #0a0a0b;
-  --color-encre: #121213;
-  --color-graphite: #1b1b1c;
-  --color-ardoise: #262625;
-  --color-acier: #8d8b83;
-  --color-parchemin: #cbc7bb; /* greige du logotype Cronostic */
-  --color-ivoire: #f2efe6;
-  --color-laiton: #c39b48;
-  --color-laiton-clair: #e3c67f;
-  --color-rubis: #9a4340;
+/* ────────────────────────────────────────────────────────────────────────
+   Charte graphique Cronostic — version 1.0
+   Les valeurs ci-dessous sont celles du document de référence. Toute
+   couleur hors de cette palette est une erreur, et le laiton signale : il
+   ne remplit pas.
+   ──────────────────────────────────────────────────────────────────────── */
 
-  /* Polices chargées dans app/layout.tsx via next/font. */
-  --font-display: var(--fraunces), "Iowan Old Style", Georgia, serif;
-  --font-sans: var(--plex-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+@theme {
+  /* Palette principale */
+  --color-encre: #232019; /* texte, titres, traits de schéma */
+  --color-laiton: #a8762c; /* couleur d'identité : filets, surtitres, pastilles */
+  --color-laiton-clair: #c9a35f; /* surbrillance de pièce — illustration uniquement */
+  --color-papier: #fbf9f4; /* fond d'encart et de planche, jamais de page pleine */
+
+  /* Neutres */
+  --color-gris-trait: #cfc9bd; /* filets secondaires, contours en retrait */
+  --color-gris-fond: #e8e4db; /* aplats de pièces non concernées */
+  --color-gris-clair: #f4f1ea; /* fond de platine, ligne de tableau alternée */
+
+  /* Codes fonctionnels — un sens unique, jamais décoratifs */
+  --color-alerte: #94301f; /* point critique, risque de casse */
+  --color-methode: #4a6b3a; /* conseil d'atelier, point de contrôle */
+  --color-technique: #2f5d8a; /* rubis, pierres, lubrification */
+
+  /* Familles — chargées dans app/layout.tsx */
+  --font-titre: var(--caladea), Cambria, Georgia, serif;
+  --font-texte: var(--carlito), Calibri, Carlito, sans-serif;
+  --font-technique: var(--dejavu-mono), Consolas, ui-monospace, monospace;
+
+  /* Échelle typographique, transposée du document (10,4 pt = corps de
+     référence). Six tailles, pas davantage : le silence typographique fait
+     partie de l'identité. */
+  --text-surtitre: 0.6875rem;
+  --text-legende: 0.8125rem;
+  --text-courant: 1rem;
+  --text-etape: 1.1875rem;
+  --text-section: 1.5rem;
+  --text-couverture: 2.25rem;
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -28,129 +49,270 @@ html {
 }
 
 body {
-  background-color: var(--color-noir);
-  color: var(--color-ivoire);
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
+  /* Le papier est réservé aux encarts : la page pleine reste blanche. */
+  background-color: #ffffff;
+  color: var(--color-encre);
+  font-family: var(--font-texte);
+  font-size: var(--text-courant);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
 }
 
-/* Grain très léger : évite l'aplat numérique sur les grandes surfaces noires. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.035;
-  background-image: radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0);
-  background-size: 3px 3px;
-}
+/* Aucun dégradé, aucune ombre portée, aucun reflet : la charte les proscrit. */
 
 @layer components {
-  /* Intertitre technique. N'est JAMAIS utilisé sur un libellé contenant
-     « Cronostic » : la marque ne se met pas en capitales. */
+  /* Surtitre — 8 pt interlettré, laiton. Signale une section. */
   .surtitre {
-    font-family: var(--font-sans);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
+    font-family: var(--font-texte);
+    font-size: var(--text-surtitre);
+    font-weight: 700;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--color-laiton);
   }
 
-  /* Variante pour les libellés qui portent la marque. Même poids visuel,
-     sans transformation de casse. */
+  /* Variante pour les libellés portant la marque : « Cronostic » ne se met
+     jamais en capitales. */
   .surtitre-marque {
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+    font-family: var(--font-texte);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     color: var(--color-laiton);
   }
 
   .titre {
-    font-family: var(--font-display);
+    font-family: var(--font-titre);
     font-weight: 400;
-    font-variation-settings:
-      "SOFT" 28,
-      "WONK" 0;
-    letter-spacing: -0.015em;
-    line-height: 1.04;
+    line-height: 1.15;
+    text-wrap: balance;
   }
 
+  /* Filet de titre de section : 2 px, laiton. */
   .filet {
+    height: 2px;
+    width: 3.5rem;
+    background: var(--color-laiton);
+  }
+
+  .filet-fin {
     height: 1px;
-    background: linear-gradient(
-      to right,
-      color-mix(in srgb, var(--color-laiton) 55%, transparent),
-      transparent
-    );
+    background: var(--color-gris-trait);
   }
 
-  .carte {
-    border: 1px solid color-mix(in srgb, var(--color-parchemin) 14%, transparent);
-    background: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--color-graphite) 92%, transparent),
-      var(--color-encre)
-    );
+  /* Un seul niveau d'encadrement dans toute l'identité. */
+  .cadre {
+    border: 1px solid var(--color-gris-trait);
+    background: #ffffff;
   }
 
-  .carte-interactive {
-    transition:
-      border-color 180ms ease,
-      transform 180ms ease,
-      background-color 180ms ease;
+  .cadre-papier {
+    border: 1px solid var(--color-gris-trait);
+    background: var(--color-papier);
   }
 
-  .carte-interactive:hover {
-    border-color: color-mix(in srgb, var(--color-laiton) 45%, transparent);
-    transform: translateY(-2px);
+  .cadre-interactif {
+    transition: border-color 140ms ease, background-color 140ms ease;
+  }
+
+  .cadre-interactif:hover {
+    border-color: var(--color-laiton);
+    background: var(--color-papier);
+  }
+
+  /* Encarts normalisés : filet gauche coloré, fond légèrement teinté,
+     titre en capitales espacées. */
+  .encart {
+    border-left: 3px solid var(--color-gris-trait);
+    background: var(--color-papier);
+    padding: 0.875rem 1.125rem;
+  }
+
+  .encart-titre {
+    font-size: var(--text-surtitre);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .encart-alerte {
+    border-left-color: var(--color-alerte);
+    background: color-mix(in srgb, var(--color-alerte) 4%, var(--color-papier));
+  }
+
+  .encart-alerte .encart-titre {
+    color: var(--color-alerte);
+  }
+
+  .encart-methode {
+    border-left-color: var(--color-methode);
+    background: color-mix(in srgb, var(--color-methode) 4%, var(--color-papier));
+  }
+
+  .encart-methode .encart-titre {
+    color: var(--color-methode);
+  }
+
+  /* Pastille d'étape : 24 px, fond laiton, chiffre blanc. */
+  .pastille {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--color-laiton);
+    color: #ffffff;
+    font-family: var(--font-technique);
+    font-size: 0.6875rem;
+    line-height: 1;
+  }
+
+  /* Repère cerclé : même vocabulaire, en réserve sur fond papier. */
+  .pastille-cerclee {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-laiton);
+    background: var(--color-papier);
+    color: var(--color-laiton);
+    font-family: var(--font-technique);
+    font-size: 0.6875rem;
+    line-height: 1;
+  }
+
+  /* Tableau : en-tête laiton plein, texte blanc capitales espacées,
+     lignes alternées sur papier, aucun filet vertical. */
+  .tableau {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .tableau thead th {
+    background: var(--color-laiton);
+    color: #ffffff;
+    font-size: var(--text-surtitre);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.55rem 0.9rem;
+  }
+
+  .tableau tbody td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--color-gris-clair);
+    vertical-align: top;
+  }
+
+  .tableau tbody tr:nth-child(even) {
+    background: var(--color-papier);
+  }
+
+  .legende {
+    font-size: var(--text-legende);
+    font-style: italic;
+    color: color-mix(in srgb, var(--color-encre) 62%, transparent);
   }
 
   .lien-souligne {
-    background-image: linear-gradient(currentColor, currentColor);
-    background-size: 0% 1px;
-    background-repeat: no-repeat;
-    background-position: 0 100%;
-    transition: background-size 200ms ease;
+    text-decoration: underline;
+    text-decoration-color: var(--color-gris-trait);
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 140ms ease;
   }
 
   .lien-souligne:hover {
-    background-size: 100% 1px;
+    text-decoration-color: var(--color-laiton);
   }
 
+  /* Corps de texte : interlignage 1,5, largeur de colonne mesurée. */
   .prose-atelier p {
-    color: color-mix(in srgb, var(--color-ivoire) 76%, transparent);
-    line-height: 1.72;
+    max-width: 68ch;
+    line-height: 1.5;
   }
 
   .prose-atelier p + p {
-    margin-top: 1rem;
+    margin-top: 0.85rem;
+  }
+
+  /* Bouton d'action. Le laiton signale, il ne remplit pas : les surfaces
+     pleines restent petites. */
+  .bouton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.5rem;
+    background: var(--color-laiton);
+    color: #ffffff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: background-color 140ms ease;
+  }
+
+  .bouton:hover {
+    background: color-mix(in srgb, var(--color-encre) 18%, var(--color-laiton));
+  }
+
+  .bouton-secondaire {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.5rem;
+    border: 1px solid var(--color-laiton);
+    color: var(--color-laiton);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: background-color 140ms ease;
+  }
+
+  .bouton-secondaire:hover {
+    background: var(--color-papier);
   }
 }
 
-/* Tranche de livre : donne l'épaisseur d'un manuel aux couvertures de guides. */
-.tranche {
-  box-shadow:
-    inset 10px 0 14px -12px rgba(0, 0, 0, 0.9),
-    inset 3px 0 0 0 color-mix(in srgb, var(--color-laiton) 35%, transparent);
+/* Valeur indicative : repère ◆ de la charte rédactionnelle. */
+.indicatif::after {
+  content: " ◆";
+  color: var(--color-laiton);
+  font-size: 0.85em;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-laiton) 40%, transparent);
-  color: var(--color-ivoire);
+  background: color-mix(in srgb, var(--color-laiton) 25%, transparent);
 }
 
 input,
 textarea,
 select {
   font-family: inherit;
+  font-size: inherit;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: color-mix(in srgb, var(--color-acier) 85%, transparent);
+  color: color-mix(in srgb, var(--color-encre) 45%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-laiton);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

@@ -1,60 +1,56 @@
 /**
  * Logotype Cronostic.
  *
- * ⚠️ Le nom s'écrit toujours « Cronostic » — capitale initiale, jamais en
- * capitales d'imprimerie. Aucune classe `uppercase` ne doit s'appliquer dessus.
+ * Règles de la charte appliquées ici :
+ *   — le lettrage ne se recompose jamais : on affiche le tracé vectoriel
+ *     `public/logo.svg`, jamais une police approchante ;
+ *   — deux versions seulement : encre #232019 sur fond clair, blanc en
+ *     réserve sur fond sombre. Pas de logo laiton, pas de bichromie, pas de
+ *     contour, pas d'ombre ;
+ *   — redimensionnement proportionnel uniquement ;
+ *   — zone de protection égale à la hauteur du « C » initial de chaque côté ;
+ *   — 32 px de haut au minimum à l'écran.
  *
- * Le tracé vient de `public/logo.svg`, vectorisé depuis l'original
- * (`brand/logo-source.jpg`, voir `brand/vectorise-logo.py`). Il est posé en
- * `mask-image` et rempli par `currentColor` : un seul fichier suffit donc pour
- * tous les contextes — ivoire dans l'en-tête, laiton sur les couvertures de
- * guides, noir sur fond clair. Pour remplacer le logotype, il suffit de
- * redéposer `public/logo.svg` et d'ajuster `RATIO` s'il change de proportions.
+ * Le nom s'écrit toujours « Cronostic » — capitale initiale, jamais en
+ * capitales d'imprimerie.
  */
 const LOGO_FILE = "/logo.svg";
 const RATIO = 4.667; // largeur / hauteur du lettrage détouré
+const HAUTEUR_MINIMALE = 32; // px, minimum écran fixé par la charte
 
-export function Wordmark({ className = "" }: { className?: string }) {
+export function Wordmark({
+  hauteur = HAUTEUR_MINIMALE,
+  variante = "encre",
+  className = "",
+}: {
+  hauteur?: number;
+  variante?: "encre" | "reserve";
+  className?: string;
+}) {
+  const h = Math.max(hauteur, HAUTEUR_MINIMALE);
+
   return (
     <span
       role="img"
       aria-label="Cronostic"
-      className={`inline-block bg-current align-middle ${className}`}
+      className={`inline-block align-middle ${className}`}
       style={{
+        // Zone de protection : la hauteur du C réservée de chaque côté,
+        // dans laquelle aucun autre élément n'entre.
+        paddingInline: `${h}px`,
+        boxSizing: "content-box",
+        height: `${h}px`,
+        width: `${Math.round(h * RATIO)}px`,
+        backgroundColor: variante === "reserve" ? "#ffffff" : "#232019",
         maskImage: `url(${LOGO_FILE})`,
         WebkitMaskImage: `url(${LOGO_FILE})`,
         maskRepeat: "no-repeat",
         WebkitMaskRepeat: "no-repeat",
-        maskSize: "contain",
-        WebkitMaskSize: "contain",
-        maskPosition: "left center",
-        WebkitMaskPosition: "left center",
-        height: "1em",
-        width: `${RATIO}em`,
+        maskSize: `${Math.round(h * RATIO)}px ${h}px`,
+        WebkitMaskSize: `${Math.round(h * RATIO)}px ${h}px`,
+        maskPosition: "center",
+        WebkitMaskPosition: "center",
       }}
     />
-  );
-}
-
-/** Petit repère gravé, décliné du balancier annulaire. */
-export function Marque({ size = 22, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      aria-hidden="true"
-      className={className}
-    >
-      <circle cx="16" cy="16" r="14.25" stroke="currentColor" strokeWidth="1.1" opacity="0.55" />
-      <circle cx="16" cy="16" r="8.5" stroke="currentColor" strokeWidth="1.1" />
-      <circle cx="16" cy="16" r="1.6" fill="currentColor" />
-      <path d="M16 1.75V6M16 26v4.25M1.75 16H6M26 16h4.25" stroke="currentColor" strokeWidth="1.1" />
-      <circle cx="16" cy="7.5" r="1.15" fill="currentColor" opacity="0.8" />
-      <circle cx="16" cy="24.5" r="1.15" fill="currentColor" opacity="0.8" />
-      <circle cx="7.5" cy="16" r="1.15" fill="currentColor" opacity="0.8" />
-      <circle cx="24.5" cy="16" r="1.15" fill="currentColor" opacity="0.8" />
-    </svg>
   );
 }

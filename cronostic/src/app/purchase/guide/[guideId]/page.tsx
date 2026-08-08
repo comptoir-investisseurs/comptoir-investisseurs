@@ -38,11 +38,11 @@ export default async function PurchaseGuidePage({
   return (
     <div className="mx-auto max-w-3xl px-5 py-20">
       <p className="surtitre">Récapitulatif</p>
-      <h1 className="titre mt-4 text-3xl text-ivoire sm:text-4xl">
+      <h1 className="titre mt-4 text-section text-encre sm:text-couverture">
         Guide Cronostic — Omega {guide.caliberReference}
       </h1>
 
-      <div className="carte mt-10 flex flex-wrap items-start gap-8 p-8">
+      <div className="cadre mt-10 flex flex-wrap items-start gap-8 p-8">
         <GuideCover
           caliberReference={guide.caliberReference}
           coverImageUrl={guide.coverImageUrl}
@@ -51,8 +51,8 @@ export default async function PurchaseGuidePage({
         />
 
         <div className="min-w-[14rem] flex-1">
-          <p className="text-parchemin/70">{guide.shortDescription ?? guide.title}</p>
-          <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm text-parchemin/80">
+          <p className="text-encre/72">{guide.shortDescription ?? guide.title}</p>
+          <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-1.5 text-legende text-encre/72">
             {GUIDE_HIGHLIGHTS.map((h) => (
               <li key={h} className="flex gap-2">
                 <span className="text-laiton">✓</span>
@@ -64,14 +64,14 @@ export default async function PurchaseGuidePage({
           <div className="filet my-7" />
 
           <div className="flex flex-wrap items-center gap-6">
-            <span className="font-display text-3xl text-ivoire">
+            <span className="font-titre text-section text-encre">
               {formatPrice(guide.priceCents, guide.currency)}
             </span>
             <form action={startGuideCheckout}>
               <input type="hidden" name="guideId" value={guide.id} />
               <button
                 type="submit"
-                className="bg-laiton px-8 py-3 text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
+                className="bouton"
               >
                 Payer
               </button>
@@ -79,9 +79,9 @@ export default async function PurchaseGuidePage({
           </div>
 
           {guide.includedInSubscription && (
-            <p className="mt-5 text-sm text-acier">
+            <p className="mt-5 text-legende text-encre/55">
               Ce guide est également inclus dans{" "}
-              <Link href="/pro" className="text-laiton-clair underline underline-offset-4">
+              <Link href="/pro" className="text-laiton underline underline-offset-4">
                 Cronostic Pro
               </Link>
               .
@@ -92,7 +92,7 @@ export default async function PurchaseGuidePage({
 
       <Link
         href={`/calibres/${guide.caliberSlug}#guide`}
-        className="lien-souligne mt-10 inline-block text-sm text-parchemin/60"
+        className="lien-souligne mt-10 inline-block text-legende text-encre/72"
       >
         Retour à la fiche du calibre
       </Link>

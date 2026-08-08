@@ -30,7 +30,7 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
   return (
     <div className="mx-auto max-w-6xl px-5 py-16">
       <p className="surtitre">Pièces détachées</p>
-      <h1 className="titre mt-4 max-w-2xl text-4xl text-ivoire sm:text-5xl">
+      <h1 className="titre mt-4 max-w-2xl text-couverture text-encre sm:text-couverture">
         Trouvez la bonne référence. Puis trouvez la pièce.
       </h1>
 
@@ -40,12 +40,12 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
           name="q"
           defaultValue={sp.q ?? ""}
           placeholder="Omega 265 balance staff, ressort de barillet 30T2..."
-          className="flex-1 border border-parchemin/20 bg-encre/70 px-4 py-3 text-ivoire outline-none focus:border-laiton/60"
+          className="flex-1 border border-gris-trait bg-papier px-4 py-3 text-encre outline-none focus:border-laiton"
           aria-label="Recherche libre d'une pièce"
         />
         <button
           type="submit"
-          className="border border-laiton/50 px-6 text-[0.78rem] tracking-[0.16em] text-laiton-clair uppercase transition-colors hover:bg-laiton/10"
+          className="border border-laiton px-6 text-surtitre tracking-[0.16em] text-laiton uppercase transition-colors hover:bg-papier"
         >
           Chercher
         </button>
@@ -61,10 +61,10 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
                 <li key={c.slug}>
                   <Link
                     href={`/pieces?calibre=${c.slug}`}
-                    className={`block border px-3 py-1.5 text-sm transition-colors ${
+                    className={`block border px-3 py-1.5 text-legende transition-colors ${
                       c.slug === selectedSlug
-                        ? "border-laiton/60 bg-laiton/10 text-laiton-clair"
-                        : "border-parchemin/18 text-parchemin/70 hover:border-laiton/40"
+                        ? "border-laiton bg-papier text-laiton"
+                        : "border-gris-trait text-encre/72 hover:border-laiton"
                     }`}
                   >
                     {c.reference}
@@ -77,16 +77,16 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
           {caliber && (
             <div>
               <h2 className="surtitre">Fourniture</h2>
-              <ul className="carte mt-4 max-h-[26rem] divide-y divide-parchemin/8 overflow-auto">
+              <ul className="cadre mt-4 max-h-[26rem] divide-y divide-gris-clair overflow-auto">
                 {caliber.parts.map((p) => (
                   <li key={p.id}>
                     <Link
                       href={`/pieces?calibre=${caliber.slug}&piece=${encodeURIComponent(p.reference)}`}
-                      className={`flex items-baseline gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-graphite/60 ${
-                        p.reference === sp.piece ? "bg-laiton/10 text-laiton-clair" : "text-parchemin/75"
+                      className={`flex items-baseline gap-3 px-4 py-2.5 text-legende transition-colors hover:bg-papier ${
+                        p.reference === sp.piece ? "bg-papier text-laiton" : "text-encre/72"
                       }`}
                     >
-                      <span className="font-mono text-[0.68rem] text-laiton">
+                      <span className="font-technique text-surtitre text-laiton">
                         {p.positionNumber}
                       </span>
                       {p.name}
@@ -96,7 +96,7 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
               </ul>
               <Link
                 href={`/calibres/${caliber.slug}#pieces`}
-                className="lien-souligne mt-4 inline-block text-sm text-parchemin/70"
+                className="lien-souligne mt-4 inline-block text-legende text-encre/72"
               >
                 Voir la fiche du calibre {caliber.reference}
               </Link>
@@ -108,21 +108,21 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
         <section>
           <div className="flex flex-wrap items-baseline justify-between gap-4">
             <h2 className="surtitre">Offres</h2>
-            <p className="text-xs text-acier">
-              Requête&nbsp;: <span className="text-parchemin/70">{result.query}</span>
+            <p className="text-legende text-encre/55">
+              Requête&nbsp;: <span className="text-encre/72">{result.query}</span>
             </p>
           </div>
 
           {result.mode === "live" ? (
             result.listings.length === 0 ? (
-              <p className="carte mt-6 p-8 text-parchemin/70">
+              <p className="cadre mt-6 p-8 text-encre/72">
                 Aucune offre ne correspond actuellement à cette recherche. Les liens marchands
                 ci-dessous restent utilisables.
               </p>
             ) : (
               <ul className="mt-6 grid gap-5 sm:grid-cols-2">
                 {result.listings.map((item) => (
-                  <li key={item.id} className="carte carte-interactive overflow-hidden">
+                  <li key={item.id} className="cadre cadre-interactif overflow-hidden">
                     <a href={item.url} target="_blank" rel="noopener noreferrer nofollow" className="flex gap-4 p-4">
                       {item.imageUrl ? (
                         <img
@@ -132,16 +132,16 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
                           loading="lazy"
                         />
                       ) : (
-                        <div className="h-24 w-24 shrink-0 bg-graphite" />
+                        <div className="h-24 w-24 shrink-0 bg-papier" />
                       )}
                       <div className="min-w-0">
-                        <p className="line-clamp-2 text-sm text-ivoire">{item.title}</p>
-                        <p className="font-display mt-2 text-lg text-laiton-clair">
+                        <p className="line-clamp-2 text-legende text-encre">{item.title}</p>
+                        <p className="font-titre mt-2 text-etape text-laiton">
                           {item.priceCents != null
                             ? formatPrice(item.priceCents, item.currency ?? "EUR")
                             : "Prix sur demande"}
                         </p>
-                        <p className="mt-1 text-xs text-acier">
+                        <p className="mt-1 text-legende text-encre/55">
                           {[item.condition, item.sellerName, item.location]
                             .filter(Boolean)
                             .join(" · ")}
@@ -153,24 +153,24 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
               </ul>
             )
           ) : (
-            <p className="carte mt-6 border-l-2 border-laiton/50 p-6 text-sm leading-relaxed text-parchemin/70">
+            <p className="cadre mt-6 border-l-2 border-laiton p-6 text-legende leading-relaxed text-encre/72">
               {result.reason}
             </p>
           )}
 
           <h2 className="surtitre mt-12">Chercher chez les marchands</h2>
-          <ul className="carte mt-4 divide-y divide-parchemin/8">
+          <ul className="cadre mt-4 divide-y divide-gris-clair">
             {result.links.map((link) => (
               <li key={link.merchant}>
                 <a
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-4 transition-colors hover:bg-graphite/60"
+                  className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-4 transition-colors hover:bg-papier"
                 >
-                  <span className="text-ivoire">{link.merchant}</span>
-                  <span className="text-xs text-acier">{link.note}</span>
-                  <span className="ml-auto text-[0.72rem] tracking-[0.16em] text-laiton uppercase">
+                  <span className="text-encre">{link.merchant}</span>
+                  <span className="text-legende text-encre/55">{link.note}</span>
+                  <span className="ml-auto text-surtitre tracking-[0.16em] text-laiton uppercase">
                     Ouvrir ↗
                   </span>
                 </a>

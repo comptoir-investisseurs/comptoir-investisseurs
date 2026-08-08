@@ -32,29 +32,29 @@ export default async function MesGuidesPage() {
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <p className="surtitre">Mon compte</p>
-          <h1 className="titre mt-3 text-4xl text-ivoire">Mes guides</h1>
+          <h1 className="titre mt-3 text-couverture text-encre">Mes guides</h1>
         </div>
-        <Link href="/account" className="lien-souligne text-sm text-parchemin/70">
+        <Link href="/account" className="lien-souligne text-legende text-encre/72">
           Abonnement et facturation
         </Link>
       </div>
 
       {accessibles.length === 0 ? (
-        <div className="carte mt-12 p-10">
-          <p className="text-parchemin/70">
+        <div className="cadre mt-12 p-10">
+          <p className="text-encre/72">
             Vous n&apos;avez encore accès à aucun guide. Les guides achetés à l&apos;unité et ceux
             inclus dans Cronostic Pro apparaissent ici.
           </p>
           <div className="mt-6 flex flex-wrap gap-4">
             <Link
               href="/guides"
-              className="border border-laiton/50 px-6 py-3 text-[0.78rem] tracking-[0.16em] text-laiton-clair uppercase transition-colors hover:bg-laiton/10"
+              className="bouton-secondaire"
             >
               Voir les guides
             </Link>
             <Link
               href="/pro"
-              className="px-2 py-3 text-[0.78rem] tracking-[0.16em] text-parchemin/70 uppercase underline underline-offset-4"
+              className="px-2 py-3 text-surtitre tracking-[0.16em] text-encre/72 uppercase underline underline-offset-4"
             >
               Découvrir Cronostic Pro
             </Link>
@@ -63,7 +63,7 @@ export default async function MesGuidesPage() {
       ) : (
         <ul className="mt-12 space-y-5">
           {accessibles.map(({ guide, owned: isOwned, viaSubscription }) => (
-            <li key={guide.id} className="carte flex flex-wrap items-center gap-6 p-5">
+            <li key={guide.id} className="cadre flex flex-wrap items-center gap-6 p-5">
               <Link href={`/calibres/${guide.caliberSlug}#guide`} className="w-24 shrink-0">
                 <GuideCover
                   caliberReference={guide.caliberReference}
@@ -72,9 +72,9 @@ export default async function MesGuidesPage() {
               </Link>
 
               <div className="min-w-[12rem] flex-1">
-                <p className="font-display text-xl text-ivoire">Omega {guide.caliberReference}</p>
-                <p className="mt-1 text-sm text-parchemin/65">Guide complet Cronostic</p>
-                <p className="mt-2 text-[0.7rem] tracking-[0.14em] text-acier uppercase">
+                <p className="font-titre text-etape text-encre">Omega {guide.caliberReference}</p>
+                <p className="mt-1 text-legende text-encre/72">Guide complet Cronostic</p>
+                <p className="mt-2 text-[0.7rem] tracking-[0.14em] text-encre/55 uppercase">
                   {isOwned ? "Acheté — accès définitif" : "Inclus avec Cronostic Pro"}
                   {guide.pageCount ? ` · ${guide.pageCount} pages` : ""}
                 </p>
@@ -82,7 +82,7 @@ export default async function MesGuidesPage() {
 
               <a
                 href={`/api/guides/${guide.id}/download`}
-                className="border border-laiton/60 px-6 py-2.5 text-[0.78rem] tracking-[0.16em] text-laiton-clair uppercase transition-colors hover:bg-laiton/10"
+                className="bouton-secondaire"
               >
                 Télécharger
               </a>
@@ -92,13 +92,13 @@ export default async function MesGuidesPage() {
       )}
 
       {!pro && (
-        <div className="carte mt-14 flex flex-wrap items-center justify-between gap-6 p-7">
-          <p className="text-parchemin/70">
+        <div className="cadre mt-14 flex flex-wrap items-center justify-between gap-6 p-7">
+          <p className="text-encre/72">
             Cronostic Pro donne accès à l&apos;ensemble des guides inclus dans l&apos;abonnement.
           </p>
           <Link
             href="/pro"
-            className="text-[0.78rem] tracking-[0.16em] text-laiton-clair uppercase underline underline-offset-4"
+            className="text-surtitre tracking-[0.16em] text-laiton uppercase underline underline-offset-4"
           >
             En savoir plus
           </Link>

@@ -35,10 +35,10 @@ export default async function AccountPage({
   return (
     <div className="mx-auto max-w-4xl px-5 py-16">
       <p className="surtitre">Mon compte</p>
-      <h1 className="titre mt-3 text-4xl text-ivoire">{user.email}</h1>
+      <h1 className="titre mt-3 text-couverture text-encre">{user.email}</h1>
 
       {sp.portail === "simule" && (
-        <p className="mt-8 border-l-2 border-laiton bg-graphite/50 px-5 py-4 text-sm text-parchemin/75">
+        <p className="mt-8 border-l-2 border-laiton bg-papier px-5 py-4 text-legende text-encre/72">
           Portail de facturation simulé : Stripe n&apos;est pas configuré sur cette instance.
         </p>
       )}
@@ -46,13 +46,13 @@ export default async function AccountPage({
       {/* Abonnement */}
       <section className="mt-12">
         <h2 className="surtitre">Abonnement</h2>
-        <div className="carte mt-5 flex flex-wrap items-center justify-between gap-6 p-7">
+        <div className="cadre mt-5 flex flex-wrap items-center justify-between gap-6 p-7">
           <div>
-            <p className="text-lg text-ivoire">
+            <p className="text-etape text-encre">
               {active ? "Cronostic Pro — actif" : "Aucun abonnement actif"}
             </p>
             {subscription && (
-              <p className="mt-1 text-sm text-acier">
+              <p className="mt-1 text-legende text-encre/55">
                 {subscription.priceCents ? formatPrice(subscription.priceCents) + " / mois · " : ""}
                 {subscription.cancelAtPeriodEnd ? "prend fin le " : "période en cours jusqu'au "}
                 {formatDate(subscription.currentPeriodEnd)}
@@ -63,7 +63,7 @@ export default async function AccountPage({
             <form action={openBillingPortal}>
               <button
                 type="submit"
-                className="border border-laiton/50 px-6 py-2.5 text-[0.78rem] tracking-[0.16em] text-laiton-clair uppercase transition-colors hover:bg-laiton/10"
+                className="bouton-secondaire"
               >
                 Gérer
               </button>
@@ -71,7 +71,7 @@ export default async function AccountPage({
           ) : (
             <Link
               href="/pro"
-              className="bg-laiton px-6 py-2.5 text-[0.78rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
+              className="bouton"
             >
               S&apos;abonner
             </Link>
@@ -83,18 +83,18 @@ export default async function AccountPage({
       <section className="mt-12">
         <h2 className="surtitre">Achats</h2>
         {purchases.length === 0 ? (
-          <p className="carte mt-5 p-7 text-parchemin/65">Aucun achat pour le moment.</p>
+          <p className="cadre mt-5 p-7 text-encre/72">Aucun achat pour le moment.</p>
         ) : (
-          <ul className="carte mt-5 divide-y divide-parchemin/8">
+          <ul className="cadre mt-5 divide-y divide-gris-clair">
             {purchases.map((p) => {
               const guide = guides.find((g) => g.id === p.guideId);
               return (
                 <li key={p.id} className="flex flex-wrap items-baseline gap-4 px-5 py-4">
-                  <span className="text-ivoire">
+                  <span className="text-encre">
                     {guide ? `Omega ${guide.caliberReference}` : "Guide"}
                   </span>
-                  <span className="text-xs text-acier">{formatDate(p.purchasedAt)}</span>
-                  <span className="ml-auto text-sm text-parchemin/70">
+                  <span className="text-legende text-encre/55">{formatDate(p.purchasedAt)}</span>
+                  <span className="ml-auto text-legende text-encre/72">
                     {formatPrice(p.amountCents, p.currency)}
                   </span>
                 </li>
@@ -102,7 +102,7 @@ export default async function AccountPage({
             })}
           </ul>
         )}
-        <Link href="/account/guides" className="lien-souligne mt-5 inline-block text-sm text-laiton-clair">
+        <Link href="/account/guides" className="lien-souligne mt-5 inline-block text-legende text-laiton">
           Accéder à mes guides
         </Link>
       </section>
@@ -111,7 +111,7 @@ export default async function AccountPage({
         <form action={signOutLocally} className="mt-14">
           <button
             type="submit"
-            className="text-[0.78rem] tracking-[0.16em] text-acier uppercase underline underline-offset-4 hover:text-ivoire"
+            className="text-surtitre tracking-[0.16em] text-encre/55 uppercase underline underline-offset-4 hover:text-encre"
           >
             Se déconnecter
           </button>

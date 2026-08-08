@@ -38,22 +38,22 @@ export default async function AdminHome() {
 
   return (
     <>
-      <ul className="grid gap-px border border-parchemin/12 bg-parchemin/12 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-px border border-gris-trait bg-gris-trait sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((s) => (
           <li key={s.label}>
-            <Link href={s.href} className="block bg-noir p-6 transition-colors hover:bg-graphite">
-              <p className="text-[0.68rem] tracking-[0.16em] text-acier uppercase">{s.label}</p>
-              <p className="font-display mt-3 text-3xl text-ivoire">{s.value}</p>
+            <Link href={s.href} className="block bg-white p-6 transition-colors hover:bg-papier">
+              <p className="text-surtitre tracking-[0.16em] text-encre/55 uppercase">{s.label}</p>
+              <p className="font-titre mt-3 text-section text-encre">{s.value}</p>
             </Link>
           </li>
         ))}
       </ul>
 
       {sansPdf > 0 && (
-        <p className="mt-8 border-l-2 border-laiton bg-graphite/40 px-5 py-4 text-sm text-parchemin/75">
+        <p className="mt-8 border-l-2 border-laiton bg-papier px-5 py-4 text-legende text-encre/72">
           {sansPdf} guide{sansPdf > 1 ? "s" : ""} sans PDF associé. Un guide ne peut pas être
           publié tant que son fichier n&apos;a pas été téléversé.{" "}
-          <Link href="/admin/guides" className="text-laiton-clair underline underline-offset-4">
+          <Link href="/admin/guides" className="text-laiton underline underline-offset-4">
             Gérer les guides
           </Link>
         </p>
@@ -61,17 +61,17 @@ export default async function AdminHome() {
 
       <section className="mt-12">
         <h2 className="surtitre">Ventes par guide</h2>
-        <ul className="carte mt-4 divide-y divide-parchemin/8">
+        <ul className="cadre mt-4 divide-y divide-gris-clair">
           {guides.map((g) => (
             <li key={g.id} className="flex items-baseline gap-4 px-5 py-3">
-              <Link href={`/admin/guides/${g.id}`} className="text-ivoire hover:text-laiton-clair">
+              <Link href={`/admin/guides/${g.id}`} className="text-encre hover:text-laiton">
                 Omega {g.caliberReference}
               </Link>
-              <span className="text-xs text-acier">
+              <span className="text-legende text-encre/55">
                 {g.isActive ? "publié" : "brouillon"}
                 {g.includedInSubscription ? " · Pro" : ""}
               </span>
-              <span className="ml-auto text-sm text-parchemin/70">{sales[g.id] ?? 0} vente(s)</span>
+              <span className="ml-auto text-legende text-encre/72">{sales[g.id] ?? 0} vente(s)</span>
             </li>
           ))}
         </ul>

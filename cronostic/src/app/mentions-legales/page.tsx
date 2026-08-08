@@ -9,9 +9,9 @@ export default function MentionsLegalesPage() {
   return (
     <div className="mx-auto max-w-2xl px-5 py-16">
       <p className="surtitre">Informations</p>
-      <h1 className="titre mt-4 text-4xl text-ivoire">Mentions légales</h1>
+      <h1 className="titre mt-4 text-couverture text-encre">Mentions légales</h1>
 
-      <p className="mt-8 border-l-2 border-laiton/60 bg-graphite/40 px-5 py-4 text-sm text-parchemin/75">
+      <p className="mt-8 border-l-2 border-laiton bg-papier px-5 py-4 text-legende text-encre/72">
         Page à compléter avant mise en ligne&nbsp;: raison sociale, forme juridique, capital,
         SIREN, siège, directeur de la publication, hébergeur et coordonnées de contact.
       </p>

@@ -24,15 +24,15 @@ export default async function GuidesPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-16">
       <p className="surtitre-marque">Guides Cronostic</p>
-      <h1 className="titre mt-4 max-w-2xl text-4xl text-ivoire sm:text-5xl">
+      <h1 className="titre mt-4 max-w-2xl text-couverture text-encre sm:text-couverture">
         Des manuels conçus pour être utilisés directement à l&apos;établi.
       </h1>
-      <p className="mt-6 max-w-2xl leading-relaxed text-parchemin/70">
+      <p className="mt-6 max-w-2xl leading-relaxed text-encre/72">
         Chaque guide couvre le cycle complet d&apos;un calibre, planche par planche, avec les
         points de vigilance relevés à la réparation. Format PDF, téléchargeable à vie.
       </p>
 
-      <ul className="mt-8 flex flex-wrap gap-x-8 gap-y-2 text-sm text-parchemin/80">
+      <ul className="mt-8 flex flex-wrap gap-x-8 gap-y-2 text-legende text-encre/72">
         {GUIDE_HIGHLIGHTS.map((h) => (
           <li key={h} className="flex items-baseline gap-2">
             <span className="text-laiton">✓</span>
@@ -42,12 +42,12 @@ export default async function GuidesPage() {
       </ul>
 
       {guides.length === 0 ? (
-        <div className="carte mt-14 p-10 text-center">
-          <p className="text-parchemin/70">
+        <div className="cadre mt-14 p-10 text-center">
+          <p className="text-encre/72">
             Aucun guide n&apos;est publié pour le moment. Les manuels sont mis en ligne calibre par
             calibre.
           </p>
-          <Link href="/calibres" className="lien-souligne mt-5 inline-block text-laiton-clair">
+          <Link href="/calibres" className="lien-souligne mt-5 inline-block text-laiton">
             Parcourir les fiches calibres
           </Link>
         </div>
@@ -64,14 +64,14 @@ export default async function GuidesPage() {
         </div>
       )}
 
-      <div className="carte mt-16 flex flex-col items-start gap-6 p-8 sm:flex-row sm:items-center sm:justify-between">
+      <div className="cadre mt-16 flex flex-col items-start gap-6 p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="surtitre-marque">Cronostic Pro</p>
-          <p className="titre mt-2 text-2xl text-ivoire">Tous les guides. Un seul abonnement.</p>
+          <p className="titre mt-2 text-section text-encre">Tous les guides. Un seul abonnement.</p>
         </div>
         <Link
           href="/pro"
-          className="border border-laiton/50 px-6 py-3 text-[0.8rem] tracking-[0.16em] text-laiton-clair uppercase transition-colors hover:bg-laiton/10"
+          className="border border-laiton px-6 py-3 text-[0.8rem] tracking-[0.16em] text-laiton uppercase transition-colors hover:bg-papier"
         >
           Découvrir
         </Link>

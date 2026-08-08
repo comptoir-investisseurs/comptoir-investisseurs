@@ -25,8 +25,8 @@ export default async function ConnexionPage({
   return (
     <div className="mx-auto flex max-w-md flex-col px-5 py-24">
       <p className="surtitre-marque">Cronostic</p>
-      <h1 className="titre mt-4 text-3xl text-ivoire">Connexion</h1>
-      <p className="mt-4 text-sm leading-relaxed text-parchemin/70">
+      <h1 className="titre mt-4 text-section text-encre">Connexion</h1>
+      <p className="mt-4 text-legende leading-relaxed text-encre/72">
         Un compte est nécessaire pour acheter un guide, accéder à Cronostic Pro et retrouver vos
         téléchargements. La consultation de l&apos;encyclopédie reste libre.
       </p>
@@ -34,9 +34,9 @@ export default async function ConnexionPage({
       {hasClerk ? (
         <ClerkSignIn target={target} />
       ) : isProduction && !process.env.DEV_AUTH_SECRET ? (
-        <p className="mt-10 border-l-2 border-rubis bg-graphite/40 px-5 py-4 text-sm leading-relaxed text-parchemin/75">
+        <p className="mt-10 border-l-2 border-alerte bg-papier px-5 py-4 text-legende leading-relaxed text-encre/72">
           L&apos;authentification n&apos;est pas configurée sur cette instance. Renseignez les clés
-          Clerk, ou à défaut <code className="text-laiton-clair">DEV_AUTH_SECRET</code> pour la
+          Clerk, ou à défaut <code className="text-laiton">DEV_AUTH_SECRET</code> pour la
           session locale.
         </p>
       ) : (
@@ -45,7 +45,7 @@ export default async function ConnexionPage({
           <div>
             <label
               htmlFor="email"
-              className="block text-[0.72rem] tracking-[0.16em] text-acier uppercase"
+              className="block text-surtitre tracking-[0.16em] text-encre/55 uppercase"
             >
               Adresse e-mail
             </label>
@@ -55,32 +55,32 @@ export default async function ConnexionPage({
               type="email"
               required
               autoComplete="email"
-              className="mt-2 w-full border border-parchemin/20 bg-encre/70 px-4 py-3 text-ivoire outline-none focus:border-laiton/60"
+              className="mt-2 w-full border border-gris-trait bg-papier px-4 py-3 text-encre outline-none focus:border-laiton"
               placeholder="vous@atelier.fr"
             />
           </div>
 
           {sp.erreur === "email" && (
-            <p className="text-sm text-rubis">Adresse e-mail invalide.</p>
+            <p className="text-legende text-alerte">Adresse e-mail invalide.</p>
           )}
 
           <button
             type="submit"
-            className="w-full bg-laiton px-6 py-3 text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
+            className="bouton w-full"
           >
             Continuer
           </button>
 
-          <p className="text-xs leading-relaxed text-acier">
+          <p className="text-legende leading-relaxed text-encre/55">
             Authentification locale de développement&nbsp;: aucun mot de passe n&apos;est demandé
             tant que Clerk n&apos;est pas configuré. Renseignez
-            <code className="mx-1 text-parchemin/70">CLERK_SECRET_KEY</code>
+            <code className="mx-1 text-encre/72">CLERK_SECRET_KEY</code>
             pour activer l&apos;authentification réelle.
           </p>
         </form>
       )}
 
-      <Link href="/" className="lien-souligne mt-10 self-start text-sm text-parchemin/60">
+      <Link href="/" className="lien-souligne mt-10 self-start text-legende text-encre/72">
         Retour à l&apos;accueil
       </Link>
     </div>

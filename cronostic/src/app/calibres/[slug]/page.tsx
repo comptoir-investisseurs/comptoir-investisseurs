@@ -33,6 +33,31 @@ export async function generateMetadata({
   };
 }
 
+function Section({
+  titre,
+  children,
+  id,
+  action,
+}: {
+  titre: string;
+  children: React.ReactNode;
+  id?: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <section id={id} className={id ? "scroll-mt-28" : undefined}>
+      <div className="flex items-end justify-between gap-6">
+        <div>
+          <h2 className="surtitre">{titre}</h2>
+          <div className="filet mt-2" />
+        </div>
+        {action}
+      </div>
+      <div className="mt-5">{children}</div>
+    </section>
+  );
+}
+
 export default async function CaliberPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const caliber = await getCaliberBySlug(slug);
@@ -42,6 +67,8 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
   const access = guide
     ? await guideAccessFor(user, guide)
     : { owned: false, viaSubscription: false, canDownload: false };
+
+  const indicatives = caliber.specs.filter((s) => !s.isVerified).length;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -53,60 +80,78 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-14">
+    <div className="mx-auto max-w-6xl px-5 py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <nav className="text-[0.72rem] tracking-[0.16em] text-acier uppercase">
-        <Link href="/calibres" className="hover:text-laiton">
+      <nav className="text-legende not-italic text-encre/60">
+        <Link href="/calibres" className="lien-souligne">
           Calibres
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-parchemin/70">{caliber.reference}</span>
+        <span>{caliber.reference}</span>
       </nav>
 
       {/* ── Titre ─────────────────────────────────────────── */}
-      <header className="mt-8 border-b border-parchemin/12 pb-10">
-        <p className="text-[0.8rem] tracking-[0.34em] text-laiton uppercase">{caliber.brand}</p>
-        <h1 className="titre mt-2 text-5xl text-ivoire sm:text-7xl">
+      <header className="mt-6 border-b border-gris-trait pb-8">
+        <p className="surtitre">{caliber.brand}</p>
+        <div className="filet mt-2" />
+        <h1 className="titre mt-5 text-couverture">
           Calibre {caliber.reference}
         </h1>
         {caliber.summary && (
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-parchemin/75">
-            {caliber.summary}
-          </p>
+          <p className="mt-5 max-w-[68ch] text-encre/72">{caliber.summary}</p>
         )}
-        <div className="mt-7 flex flex-wrap gap-x-8 gap-y-2 text-[0.72rem] tracking-[0.16em] text-acier uppercase">
-          {caliber.familyName && <span>Famille&nbsp;: {caliber.familyName}</span>}
-          {caliber.introducedYear && <span>Introduit en {caliber.introducedYear}</span>}
-          {caliber.discontinuedYear && <span>Jusqu&apos;en {caliber.discontinuedYear}</span>}
-        </div>
-
-        {caliber.dataStatus !== "verified" && (
-          <p className="mt-7 max-w-2xl border-l-2 border-laiton/50 bg-graphite/40 px-4 py-3 text-sm text-parchemin/70">
-            Fiche en cours de validation d&apos;atelier. Les caractéristiques marquées «&nbsp;à
-            valider&nbsp;» n&apos;ont pas encore été recoupées avec la documentation d&apos;époque.
-          </p>
-        )}
+        <dl className="mt-6 flex flex-wrap gap-x-10 gap-y-2 text-legende not-italic">
+          {caliber.familyName && (
+            <div className="flex gap-2">
+              <dt className="text-encre/55">Famille</dt>
+              <dd>{caliber.familyName}</dd>
+            </div>
+          )}
+          {caliber.introducedYear && (
+            <div className="flex gap-2">
+              <dt className="text-encre/55">Introduit</dt>
+              <dd className="font-technique">{caliber.introducedYear}</dd>
+            </div>
+          )}
+          {caliber.discontinuedYear && (
+            <div className="flex gap-2">
+              <dt className="text-encre/55">Fin de production</dt>
+              <dd className="font-technique">{caliber.discontinuedYear}</dd>
+            </div>
+          )}
+        </dl>
       </header>
 
-      <div className="mt-14 grid gap-16 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-        <div className="space-y-16">
-          {/* ── Présentation ─────────────────────────────── */}
+      <div className="mt-12 grid gap-14 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+        <div className="space-y-14">
+          {/* Périmètre et statut des données, énoncés en préambule. */}
+          {indicatives > 0 && (
+            <div className="encart encart-alerte">
+              <p className="encart-titre">Attention</p>
+              <p className="mt-2 max-w-[68ch]">
+                {indicatives} caractéristique{indicatives > 1 ? "s" : ""} de cette fiche
+                {indicatives > 1 ? " sont indicatives" : " est indicative"} : elle
+                {indicatives > 1 ? "s n'ont" : " n'a"} pas été relevée
+                {indicatives > 1 ? "s" : ""} sur une source constructeur. Ces valeurs portent le
+                repère ◆ et restent à recouper avec la documentation d&apos;époque.
+              </p>
+            </div>
+          )}
+
           {caliber.presentation && (
-            <section>
-              <h2 className="surtitre">Présentation</h2>
-              <div className="prose-atelier mt-5 max-w-2xl">
+            <Section titre="Présentation">
+              <div className="prose-atelier">
                 {toParagraphs(caliber.presentation).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
-            </section>
+            </Section>
           )}
 
-          {/* ── Guide Cronostic ──────────────────────────── */}
           <GuidePanel
             guide={guide}
             access={access}
@@ -114,76 +159,70 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
             caliberSlug={caliber.slug}
           />
 
-          {/* ── Historique ───────────────────────────────── */}
           {caliber.history && (
-            <section>
-              <h2 className="surtitre">Historique</h2>
-              <div className="prose-atelier mt-5 max-w-2xl">
+            <Section titre="Historique">
+              <div className="prose-atelier">
                 {toParagraphs(caliber.history).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
-            </section>
+            </Section>
           )}
 
-          {/* ── Architecture ─────────────────────────────── */}
           {caliber.architecture && (
-            <section>
-              <h2 className="surtitre">Architecture générale</h2>
-              <div className="prose-atelier mt-5 max-w-2xl">
+            <Section titre="Architecture générale">
+              <div className="prose-atelier">
                 {toParagraphs(caliber.architecture).map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
-            </section>
+            </Section>
           )}
 
-          {/* ── Pièces détachées ─────────────────────────── */}
           {caliber.parts.length > 0 && (
-            <section id="pieces" className="scroll-mt-24">
-              <div className="flex items-end justify-between gap-6">
-                <h2 className="surtitre">Pièces détachées</h2>
+            <Section
+              titre="Pièces détachées"
+              id="pieces"
+              action={
                 <Link
                   href={`/pieces?calibre=${caliber.slug}`}
-                  className="lien-souligne text-sm text-parchemin/70 hover:text-ivoire"
+                  className="lien-souligne text-legende not-italic"
                 >
                   Rechercher des offres
                 </Link>
-              </div>
-
-              <div className="carte mt-6 overflow-x-auto">
-                <table className="w-full text-left text-sm">
+              }
+            >
+              <div className="overflow-x-auto">
+                <table className="tableau">
                   <thead>
-                    <tr className="border-b border-parchemin/12 text-[0.68rem] tracking-[0.16em] text-acier uppercase">
-                      <th className="px-5 py-3 font-medium">N°</th>
-                      <th className="px-5 py-3 font-medium">Fourniture</th>
-                      <th className="hidden px-5 py-3 font-medium sm:table-cell">Désignation</th>
-                      <th className="px-5 py-3 font-medium">Offres</th>
+                    <tr>
+                      <th scope="col">N°</th>
+                      <th scope="col">Fourniture</th>
+                      <th scope="col" className="hidden sm:table-cell">
+                        Désignation
+                      </th>
+                      <th scope="col">Offres</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-parchemin/8">
+                  <tbody>
                     {caliber.parts.map((part) => (
-                      <tr key={part.id} className="hover:bg-graphite/50">
-                        <td className="px-5 py-3 font-mono text-xs text-laiton">
-                          {part.positionNumber ?? "—"}
+                      <tr key={part.id}>
+                        <td>
+                          <span className="pastille-cerclee">{part.positionNumber ?? "—"}</span>
                         </td>
-                        <td className="px-5 py-3 text-ivoire">
+                        <td>
                           {part.name}
                           {part.description && (
-                            <span className="mt-0.5 block text-xs text-acier">
-                              {part.description}
-                            </span>
+                            <span className="legende mt-1 block">{part.description}</span>
                           )}
                         </td>
-                        <td className="hidden px-5 py-3 text-parchemin/60 sm:table-cell">
-                          {part.nameEn}
-                        </td>
-                        <td className="px-5 py-3">
+                        <td className="hidden text-encre/60 sm:table-cell">{part.nameEn}</td>
+                        <td>
                           <Link
                             href={`/pieces?calibre=${caliber.slug}&piece=${encodeURIComponent(
                               part.reference,
                             )}`}
-                            className="text-[0.75rem] tracking-wide text-laiton-clair underline underline-offset-4"
+                            className="lien-souligne text-legende not-italic"
                           >
                             Chercher
                           </Link>
@@ -193,110 +232,121 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                   </tbody>
                 </table>
               </div>
-              <p className="mt-3 text-xs text-acier">
-                Numéros de nomenclature à recouper avec les planches Omega d&apos;époque.
+              <p className="legende mt-2">
+                Numéros de nomenclature indicatifs ◆, à recouper avec les planches Omega
+                d&apos;époque
               </p>
-            </section>
+            </Section>
           )}
 
-          {/* ── Huiles ───────────────────────────────────── */}
           {caliber.lubrication.length > 0 && (
-            <section id="huiles" className="scroll-mt-24">
-              <div className="flex items-end justify-between gap-6">
-                <h2 className="surtitre">Huiles et lubrification</h2>
-                <Link
-                  href="/huiles"
-                  className="lien-souligne text-sm text-parchemin/70 hover:text-ivoire"
-                >
+            <Section
+              titre="Huiles et lubrification"
+              id="huiles"
+              action={
+                <Link href="/huiles" className="lien-souligne text-legende not-italic">
                   Toutes les références
                 </Link>
+              }
+            >
+              <div className="overflow-x-auto">
+                <table className="tableau">
+                  <thead>
+                    <tr>
+                      <th scope="col">Point</th>
+                      <th scope="col">Produit</th>
+                      <th scope="col">Quantité</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {caliber.lubrication.map((point) => (
+                      <tr key={point.id}>
+                        <td>
+                          <span className="flex items-start gap-2.5">
+                            {/* Bleu technique : code réservé aux rubis, pierres et
+                                lubrifiants. */}
+                            <span
+                              className="mt-1.5 h-2 w-2 shrink-0 bg-technique"
+                              aria-hidden="true"
+                            />
+                            <span>
+                              {point.location}
+                              {point.notes && <span className="legende mt-1 block">{point.notes}</span>}
+                            </span>
+                          </span>
+                        </td>
+                        <td className="font-technique text-legende not-italic">
+                          {point.lubricant
+                            ? `${point.lubricant.brand} ${point.lubricant.reference}`
+                            : "—"}
+                        </td>
+                        <td className="text-encre/60">{point.quantity ?? "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-
-              <ul className="carte mt-6 divide-y divide-parchemin/8">
-                {caliber.lubrication.map((point) => (
-                  <li key={point.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-4">
-                    <span
-                      className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-                      style={{ backgroundColor: point.lubricant?.colorHex ?? "#8b9097" }}
-                      aria-hidden="true"
-                    />
-                    <span className="text-ivoire">{point.location}</span>
-                    {point.lubricant && (
-                      <span className="text-sm text-laiton-clair">
-                        {point.lubricant.brand} {point.lubricant.reference}
-                      </span>
-                    )}
-                    {point.quantity && (
-                      <span className="ml-auto text-xs text-acier">{point.quantity}</span>
-                    )}
-                    {point.notes && (
-                      <span className="w-full text-xs text-acier">{point.notes}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
+            </Section>
           )}
 
-          {/* ── Outillage ────────────────────────────────── */}
           {caliber.tools.length > 0 && (
-            <section>
-              <h2 className="surtitre">Outillage recommandé</h2>
-              <ul className="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            <Section titre="Outillage">
+              <ul className="grid gap-x-10 gap-y-3 sm:grid-cols-2">
                 {caliber.tools.map((tool) => (
-                  <li key={tool.id} className="text-sm">
-                    <span className="text-ivoire">{tool.name}</span>
-                    {tool.description && (
-                      <span className="mt-0.5 block text-xs leading-relaxed text-acier">
-                        {tool.description}
-                      </span>
-                    )}
+                  <li key={tool.id}>
+                    <span>{tool.name}</span>
+                    {tool.description && <span className="legende block">{tool.description}</span>}
                   </li>
                 ))}
               </ul>
-            </section>
+            </Section>
           )}
 
-          {/* ── Calibres apparentés ──────────────────────── */}
           {caliber.related.length > 0 && (
-            <section>
-              <h2 className="surtitre">Calibres apparentés</h2>
-              <ul className="mt-6 flex flex-wrap gap-3">
+            <Section titre="Calibres apparentés">
+              <ul className="flex flex-wrap gap-3">
                 {caliber.related.map((rel) => (
                   <li key={rel.slug}>
                     <Link
                       href={`/calibres/${rel.slug}`}
-                      className="carte carte-interactive flex items-baseline gap-3 px-5 py-3"
+                      className="cadre cadre-interactif flex items-baseline gap-3 px-4 py-2.5"
                     >
-                      <span className="font-display text-xl text-ivoire">{rel.reference}</span>
-                      <span className="text-xs text-acier">{rel.brand}</span>
+                      <span className="titre text-etape">{rel.reference}</span>
+                      <span className="text-legende not-italic text-encre/55">{rel.brand}</span>
                     </Link>
                   </li>
                 ))}
               </ul>
-            </section>
+            </Section>
           )}
         </div>
 
         {/* ── Caractéristiques techniques ────────────────── */}
-        <aside className="lg:sticky lg:top-24">
-          <h2 className="surtitre">Caractéristiques techniques</h2>
-          <dl className="carte mt-5 divide-y divide-parchemin/8">
-            {caliber.specs.map((spec) => (
-              <div key={spec.key} className="flex items-baseline justify-between gap-4 px-5 py-3">
-                <dt className="text-xs tracking-wide text-acier">{spec.label}</dt>
-                <dd className="text-right text-sm text-ivoire">
-                  {spec.value}
-                  {spec.unit ? <span className="ml-1 text-acier">{spec.unit}</span> : null}
-                  {!spec.isVerified && (
-                    <span className="mt-0.5 block text-[0.62rem] tracking-[0.14em] text-laiton/70 uppercase">
-                      à valider
-                    </span>
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
+        <aside className="lg:sticky lg:top-28">
+          <h2 className="surtitre">Caractéristiques</h2>
+          <div className="filet mt-2" />
+          <div className="mt-5 overflow-x-auto">
+            <table className="tableau">
+              <thead>
+                <tr>
+                  <th scope="col">Paramètre</th>
+                  <th scope="col">Valeur</th>
+                </tr>
+              </thead>
+              <tbody>
+                {caliber.specs.map((spec) => (
+                  <tr key={spec.key}>
+                    <td className="text-encre/70">{spec.label}</td>
+                    <td className={`font-technique ${spec.isVerified ? "" : "indicatif"}`}>
+                      {spec.value}
+                      {spec.unit ? <span className="text-encre/60"> {spec.unit}</span> : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="legende mt-2">◆ valeur indicative, non relevée sur source constructeur</p>
         </aside>
       </div>
     </div>

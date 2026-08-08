@@ -25,28 +25,28 @@ export default async function EditerGuidePage({
     <>
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <h2 className="surtitre">Modifier le guide</h2>
-        <Link href="/admin/guides" className="text-sm text-parchemin/70 underline underline-offset-4">
+        <Link href="/admin/guides" className="text-legende text-encre/72 underline underline-offset-4">
           Retour à la liste
         </Link>
       </div>
 
       {sp.enregistre === "1" && (
-        <p className="mt-5 border-l-2 border-laiton bg-graphite/40 px-5 py-3 text-sm text-parchemin/75">
+        <p className="mt-5 border-l-2 border-laiton bg-papier px-5 py-3 text-legende text-encre/72">
           Modifications enregistrées.
         </p>
       )}
       {sp.fichier === "ok" && (
-        <p className="mt-5 border-l-2 border-laiton bg-graphite/40 px-5 py-3 text-sm text-parchemin/75">
+        <p className="mt-5 border-l-2 border-laiton bg-papier px-5 py-3 text-legende text-encre/72">
           Fichier téléversé.
         </p>
       )}
       {sp.erreur === "pdf-manquant" && (
-        <p className="mt-5 border-l-2 border-rubis bg-graphite/40 px-5 py-3 text-sm text-parchemin/75">
+        <p className="mt-5 border-l-2 border-alerte bg-papier px-5 py-3 text-legende text-encre/72">
           Impossible de publier&nbsp;: aucun PDF n&apos;est associé à ce guide.
         </p>
       )}
       {sp.erreur === "upload" && (
-        <p className="mt-5 border-l-2 border-rubis bg-graphite/40 px-5 py-3 text-sm text-parchemin/75">
+        <p className="mt-5 border-l-2 border-alerte bg-papier px-5 py-3 text-legende text-encre/72">
           Le téléversement a échoué. Vérifiez le format du fichier.
         </p>
       )}
@@ -72,7 +72,7 @@ export default async function EditerGuidePage({
 
           <div>
             <p className="surtitre">Fichier premium</p>
-            <p className="mt-3 text-sm break-all text-parchemin/70">
+            <p className="mt-3 text-legende break-all text-encre/72">
               {guide.r2FileKey ?? "Aucun PDF associé."}
             </p>
             <form
@@ -87,11 +87,11 @@ export default async function EditerGuidePage({
                 name="file"
                 accept="application/pdf"
                 required
-                className="block w-full text-xs text-parchemin/70 file:mr-3 file:border file:border-parchemin/25 file:bg-transparent file:px-3 file:py-1.5 file:text-parchemin/80"
+                className="block w-full text-legende text-encre/72 file:mr-3 file:border file:border-gris-trait file:bg-transparent file:px-3 file:py-1.5 file:text-encre/72"
               />
               <button
                 type="submit"
-                className="w-full border border-laiton/50 px-4 py-2 text-[0.72rem] tracking-[0.16em] text-laiton-clair uppercase transition-colors hover:bg-laiton/10"
+                className="w-full bouton-secondaire"
               >
                 {guide.r2FileKey ? "Remplacer le PDF" : "Téléverser le PDF"}
               </button>
@@ -100,7 +100,7 @@ export default async function EditerGuidePage({
 
           <div>
             <p className="surtitre">Extrait public</p>
-            <p className="mt-3 text-sm break-all text-parchemin/70">
+            <p className="mt-3 text-legende break-all text-encre/72">
               {guide.previewFileKey ?? "Aucun extrait."}
             </p>
             <form
@@ -115,18 +115,18 @@ export default async function EditerGuidePage({
                 name="file"
                 accept="application/pdf"
                 required
-                className="block w-full text-xs text-parchemin/70 file:mr-3 file:border file:border-parchemin/25 file:bg-transparent file:px-3 file:py-1.5 file:text-parchemin/80"
+                className="block w-full text-legende text-encre/72 file:mr-3 file:border file:border-gris-trait file:bg-transparent file:px-3 file:py-1.5 file:text-encre/72"
               />
               <button
                 type="submit"
-                className="w-full border border-parchemin/30 px-4 py-2 text-[0.72rem] tracking-[0.16em] text-parchemin/75 uppercase transition-colors hover:border-laiton/50"
+                className="w-full border border-gris-trait px-4 py-2 text-surtitre tracking-[0.16em] text-encre/72 uppercase transition-colors hover:border-laiton"
               >
                 Téléverser l&apos;extrait
               </button>
             </form>
           </div>
 
-          <p className="text-xs leading-relaxed text-acier">
+          <p className="text-legende leading-relaxed text-encre/55">
             {hasR2
               ? "Stockage : bucket Cloudflare R2 privé. Le PDF premium n'est jamais servi sans vérification des droits."
               : "Cloudflare R2 n'est pas configuré : les fichiers sont écrits dans .local-storage/ et servis par la route de téléchargement, avec le même contrôle d'accès."}

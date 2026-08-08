@@ -53,10 +53,10 @@ export default async function PurchaseSuccessPage({
   return (
     <div className="mx-auto max-w-2xl px-5 py-24 text-center">
       <p className="surtitre">Commande confirmée</p>
-      <h1 className="titre mt-5 text-4xl text-ivoire sm:text-5xl">Votre guide est disponible.</h1>
+      <h1 className="titre mt-5 text-couverture text-encre sm:text-couverture">Votre guide est disponible.</h1>
 
       {sp.simule === "1" && (
-        <p className="mt-6 text-xs text-acier">
+        <p className="mt-6 text-legende text-encre/55">
           Achat simulé : Stripe n&apos;est pas encore configuré sur cette instance.
         </p>
       )}
@@ -69,19 +69,19 @@ export default async function PurchaseSuccessPage({
             pageCount={guide.pageCount}
             className="w-44"
           />
-          <p className="font-display mt-6 text-2xl text-ivoire">Omega {guide.caliberReference}</p>
-          <p className="mt-1 text-sm text-parchemin/65">Guide complet Cronostic</p>
+          <p className="font-titre mt-6 text-section text-encre">Omega {guide.caliberReference}</p>
+          <p className="mt-1 text-legende text-encre/72">Guide complet Cronostic</p>
 
           <a
             href={`/api/guides/${guide.id}/download`}
-            className="mt-8 bg-laiton px-8 py-3 text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
+            className="bouton mt-8"
           >
             Télécharger
           </a>
         </div>
       )}
 
-      <p className="mt-12 text-sm text-parchemin/65">
+      <p className="mt-12 text-legende text-encre/72">
         Votre guide reste accessible à tout moment depuis{" "}
         <Link href="/account/guides" className="underline underline-offset-4">
           Mes guides

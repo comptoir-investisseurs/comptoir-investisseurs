@@ -10,16 +10,16 @@ export default async function AdminCalibresPage() {
   return (
     <>
       <h2 className="surtitre">Calibres</h2>
-      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-acier">
+      <p className="mt-4 max-w-2xl text-legende leading-relaxed text-encre/55">
         Le catalogue est alimenté par le seed puis affiné en base. Les fiches marquées
         «&nbsp;brouillon&nbsp;» affichent publiquement un avertissement de validation tant que
         leurs caractéristiques n&apos;ont pas été recoupées.
       </p>
 
-      <div className="carte mt-6 overflow-x-auto">
-        <table className="w-full min-w-[44rem] text-left text-sm">
+      <div className="cadre mt-6 overflow-x-auto">
+        <table className="w-full min-w-[44rem] text-left text-legende">
           <thead>
-            <tr className="border-b border-parchemin/12 text-[0.66rem] tracking-[0.16em] text-acier uppercase">
+            <tr className="border-b border-gris-trait text-surtitre tracking-[0.16em] text-encre/55 uppercase">
               <th className="px-4 py-3 font-medium">Calibre</th>
               <th className="px-4 py-3 font-medium">Famille</th>
               <th className="px-4 py-3 font-medium">Années</th>
@@ -28,23 +28,23 @@ export default async function AdminCalibresPage() {
               <th className="px-4 py-3 font-medium">Fiche</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-parchemin/8">
+          <tbody className="divide-y divide-gris-clair">
             {calibers.map((c) => {
               const guide = guides.find((g) => g.caliberId === c.id);
               return (
-                <tr key={c.id} className="hover:bg-graphite/40">
-                  <td className="px-4 py-3 text-ivoire">
+                <tr key={c.id} className="hover:bg-papier">
+                  <td className="px-4 py-3 text-encre">
                     {c.brand} {c.reference}
                   </td>
-                  <td className="px-4 py-3 text-parchemin/70">{c.familyName ?? "—"}</td>
-                  <td className="px-4 py-3 text-parchemin/70">
+                  <td className="px-4 py-3 text-encre/72">{c.familyName ?? "—"}</td>
+                  <td className="px-4 py-3 text-encre/72">
                     {c.introducedYear ?? "—"}
                     {c.discontinuedYear ? ` – ${c.discontinuedYear}` : ""}
                   </td>
                   <td className="px-4 py-3">
                     <span
                       className={`text-[0.7rem] tracking-[0.14em] uppercase ${
-                        c.dataStatus === "verified" ? "text-laiton-clair" : "text-acier"
+                        c.dataStatus === "verified" ? "text-laiton" : "text-encre/55"
                       }`}
                     >
                       {c.dataStatus === "verified" ? "Validé" : "Brouillon"}
@@ -54,14 +54,14 @@ export default async function AdminCalibresPage() {
                     {guide ? (
                       <Link
                         href={`/admin/guides/${guide.id}`}
-                        className="text-parchemin/70 underline underline-offset-2"
+                        className="text-encre/72 underline underline-offset-2"
                       >
                         {guide.isActive ? "Publié" : "Brouillon"}
                       </Link>
                     ) : (
                       <Link
                         href="/admin/guides/nouveau"
-                        className="text-acier underline underline-offset-2"
+                        className="text-encre/55 underline underline-offset-2"
                       >
                         Créer
                       </Link>
@@ -70,7 +70,7 @@ export default async function AdminCalibresPage() {
                   <td className="px-4 py-3">
                     <Link
                       href={`/calibres/${c.slug}`}
-                      className="text-laiton-clair underline underline-offset-2"
+                      className="text-laiton underline underline-offset-2"
                     >
                       Voir ↗
                     </Link>

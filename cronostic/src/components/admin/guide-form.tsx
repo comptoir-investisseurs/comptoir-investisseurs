@@ -1,8 +1,8 @@
 import type { CaliberSummary, GuideRow } from "@/lib/types";
 
 const champ =
-  "mt-2 w-full border border-parchemin/20 bg-encre/70 px-4 py-2.5 text-ivoire outline-none focus:border-laiton/60";
-const etiquette = "block text-[0.7rem] tracking-[0.16em] text-acier uppercase";
+  "mt-2 w-full border border-gris-trait bg-papier px-4 py-2.5 text-encre outline-none focus:border-laiton";
+const etiquette = "block text-[0.7rem] tracking-[0.16em] text-encre/55 uppercase";
 
 export function GuideForm({
   action,
@@ -115,14 +115,14 @@ export function GuideForm({
           placeholder="https://…"
           className={champ}
         />
-        <p className="mt-2 text-xs text-acier">
+        <p className="mt-2 text-legende text-encre/55">
           Laissez vide pour utiliser la couverture composée par le site.
         </p>
       </div>
 
       <fieldset className="space-y-3">
         <legend className={etiquette}>Diffusion</legend>
-        <label className="flex items-center gap-3 text-sm text-parchemin/80">
+        <label className="flex items-center gap-3 text-legende text-encre/72">
           <input
             type="checkbox"
             name="includedInSubscription"
@@ -131,7 +131,7 @@ export function GuideForm({
           />
           Inclus dans Cronostic Pro
         </label>
-        <label className="flex items-center gap-3 text-sm text-parchemin/80">
+        <label className="flex items-center gap-3 text-legende text-encre/72">
           <input
             type="checkbox"
             name="isActive"
@@ -140,14 +140,14 @@ export function GuideForm({
           />
           Publié
         </label>
-        <p className="text-xs text-acier">
+        <p className="text-legende text-encre/55">
           La publication n&apos;a d&apos;effet qu&apos;une fois le PDF téléversé.
         </p>
       </fieldset>
 
       <button
         type="submit"
-        className="bg-laiton px-8 py-3 text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
+        className="bouton"
       >
         {submitLabel}
       </button>

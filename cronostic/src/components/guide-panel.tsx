@@ -7,18 +7,17 @@ import type { GuideAccess, GuideRow } from "@/lib/types";
 import { GuideCover } from "./guide-cover";
 
 /**
- * Bloc « GUIDE Cronostic » d'une fiche calibre.
+ * Bloc « Guide Cronostic » d'une fiche calibre.
  *
  * Trois états, jamais mélangés :
- *   — guide déjà acheté   → téléchargement, aucune proposition d'achat ;
- *   — abonné PRO          → téléchargement, mention de l'abonnement ;
+ *   — guide déjà acquis   → téléchargement, aucune proposition d'achat ;
+ *   — abonné Cronostic Pro → téléchargement, mention de l'abonnement ;
  *   — sinon               → prix et achat (connexion d'abord si nécessaire).
  */
 export function GuidePanel({
   guide,
   access,
   isSignedIn,
-  caliberSlug,
 }: {
   guide: GuideRow | null;
   access: GuideAccess;
@@ -27,25 +26,25 @@ export function GuidePanel({
 }) {
   if (!guide || !guide.isActive) {
     return (
-      <section id="guide" className="scroll-mt-24">
+      <section id="guide" className="scroll-mt-28">
         <h2 className="surtitre-marque">Guide Cronostic</h2>
-        <div className="carte mt-6 p-8">
-          <p className="text-parchemin/70">
-            Le guide d&apos;atelier Cronostic consacré à ce calibre n&apos;est pas encore en ligne.
-          </p>
-          <Link href="/guides" className="lien-souligne mt-4 inline-block text-sm text-laiton-clair">
-            Voir les guides déjà disponibles
-          </Link>
-        </div>
+        <div className="filet mt-2" />
+        <p className="mt-5 text-encre/72">
+          Le guide d&apos;atelier consacré à ce calibre n&apos;est pas encore publié.
+        </p>
+        <Link href="/guides" className="lien-souligne mt-3 inline-block">
+          Guides disponibles
+        </Link>
       </section>
     );
   }
 
   return (
-    <section id="guide" className="scroll-mt-24">
+    <section id="guide" className="scroll-mt-28">
       <h2 className="surtitre-marque">Guide Cronostic</h2>
+      <div className="filet mt-2" />
 
-      <div className="carte mt-6 grid gap-10 p-8 sm:p-10 lg:grid-cols-[minmax(0,240px)_1fr] lg:items-start">
+      <div className="cadre-papier mt-6 grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,200px)_1fr] lg:items-start">
         <GuideCover
           caliberReference={guide.caliberReference}
           coverImageUrl={guide.coverImageUrl}
@@ -53,70 +52,64 @@ export function GuidePanel({
         />
 
         <div>
-          <p className="text-[0.7rem] tracking-[0.28em] text-acier uppercase">Omega</p>
-          <p className="titre mt-1 text-4xl text-ivoire">{guide.caliberReference}</p>
-          <p className="mt-3 text-lg text-parchemin/80">Guide complet d&apos;entretien</p>
+          <p className="surtitre">Omega {guide.caliberReference}</p>
+          <p className="titre mt-1 text-section">Guide complet d&apos;entretien</p>
 
-          <p className="mt-5 max-w-xl leading-relaxed text-parchemin/65 italic">
-            «&nbsp;{guide.shortDescription ??
-              `Le guide d'atelier Cronostic consacré au calibre Omega ${guide.caliberReference}.`}
-            &nbsp;»
+          <p className="mt-4 max-w-[60ch] text-encre/72">
+            {guide.shortDescription ??
+              `Guide d'atelier Cronostic consacré au calibre Omega ${guide.caliberReference}.`}
           </p>
 
-          <ul className="mt-7 grid max-w-md grid-cols-1 gap-x-8 gap-y-2 text-sm text-parchemin/85 sm:grid-cols-2">
-            {GUIDE_HIGHLIGHTS.map((item) => (
-              <li key={item} className="flex items-baseline gap-2.5">
-                <span className="text-laiton">✓</span>
+          <ul className="mt-6 grid max-w-lg grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
+            {GUIDE_HIGHLIGHTS.map((item, i) => (
+              <li key={item} className="flex items-center gap-3">
+                <span className="pastille-cerclee">{i + 1}</span>
                 {item}
               </li>
             ))}
           </ul>
 
           {guide.pageCount ? (
-            <p className="mt-5 text-[0.75rem] tracking-[0.16em] text-acier uppercase">
+            <p className="mt-5 font-technique text-legende not-italic text-encre/60">
               {guide.pageCount} pages · PDF
             </p>
           ) : null}
 
-          <div className="filet my-8" />
+          <div className="filet-fin my-6" />
 
-          {access.owned ? (
+          {access.owned || access.viaSubscription ? (
             <div className="flex flex-wrap items-center gap-5">
-              <p className="text-lg text-laiton-clair">Vous possédez ce guide</p>
-              <DownloadButton guideId={guide.id} />
-            </div>
-          ) : access.viaSubscription ? (
-            <div className="flex flex-wrap items-center gap-5">
-              <p className="text-lg text-laiton-clair">Inclus avec votre abonnement Cronostic Pro</p>
-              <DownloadButton guideId={guide.id} />
+              <p className="text-encre">
+                {access.owned ? "Vous possédez ce guide" : "Inclus avec votre abonnement Cronostic Pro"}
+              </p>
+              <a href={`/api/guides/${guide.id}/download`} className="bouton">
+                Télécharger
+              </a>
             </div>
           ) : (
             <div className="flex flex-wrap items-center gap-6">
-              <p className="font-display text-3xl text-ivoire">
+              <p className="titre text-couverture">
                 {formatPrice(guide.priceCents, guide.currency)}
               </p>
 
               {isSignedIn ? (
                 <form action={startGuideCheckout}>
                   <input type="hidden" name="guideId" value={guide.id} />
-                  <button
-                    type="submit"
-                    className="bg-laiton px-8 py-3 text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
-                  >
+                  <button type="submit" className="bouton">
                     Acheter
                   </button>
                 </form>
               ) : (
                 <Link
                   href={`/connexion?redirect=${encodeURIComponent(`/purchase/guide/${guide.id}`)}`}
-                  className="bg-laiton px-8 py-3 text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
+                  className="bouton"
                 >
                   Acheter
                 </Link>
               )}
 
               {guide.includedInSubscription && (
-                <Link href="/pro" className="lien-souligne text-sm text-parchemin/70">
+                <Link href="/pro" className="lien-souligne">
                   ou inclus avec Cronostic Pro
                 </Link>
               )}
@@ -126,32 +119,18 @@ export function GuidePanel({
           {guide.previewFileKey && !access.canDownload && (
             <Link
               href={`/api/guides/${guide.id}/preview`}
-              className="lien-souligne mt-6 inline-block text-sm text-parchemin/70"
+              className="lien-souligne mt-5 inline-block text-legende not-italic"
             >
-              Consulter l&apos;extrait
+              Extrait
             </Link>
           )}
 
-          <p className="mt-6 text-xs text-acier">
+          <p className="mt-5 text-legende not-italic text-encre/60">
             Guide produit et mis en page par Cronostic. Fichier PDF, téléchargeable depuis votre
-            compte à tout moment.{" "}
-            <Link href={`/calibres/${caliberSlug}`} className="underline underline-offset-2">
-              Retour à la fiche
-            </Link>
+            compte.
           </p>
         </div>
       </div>
     </section>
-  );
-}
-
-function DownloadButton({ guideId }: { guideId: string }) {
-  return (
-    <a
-      href={`/api/guides/${guideId}/download`}
-      className="border border-laiton/60 px-8 py-3 text-[0.8rem] tracking-[0.16em] text-laiton-clair uppercase transition-colors hover:bg-laiton/10"
-    >
-      Télécharger
-    </a>
   );
 }

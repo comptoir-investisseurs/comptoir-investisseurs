@@ -14,8 +14,8 @@ export function GuideCard({
   viaSubscription?: boolean;
 }) {
   return (
-    <article className="carte carte-interactive group flex flex-col p-4">
-      <Link href={`/calibres/${guide.caliberSlug}#guide`} className="block">
+    <article className="cadre cadre-interactif flex flex-col p-4">
+      <Link href={`/calibres/${guide.caliberSlug}#guide`}>
         <GuideCover
           caliberReference={guide.caliberReference}
           coverImageUrl={guide.coverImageUrl}
@@ -26,66 +26,48 @@ export function GuideCard({
       <div className="mt-4 flex flex-1 flex-col">
         <p className="surtitre-marque">Guide Cronostic</p>
 
-        <h3 className="titre mt-2 text-lg text-ivoire">
+        <h3 className="titre mt-1.5 text-etape">
           <Link href={`/calibres/${guide.caliberSlug}#guide`} className="lien-souligne">
             Omega {guide.caliberReference}
           </Link>
         </h3>
 
-        <p className="mt-1.5 line-clamp-2 text-sm text-parchemin/65">
+        <p className="mt-2 line-clamp-2 text-legende not-italic text-encre/72">
           {guide.shortDescription ?? guide.title}
         </p>
 
-        <dl className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.7rem] tracking-wide text-acier uppercase">
-          <div className="flex gap-1.5">
-            <dt className="sr-only">Calibre</dt>
-            <dd>Calibre {guide.caliberReference}</dd>
-          </div>
-          {guide.pageCount ? (
-            <div className="flex gap-1.5">
-              <dt className="sr-only">Pages</dt>
-              <dd>{guide.pageCount} pages</dd>
-            </div>
-          ) : null}
-        </dl>
+        <p className="mt-3 text-surtitre tracking-[0.14em] text-encre/55 uppercase">
+          Calibre {guide.caliberReference}
+          {guide.pageCount ? ` · ${guide.pageCount} pages` : ""}
+        </p>
 
         <div className="mt-auto pt-4">
-          <div className="filet mb-3" />
-          {owned ? (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-laiton-clair">Vous possédez ce guide</span>
-              <Link
-                href="/compte/guides"
-                className="text-[0.78rem] tracking-wide text-ivoire underline underline-offset-4"
-              >
-                Télécharger
-              </Link>
-            </div>
-          ) : viaSubscription ? (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-laiton-clair">Inclus avec Cronostic Pro</span>
-              <Link
-                href="/compte/guides"
-                className="text-[0.78rem] tracking-wide text-ivoire underline underline-offset-4"
-              >
+          <div className="filet-fin mb-3" />
+          {owned || viaSubscription ? (
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-legende not-italic text-encre/72">
+                {owned ? "Guide acquis" : "Inclus avec Cronostic Pro"}
+              </span>
+              <Link href="/account/guides" className="lien-souligne text-legende not-italic">
                 Télécharger
               </Link>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
-              <span className="font-display text-xl text-ivoire">
-                {formatPrice(guide.priceCents, guide.currency)}
-              </span>
-              <Link
-                href={`/calibres/${guide.caliberSlug}#guide`}
-                className="border border-laiton/50 px-4 py-1.5 text-[0.78rem] tracking-wide text-laiton-clair transition-colors group-hover:bg-laiton/10"
-              >
-                Voir le guide
-              </Link>
-            </div>
-          )}
-          {guide.includedInSubscription && !owned && !viaSubscription && (
-            <p className="mt-2 text-[0.7rem] tracking-wide text-acier">Inclus avec Cronostic Pro</p>
+            <>
+              <div className="flex items-center justify-between gap-3">
+                <span className="titre text-etape">
+                  {formatPrice(guide.priceCents, guide.currency)}
+                </span>
+                <Link href={`/calibres/${guide.caliberSlug}#guide`} className="bouton-secondaire">
+                  Voir
+                </Link>
+              </div>
+              {guide.includedInSubscription && (
+                <p className="mt-2 text-legende not-italic text-encre/55">
+                  Inclus avec Cronostic Pro
+                </p>
+              )}
+            </>
           )}
         </div>
       </div>

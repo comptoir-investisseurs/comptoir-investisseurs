@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { getCurrentUser } from "@/lib/auth";
-import { Marque, Wordmark } from "./logo";
+import { Wordmark } from "./logo";
 
 const NAV = [
   { href: "/calibres", label: "Calibres" },
@@ -11,64 +11,61 @@ const NAV = [
   { href: "/pro", label: "Cronostic Pro" },
 ];
 
+/**
+ * En-tête. La charte impose le logotype à gauche sur toutes les pages,
+ * le rappel du sujet à droite, et un filet de séparation.
+ */
 export async function SiteHeader() {
   const user = await getCurrentUser();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-parchemin/12 bg-noir/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-8 px-5">
-        <Link href="/" className="flex items-center gap-3 text-ivoire">
-          <Marque className="text-laiton" />
-          <Wordmark className="text-[1.6rem]" />
+    <header className="sticky top-0 z-50 border-b border-gris-trait bg-white">
+      <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center px-5">
+        <Link href="/" aria-label="Cronostic — accueil">
+          <Wordmark hauteur={32} />
         </Link>
 
-        <nav className="hidden flex-1 items-center gap-7 md:flex">
+        <nav className="ml-2 hidden flex-1 items-center gap-7 md:flex">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="lien-souligne text-[0.8125rem] tracking-wide text-parchemin/80 hover:text-ivoire"
+              className="text-[0.9375rem] text-encre transition-colors hover:text-laiton"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-4 md:ml-0">
+        <div className="ml-auto flex items-center gap-5">
           {user ? (
             <>
               {user.role === "admin" && (
                 <Link
                   href="/admin"
-                  className="hidden text-[0.75rem] tracking-[0.14em] text-acier uppercase hover:text-laiton sm:block"
+                  className="surtitre hidden hover:opacity-70 sm:inline"
                 >
                   Admin
                 </Link>
               )}
-              <Link
-                href="/account/guides"
-                className="rounded-full border border-laiton/45 px-4 py-1.5 text-[0.78rem] tracking-wide text-laiton-clair transition-colors hover:bg-laiton/10"
-              >
+              <Link href="/account/guides" className="bouton-secondaire">
                 Mes guides
               </Link>
             </>
           ) : (
-            <Link
-              href="/connexion"
-              className="rounded-full border border-parchemin/25 px-4 py-1.5 text-[0.78rem] tracking-wide text-parchemin transition-colors hover:border-laiton/50 hover:text-laiton-clair"
-            >
+            <Link href="/connexion" className="bouton-secondaire">
               Connexion
             </Link>
           )}
         </div>
       </div>
 
-      <nav className="flex gap-5 overflow-x-auto border-t border-parchemin/8 px-5 py-2.5 md:hidden">
+      <nav className="flex gap-6 overflow-x-auto border-t border-gris-clair px-5 py-2.5 md:hidden">
         {NAV.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="text-[0.75rem] whitespace-nowrap text-parchemin/75"
+            className="text-[0.875rem] whitespace-nowrap text-encre"
           >
             {item.label}
           </Link>
