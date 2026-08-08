@@ -18,5 +18,10 @@ La charte proscrit la photographie décorative sans fonction technique : chaque
 image est donc légendée, et les illustrations de marge s'effacent sous 1280 px
 où elles concurrenceraient le contenu.
 
-Format conseillé : cadrage vertical ou carré, 1600 px de côté minimum, sujet
-décentré vers la gauche pour supporter le rognage à droite.
+Format : n'importe quel cadrage convient, l'image étant recadrée en colonne.
+1600 px de large minimum. Un sujet centré donne un gros plan, un sujet décentré
+vers la gauche laisse voir davantage de contexte.
+
+Le bandeau d'ouverture est posé sur le beige de la charte : une photographie au
+fond clair et chaud s'y fond, séparée par un simple filet. Une photographie au
+fond sombre y trancherait — ce n'est pas interdit, mais c'est un autre parti.

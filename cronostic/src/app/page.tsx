@@ -19,7 +19,7 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Ouverture ────────────────────────────────────── */}
-      <section className="relative border-b border-gris-trait">
+      <section className="relative border-b border-gris-trait bg-gris-clair">
         {hero && (
           <figure className="absolute inset-y-0 right-0 hidden w-[42%] border-l border-gris-trait lg:block">
             <Image
