@@ -1,50 +1,38 @@
-/* eslint-disable @next/next/no-img-element */
-
 /**
  * Logotype Cronostic.
  *
  * ⚠️ Le nom s'écrit toujours « Cronostic » — capitale initiale, jamais en
  * capitales d'imprimerie. Aucune classe `uppercase` ne doit s'appliquer dessus.
  *
- * ── Poser le logo définitif ──────────────────────────────────────────────
- * 1. Déposer le fichier détouré (fond transparent, tracé noir) dans
- *    `public/logo.svg` — un PNG en 1000 px de large minimum fait aussi
- *    l'affaire sous le nom `public/logo.png`.
- * 2. Passer `USE_LOGO_FILE` à `true` ci-dessous.
- * Le tracé est recoloré par CSS (`mask-image` + `currentColor`) : le logo
- * suit donc la couleur du texte, en ivoire dans l'en-tête, en laiton sur les
- * couvertures, en noir sur fond clair. Aucun second fichier à produire.
+ * Le tracé vient de `public/logo.svg`, vectorisé depuis l'original
+ * (`brand/logo-source.jpg`, voir `brand/vectorise-logo.py`). Il est posé en
+ * `mask-image` et rempli par `currentColor` : un seul fichier suffit donc pour
+ * tous les contextes — ivoire dans l'en-tête, laiton sur les couvertures de
+ * guides, noir sur fond clair. Pour remplacer le logotype, il suffit de
+ * redéposer `public/logo.svg` et d'ajuster `RATIO` s'il change de proportions.
  */
-const USE_LOGO_FILE = false;
 const LOGO_FILE = "/logo.svg";
+const RATIO = 4.667; // largeur / hauteur du lettrage détouré
 
 export function Wordmark({ className = "" }: { className?: string }) {
-  if (USE_LOGO_FILE) {
-    return (
-      <span
-        role="img"
-        aria-label="Cronostic"
-        className={`inline-block bg-current ${className}`}
-        style={{
-          maskImage: `url(${LOGO_FILE})`,
-          WebkitMaskImage: `url(${LOGO_FILE})`,
-          maskRepeat: "no-repeat",
-          WebkitMaskRepeat: "no-repeat",
-          maskSize: "contain",
-          WebkitMaskSize: "contain",
-          maskPosition: "left center",
-          WebkitMaskPosition: "left center",
-          // Ratio du logotype : ajuster si le fichier déposé est plus étroit.
-          aspectRatio: "4.6 / 1",
-          height: "1em",
-          width: "4.6em",
-        }}
-      />
-    );
-  }
-
   return (
-    <span className={`logotype leading-none ${className}`}>Cronostic</span>
+    <span
+      role="img"
+      aria-label="Cronostic"
+      className={`inline-block bg-current align-middle ${className}`}
+      style={{
+        maskImage: `url(${LOGO_FILE})`,
+        WebkitMaskImage: `url(${LOGO_FILE})`,
+        maskRepeat: "no-repeat",
+        WebkitMaskRepeat: "no-repeat",
+        maskSize: "contain",
+        WebkitMaskSize: "contain",
+        maskPosition: "left center",
+        WebkitMaskPosition: "left center",
+        height: "1em",
+        width: `${RATIO}em`,
+      }}
+    />
   );
 }
 

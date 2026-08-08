@@ -223,8 +223,11 @@ capitales d'imprimerie. Aucun libellé ne doit lui appliquer `uppercase` : les
 intertitres qui portent la marque utilisent `.surtitre-marque`, les autres
 `.surtitre`.
 
-Le logotype se dépose dans `public/` — voir `public/README.md`. Tant qu'il
-n'est pas là, il est composé en Yellowtail.
+Le logotype vit dans `public/logo.svg`, vectorisé depuis l'original par
+`brand/vectorise-logo.py`. Il est posé en `mask-image` rempli par
+`currentColor` : un seul fichier sert tous les contextes — ivoire en en-tête,
+laiton sur les couvertures de guides, noir sur fond clair. Voir
+`public/README.md` pour le remplacer.
 
 **Typographie** (chargée par `next/font`, auto-hébergée, aucun appel externe
 au runtime) :
@@ -234,7 +237,6 @@ au runtime) :
 | Titres | Fraunces | Serif à contraste bas, formes chaudes, tient sur fond sombre |
 | Texte, interface | IBM Plex Sans | Dessinée pour la documentation technique |
 | Références, numéros | IBM Plex Mono | Nomenclature lisible, assortie au texte |
-| Logotype | Yellowtail | Script d'enseigne, provisoire |
 
 **Palette** : noir de platine `#0a0a0b`, greige `#cbc7bb` (repris du
 logotype), ivoire `#f2efe6`, laiton `#c39b48`.

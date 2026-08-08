@@ -2,20 +2,26 @@
 
 ## Logotype
 
-Le logotype Cronostic se dépose ici sous le nom **`logo.svg`** (ou `logo.png`,
-1000 px de large minimum), puis on passe `USE_LOGO_FILE` à `true` dans
-`src/components/logo.tsx`.
+`logo.svg` est le logotype Cronostic, vectorisé depuis l'original
+(`../brand/logo-source.jpg`) par `../brand/vectorise-logo.py`.
 
-Le fichier doit être **détouré** : fond transparent, tracé plein (noir ou
-blanc, peu importe). Il est affiché en `mask-image` recoloré par
-`currentColor` — un seul fichier suffit donc pour toutes les couleurs du site
-(ivoire dans l'en-tête, laiton sur les couvertures de guides, noir sur fond
-clair). Un fichier avec un fond opaque produirait un rectangle plein.
+Il est affiché en `mask-image` rempli par `currentColor` : **un seul fichier
+sert tous les contextes** — ivoire dans l'en-tête, laiton sur les couvertures
+de guides, noir sur fond clair. Il n'y a donc pas de variante de couleur à
+maintenir.
 
-Si le logotype est nettement plus large ou plus étroit que 4,6 : 1, ajuster
-`aspectRatio` et `width` dans le même fichier.
+Pour remplacer le logotype :
 
-En attendant, le logotype est composé typographiquement en Yellowtail.
+1. déposer le nouveau tracé sous `logo.svg` (fond transparent, tracé plein) ;
+2. si les proportions changent, ajuster `RATIO` dans
+   `src/components/logo.tsx` (largeur ÷ hauteur du lettrage détouré).
+
+Si l'on repart d'un fichier matriciel, `brand/vectorise-logo.py` refait tout le
+travail : détourage du fond, recadrage au plus juste, mesure du ratio et tracé.
+
+```bash
+python3 brand/vectorise-logo.py    # nécessite Pillow, numpy et potrace
+```
 
 ## Règle de marque
 

@@ -43,7 +43,7 @@ export function GuideCover({
       <div className="pointer-events-none absolute inset-3 border border-laiton/22" />
 
       <div className="relative text-laiton">
-        <Wordmark className="text-lg" />
+        <Wordmark className="text-[0.95rem]" />
         <div className="mt-2 h-px w-8 bg-laiton/60" />
       </div>
 

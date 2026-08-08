@@ -17,7 +17,6 @@
   --font-display: var(--fraunces), "Iowan Old Style", Georgia, serif;
   --font-sans: var(--plex-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-marque: var(--yellowtail), "Brush Script MT", cursive;
 }
 
 :root {
@@ -131,13 +130,6 @@ body::before {
   .prose-atelier p + p {
     margin-top: 1rem;
   }
-}
-
-/* Le logotype garde toujours sa casse, quel que soit le contexte. */
-.logotype {
-  font-family: var(--font-marque);
-  text-transform: none !important;
-  letter-spacing: normal;
 }
 
 /* Tranche de livre : donne l'épaisseur d'un manuel aux couvertures de guides. */

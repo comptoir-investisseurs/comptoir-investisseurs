@@ -18,8 +18,7 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="border-b border-parchemin/10">
         <div className="mx-auto max-w-6xl px-5 pt-20 pb-16 sm:pt-28 sm:pb-24">
-          <p className="surtitre-marque">Cronostic</p>
-          <h1 className="titre mt-5 max-w-3xl text-4xl text-ivoire sm:text-6xl">
+          <h1 className="titre max-w-3xl text-4xl text-ivoire sm:text-6xl">
             La documentation technique de l&apos;horloger.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-parchemin/70">

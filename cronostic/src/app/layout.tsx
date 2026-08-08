@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans, Yellowtail } from "next/font/google";
+import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -14,7 +14,7 @@ import "./globals.css";
  * légèrement irrégulières, qui tient sur fond sombre là où un didone se
  * casse. IBM Plex pour le texte et les références : dessiné pour la
  * documentation technique, avec le monospace assorti pour les numéros de
- * nomenclature. Yellowtail ne sert qu'au logotype.
+ * nomenclature. Le logotype, lui, est un tracé vectoriel (public/logo.svg).
  */
 const display = Fraunces({
   subsets: ["latin"],
@@ -35,13 +35,6 @@ const mono = IBM_Plex_Mono({
   weight: ["400", "500"],
   display: "swap",
   variable: "--plex-mono",
-});
-
-const marque = Yellowtail({
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-  variable: "--yellowtail",
 });
 
 export const metadata: Metadata = {
@@ -66,7 +59,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="fr"
-      className={`${display.variable} ${sans.variable} ${mono.variable} ${marque.variable}`}
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
       <body className="min-h-screen antialiased">
         <div className="relative z-10 flex min-h-screen flex-col">
