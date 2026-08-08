@@ -19,7 +19,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ guideId: s
     return NextResponse.json({ error: "Aucun extrait disponible." }, { status: 404 });
   }
 
-  const filename = `CRONOSTIC-${guide.caliberReference}-extrait.pdf`;
+  const filename = `Cronostic-${guide.caliberReference}-extrait.pdf`;
   const url = await signedDownloadUrl(guide.previewFileKey, filename);
   if (url) return NextResponse.redirect(url);
 

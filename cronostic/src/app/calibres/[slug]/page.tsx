@@ -28,7 +28,7 @@ export async function generateMetadata({
     title: `${caliber.brand} calibre ${caliber.reference}`,
     description:
       caliber.summary ??
-      `Fiche technique du calibre ${caliber.brand} ${caliber.reference} : caractéristiques, nomenclature, lubrification et guide d'atelier CRONOSTIC.`,
+      `Fiche technique du calibre ${caliber.brand} ${caliber.reference} : caractéristiques, nomenclature, lubrification et guide d'atelier Cronostic.`,
     alternates: { canonical: `/calibres/${caliber.slug}` },
   };
 }
@@ -106,7 +106,7 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
             </section>
           )}
 
-          {/* ── Guide CRONOSTIC ──────────────────────────── */}
+          {/* ── Guide Cronostic ──────────────────────────── */}
           <GuidePanel
             guide={guide}
             access={access}

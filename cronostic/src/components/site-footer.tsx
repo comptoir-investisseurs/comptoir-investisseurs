@@ -10,7 +10,7 @@ export function SiteFooter() {
         <div>
           <div className="flex items-center gap-3 text-ivoire">
             <Marque size={20} className="text-laiton" />
-            <Wordmark className="text-[0.9rem]" />
+            <Wordmark className="text-[1.5rem]" />
           </div>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-parchemin/60">
             La documentation technique de l&apos;horloger. Guides d&apos;atelier, nomenclatures et
@@ -36,7 +36,7 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-parchemin/70">
             <li>
               <Link href="/guides" className="lien-souligne hover:text-ivoire">
-                Guides CRONOSTIC
+                Guides Cronostic
               </Link>
             </li>
             <li>
@@ -51,7 +51,7 @@ export function SiteFooter() {
             </li>
             <li>
               <Link href="/pro" className="lien-souligne hover:text-ivoire">
-                CRONOSTIC PRO
+                Cronostic Pro
               </Link>
             </li>
             <li>
@@ -77,7 +77,7 @@ export function SiteFooter() {
             </li>
           </ul>
           <p className="mt-6 text-xs leading-relaxed text-acier">
-            CRONOSTIC est un éditeur indépendant. Les marques citées appartiennent à leurs
+            Cronostic est un éditeur indépendant. Les marques citées appartiennent à leurs
             détenteurs respectifs et ne sont mentionnées qu&apos;à des fins d&apos;identification
             technique.
           </p>
@@ -85,7 +85,7 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-parchemin/8 py-5 text-center text-xs text-acier">
-        © {new Date().getFullYear()} CRONOSTIC
+        © {new Date().getFullYear()} Cronostic
       </div>
     </footer>
   );

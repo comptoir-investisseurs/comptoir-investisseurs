@@ -25,7 +25,7 @@ export default async function HuilesPage() {
       <p className="surtitre">Consommables</p>
       <h1 className="titre mt-4 text-4xl text-ivoire sm:text-5xl">Huiles et lubrification</h1>
       <p className="mt-6 max-w-2xl leading-relaxed text-parchemin/70">
-        Les références utilisées dans les guides CRONOSTIC. Le choix d&apos;un lubrifiant se fait
+        Les références utilisées dans les guides Cronostic. Le choix d&apos;un lubrifiant se fait
         d&apos;abord par la charge et la vitesse du pivot&nbsp;: une huile trop épaisse sur
         l&apos;échappement coûte de l&apos;amplitude, une huile trop fine sur le barillet ne tient
         pas.

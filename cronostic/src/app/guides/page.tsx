@@ -8,9 +8,9 @@ import { hasActivePro, ownedGuideIds } from "@/lib/entitlements";
 import { listGuides } from "@/lib/repo";
 
 export const metadata: Metadata = {
-  title: "Guides d'atelier CRONOSTIC",
+  title: "Guides d'atelier Cronostic",
   description:
-    "Les manuels d'atelier CRONOSTIC : démontage, nettoyage, contrôle, lubrification et remontage des mouvements Omega vintage.",
+    "Les manuels d'atelier Cronostic : démontage, nettoyage, contrôle, lubrification et remontage des mouvements Omega vintage.",
 };
 
 export default async function GuidesPage() {
@@ -23,7 +23,7 @@ export default async function GuidesPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-16">
-      <p className="surtitre">Guides Cronostic</p>
+      <p className="surtitre-marque">Guides Cronostic</p>
       <h1 className="titre mt-4 max-w-2xl text-4xl text-ivoire sm:text-5xl">
         Des manuels conçus pour être utilisés directement à l&apos;établi.
       </h1>
@@ -66,7 +66,7 @@ export default async function GuidesPage() {
 
       <div className="carte mt-16 flex flex-col items-start gap-6 p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="surtitre">Cronostic Pro</p>
+          <p className="surtitre-marque">Cronostic Pro</p>
           <p className="titre mt-2 text-2xl text-ivoire">Tous les guides. Un seul abonnement.</p>
         </div>
         <Link

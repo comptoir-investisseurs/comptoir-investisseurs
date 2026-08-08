@@ -24,10 +24,10 @@ export default async function ConnexionPage({
 
   return (
     <div className="mx-auto flex max-w-md flex-col px-5 py-24">
-      <p className="surtitre">Cronostic</p>
+      <p className="surtitre-marque">Cronostic</p>
       <h1 className="titre mt-4 text-3xl text-ivoire">Connexion</h1>
       <p className="mt-4 text-sm leading-relaxed text-parchemin/70">
-        Un compte est nécessaire pour acheter un guide, accéder à CRONOSTIC PRO et retrouver vos
+        Un compte est nécessaire pour acheter un guide, accéder à Cronostic Pro et retrouver vos
         téléchargements. La consultation de l&apos;encyclopédie reste libre.
       </p>
 

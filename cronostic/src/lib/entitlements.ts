@@ -11,7 +11,7 @@ import type { AppUser, GuideAccess, GuideRow } from "./types";
  * Droit d'accès à un guide.
  *
  * Deux sources indépendantes : l'achat à l'unité, définitif, et l'abonnement
- * CRONOSTIC PRO, qui n'ouvre que les guides marqués `includedInSubscription`.
+ * Cronostic Pro, qui n'ouvre que les guides marqués `includedInSubscription`.
  * Résilier PRO ne retire jamais un guide acheté.
  */
 export async function guideAccessFor(

@@ -56,7 +56,7 @@ export async function startGuideCheckout(formData: FormData) {
           currency: guide.currency.toLowerCase(),
           unit_amount: guide.priceCents,
           product_data: {
-            name: `CRONOSTIC — ${guide.caliberName}`,
+            name: `Cronostic — ${guide.caliberName}`,
             description: guide.shortDescription ?? guide.title,
           },
         },
@@ -71,7 +71,7 @@ export async function startGuideCheckout(formData: FormData) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Abonnement CRONOSTIC PRO
+   Abonnement Cronostic Pro
    ──────────────────────────────────────────────────────────── */
 
 export async function startProCheckout() {
@@ -112,7 +112,7 @@ export async function startProCheckout() {
               currency: "eur",
               unit_amount: proPriceCents(),
               recurring: { interval: "month" },
-              product_data: { name: "CRONOSTIC PRO" },
+              product_data: { name: "Cronostic Pro" },
             },
           },
     ],

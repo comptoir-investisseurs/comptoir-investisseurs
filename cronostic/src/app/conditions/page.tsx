@@ -21,8 +21,8 @@ export default function ConditionsPage() {
         <section>
           <h2 className="surtitre">Produits</h2>
           <p>
-            CRONOSTIC vend des guides d&apos;atelier au format PDF, à l&apos;unité ou par
-            abonnement mensuel CRONOSTIC PRO.
+            Cronostic vend des guides d&apos;atelier au format PDF, à l&apos;unité ou par
+            abonnement mensuel Cronostic Pro.
           </p>
         </section>
         <section>

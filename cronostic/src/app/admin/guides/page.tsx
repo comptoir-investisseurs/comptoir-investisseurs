@@ -28,7 +28,7 @@ export default async function AdminGuidesPage() {
               <th className="px-4 py-3 font-medium">Guide</th>
               <th className="px-4 py-3 font-medium">Calibre</th>
               <th className="px-4 py-3 font-medium">Prix</th>
-              <th className="px-4 py-3 font-medium">PRO</th>
+              <th className="px-4 py-3 font-medium">Pro</th>
               <th className="px-4 py-3 font-medium">Statut</th>
               <th className="px-4 py-3 font-medium">Ventes</th>
               <th className="px-4 py-3 font-medium">Actions</th>

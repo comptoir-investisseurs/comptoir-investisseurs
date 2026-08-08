@@ -43,7 +43,7 @@ export default async function MesGuidesPage() {
         <div className="carte mt-12 p-10">
           <p className="text-parchemin/70">
             Vous n&apos;avez encore accès à aucun guide. Les guides achetés à l&apos;unité et ceux
-            inclus dans CRONOSTIC PRO apparaissent ici.
+            inclus dans Cronostic Pro apparaissent ici.
           </p>
           <div className="mt-6 flex flex-wrap gap-4">
             <Link
@@ -56,7 +56,7 @@ export default async function MesGuidesPage() {
               href="/pro"
               className="px-2 py-3 text-[0.78rem] tracking-[0.16em] text-parchemin/70 uppercase underline underline-offset-4"
             >
-              Découvrir PRO
+              Découvrir Cronostic Pro
             </Link>
           </div>
         </div>
@@ -73,9 +73,9 @@ export default async function MesGuidesPage() {
 
               <div className="min-w-[12rem] flex-1">
                 <p className="font-display text-xl text-ivoire">Omega {guide.caliberReference}</p>
-                <p className="mt-1 text-sm text-parchemin/65">Guide complet CRONOSTIC</p>
+                <p className="mt-1 text-sm text-parchemin/65">Guide complet Cronostic</p>
                 <p className="mt-2 text-[0.7rem] tracking-[0.14em] text-acier uppercase">
-                  {isOwned ? "Acheté — accès définitif" : "Inclus avec CRONOSTIC PRO"}
+                  {isOwned ? "Acheté — accès définitif" : "Inclus avec Cronostic Pro"}
                   {guide.pageCount ? ` · ${guide.pageCount} pages` : ""}
                 </p>
               </div>
@@ -94,7 +94,7 @@ export default async function MesGuidesPage() {
       {!pro && (
         <div className="carte mt-14 flex flex-wrap items-center justify-between gap-6 p-7">
           <p className="text-parchemin/70">
-            CRONOSTIC PRO donne accès à l&apos;ensemble des guides inclus dans l&apos;abonnement.
+            Cronostic Pro donne accès à l&apos;ensemble des guides inclus dans l&apos;abonnement.
           </p>
           <Link
             href="/pro"

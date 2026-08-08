@@ -8,9 +8,9 @@ import { formatDate, formatPrice } from "@/lib/format";
 import { getSubscriptionForUser, isSubscriptionActive, listGuides } from "@/lib/repo";
 
 export const metadata: Metadata = {
-  title: "CRONOSTIC PRO",
+  title: "Cronostic Pro",
   description:
-    "Tous les guides d'atelier CRONOSTIC inclus dans un abonnement mensuel, avec accès aux nouveaux manuels dès leur publication.",
+    "Tous les guides d'atelier Cronostic inclus dans un abonnement mensuel, avec accès aux nouveaux manuels dès leur publication.",
 };
 
 const FREE = [
@@ -22,9 +22,9 @@ const FREE = [
 ];
 
 const PRO = [
-  "Accès aux guides CRONOSTIC inclus dans l'abonnement",
+  "Accès aux guides Cronostic inclus dans l'abonnement",
   "Téléchargement des PDF",
-  "Accès aux nouveaux guides ajoutés à PRO",
+  "Accès aux nouveaux guides ajoutés à l’abonnement",
   "Résiliation à tout moment",
 ];
 
@@ -42,14 +42,14 @@ export default async function ProPage({
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-16">
-      <p className="surtitre">Cronostic Pro</p>
+      <p className="surtitre-marque">Cronostic Pro</p>
       <h1 className="titre mt-4 text-4xl text-ivoire sm:text-6xl">
         Tous les guides. Un seul abonnement.
       </h1>
 
       {(sp.abonnement === "succes" || sp.simule === "1") && (
         <p className="mt-8 border-l-2 border-laiton bg-graphite/50 px-5 py-4 text-parchemin/80">
-          Votre abonnement CRONOSTIC PRO est actif.
+          Votre abonnement Cronostic Pro est actif.
           {sp.simule === "1" && (
             <span className="mt-1 block text-xs text-acier">
               Abonnement simulé : Stripe n&apos;est pas encore configuré sur cette instance.
@@ -64,7 +64,7 @@ export default async function ProPage({
       <div className="mt-14 grid gap-8 lg:grid-cols-2">
         {/* FREE */}
         <section className="carte flex flex-col p-8">
-          <p className="surtitre">Cronostic Free</p>
+          <p className="surtitre-marque">Cronostic Free</p>
           <p className="font-display mt-4 text-3xl text-ivoire">Gratuit</p>
           <p className="mt-2 text-sm text-acier">Sans compte, sans limite de consultation.</p>
           <ul className="mt-8 space-y-3 text-sm text-parchemin/75">
@@ -86,7 +86,7 @@ export default async function ProPage({
         {/* PRO */}
         <section className="carte relative flex flex-col overflow-hidden p-8">
           <div className="pointer-events-none absolute inset-3 border border-laiton/18" />
-          <p className="surtitre relative">Cronostic Pro</p>
+          <p className="surtitre-marque relative">Cronostic Pro</p>
           <p className="font-display relative mt-4 text-3xl text-laiton-clair">
             {formatPrice(subscription?.priceCents ?? proPriceCents())}
             <span className="ml-1 text-sm text-acier">/ mois</span>

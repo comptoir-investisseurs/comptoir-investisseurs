@@ -1,10 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
+import { Wordmark } from "./logo";
 
 /**
  * Représentation de la couverture d'un guide.
  *
  * Tant qu'aucune image de couverture n'a été téléversée depuis le back-office,
- * la couverture est composée : mêmes codes que les manuels CRONOSTIC imprimés
+ * la couverture est composée : mêmes codes que les manuels Cronostic imprimés
  * (filet de laiton, tranche à gauche, référence du calibre en display).
  */
 export function GuideCover({
@@ -27,7 +28,7 @@ export function GuideCover({
       <div className={`tranche relative aspect-[3/4] overflow-hidden bg-encre ${className}`}>
         <img
           src={coverImageUrl}
-          alt={`Couverture du guide CRONOSTIC ${brand} ${caliberReference}`}
+          alt={`Couverture du guide Cronostic ${brand} ${caliberReference}`}
           className="h-full w-full object-cover"
         />
       </div>
@@ -41,10 +42,8 @@ export function GuideCover({
     >
       <div className="pointer-events-none absolute inset-3 border border-laiton/22" />
 
-      <div className="relative">
-        <p className="font-display text-[0.62rem] tracking-[0.36em] text-laiton uppercase">
-          Cronostic
-        </p>
+      <div className="relative text-laiton">
+        <Wordmark className="text-lg" />
         <div className="mt-2 h-px w-8 bg-laiton/60" />
       </div>
 

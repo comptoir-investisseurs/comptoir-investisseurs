@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Wordmark } from "@/components/logo";
 import { requireAdmin } from "@/lib/auth";
 import { hasClerk, hasEbay, hasR2, hasStripe } from "@/lib/env";
 import { usingDatabase } from "@/lib/repo";
@@ -24,7 +25,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
           <p className="surtitre">Back-office</p>
-          <h1 className="titre mt-2 text-3xl text-ivoire">CRONOSTIC</h1>
+          <h1 className="mt-2 text-3xl text-ivoire">
+            <Wordmark />
+          </h1>
         </div>
         <p className="text-xs text-acier">{admin.email}</p>
       </div>

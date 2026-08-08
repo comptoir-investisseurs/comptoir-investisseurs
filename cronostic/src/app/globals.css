@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  /* Palette d'atelier : noir de platine, ivoire de cadran, laiton. */
+  /* Palette d'atelier : noir de platine, greige du logotype, laiton. */
   --color-noir: #0a0a0b;
-  --color-encre: #121214;
-  --color-graphite: #1b1b1e;
-  --color-ardoise: #26262a;
-  --color-acier: #8b9097;
-  --color-parchemin: #cec8b8;
-  --color-ivoire: #f3f0e7;
+  --color-encre: #121213;
+  --color-graphite: #1b1b1c;
+  --color-ardoise: #262625;
+  --color-acier: #8d8b83;
+  --color-parchemin: #cbc7bb; /* greige du logotype Cronostic */
+  --color-ivoire: #f2efe6;
   --color-laiton: #c39b48;
   --color-laiton-clair: #e3c67f;
-  --color-rubis: #8c3b3b;
+  --color-rubis: #9a4340;
 
-  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman",
-    serif;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* Polices chargées dans app/layout.tsx via next/font. */
+  --font-display: var(--fraunces), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-marque: var(--yellowtail), "Brush Script MT", cursive;
 }
 
 :root {
@@ -32,6 +32,7 @@ body {
   background-color: var(--color-noir);
   color: var(--color-ivoire);
   font-family: var(--font-sans);
+  font-size: 0.9375rem;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -49,20 +50,35 @@ body::before {
 }
 
 @layer components {
+  /* Intertitre technique. N'est JAMAIS utilisé sur un libellé contenant
+     « Cronostic » : la marque ne se met pas en capitales. */
   .surtitre {
     font-family: var(--font-sans);
     font-size: 0.6875rem;
     font-weight: 600;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
+    color: var(--color-laiton);
+  }
+
+  /* Variante pour les libellés qui portent la marque. Même poids visuel,
+     sans transformation de casse. */
+  .surtitre-marque {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     color: var(--color-laiton);
   }
 
   .titre {
     font-family: var(--font-display);
     font-weight: 400;
-    letter-spacing: -0.01em;
-    line-height: 1.05;
+    font-variation-settings:
+      "SOFT" 28,
+      "WONK" 0;
+    letter-spacing: -0.015em;
+    line-height: 1.04;
   }
 
   .filet {
@@ -108,13 +124,20 @@ body::before {
   }
 
   .prose-atelier p {
-    color: color-mix(in srgb, var(--color-ivoire) 78%, transparent);
-    line-height: 1.75;
+    color: color-mix(in srgb, var(--color-ivoire) 76%, transparent);
+    line-height: 1.72;
   }
 
   .prose-atelier p + p {
     margin-top: 1rem;
   }
+}
+
+/* Le logotype garde toujours sa casse, quel que soit le contexte. */
+.logotype {
+  font-family: var(--font-marque);
+  text-transform: none !important;
+  letter-spacing: normal;
 }
 
 /* Tranche de livre : donne l'épaisseur d'un manuel aux couvertures de guides. */

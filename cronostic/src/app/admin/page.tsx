@@ -69,7 +69,7 @@ export default async function AdminHome() {
               </Link>
               <span className="text-xs text-acier">
                 {g.isActive ? "publié" : "brouillon"}
-                {g.includedInSubscription ? " · PRO" : ""}
+                {g.includedInSubscription ? " · Pro" : ""}
               </span>
               <span className="ml-auto text-sm text-parchemin/70">{sales[g.id] ?? 0} vente(s)</span>
             </li>

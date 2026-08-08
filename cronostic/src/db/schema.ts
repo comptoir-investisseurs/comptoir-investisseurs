@@ -103,7 +103,7 @@ export const caliberRelations = pgTable(
 );
 
 /* ────────────────────────────────────────────────────────────
-   Guides CRONOSTIC (PDF déjà produits hors du site)
+   Guides Cronostic (PDF déjà produits hors du site)
    ──────────────────────────────────────────────────────────── */
 
 export const guides = pgTable(

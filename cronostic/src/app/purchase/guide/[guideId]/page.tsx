@@ -39,7 +39,7 @@ export default async function PurchaseGuidePage({
     <div className="mx-auto max-w-3xl px-5 py-20">
       <p className="surtitre">Récapitulatif</p>
       <h1 className="titre mt-4 text-3xl text-ivoire sm:text-4xl">
-        Guide CRONOSTIC — Omega {guide.caliberReference}
+        Guide Cronostic — Omega {guide.caliberReference}
       </h1>
 
       <div className="carte mt-10 flex flex-wrap items-start gap-8 p-8">
@@ -82,7 +82,7 @@ export default async function PurchaseGuidePage({
             <p className="mt-5 text-sm text-acier">
               Ce guide est également inclus dans{" "}
               <Link href="/pro" className="text-laiton-clair underline underline-offset-4">
-                CRONOSTIC PRO
+                Cronostic Pro
               </Link>
               .
             </p>

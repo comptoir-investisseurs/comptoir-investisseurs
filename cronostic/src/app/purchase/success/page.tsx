@@ -70,7 +70,7 @@ export default async function PurchaseSuccessPage({
             className="w-44"
           />
           <p className="font-display mt-6 text-2xl text-ivoire">Omega {guide.caliberReference}</p>
-          <p className="mt-1 text-sm text-parchemin/65">Guide complet CRONOSTIC</p>
+          <p className="mt-1 text-sm text-parchemin/65">Guide complet Cronostic</p>
 
           <a
             href={`/api/guides/${guide.id}/download`}

@@ -24,7 +24,7 @@ export function GuideCard({
       </Link>
 
       <div className="mt-4 flex flex-1 flex-col">
-        <p className="surtitre">Cronostic Guide</p>
+        <p className="surtitre-marque">Guide Cronostic</p>
 
         <h3 className="titre mt-2 text-lg text-ivoire">
           <Link href={`/calibres/${guide.caliberSlug}#guide`} className="lien-souligne">
@@ -63,7 +63,7 @@ export function GuideCard({
             </div>
           ) : viaSubscription ? (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-laiton-clair">Inclus avec CRONOSTIC PRO</span>
+              <span className="text-sm text-laiton-clair">Inclus avec Cronostic Pro</span>
               <Link
                 href="/compte/guides"
                 className="text-[0.78rem] tracking-wide text-ivoire underline underline-offset-4"
@@ -85,7 +85,7 @@ export function GuideCard({
             </div>
           )}
           {guide.includedInSubscription && !owned && !viaSubscription && (
-            <p className="mt-2 text-[0.7rem] tracking-wide text-acier">Inclus avec CRONOSTIC PRO</p>
+            <p className="mt-2 text-[0.7rem] tracking-wide text-acier">Inclus avec Cronostic Pro</p>
           )}
         </div>
       </div>

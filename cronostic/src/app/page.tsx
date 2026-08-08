@@ -18,7 +18,7 @@ export default async function HomePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="border-b border-parchemin/10">
         <div className="mx-auto max-w-6xl px-5 pt-20 pb-16 sm:pt-28 sm:pb-24">
-          <p className="surtitre">Cronostic</p>
+          <p className="surtitre-marque">Cronostic</p>
           <h1 className="titre mt-5 max-w-3xl text-4xl text-ivoire sm:text-6xl">
             La documentation technique de l&apos;horloger.
           </h1>
@@ -67,10 +67,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Guides CRONOSTIC ─────────────────────────────── */}
+      {/* ── Guides Cronostic ─────────────────────────────── */}
       <section className="border-b border-parchemin/10">
         <div className="mx-auto max-w-6xl px-5 py-20">
-          <h2 className="surtitre">Guides Cronostic</h2>
+          <h2 className="surtitre-marque">Guides Cronostic</h2>
           <p className="titre mt-4 max-w-2xl text-3xl text-ivoire sm:text-4xl">
             Des manuels conçus pour être utilisés directement à l&apos;établi.
           </p>
@@ -112,7 +112,7 @@ export default async function HomePage() {
               <GuideCover caliberReference="265" className="w-40 shrink-0" />
               <div>
                 <p className="text-sm leading-relaxed text-parchemin/70">
-                  Les guides CRONOSTIC sont mis en ligne calibre par calibre. Chaque manuel couvre
+                  Les guides Cronostic sont mis en ligne calibre par calibre. Chaque manuel couvre
                   le cycle complet d&apos;entretien&nbsp;:
                 </p>
                 <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm text-parchemin/80">
@@ -146,7 +146,7 @@ export default async function HomePage() {
               Puis trouvez la pièce.
             </p>
             <p className="mt-6 max-w-lg leading-relaxed text-parchemin/70">
-              Chaque calibre est accompagné de sa nomenclature. Depuis une fourniture, CRONOSTIC
+              Chaque calibre est accompagné de sa nomenclature. Depuis une fourniture, Cronostic
               lance la recherche d&apos;offres chez les marchands spécialisés et sur le marché de
               l&apos;occasion.
             </p>
@@ -176,17 +176,17 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── CRONOSTIC PRO ────────────────────────────────── */}
+      {/* ── Cronostic Pro ────────────────────────────────── */}
       <section>
         <div className="mx-auto max-w-6xl px-5 py-24">
           <div className="carte relative overflow-hidden px-8 py-14 text-center sm:px-14">
             <div className="pointer-events-none absolute inset-4 border border-laiton/15" />
-            <h2 className="surtitre relative">Cronostic Pro</h2>
+            <h2 className="surtitre-marque relative">Cronostic Pro</h2>
             <p className="titre relative mt-5 text-4xl text-ivoire sm:text-5xl">
               Tous les guides. Un seul abonnement.
             </p>
             <p className="relative mx-auto mt-6 max-w-xl leading-relaxed text-parchemin/70">
-              L&apos;accès à l&apos;ensemble des guides CRONOSTIC inclus dans l&apos;abonnement, aux
+              L&apos;accès à l&apos;ensemble des guides Cronostic inclus dans l&apos;abonnement, aux
               nouveaux manuels dès leur publication, et au téléchargement des PDF.
             </p>
             <p className="font-display relative mt-8 text-2xl text-laiton-clair">
@@ -197,7 +197,7 @@ export default async function HomePage() {
               href="/pro"
               className="relative mt-8 inline-block bg-laiton px-8 py-3 text-[0.8rem] tracking-[0.16em] text-noir uppercase transition-colors hover:bg-laiton-clair"
             >
-              Découvrir CRONOSTIC PRO
+              Découvrir Cronostic Pro
             </Link>
           </div>
         </div>

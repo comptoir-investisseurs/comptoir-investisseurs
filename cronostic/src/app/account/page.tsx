@@ -49,7 +49,7 @@ export default async function AccountPage({
         <div className="carte mt-5 flex flex-wrap items-center justify-between gap-6 p-7">
           <div>
             <p className="text-lg text-ivoire">
-              {active ? "CRONOSTIC PRO — actif" : "Aucun abonnement actif"}
+              {active ? "Cronostic Pro — actif" : "Aucun abonnement actif"}
             </p>
             {subscription && (
               <p className="mt-1 text-sm text-acier">

@@ -1,4 +1,4 @@
-# CRONOSTIC
+# Cronostic
 
 > La documentation technique de l'horloger.
 > Guides d'atelier et pièces détachées pour mouvements horlogers vintage.
@@ -11,7 +11,7 @@ dédié (voir « Extraction » en fin de fichier).
 
 ## Ce que le site fait — et ne fait pas
 
-Les guides PDF CRONOSTIC sont produits **hors du site**, déjà mis en page et
+Les guides PDF Cronostic sont produits **hors du site**, déjà mis en page et
 estampillés. Le site ne les génère pas, ne les modifie pas et ne stocke aucune
 représentation structurée de leur contenu. Il les **vend** et les **distribue**.
 
@@ -23,7 +23,7 @@ fiche produit et un fichier à téléverser.
 | ----------------------------------------------- | -------------------------------------- |
 | Présenter les calibres Omega vintage            | Générer ou modifier les PDF            |
 | Vendre les guides à l'unité (Stripe)            | Analyser les manuels sources           |
-| Proposer l'abonnement CRONOSTIC PRO             | Rédiger du contenu de guide            |
+| Proposer l'abonnement Cronostic Pro             | Rédiger du contenu de guide            |
 | Servir les PDF après vérification des droits    | Gérer une validation éditoriale        |
 | Identifier les fournitures d'un calibre         | Stocker le contenu structuré des PDF   |
 | Chercher les pièces en vente (eBay + marchands) |                                        |
@@ -79,7 +79,7 @@ d'elle-même. Renseigner `ADMIN_EMAILS` **avant** le premier déploiement public
 ### 3. Paiement (Stripe)
 
 - `STRIPE_SECRET_KEY`
-- `STRIPE_PRO_PRICE_ID` — prix récurrent mensuel de CRONOSTIC PRO
+- `STRIPE_PRO_PRICE_ID` — prix récurrent mensuel de Cronostic Pro
   (facultatif : sans lui, le prix est créé à la volée depuis
   `NEXT_PUBLIC_PRO_PRICE_CENTS`)
 - Webhook → `https://…/api/stripe/webhook`, puis `STRIPE_WEBHOOK_SECRET`
@@ -114,7 +114,7 @@ automatiquement sur les liens marchands.
 
 1. `/admin/guides` → **Ajouter**
 2. Choisir le calibre, saisir titre, description courte, prix, nombre de pages
-3. Cocher **Inclus dans CRONOSTIC PRO** si le guide entre dans l'abonnement
+3. Cocher **Inclus dans Cronostic Pro** si le guide entre dans l'abonnement
 4. Enregistrer, puis **téléverser le PDF final** depuis la page du guide
 5. **Publier**
 
@@ -128,9 +128,9 @@ signalée.
 | Situation                                | Affichage                    | Téléchargement |
 | ---------------------------------------- | ---------------------------- | -------------- |
 | Visiteur non connecté                    | Prix + « Acheter »           | non            |
-| Connecté, guide non acheté, pas PRO      | Prix + « Acheter »           | non            |
+| Connecté, guide non acheté, pas Pro      | Prix + « Acheter »           | non            |
 | Guide déjà acheté                        | « Vous possédez ce guide »   | oui, définitif |
-| PRO actif + guide inclus                 | « Inclus avec CRONOSTIC PRO »| oui            |
+| Pro actif + guide inclus                 | « Inclus avec Cronostic Pro »| oui            |
 
 Un achat à l'unité survit à la résiliation de l'abonnement. Un guide déjà
 possédé ne se voit jamais reproposer à l'achat. Un clic sur « Acheter » ou
@@ -213,6 +213,31 @@ cd cronostic && git remote set-url origin <nouveau-dépôt> && git push -u origi
 
 Ou simplement copier le dossier dans un dépôt neuf : rien n'y référence le
 projet hôte.
+
+---
+
+## Identité
+
+Le nom s'écrit **toujours « Cronostic »** — capitale initiale, jamais en
+capitales d'imprimerie. Aucun libellé ne doit lui appliquer `uppercase` : les
+intertitres qui portent la marque utilisent `.surtitre-marque`, les autres
+`.surtitre`.
+
+Le logotype se dépose dans `public/` — voir `public/README.md`. Tant qu'il
+n'est pas là, il est composé en Yellowtail.
+
+**Typographie** (chargée par `next/font`, auto-hébergée, aucun appel externe
+au runtime) :
+
+| Rôle | Police | Pourquoi |
+| --- | --- | --- |
+| Titres | Fraunces | Serif à contraste bas, formes chaudes, tient sur fond sombre |
+| Texte, interface | IBM Plex Sans | Dessinée pour la documentation technique |
+| Références, numéros | IBM Plex Mono | Nomenclature lisible, assortie au texte |
+| Logotype | Yellowtail | Script d'enseigne, provisoire |
+
+**Palette** : noir de platine `#0a0a0b`, greige `#cbc7bb` (repris du
+logotype), ivoire `#f2efe6`, laiton `#c39b48`.
 
 ---
 

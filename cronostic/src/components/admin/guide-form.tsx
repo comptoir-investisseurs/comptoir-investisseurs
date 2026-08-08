@@ -71,7 +71,7 @@ export function GuideForm({
           name="shortDescription"
           rows={3}
           defaultValue={guide?.shortDescription ?? ""}
-          placeholder="Le guide d'atelier CRONOSTIC consacré au calibre Omega 265."
+          placeholder="Le guide d'atelier Cronostic consacré au calibre Omega 265."
           className={champ}
         />
       </div>
@@ -129,7 +129,7 @@ export function GuideForm({
             defaultChecked={guide?.includedInSubscription ?? true}
             className="accent-[#c39b48]"
           />
-          Inclus dans CRONOSTIC PRO
+          Inclus dans Cronostic Pro
         </label>
         <label className="flex items-center gap-3 text-sm text-parchemin/80">
           <input

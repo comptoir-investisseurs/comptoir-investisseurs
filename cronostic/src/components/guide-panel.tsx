@@ -7,7 +7,7 @@ import type { GuideAccess, GuideRow } from "@/lib/types";
 import { GuideCover } from "./guide-cover";
 
 /**
- * Bloc « GUIDE CRONOSTIC » d'une fiche calibre.
+ * Bloc « GUIDE Cronostic » d'une fiche calibre.
  *
  * Trois états, jamais mélangés :
  *   — guide déjà acheté   → téléchargement, aucune proposition d'achat ;
@@ -28,10 +28,10 @@ export function GuidePanel({
   if (!guide || !guide.isActive) {
     return (
       <section id="guide" className="scroll-mt-24">
-        <h2 className="surtitre">Guide Cronostic</h2>
+        <h2 className="surtitre-marque">Guide Cronostic</h2>
         <div className="carte mt-6 p-8">
           <p className="text-parchemin/70">
-            Le guide d&apos;atelier CRONOSTIC consacré à ce calibre n&apos;est pas encore en ligne.
+            Le guide d&apos;atelier Cronostic consacré à ce calibre n&apos;est pas encore en ligne.
           </p>
           <Link href="/guides" className="lien-souligne mt-4 inline-block text-sm text-laiton-clair">
             Voir les guides déjà disponibles
@@ -43,7 +43,7 @@ export function GuidePanel({
 
   return (
     <section id="guide" className="scroll-mt-24">
-      <h2 className="surtitre">Guide Cronostic</h2>
+      <h2 className="surtitre-marque">Guide Cronostic</h2>
 
       <div className="carte mt-6 grid gap-10 p-8 sm:p-10 lg:grid-cols-[minmax(0,240px)_1fr] lg:items-start">
         <GuideCover
@@ -59,7 +59,7 @@ export function GuidePanel({
 
           <p className="mt-5 max-w-xl leading-relaxed text-parchemin/65 italic">
             «&nbsp;{guide.shortDescription ??
-              `Le guide d'atelier CRONOSTIC consacré au calibre Omega ${guide.caliberReference}.`}
+              `Le guide d'atelier Cronostic consacré au calibre Omega ${guide.caliberReference}.`}
             &nbsp;»
           </p>
 
@@ -87,7 +87,7 @@ export function GuidePanel({
             </div>
           ) : access.viaSubscription ? (
             <div className="flex flex-wrap items-center gap-5">
-              <p className="text-lg text-laiton-clair">Inclus avec votre abonnement PRO</p>
+              <p className="text-lg text-laiton-clair">Inclus avec votre abonnement Cronostic Pro</p>
               <DownloadButton guideId={guide.id} />
             </div>
           ) : (
@@ -117,7 +117,7 @@ export function GuidePanel({
 
               {guide.includedInSubscription && (
                 <Link href="/pro" className="lien-souligne text-sm text-parchemin/70">
-                  ou inclus avec CRONOSTIC PRO
+                  ou inclus avec Cronostic Pro
                 </Link>
               )}
             </div>
@@ -133,7 +133,7 @@ export function GuidePanel({
           )}
 
           <p className="mt-6 text-xs text-acier">
-            Guide produit et mis en page par CRONOSTIC. Fichier PDF, téléchargeable depuis votre
+            Guide produit et mis en page par Cronostic. Fichier PDF, téléchargeable depuis votre
             compte à tout moment.{" "}
             <Link href={`/calibres/${caliberSlug}`} className="underline underline-offset-2">
               Retour à la fiche

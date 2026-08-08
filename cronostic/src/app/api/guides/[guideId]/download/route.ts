@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  * Téléchargement d'un guide.
  *
  * L'URL du bucket R2 n'est jamais exposée : la route vérifie la session, puis
- * le droit (achat OU abonnement PRO actif couvrant ce guide), et ne délivre
+ * le droit (achat OU abonnement Cronostic Pro actif couvrant ce guide), et ne délivre
  * qu'ensuite une URL signée à durée de vie courte.
  */
 export async function GET(
@@ -37,7 +37,7 @@ export async function GET(
     return NextResponse.json(
       {
         error:
-          "Accès refusé. Ce guide nécessite un achat à l'unité ou un abonnement CRONOSTIC PRO actif.",
+          "Accès refusé. Ce guide nécessite un achat à l'unité ou un abonnement Cronostic Pro actif.",
       },
       { status: 403 },
     );
@@ -50,7 +50,7 @@ export async function GET(
     );
   }
 
-  const filename = `CRONOSTIC-${guide.caliberReference}.pdf`;
+  const filename = `Cronostic-${guide.caliberReference}.pdf`;
 
   const url = await signedDownloadUrl(guide.r2FileKey, filename);
   if (url) return NextResponse.redirect(url);

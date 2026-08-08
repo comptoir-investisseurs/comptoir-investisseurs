@@ -8,7 +8,7 @@ const NAV = [
   { href: "/guides", label: "Guides" },
   { href: "/pieces", label: "Pièces" },
   { href: "/huiles", label: "Huiles" },
-  { href: "/pro", label: "CRONOSTIC PRO" },
+  { href: "/pro", label: "Cronostic Pro" },
 ];
 
 export async function SiteHeader() {
@@ -19,7 +19,7 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-8 px-5">
         <Link href="/" className="flex items-center gap-3 text-ivoire">
           <Marque className="text-laiton" />
-          <Wordmark className="text-[0.95rem]" />
+          <Wordmark className="text-[1.6rem]" />
         </Link>
 
         <nav className="hidden flex-1 items-center gap-7 md:flex">

@@ -12,7 +12,7 @@ const MAX_BYTES = 60 * 1024 * 1024;
  * Téléversement du PDF final d'un guide (ou de son extrait public).
  *
  * Le site ne produit ni ne modifie les PDF : il reçoit le fichier déjà mis en
- * page par CRONOSTIC et l'écrit tel quel dans le bucket privé.
+ * page par Cronostic et l'écrit tel quel dans le bucket privé.
  */
 export async function POST(
   request: Request,

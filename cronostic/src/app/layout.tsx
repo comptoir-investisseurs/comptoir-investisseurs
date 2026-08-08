@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans, Yellowtail } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -6,28 +7,67 @@ import { hasClerk, siteUrl } from "@/lib/env";
 
 import "./globals.css";
 
+/**
+ * Typographie.
+ *
+ * Fraunces pour les titres : serif à contraste bas, formes chaudes et
+ * légèrement irrégulières, qui tient sur fond sombre là où un didone se
+ * casse. IBM Plex pour le texte et les références : dessiné pour la
+ * documentation technique, avec le monospace assorti pour les numéros de
+ * nomenclature. Yellowtail ne sert qu'au logotype.
+ */
+const display = Fraunces({
+  subsets: ["latin"],
+  axes: ["SOFT", "WONK", "opsz"],
+  display: "swap",
+  variable: "--fraunces",
+});
+
+const sans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--plex-sans",
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+  variable: "--plex-mono",
+});
+
+const marque = Yellowtail({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  variable: "--yellowtail",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: "CRONOSTIC — La documentation technique de l'horloger",
-    template: "%s · CRONOSTIC",
+    default: "Cronostic — La documentation technique de l'horloger",
+    template: "%s · Cronostic",
   },
   description:
     "Guides d'atelier et pièces détachées pour mouvements horlogers vintage. Fiches calibres Omega, nomenclatures, huiles et consommables.",
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    siteName: "CRONOSTIC",
-    title: "CRONOSTIC — La documentation technique de l'horloger",
-    description:
-      "Guides d'atelier et pièces détachées pour mouvements horlogers vintage.",
+    siteName: "Cronostic",
+    title: "Cronostic — La documentation technique de l'horloger",
+    description: "Guides d'atelier et pièces détachées pour mouvements horlogers vintage.",
   },
   robots: { index: true, follow: true },
 };
 
-async function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
+    <html
+      lang="fr"
+      className={`${display.variable} ${sans.variable} ${mono.variable} ${marque.variable}`}
+    >
       <body className="min-h-screen antialiased">
         <div className="relative z-10 flex min-h-screen flex-col">
           <SiteHeader />

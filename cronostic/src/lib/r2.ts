@@ -9,7 +9,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { hasR2 } from "./env";
 
 /**
- * Les PDF CRONOSTIC vivent dans un bucket R2 **privé**. L'URL du bucket n'est
+ * Les PDF Cronostic vivent dans un bucket R2 **privé**. L'URL du bucket n'est
  * jamais exposée : le téléchargement passe toujours par une URL signée à durée
  * de vie courte, générée après vérification des droits.
  *

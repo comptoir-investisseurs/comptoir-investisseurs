@@ -1,9 +1,9 @@
 /**
- * Catalogue de lancement CRONOSTIC.
+ * Catalogue de lancement Cronostic.
  *
  * Ce fichier est la source unique du seed de base de données ET du mode démo
  * (site consultable sans `DATABASE_URL`). Il ne contient aucun contenu de
- * guide : les PDF CRONOSTIC sont produits hors du site et simplement
+ * guide : les PDF Cronostic sont produits hors du site et simplement
  * téléversés depuis /admin/guides.
  *
  * ⚠️ Statut des données : `draft`.
@@ -468,7 +468,7 @@ export const CALIBERS: SeedCaliber[] = [
     family: "omega-30-mm",
     introducedYear: 1958,
     summary:
-      "Dernière référence du catalogue de lancement CRONOSTIC pour la famille 30 millimètres.",
+      "Dernière référence du catalogue de lancement Cronostic pour la famille 30 millimètres.",
     presentation:
       "Le 286 ferme la série 28x. Il partage la base mécanique de la famille et se travaille exactement de la même manière, ce qui en fait un bon mouvement d'apprentissage pour qui découvre l'architecture 30 millimètres.\n\nLes fournitures étant largement communes à la famille, l'approvisionnement reste raisonnable pour un mouvement de cette époque.",
     history: "Produit à la fin des années 1950 et au début des années 1960, en fin de vie de la famille 30 millimètres.",
@@ -503,7 +503,7 @@ for (const caliber of CALIBERS) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Guides CRONOSTIC — enregistrements de démonstration.
+   Guides Cronostic — enregistrements de démonstration.
    Le PDF réel se téléverse depuis /admin/guides ; tant qu'aucun
    fichier n'est attaché, le guide reste dépublié.
    ──────────────────────────────────────────────────────────── */
@@ -523,7 +523,7 @@ export const GUIDES: SeedGuide[] = CALIBERS.map((c) => ({
   caliberSlug: c.slug,
   slug: `guide-${c.slug}`,
   title: `${c.name.replace("Omega calibre", "Omega").toUpperCase()} — Guide complet d'entretien`,
-  shortDescription: `Le guide d'atelier CRONOSTIC consacré au calibre ${c.reference} : démontage, nettoyage, contrôle, lubrification, remontage et points de vigilance.`,
+  shortDescription: `Le guide d'atelier Cronostic consacré au calibre ${c.reference} : démontage, nettoyage, contrôle, lubrification, remontage et points de vigilance.`,
   priceCents: 1490,
   pageCount: null,
   includedInSubscription: true,

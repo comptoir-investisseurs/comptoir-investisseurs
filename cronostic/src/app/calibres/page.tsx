@@ -9,7 +9,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Calibres Omega vintage",
   description:
-    "Encyclopédie CRONOSTIC des calibres Omega vintage : fiches techniques, nomenclature, huiles et guides d'atelier.",
+    "Encyclopédie Cronostic des calibres Omega vintage : fiches techniques, nomenclature, huiles et guides d'atelier.",
 };
 
 export default async function CalibresPage() {

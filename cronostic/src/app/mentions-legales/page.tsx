@@ -28,7 +28,7 @@ export default function MentionsLegalesPage() {
         <section>
           <h2 className="surtitre">Propriété intellectuelle</h2>
           <p>
-            Les guides CRONOSTIC, leurs textes, schémas et mises en page sont protégés. Leur
+            Les guides Cronostic, leurs textes, schémas et mises en page sont protégés. Leur
             diffusion, revente ou mise à disposition publique est interdite sans autorisation
             écrite.
           </p>
@@ -36,7 +36,7 @@ export default function MentionsLegalesPage() {
         <section>
           <h2 className="surtitre">Marques citées</h2>
           <p>
-            Les marques et références citées appartiennent à leurs détenteurs respectifs. CRONOSTIC
+            Les marques et références citées appartiennent à leurs détenteurs respectifs. Cronostic
             est un éditeur indépendant, sans lien avec ces sociétés&nbsp;; les mentions n&apos;ont
             qu&apos;une fonction d&apos;identification technique.
           </p>
