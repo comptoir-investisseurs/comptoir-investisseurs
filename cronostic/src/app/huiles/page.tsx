@@ -63,12 +63,14 @@ export default async function HuilesPage() {
                 <p className="font-titre mt-2 text-section text-encre">{l.reference}</p>
                 <p className="mt-1 text-legende text-encre/72">{l.name}</p>
                 {l.viscosity && (
-                  <p
-                    className={`mt-3 text-[0.7rem] tracking-[0.14em] text-laiton uppercase ${
-                      l.isVerified ? "" : "indicatif"
-                    }`}
-                  >
-                    Viscosité&nbsp;: {l.viscosity}
+                  // Pas de capitales sur la valeur : « cSt » est un symbole
+                  // d'unité, et « 150 CST » ne veut rien dire. Seul le libellé
+                  // porte le traitement de surtitre.
+                  <p className={`mt-3 text-legende not-italic ${l.isVerified ? "" : "indicatif"}`}>
+                    <span className="text-[0.7rem] tracking-[0.14em] text-laiton uppercase">
+                      Viscosité
+                    </span>{" "}
+                    <span className="tabular-nums">{l.viscosity}</span>
                   </p>
                 )}
                 {l.usage && (

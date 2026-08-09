@@ -125,13 +125,19 @@ export async function getCaliberBySlug(slug: string): Promise<CaliberDetail | nu
       presentation: seed.presentation,
       history: seed.history,
       architecture: seed.architecture,
-      specs: seed.specs.map((s) => ({
-        key: s.key,
-        label: s.label,
-        value: s.value,
-        unit: s.unit ?? null,
-        isVerified: s.verified ?? false,
-      })),
+      specs: seed.specs.map((s) => {
+        // Une valeur attestée depuis le back-office l'emporte sur le seed.
+        const corrige = store().specs.get(`${slug}|${s.key}`);
+        return {
+          key: s.key,
+          label: s.label,
+          value: corrige?.value ?? s.value,
+          unit: s.unit ?? null,
+          isVerified: corrige?.isVerified ?? s.verified ?? false,
+          source: corrige?.source ?? null,
+          sourceUrl: corrige?.sourceUrl ?? null,
+        };
+      }),
       parts: demoParts.filter((p) => seed.parts.includes(p.reference)),
       lubrication: seed.lubrication.map((lp, i) => ({
         id: `lp_${slug}_${i}`,
@@ -946,6 +952,38 @@ export type Manques = {
   lubrifiants: { total: number; attestes: number; sansViscosite: number };
   guides: { total: number; publies: number; sansPdf: number };
 };
+
+/**
+ * Validation d'une caractéristique de calibre. Même règle que partout :
+ * sans source, l'attestation ne prend pas.
+ */
+export async function validerSpec(
+  caliberSlug: string,
+  key: string,
+  patch: { value: string; source: string | null; sourceUrl: string | null; isVerified: boolean },
+): Promise<boolean> {
+  if (!hasDatabase()) {
+    const seed = CALIBERS.find((c) => c.slug === caliberSlug);
+    if (!seed || !seed.specs.some((s) => s.key === key)) return false;
+    store().specs.set(`${caliberSlug}|${key}`, patch);
+    return true;
+  }
+
+  const db = getDb();
+  const [calibre] = await db
+    .select({ id: schema.calibers.id })
+    .from(schema.calibers)
+    .where(eq(schema.calibers.slug, caliberSlug))
+    .limit(1);
+  if (!calibre) return false;
+
+  const modifiees = await db
+    .update(schema.caliberSpecs)
+    .set(patch)
+    .where(and(eq(schema.caliberSpecs.caliberId, calibre.id), eq(schema.caliberSpecs.key, key)))
+    .returning({ id: schema.caliberSpecs.id });
+  return modifiees.length > 0;
+}
 
 export async function inventaireDesManques(): Promise<Manques> {
   const [documentes, encyclopedie, pieces, lubrifiants, guides] = await Promise.all([

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { inventaireDesManques } from "@/lib/repo";
+import { importerAttestationsAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,17 @@ function Barre({
   );
 }
 
-export default async function AdminDonneesPage() {
+export default async function AdminDonneesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    appliquees?: string;
+    incompletes?: string;
+    inconnues?: string;
+    import?: string;
+  }>;
+}) {
+  const sp = await searchParams;
   const m = await inventaireDesManques();
 
   return (
@@ -152,6 +163,80 @@ export default async function AdminDonneesPage() {
         <a href="/api/admin/manques.csv" className="bouton-secondaire mt-5 inline-block" download>
           Télécharger la liste (CSV)
         </a>
+
+        <div className="cadre-papier mt-8 p-6">
+          <p className="surtitre">Renvoyer le fichier rempli</p>
+          <p className="mt-3 max-w-[72ch] text-legende leading-relaxed text-encre/72">
+            Remplissez les colonnes <span className="font-technique">valeur_relevee</span> et{" "}
+            <span className="font-technique">source</span> — et{" "}
+            <span className="font-technique">url_source</span> si le document est en ligne. Ne
+            touchez pas à <span className="font-technique">cle_reprise</span> : c&apos;est elle qui
+            rattache chaque ligne à sa donnée. Les lignes laissées vides sont ignorées, celles où
+            la source manque aussi : une valeur sans provenance n&apos;est pas attestée.
+          </p>
+
+          <form
+            action={importerAttestationsAction}
+            encType="multipart/form-data"
+            className="mt-5 flex flex-wrap items-center gap-4"
+          >
+            <input
+              type="file"
+              name="fichier"
+              accept=".csv,text/csv"
+              required
+              className="min-w-0 flex-1 border border-gris-trait bg-white px-3 py-2 text-legende text-encre file:mr-3 file:border-0 file:bg-gris-fond file:px-3 file:py-1.5 file:text-encre"
+              aria-label="Fichier CSV rempli"
+            />
+            <button type="submit" className="bouton shrink-0">
+              Importer
+            </button>
+          </form>
+        </div>
+
+        {sp.import === "vide" && (
+          <p className="mt-4 border-l-2 border-alerte bg-papier px-5 py-3 text-legende text-alerte">
+            Aucun fichier reçu.
+          </p>
+        )}
+
+        {sp.appliquees !== undefined && (
+          <div className="encart encart-methode mt-6 max-w-[76ch]">
+            <p className="encart-titre">Import terminé</p>
+            <p className="mt-2">
+              <strong>{sp.appliquees}</strong> valeur
+              {Number(sp.appliquees) > 1 ? "s" : ""} attestée
+              {Number(sp.appliquees) > 1 ? "s" : ""}.
+              {Number(sp.incompletes) > 0 && (
+                <>
+                  {" "}
+                  {sp.incompletes} ligne{Number(sp.incompletes) > 1 ? "s" : ""} laissée
+                  {Number(sp.incompletes) > 1 ? "s" : ""} de côté : valeur sans source, ou
+                  l&apos;inverse.
+                </>
+              )}
+              {Number(sp.inconnues) > 0 && (
+                <>
+                  {" "}
+                  {sp.inconnues} clé{Number(sp.inconnues) > 1 ? "s" : ""} de reprise non
+                  reconnue{Number(sp.inconnues) > 1 ? "s" : ""} — colonne déplacée ou ligne ajoutée
+                  à la main.
+                </>
+              )}
+            </p>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-14">
+        <h3 className="surtitre">Déposer des documents</h3>
+        <div className="filet mt-2" />
+        <p className="mt-4 max-w-[72ch] text-legende leading-relaxed text-encre/72">
+          L&apos;autre voie : déposer les planches et fiches techniques dans le dossier{" "}
+          <span className="font-technique">sources/</span> du dépôt, comme les PDF des guides. Il
+          n&apos;est pas publié — rien n&apos;y est servi. Le mode d&apos;emploi et les conventions
+          de nommage figurent dans <span className="font-technique">sources/README.md</span>.
+        </p>
       </section>
     </div>
   );

@@ -25,8 +25,11 @@ export async function GET() {
     return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
   }
 
+  // La première colonne est la clé de reprise : c'est elle qui permet de
+  // réinjecter le fichier rempli sans se fier à un libellé que l'on aura
+  // peut-être corrigé entre-temps. Ne pas la modifier dans le tableur.
   const lignes: string[][] = [
-    ["section", "objet", "cle", "valeur_actuelle", "valeur_relevee", "source", "url_source"],
+    ["cle_reprise", "section", "objet", "champ", "valeur_actuelle", "valeur_relevee", "source", "url_source"],
   ];
 
   const [calibres, pieces, lubrifiants] = await Promise.all([
@@ -40,6 +43,7 @@ export async function GET() {
     for (const s of detail?.specs ?? []) {
       if (s.isVerified) continue;
       lignes.push([
+        `spec:${c.slug}:${s.key}`,
         "caracteristique",
         `${c.brand} ${c.reference}`,
         s.label,
@@ -54,9 +58,10 @@ export async function GET() {
   for (const p of pieces) {
     if (p.isVerified) continue;
     lignes.push([
+      `piece:${p.id}`,
       "fourniture",
       p.name,
-      `n° ${p.positionNumber ?? ""}`,
+      `référence de commande (n° ${p.positionNumber ?? "?"})`,
       p.orderReference ?? "",
       "",
       "",
@@ -67,6 +72,7 @@ export async function GET() {
   for (const l of lubrifiants) {
     if (l.isVerified) continue;
     lignes.push([
+      `huile:${l.id}:viscosite`,
       "lubrifiant",
       `${l.brand} ${l.reference}`,
       "viscosité",
@@ -75,7 +81,16 @@ export async function GET() {
       "",
       "",
     ]);
-    lignes.push(["lubrifiant", `${l.brand} ${l.reference}`, "usage", l.usage ?? "", "", "", ""]);
+    lignes.push([
+      `huile:${l.id}:usage`,
+      "lubrifiant",
+      `${l.brand} ${l.reference}`,
+      "usage",
+      l.usage ?? "",
+      "",
+      "",
+      "",
+    ]);
   }
 
   const csv = "﻿" + lignes.map((l) => l.map(champ).join(";")).join("\r\n");

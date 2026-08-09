@@ -8,6 +8,7 @@ import { readFile } from "node:fs/promises";
 import { requireAdmin } from "@/lib/auth";
 import { aUnPdfDansLeDepot, calibresAvecPdf, pdfDisponibles, pdfDuDepot } from "@/lib/guide-files";
 import { compterPages } from "@/lib/pdf";
+import { lireCsv } from "@/lib/csv";
 import { readObject } from "@/lib/r2";
 import { slugify } from "@/lib/format";
 import {
@@ -17,8 +18,11 @@ import {
   listCalibresTous,
   listGuides,
   updateGuide,
+  listLubricants,
+  listParts,
   validerLubrifiant,
   validerPiece,
+  validerSpec,
 } from "@/lib/repo";
 
 /**
@@ -251,4 +255,100 @@ export async function validerLubrifiantAction(formData: FormData) {
   revalidatePath("/admin/donnees");
   revalidatePath("/huiles");
   redirect("/admin/huiles?validee=1");
+}
+
+/**
+ * Reprise du fichier d'attestation rempli.
+ *
+ * Le tableur exporté depuis /admin/donnees revient ici complété. Une ligne
+ * n'est prise en compte que si `valeur_relevee` **et** `source` sont
+ * renseignées : c'est la même règle que dans les formulaires, appliquée en
+ * masse. Le reste est ignoré et compté, jamais deviné.
+ *
+ * Rien n'est écrit en dehors des lignes reconnues : une clé de reprise
+ * inconnue — ligne ajoutée à la main, colonne déplacée — est signalée plutôt
+ * que rapprochée au jugé d'une donnée voisine.
+ */
+export async function importerAttestationsAction(formData: FormData) {
+  await requireAdmin();
+
+  const fichier = formData.get("fichier");
+  if (!(fichier instanceof File) || fichier.size === 0) {
+    redirect("/admin/donnees?import=vide");
+  }
+
+  const lignes = lireCsv(await fichier.text());
+  const [pieces, lubrifiants] = await Promise.all([listParts(), listLubricants()]);
+
+  let appliquees = 0;
+  let incompletes = 0;
+  let inconnues = 0;
+
+  for (const ligne of lignes) {
+    const cle = ligne["cle_reprise"];
+    const valeur = ligne["valeur_relevee"];
+    const source = ligne["source"];
+    const url = ligne["url_source"] || null;
+
+    if (!cle) continue;
+    if (!valeur || !source) {
+      if (valeur || source) incompletes++;
+      continue;
+    }
+
+    const [genre, ...reste] = cle.split(":");
+
+    if (genre === "spec") {
+      const [slug, champ] = [reste[0], reste.slice(1).join(":")];
+      const ok = await validerSpec(slug, champ, {
+        value: valeur,
+        source,
+        sourceUrl: url,
+        isVerified: true,
+      });
+      ok ? appliquees++ : inconnues++;
+      continue;
+    }
+
+    if (genre === "piece") {
+      const piece = pieces.find((p) => p.id === reste[0]);
+      if (!piece) {
+        inconnues++;
+        continue;
+      }
+      await validerPiece(piece.id, { orderReference: valeur, source, isVerified: true });
+      appliquees++;
+      continue;
+    }
+
+    if (genre === "huile") {
+      const lub = lubrifiants.find((l) => l.id === reste[0]);
+      if (!lub) {
+        inconnues++;
+        continue;
+      }
+      const champ = reste[1];
+      await validerLubrifiant(lub.id, {
+        viscosity: champ === "viscosite" ? valeur : lub.viscosity,
+        usage: champ === "usage" ? valeur : lub.usage,
+        source,
+        sourceUrl: url,
+        isVerified: true,
+      });
+      appliquees++;
+      continue;
+    }
+
+    inconnues++;
+  }
+
+  revalidatePath("/admin/donnees");
+  revalidatePath("/admin/pieces");
+  revalidatePath("/admin/huiles");
+  revalidatePath("/huiles");
+  revalidatePath("/calibres", "layout");
+
+  redirect(
+    `/admin/donnees?appliquees=${appliquees}&incompletes=${incompletes}&inconnues=${inconnues}`,
+  );
 }

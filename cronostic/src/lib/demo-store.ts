@@ -22,6 +22,15 @@ import type {
 
 type Store = {
   guides: GuideRow[];
+  /**
+   * Caractéristiques corrigées depuis le back-office, par `slug|clé`.
+   *
+   * En mode démonstration les caractéristiques sont recalculées depuis le
+   * seed à chaque lecture : sans cette surcouche, une valeur attestée serait
+   * perdue au rafraîchissement suivant. Elle disparaît au redémarrage, comme
+   * le reste du magasin.
+   */
+  specs: Map<string, { value: string; source: string | null; sourceUrl: string | null; isVerified: boolean }>;
   users: AppUser[];
   purchases: PurchaseRow[];
   subscriptions: SubscriptionRow[];
@@ -103,6 +112,7 @@ export function store(): Store {
   if (!globalForStore.__cronosticDemoStore) {
     globalForStore.__cronosticDemoStore = {
       guides: buildGuides(),
+      specs: new Map(),
       users: [],
       purchases: [],
       subscriptions: [],

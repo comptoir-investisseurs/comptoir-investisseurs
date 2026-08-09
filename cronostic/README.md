@@ -501,8 +501,28 @@ d'avancer : ouvrir ces domaines dans la politique réseau de l'environnement,
 ou saisir les valeurs depuis les documents en main — les écrans de validation
 demandent une source pour chaque valeur.
 
-`/admin/donnees` tient l'inventaire de ce qui reste à attester et l'exporte en
-CSV, une ligne par valeur, prêt à être travaillé dans un tableur.
+### Trois façons de fournir les données
+
+**1. Ouvrir les domaines** dans la politique réseau de l'environnement
+(`claude.ai/code` → environnement → réseau). Au minimum `ranfft.org`,
+`eta.ch`, `moebius-lubricants.ch`. C'est la voie la plus rapide : la recherche
+reprend et chaque valeur arrive avec sa source.
+
+**2. Déposer les documents** dans `sources/` — planches, fiches techniques,
+catalogues. Ce dossier est hors de `public/`, rien n'y est servi. Conventions
+de nommage dans `sources/README.md`.
+
+**3. L'aller-retour tableur.** `/admin/donnees` exporte la liste de ce qui
+reste à attester, une ligne par valeur. On remplit `valeur_relevee`, `source`
+et `url_source` dans un tableur, on renvoie le fichier sur la même page, et
+l'affichage public suit.
+
+La première colonne, `cle_reprise`, rattache chaque ligne à sa donnée : c'est
+elle qui permet de réinjecter le fichier sans se fier à un libellé qu'on aura
+peut-être corrigé entre-temps. Une ligne sans source est écartée et comptée,
+jamais devinée ; une clé non reconnue est signalée plutôt que rapprochée au
+jugé d'une donnée voisine. Le bilan d'import dit exactement combien de valeurs
+sont passées, combien ont été laissées de côté et pourquoi.
 
 ---
 
