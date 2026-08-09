@@ -8,7 +8,7 @@ import { TARIFS } from "@/lib/env";
 import { formatPrice } from "@/lib/format";
 import { heroPhoto } from "@/lib/photos";
 import { listCalibers, listGuides } from "@/lib/repo";
-import { indexDeRecherche } from "@/lib/search-index";
+import { indexReduit } from "@/lib/search-index";
 
 export const revalidate = 3600;
 
@@ -16,7 +16,7 @@ export default async function HomePage() {
   const [calibers, guides, index] = await Promise.all([
     listCalibers(),
     listGuides({ activeOnly: true }),
-    indexDeRecherche(),
+    indexReduit(),
   ]);
   const vitrine = guides.slice(0, 4);
   const hero = heroPhoto();

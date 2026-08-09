@@ -1,0 +1,285 @@
+import type { Marque } from "../encyclopedie";
+
+/**
+ * Horlogerie hors de Suisse et d'Allemagne.
+ *
+ * Japon, URSS puis Russie, Chine, États-Unis. Des mouvements très largement
+ * produits, souvent excellents, et dont la documentation d'atelier en français
+ * fait presque partout défaut — c'est là que le manque est le plus criant.
+ */
+export const HORS_SUISSE: Marque[] = [
+  {
+    slug: "seiko",
+    nom: "Seiko",
+    pays: "Japon",
+    categorie: "manufacture",
+    actif: "1881 – aujourd'hui",
+    resume:
+      "Manufacture intégrale au sens le plus strict : Seiko produit ses spiraux, ses huiles, ses machines. Le 6139 est un des trois chronographes automatiques de 1969. Les mouvements sont conçus pour l'assemblage industriel, ce qui rend certaines opérations d'atelier contre-intuitives — le sens de démontage n'est pas celui de l'horlogerie suisse.",
+    mouvements: [
+      { ref: "6139", nom: "Chronographe automatique roue à colonnes", type: "chrono-auto", debut: 1969, d: 27.4, r: 21, a: 21600, note: "Un des tout premiers chronographes automatiques du monde. Roue à colonnes et embrayage vertical, avant tout le monde." },
+      { ref: "6138", nom: "Chronographe automatique 2 compteurs", type: "chrono-auto", debut: 1970, d: 27.4, r: 21, a: 21600 },
+      { ref: "6105", nom: "Automatique plongée", type: "auto", debut: 1968, d: 27.4, r: 17, a: 21600, note: "La montre du capitaine Willard dans Apocalypse Now." },
+      { ref: "6106", nom: "Automatique jour-date", type: "auto", d: 27.4, r: 21, a: 21600 },
+      { ref: "6119", nom: "Automatique", type: "auto", d: 27.4, r: 21, a: 21600 },
+      { ref: "6309", nom: "Automatique plongée", type: "auto", debut: 1976, d: 27.4, r: 17, a: 21600, note: "La 6309-7040 « Turtle ». Très répandue, fournitures faciles." },
+      { ref: "7S26", nom: "Automatique jour-date", type: "auto", debut: 1996, d: 27.4, r: 21, a: 21600, res: 41, note: "Ni remontage manuel ni stop-seconde : c'est voulu, pas un défaut. Le mouvement d'entrée le plus produit au monde." },
+      { ref: "7S36", nom: "Automatique jour-date", type: "auto", d: 27.4, r: 23, a: 21600, base: "7S26" },
+      { ref: "4R35", nom: "Automatique date", type: "auto", d: 27.4, r: 23, a: 21600, res: 41, note: "Remontage manuel et stop-seconde ajoutés au 7S26." },
+      { ref: "4R36", nom: "Automatique jour-date", type: "auto", d: 27.4, r: 24, a: 21600, res: 41 },
+      { ref: "6R15", nom: "Automatique date", type: "auto", d: 27.4, r: 23, a: 21600, res: 50 },
+      { ref: "6R35", nom: "Automatique date", type: "auto", d: 27.4, r: 24, a: 21600, res: 70 },
+      { ref: "8L35", nom: "Automatique haut de gamme", type: "auto", d: 28.4, r: 26, a: 28800, res: 50, note: "Version non réglée du Grand Seiko 9S55, montée dans les Marinemaster." },
+      { ref: "7T62", nom: "Quartz chronographe", type: "quartz", d: 25.6, r: 7 },
+      { ref: "V157", nom: "Solar", type: "quartz", note: "Alimentation par cellule photovoltaïque sous le cadran." },
+      { ref: "5M62", nom: "Kinetic", type: "quartz", note: "Rotor entraînant une génératrice : mécanique côté remontage, quartz côté régulation." },
+      { ref: "9F62", nom: "Quartz haute précision", type: "quartz", debut: 1993, note: "± 10 secondes par an, rouage de trotteuse à couple élevé, aiguille sans jeu." },
+      { ref: "7A28", nom: "Quartz chronographe analogique", type: "quartz", debut: 1983, r: 15, note: "Premier chronographe à quartz entièrement analogique. Quinze rubis dans un quartz." },
+      { ref: "6R55", nom: "Automatique 72 heures", type: "auto", d: 27.4, a: 21600, res: 72 },
+    ],
+  },
+  {
+    slug: "grand-seiko",
+    nom: "Grand Seiko",
+    pays: "Japon",
+    categorie: "manufacture",
+    actif: "1960 – aujourd'hui",
+    resume:
+      "Le haut de gamme de Seiko, devenu marque autonome en 2017. Le Spring Drive est une singularité mondiale : ressort moteur classique, mais régulation électromagnétique par frein à quartz — la trotteuse glisse sans à-coup, sans aucune pile.",
+    mouvements: [
+      { ref: "9S55", nom: "Automatique", type: "auto", debut: 1998, d: 28.4, r: 26, a: 28800, res: 50 },
+      { ref: "9S65", nom: "Automatique", type: "auto", debut: 2009, d: 28.4, r: 35, a: 28800, res: 72, note: "Spiral et roue d'échappement MEMS." },
+      { ref: "9S85", nom: "Hi-Beat 36000", type: "auto", debut: 2009, d: 28.4, r: 37, a: 36000, res: 55 },
+      { ref: "9S86", nom: "Hi-Beat 36000 GMT", type: "auto", d: 28.4, r: 37, a: 36000, res: 55 },
+      { ref: "9SA5", nom: "Hi-Beat échappement Dual Impulse", type: "auto", debut: 2020, d: 31.0, r: 47, a: 36000, res: 80, note: "Échappement à double impulsion développé en interne, spiral à courbe terminale." },
+      { ref: "9R65", nom: "Spring Drive", type: "auto", debut: 2004, d: 30.0, r: 30, res: 72, note: "Ressort moteur, régulateur électromagnétique freiné par quartz. Trotteuse au glissement continu, précision ± 1 s/jour." },
+      { ref: "9R15", nom: "Spring Drive haute précision", type: "auto", d: 30.0, res: 72 },
+      { ref: "9R96", nom: "Spring Drive chronographe GMT", type: "chrono-auto", res: 72 },
+      { ref: "9F85", nom: "Quartz haute précision", type: "quartz", note: "± 5 secondes par an." },
+      { ref: "45GS 4520", nom: "Manuel Hi-Beat", type: "manuel", debut: 1968, a: 36000, note: "Les mouvements de concours de l'observatoire de Neuchâtel." },
+      { ref: "61GS 6145", nom: "Automatique", type: "auto", debut: 1967, a: 36000 },
+    ],
+  },
+  {
+    slug: "citizen",
+    nom: "Citizen",
+    pays: "Japon",
+    categorie: "manufacture",
+    actif: "1918 – aujourd'hui",
+    resume:
+      "Tokyo. Premier producteur mondial de mouvements en volume, propriétaire de Miyota, Bulova et La Joux-Perret. L'Eco-Drive a réglé la question de la pile ; le 0100 revendique la meilleure précision de quartz du monde.",
+    mouvements: [
+      { ref: "Cal. 0200", nom: "Automatique haut de gamme", type: "auto", debut: 2021, d: 30.0, r: 28, a: 28800, res: 60, note: "Développé avec La Joux-Perret." },
+      { ref: "Cal. 9051", nom: "Automatique", type: "auto", d: 26.0, a: 28800, res: 42 },
+      { ref: "Cal. 0100", nom: "Eco-Drive haute précision", type: "quartz", debut: 2018, note: "± 1 seconde par an. Oscillateur AT-cut compensé en température." },
+      { ref: "E168", nom: "Eco-Drive", type: "quartz", note: "Cellule photovoltaïque sous cadran, autonomie de plusieurs mois dans le noir." },
+      { ref: "8110A", nom: "Chronographe automatique Bullhead", type: "chrono-auto", debut: 1972, a: 28800, note: "Poussoirs à midi. Un des rares chronographes automatiques japonais des années 1970." },
+      { ref: "0840", nom: "Automatique", type: "auto", a: 28800 },
+      { ref: "6501", nom: "Automatique", type: "auto", a: 28800 },
+    ],
+  },
+  {
+    slug: "miyota",
+    nom: "Miyota",
+    pays: "Japon",
+    categorie: "ebauche",
+    actif: "1959 – aujourd'hui",
+    resume:
+      "La division mouvements de Citizen, et le plus gros fournisseur d'ébauches mécaniques au monde en volume. Un Miyota se rencontre partout dans le micro-brand : robuste, bon marché, et parfois bruyant au rotor — c'est le prix du roulement unidirectionnel.",
+    mouvements: [
+      { ref: "8215", nom: "Automatique date", type: "auto", d: 26.0, h: 5.67, r: 21, a: 21600, res: 42, note: "Le mouvement du micro-brand. Rotor unidirectionnel bruyant, mais mécanique très fiable." },
+      { ref: "821A", nom: "Automatique date", type: "auto", d: 26.0, r: 21, a: 21600, base: "8215" },
+      { ref: "9015", nom: "Automatique extra-plat", type: "auto", debut: 2009, d: 26.0, h: 3.9, r: 24, a: 28800, res: 42, note: "Plat, haute fréquence, silencieux : le vrai concurrent du 2824-2." },
+      { ref: "9039", nom: "Automatique sans date", type: "auto", d: 26.0, h: 3.9, r: 24, a: 28800, res: 42 },
+      { ref: "9075", nom: "Automatique GMT heure sautante", type: "auto", debut: 2022, d: 26.0, r: 24, a: 28800, res: 42, note: "Le premier GMT « vrai » abordable." },
+      { ref: "90S5", nom: "Automatique squelette", type: "auto", d: 26.0, a: 28800, res: 42 },
+      { ref: "6T51", nom: "Quartz chronographe", type: "quartz", d: 26.0 },
+      { ref: "2035", nom: "Quartz 3 aiguilles", type: "quartz", d: 20.0, note: "Le mouvement de quartz le plus produit de l'histoire." },
+      { ref: "0S20", nom: "Quartz chronographe", type: "quartz", d: 28.0 },
+    ],
+  },
+  {
+    slug: "orient",
+    nom: "Orient",
+    pays: "Japon",
+    categorie: "manufacture",
+    actif: "1950 – aujourd'hui",
+    resume:
+      "Une des rares maisons à produire l'intégralité de ses mouvements mécaniques à ce niveau de prix. Passée sous contrôle de Seiko-Epson, elle a conservé ses propres calibres.",
+    mouvements: [
+      { ref: "46943", nom: "Automatique jour-date", type: "auto", d: 27.4, r: 21, a: 21600, res: 40 },
+      { ref: "F6922", nom: "Automatique jour-date", type: "auto", d: 27.4, r: 22, a: 21600, res: 40, note: "Remontage manuel et stop-seconde, contrairement aux générations précédentes." },
+      { ref: "F6724", nom: "Automatique", type: "auto", d: 27.4, r: 22, a: 21600 },
+      { ref: "F6N4", nom: "Automatique", type: "auto", d: 27.4, a: 21600, res: 40 },
+      { ref: "48943", nom: "Automatique", type: "auto", a: 21600 },
+      { ref: "40N5A", nom: "Automatique Orient Star", type: "auto", a: 21600, res: 50 },
+      { ref: "F8F62", nom: "Automatique Orient Star 70 heures", type: "auto", a: 21600, res: 70 },
+    ],
+  },
+  {
+    slug: "seagull",
+    nom: "Seagull — Tianjin",
+    pays: "Chine",
+    categorie: "manufacture",
+    actif: "1955 – aujourd'hui",
+    resume:
+      "Tianjin. Premier producteur mondial de mouvements mécaniques en volume. Le ST19 est le descendant direct du Venus 178 : l'outillage suisse a été racheté en 1961 et tourne toujours. C'est le chronographe à roue à colonnes le moins cher du marché.",
+    mouvements: [
+      { ref: "ST19", nom: "Chronographe manuel roue à colonnes", type: "chrono", debut: 1963, d: 28.0, r: 21, a: 21600, base: "Venus 178", note: "Outillage Venus racheté en 1961. Le même dessin, produit sans interruption depuis." },
+      { ref: "ST16", nom: "Automatique date", type: "auto", d: 26.0, r: 21, a: 21600, base: "ETA 2836" },
+      { ref: "ST2130", nom: "Automatique", type: "auto", d: 25.6, r: 25, a: 28800, base: "ETA 2824-2", note: "Copie fonctionnelle du 2824-2 : les fournitures sont largement interchangeables." },
+      { ref: "ST36", nom: "Manuel", type: "manuel", d: 36.6, r: 17, a: 21600, base: "ETA 6497" },
+      { ref: "ST17", nom: "Manuel", type: "manuel", d: 26.0, r: 17, a: 21600 },
+      { ref: "ST8000", nom: "Automatique tourbillon", type: "complication", a: 21600 },
+      { ref: "TY2809", nom: "Automatique", type: "auto", d: 26.0, a: 21600 },
+    ],
+  },
+  {
+    slug: "shanghai",
+    nom: "Shanghai Watch",
+    pays: "Chine",
+    categorie: "manufacture",
+    actif: "1955 – aujourd'hui",
+    resume:
+      "La première manufacture chinoise. Le calibre A581 de 1958 est le premier mouvement de montre-bracelet entièrement conçu et produit en Chine ; le Tongji 7120 est devenu le standard national imposé à toutes les usines du pays.",
+    mouvements: [
+      { ref: "A581", nom: "Manuel", type: "manuel", debut: 1958, d: 26.0, r: 17, a: 18000, note: "Premier mouvement-bracelet chinois de conception nationale." },
+      { ref: "7120", nom: "Tongji — standard national", type: "manuel", debut: 1972, d: 26.0, r: 17, a: 21600, note: "Le mouvement unifié imposé à toutes les usines chinoises. Des dizaines de millions d'exemplaires." },
+      { ref: "SB18", nom: "Automatique", type: "auto", d: 26.0, a: 21600 },
+      { ref: "1120", nom: "Manuel", type: "manuel", d: 26.0, r: 17, a: 21600 },
+    ],
+  },
+  {
+    slug: "poljot",
+    nom: "Poljot — Première fabrique de Moscou",
+    pays: "URSS / Russie",
+    categorie: "manufacture",
+    actif: "1930 – 2004",
+    resume:
+      "Moscou. Le 3133 est un Valjoux 7734 produit sous licence : outillage acheté en 1976, dessin repris tel quel, et une production qui a duré vingt-cinq ans. C'est aujourd'hui le chronographe mécanique le plus abordable qui existe en occasion — et il se répare.",
+    mouvements: [
+      { ref: "3133", nom: "Chronographe manuel", type: "chrono", debut: 1976, d: 31.0, r: 23, a: 21600, base: "Valjoux 7734", note: "Licence Valjoux acquise en 1976. Fournitures encore disponibles et bon marché." },
+      { ref: "3017", nom: "Chronographe manuel roue à colonnes", type: "chrono", debut: 1959, d: 28.0, r: 19, a: 18000, base: "Venus 150", note: "Le chronographe de Strela, porté en sortie extravéhiculaire par Leonov en 1965." },
+      { ref: "2609", nom: "Manuel", type: "manuel", d: 26.0, r: 17, a: 18000 },
+      { ref: "2612", nom: "Manuel réveil", type: "manuel", d: 26.0, r: 18, a: 18000, note: "Réveil-bracelet Signal, à deux barillets." },
+      { ref: "2614", nom: "Manuel date", type: "manuel", d: 26.0, r: 17, a: 21600 },
+      { ref: "2415", nom: "Automatique", type: "auto", d: 26.0, r: 23, a: 21600 },
+      { ref: "3105", nom: "Automatique", type: "auto", d: 26.0, a: 21600 },
+      { ref: "2200", nom: "Manuel extra-plat", type: "manuel", d: 26.0, h: 2.4, r: 23, a: 18000, note: "Un des mouvements soviétiques les plus fins." },
+    ],
+  },
+  {
+    slug: "vostok",
+    nom: "Vostok",
+    pays: "URSS / Russie",
+    categorie: "manufacture",
+    actif: "1942 – aujourd'hui",
+    resume:
+      "Tchistopol. Les Amphibia et Komandirskie, produites sans interruption depuis les années 1960. Un système d'étanchéité à joint compressible unique au monde : plus la pression augmente, mieux le fond ferme. Mécanique fruste, robustesse remarquable.",
+    mouvements: [
+      { ref: "2409", nom: "Manuel", type: "manuel", d: 24.0, r: 17, a: 19800 },
+      { ref: "2414", nom: "Manuel date", type: "manuel", d: 24.0, r: 17, a: 19800 },
+      { ref: "2416B", nom: "Automatique date", type: "auto", d: 24.0, r: 31, a: 19800, note: "Le mouvement des Amphibia modernes." },
+      { ref: "2415", nom: "Automatique date", type: "auto", d: 24.0, r: 31, a: 19800 },
+      { ref: "2431", nom: "Automatique 24 heures", type: "auto", d: 24.0, a: 19800, note: "Cadran à vingt-quatre heures pour les stations polaires et les sous-mariniers." },
+      { ref: "2426", nom: "Automatique 24 heures date", type: "auto", d: 24.0, a: 19800 },
+      { ref: "2209", nom: "Manuel extra-plat", type: "manuel", d: 26.0, r: 22, a: 19800 },
+    ],
+  },
+  {
+    slug: "raketa",
+    nom: "Raketa — Fabrique de Peterhof",
+    pays: "URSS / Russie",
+    categorie: "manufacture",
+    actif: "1721 – aujourd'hui",
+    resume:
+      "Peterhof, fondée par Pierre le Grand. Manufacture intégrale y compris les spiraux — une rareté mondiale. Les cadrans 24 heures et les modèles polaires en font une des marques les plus originales du bloc de l'Est.",
+    mouvements: [
+      { ref: "2609.HA", nom: "Manuel", type: "manuel", d: 26.0, r: 19, a: 18000 },
+      { ref: "2614.H", nom: "Manuel date", type: "manuel", d: 26.0, r: 21, a: 18000 },
+      { ref: "2623.H", nom: "Manuel 24 heures", type: "manuel", d: 26.0, r: 19, a: 18000, note: "Une révolution d'aiguille par jour : lecture polaire." },
+      { ref: "2628.H", nom: "Manuel 24 heures date", type: "manuel", d: 26.0, a: 18000 },
+      { ref: "2427", nom: "Automatique 24 heures", type: "auto", d: 26.0, a: 18000 },
+      { ref: "2615", nom: "Manuel réveil", type: "manuel", d: 26.0, a: 18000 },
+      { ref: "Avtomat 2615", nom: "Automatique manufacture", type: "auto", debut: 2014, a: 18000, res: 40 },
+    ],
+  },
+  {
+    slug: "molnija",
+    nom: "Molnija",
+    pays: "URSS",
+    categorie: "manufacture",
+    actif: "1947 – 2007",
+    resume:
+      "Tcheliabinsk. Mouvements de poche de grand diamètre dérivés du Cortébert 616 — donc cousins des calibres Panerai. Très prisés pour la conversion en montre-bracelet et pour l'apprentissage : tout y est grand.",
+    mouvements: [
+      { ref: "3602", nom: "Manuel de poche", type: "manuel", d: 36.0, r: 18, a: 18000, base: "Cortébert 616", note: "Grand, accessible, bon marché : un excellent mouvement d'exercice." },
+      { ref: "3603", nom: "Manuel de poche seconde au centre", type: "manuel", d: 36.0, r: 18, a: 18000 },
+      { ref: "3601", nom: "Manuel de poche", type: "manuel", d: 36.0, r: 15, a: 18000 },
+    ],
+  },
+  {
+    slug: "slava",
+    nom: "Slava — Deuxième fabrique de Moscou",
+    pays: "URSS / Russie",
+    categorie: "manufacture",
+    actif: "1924 – aujourd'hui",
+    resume:
+      "Moscou. Les automatiques à double barillet et les réveils Slava ont été produits par dizaines de millions. Mécanique simple, fournitures abondantes en occasion.",
+    mouvements: [
+      { ref: "2427", nom: "Automatique double barillet double date", type: "auto", d: 26.0, r: 27, a: 19800, note: "Deux barillets en parallèle, quantième et jour de la semaine." },
+      { ref: "2414", nom: "Manuel date", type: "manuel", d: 26.0, r: 17, a: 19800 },
+      { ref: "2428", nom: "Automatique", type: "auto", d: 26.0, a: 19800 },
+      { ref: "2100", nom: "Manuel extra-plat", type: "manuel", d: 26.0, a: 19800 },
+    ],
+  },
+  {
+    slug: "luch",
+    nom: "Luch — Fabrique de Minsk",
+    pays: "URSS / Biélorussie",
+    categorie: "manufacture",
+    actif: "1953 – aujourd'hui",
+    resume:
+      "Minsk. Spécialiste de l'extra-plat soviétique et des montres de dame. Le 2209 tient en deux millimètres et demi, ce qui n'était pas courant à l'Est.",
+    mouvements: [
+      { ref: "2209", nom: "Manuel extra-plat", type: "manuel", d: 26.0, h: 2.5, r: 23, a: 19800 },
+      { ref: "1801", nom: "Manuel une aiguille", type: "manuel", d: 18.0, a: 19800, note: "Affichage à aiguille unique, relancé récemment." },
+      { ref: "2356", nom: "Quartz", type: "quartz", d: 23.0 },
+    ],
+  },
+  {
+    slug: "timex",
+    nom: "Timex",
+    pays: "États-Unis",
+    categorie: "maison",
+    actif: "1854 – aujourd'hui",
+    resume:
+      "Waterbury, Connecticut. La montre jetable avant l'heure : mouvements sans rubis, pivots en acier durci travaillant dans le laiton, prix imbattable. Un cas d'atelier particulier — la réparation n'a jamais été prévue, ce qui n'empêche pas de la faire.",
+    mouvements: [
+      { ref: "M24", nom: "Manuel sans rubis", type: "manuel", r: 0, a: 18000, note: "Pivots en Armalloy travaillant directement dans la platine. Aucun rubis : conçu pour être remplacé, pas révisé." },
+      { ref: "M25", nom: "Manuel", type: "manuel", r: 0, a: 18000 },
+      { ref: "M104", nom: "Automatique", type: "auto", a: 21600 },
+      { ref: "M40", nom: "Manuel", type: "manuel", a: 18000 },
+      { ref: "M33", nom: "Manuel date", type: "manuel", a: 18000 },
+    ],
+  },
+  {
+    slug: "hattori",
+    nom: "Hattori — Seiko Instruments",
+    pays: "Japon",
+    categorie: "ebauche",
+    actif: "1881 – aujourd'hui",
+    resume:
+      "La branche mouvements à quartz de Seiko, vendue aux fabricants tiers. Les calibres VD, VK et NH équipent une bonne partie des montres de marque à quartz et une partie du micro-brand mécanique.",
+    mouvements: [
+      { ref: "NH35", nom: "Automatique date", type: "auto", d: 27.4, r: 24, a: 21600, res: 41, base: "Seiko 4R35", note: "Version vendue aux tiers du 4R35. Omniprésent dans le micro-brand." },
+      { ref: "NH36", nom: "Automatique jour-date", type: "auto", d: 27.4, r: 24, a: 21600, res: 41 },
+      { ref: "NH38", nom: "Automatique squelette", type: "auto", d: 27.4, a: 21600, res: 41 },
+      { ref: "NH34", nom: "Automatique GMT", type: "auto", debut: 2022, d: 27.4, a: 21600, res: 41 },
+      { ref: "VK64", nom: "Meca-quartz chronographe", type: "quartz", note: "Chronographe à retour instantané par came mécanique, mais base quartz." },
+      { ref: "VK63", nom: "Meca-quartz chronographe", type: "quartz" },
+      { ref: "VD53", nom: "Quartz chronographe", type: "quartz" },
+      { ref: "PC21", nom: "Quartz 3 aiguilles", type: "quartz" },
+    ],
+  },
+];

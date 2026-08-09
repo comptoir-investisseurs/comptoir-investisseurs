@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { panierContient } from "@/lib/cart";
 import { guideAccessFor } from "@/lib/entitlements";
 import { toParagraphs } from "@/lib/format";
+import { trouverMouvement } from "@/lib/encyclopedie";
 import { getCaliberBySlug, getGuideForCaliber, listCalibers } from "@/lib/repo";
 
 export const revalidate = 3600;
@@ -77,6 +78,9 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
   const dansLePanier = guide ? await panierContient(guide.id) : false;
 
   const indicatives = caliber.specs.filter((s) => !s.isVerified).length;
+  // Fiche d'amorce : pas de présentation rédigée, pas de nomenclature relevée.
+  const encyclopedie = trouverMouvement(slug);
+  const amorce = caliber.parts.length === 0 && !caliber.history && !caliber.architecture;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -95,9 +99,19 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
       />
 
       <nav className="text-legende not-italic text-encre/60">
-        <Link href="/calibres" className="lien-souligne">
-          Calibres
+        <Link href="/marques" className="lien-souligne">
+          Marques
         </Link>
+        <span className="mx-2">/</span>
+        {encyclopedie ? (
+          <Link href={`/marques/${encyclopedie.marque.slug}`} className="lien-souligne">
+            {encyclopedie.marque.nom}
+          </Link>
+        ) : (
+          <Link href="/calibres" className="lien-souligne">
+            {caliber.brand}
+          </Link>
+        )}
         <span className="mx-2">/</span>
         <span>{caliber.reference}</span>
       </nav>
@@ -146,6 +160,28 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                 {indicatives > 1 ? "s n'ont" : " n'a"} pas été relevée
                 {indicatives > 1 ? "s" : ""} sur une source constructeur. Ces valeurs portent le
                 repère ◆ et restent à recouper avec la documentation d&apos;époque.
+              </p>
+            </div>
+          )}
+
+          {amorce && (
+            <div className="encart">
+              <p className="encart-titre text-laiton">Fiche d&apos;amorce</p>
+              <p className="mt-2 max-w-[68ch]">
+                Cette fiche recense la référence, la période et les repères dimensionnels du
+                calibre. La nomenclature des fournitures, les points de lubrification et la
+                procédure d&apos;atelier ne sont pas encore relevés — les inventer serait pire que
+                de ne rien afficher.
+                {encyclopedie && (
+                  <>
+                    {" "}
+                    <Link href={`/marques/${encyclopedie.marque.slug}`} className="lien-souligne">
+                      Voir les {encyclopedie.marque.mouvements.length} calibres{" "}
+                      {encyclopedie.marque.nom}
+                    </Link>
+                    .
+                  </>
+                )}
               </p>
             </div>
           )}

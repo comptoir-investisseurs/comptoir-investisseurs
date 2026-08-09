@@ -5,6 +5,7 @@ import { and, asc, count, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { CALIBERS, FAMILIES } from "@/data/catalog";
 import { getDb, hasDatabase, schema } from "@/db";
 import { caliberIdFor, demoLubricants, demoParts, demoTools, store } from "./demo-store";
+import { detailDe, sommairesEncyclopedie, trouverMouvement } from "./encyclopedie";
 import type {
   AppUser,
   CaliberDetail,
@@ -75,11 +76,28 @@ export async function listCalibers(): Promise<CaliberSummary[]> {
   return rows as CaliberSummary[];
 }
 
+/**
+ * Fiches d'amorce de l'encyclopédie : toutes les marques, tous les mouvements.
+ *
+ * Séparée de `listCalibers()` à dessein. La première renvoie les calibres
+ * documentés en détail — ceux qui portent un guide, et qui alimentent le pied
+ * de page, l'accueil et le back-office. Celle-ci renvoie les centaines de
+ * fiches d'amorce, qui n'ont vocation qu'à peupler l'encyclopédie et la
+ * recherche.
+ */
+export async function listCalibresEncyclopedie(): Promise<CaliberSummary[]> {
+  return sommairesEncyclopedie();
+}
+
 export async function getCaliberBySlug(slug: string): Promise<CaliberDetail | null> {
   if (!hasDatabase()) {
     const seed = CALIBERS.find((c) => c.slug === slug);
     const summary = demoCaliberSummary(slug);
-    if (!seed || !summary) return null;
+    if (!seed || !summary) {
+      // Pas de fiche détaillée : l'encyclopédie prend le relais.
+      const trouve = trouverMouvement(slug);
+      return trouve ? detailDe(trouve.marque, trouve.mvt) : null;
+    }
 
     return {
       ...summary,
@@ -129,7 +147,11 @@ export async function getCaliberBySlug(slug: string): Promise<CaliberDetail | nu
     .where(eq(schema.calibers.slug, slug))
     .limit(1);
 
-  if (!row) return null;
+  if (!row) {
+    // Même repli qu'en mode démo : une fiche d'amorce vaut mieux qu'un 404.
+    const trouve = trouverMouvement(slug);
+    return trouve ? detailDe(trouve.marque, trouve.mvt) : null;
+  }
 
   const [specs, parts, lubrication, tools, related] = await Promise.all([
     db

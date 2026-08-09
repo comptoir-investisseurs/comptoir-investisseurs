@@ -13,7 +13,7 @@ import type { GuideRow, LubricantRow, PartRow, CaliberSummary, ToolRow } from ".
  * composant de recherche resteront tels quels.
  */
 
-export type TypeEntree = "calibre" | "guide" | "piece" | "huile" | "outil" | "page";
+export type TypeEntree = "calibre" | "guide" | "marque" | "piece" | "huile" | "outil" | "page";
 
 export type EntreeIndex = {
   type: TypeEntree;
@@ -31,6 +31,7 @@ export type EntreeIndex = {
 const LIBELLES: Record<TypeEntree, string> = {
   calibre: "Calibre",
   guide: "Guide",
+  marque: "Marque",
   piece: "Fourniture",
   huile: "Consommable",
   outil: "Outillage",
@@ -85,23 +86,37 @@ const PAGES: EntreeIndex[] = [
   },
 ];
 
+/**
+ * L'index part entier vers le client : il faut donc le tenir. Les termes
+ * secondaires sont tronqués — au-delà d'une centaine de caractères, ils
+ * n'apportent plus rien à la recherche et alourdissent chaque chargement de
+ * page. Sur neuf cents entrées, la différence se compte en dizaines de kilo-octets.
+ */
+function termes(...morceaux: (string | null | undefined)[]): string {
+  return morceaux.filter(Boolean).join(" ").slice(0, 100);
+}
+
 export function construireIndex(sources: {
   calibers: CaliberSummary[];
   guides: GuideRow[];
   parts: PartRow[];
   lubricants: LubricantRow[];
   tools: ToolRow[];
+  marques?: { slug: string; nom: string; pays: string; nombre: number; resume: string }[];
 }): EntreeIndex[] {
   const entrees: EntreeIndex[] = [];
 
+  const slugsVus = new Set<string>();
   for (const c of sources.calibers) {
+    if (slugsVus.has(c.slug)) continue;
+    slugsVus.add(c.slug);
     entrees.push({
       type: "calibre",
       titre: c.reference,
       sous_titre: c.name,
       detail: c.introducedYear ? String(c.introducedYear) : null,
       href: `/calibres/${c.slug}`,
-      termes: [c.brand, c.familyName ?? "", c.slug, c.summary ?? ""].join(" "),
+      termes: termes(c.brand, c.familyName, c.slug, c.summary),
     });
   }
 
@@ -113,9 +128,7 @@ export function construireIndex(sources: {
       sous_titre: g.title,
       detail: `${(g.priceCents / 100).toFixed(2).replace(".", ",")} €`,
       href: `/guides/${g.slug}`,
-      termes: [g.shortDescription ?? "", g.caliberName, "manuel service demontage remontage"].join(
-        " ",
-      ),
+      termes: termes(g.caliberName, "manuel service demontage remontage"),
     });
   }
 
@@ -126,7 +139,7 @@ export function construireIndex(sources: {
       sous_titre: p.name,
       detail: p.positionNumber ? `n° ${p.positionNumber}` : null,
       href: `/pieces?piece=${encodeURIComponent(p.reference)}`,
-      termes: [p.nameEn ?? "", p.category ?? "", p.description ?? ""].join(" "),
+      termes: termes(p.nameEn, p.category, p.description),
     });
   }
 
@@ -137,7 +150,7 @@ export function construireIndex(sources: {
       sous_titre: `${l.brand} ${l.name}`,
       detail: l.viscosity,
       href: `/huiles#${l.slug}`,
-      termes: [l.type, l.usage ?? "", l.slug].join(" "),
+      termes: termes(l.type, l.usage, l.slug),
     });
   }
 
@@ -148,9 +161,29 @@ export function construireIndex(sources: {
       sous_titre: t.category ?? "Outillage",
       detail: null,
       href: `/calibres`,
-      termes: [t.description ?? "", t.slug].join(" "),
+      termes: termes(t.description, t.slug),
     });
   }
+
+  for (const m of sources.marques ?? []) {
+    entrees.push({
+      type: "marque",
+      titre: m.nom,
+      sous_titre: `${m.nombre} calibres répertoriés`,
+      detail: m.pays,
+      href: `/marques/${m.slug}`,
+      termes: termes(m.pays, m.resume),
+    });
+  }
+
+  entrees.push({
+    type: "page",
+    titre: "Marques de mouvements",
+    sous_titre: "L'encyclopédie par marque",
+    detail: null,
+    href: "/marques",
+    termes: "encyclopedie marque ebauche manufacture maison calibre",
+  });
 
   return [...entrees, ...PAGES];
 }
@@ -169,10 +202,11 @@ export function normaliser(valeur: string): string {
 const RANG: Record<TypeEntree, number> = {
   calibre: 0,
   guide: 1,
-  piece: 2,
-  huile: 3,
-  outil: 4,
-  page: 5,
+  marque: 2,
+  piece: 3,
+  huile: 4,
+  outil: 5,
+  page: 6,
 };
 
 /**

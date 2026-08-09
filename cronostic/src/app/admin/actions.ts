@@ -43,6 +43,11 @@ function refresh(caliberSlug?: string) {
   revalidatePath("/admin/guides");
   revalidatePath("/guides");
   revalidatePath("/");
+  revalidatePath("/calibres");
+  revalidatePath("/marques");
+  // L'index de recherche embarque les guides publiés : sans cette ligne, un
+  // guide tout juste mis en vente reste introuvable jusqu'à expiration du cache.
+  revalidatePath("/api/recherche");
   if (caliberSlug) revalidatePath(`/calibres/${caliberSlug}`);
 }
 

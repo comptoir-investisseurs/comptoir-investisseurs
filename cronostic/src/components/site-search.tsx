@@ -2,14 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { chercher, libelle, type EntreeIndex } from "@/lib/search";
 
 /**
- * Recherche transversale : calibres, guides, fournitures, consommables,
- * outillage et pages. L'index arrive du serveur et le filtrage se fait ici,
- * sans aller-retour : la réponse est instantanée sous les doigts.
+ * Recherche transversale : calibres, guides, marques, fournitures,
+ * consommables, outillage et pages.
+ *
+ * Deux index. Le réduit arrive avec la page et répond dès la première frappe.
+ * Le complet — près de neuf cents entrées, dont toutes les fiches d'amorce de
+ * l'encyclopédie — est chargé à la première mise au point du curseur, donc
+ * avant que la frappe soit terminée. Le filtrage reste local : aucune requête
+ * réseau ne s'intercale entre une touche et son résultat.
  */
 export function SiteSearch({
   index,
@@ -23,10 +28,29 @@ export function SiteSearch({
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
+  const [complet, setComplet] = useState<EntreeIndex[] | null>(null);
+  const [charge, setCharge] = useState(false);
   const router = useRouter();
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const results = useMemo(() => chercher(index, query), [index, query]);
+  // Chargement unique, déclenché par la première interaction.
+  useEffect(() => {
+    if (!charge || complet) return;
+    let vivant = true;
+    fetch("/api/recherche")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (vivant && Array.isArray(data)) setComplet(data as EntreeIndex[]);
+      })
+      .catch(() => {
+        // L'index réduit reste utilisable : la recherche est dégradée, pas cassée.
+      });
+    return () => {
+      vivant = false;
+    };
+  }, [charge, complet]);
+
+  const results = useMemo(() => chercher(complet ?? index, query), [complet, index, query]);
 
   function go(i: number) {
     const cible = results[i];
@@ -66,7 +90,11 @@ export function SiteSearch({
             setOpen(true);
             setHighlight(0);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setOpen(true);
+            setCharge(true);
+          }}
+          onPointerEnter={() => setCharge(true)}
           onBlur={() => {
             blurTimer.current = setTimeout(() => setOpen(false), 120);
           }}
@@ -108,8 +136,9 @@ export function SiteSearch({
         <ul className="absolute inset-x-0 top-full z-40 mt-2 max-h-96 overflow-auto border border-gris-trait bg-white">
           {results.length === 0 && (
             <li className="px-5 py-4 text-legende text-encre/55">
-              Rien ne correspond à « {query} » — ni calibre, ni fourniture, ni consommable au
-              catalogue actuel.
+              {complet
+                ? `Rien ne correspond à « ${query} » — ni calibre, ni marque, ni fourniture au catalogue actuel.`
+                : "Recherche en cours de chargement…"}
             </li>
           )}
           {results.map((r, i) => (

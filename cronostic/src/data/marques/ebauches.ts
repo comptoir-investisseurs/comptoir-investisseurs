@@ -1,0 +1,447 @@
+import type { Marque } from "../encyclopedie";
+
+/**
+ * Fabriques d'ébauches et fournisseurs de mouvements.
+ *
+ * C'est ici que se trouve le meilleur rendement documentaire : un guide sur
+ * un Valjoux 7733 sert des dizaines de marques de montres, là où un guide sur
+ * un calibre de manufacture n'en sert qu'une.
+ */
+export const EBAUCHES: Marque[] = [
+  /* ══════════════════════════════════════════════════════════
+     FABRIQUES D'ÉBAUCHES
+     Celles qui alimentent tout le reste. Un guide sur un
+     Valjoux 7733 sert des dizaines de marques de montres.
+     ══════════════════════════════════════════════════════════ */
+  {
+    slug: "eta",
+    nom: "ETA",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1856 – aujourd'hui",
+    resume:
+      "Le socle de l'horlogerie mécanique suisse. Née de la fusion d'Eterna Werke, d'A. Schild, de Valjoux et de dizaines d'ateliers, ETA fournit aujourd'hui la majorité des mouvements que l'on ouvre à l'établi. Ses calibres sont documentés, ses fournitures disponibles, ses tolérances connues : c'est la référence à laquelle tout le reste se compare.",
+    mouvements: [
+      { ref: "2824-2", nom: "Automatique date", type: "auto", debut: 1982, l: 11.5, d: 25.6, h: 4.6, r: 25, a: 28800, res: 38, note: "Le mouvement automatique le plus répandu au monde. Quatre niveaux d'exécution : Standard, Élaboré, Top, Chronomètre." },
+      { ref: "2836-2", nom: "Automatique jour-date", type: "auto", debut: 1982, l: 11.5, d: 25.6, h: 5.05, r: 25, a: 28800, res: 38, note: "2824-2 avec quantième et jour de la semaine." },
+      { ref: "2834-2", nom: "Automatique jour-date grande date", type: "auto", l: 11.5, d: 25.6, r: 25, a: 28800 },
+      { ref: "2892-A2", nom: "Automatique extra-plat", type: "auto", debut: 1975, l: 11.5, d: 25.6, h: 3.6, r: 21, a: 28800, res: 42, note: "Base des modules de complication : chronographe Dubois Dépraz, GMT, réserve de marche." },
+      { ref: "2893-1", nom: "Automatique GMT", type: "auto", l: 11.5, d: 25.6, h: 4.1, r: 21, a: 28800, base: "2892-A2" },
+      { ref: "2893-2", nom: "Automatique 24 heures", type: "auto", l: 11.5, d: 25.6, r: 21, a: 28800, base: "2892-A2" },
+      { ref: "2894-2", nom: "Chronographe automatique", type: "chrono-auto", l: 11.5, d: 28.0, h: 6.1, r: 37, a: 28800, base: "2892-A2", note: "Module chronographe intégré sur base 2892 : plus plat qu'un 7750, mais poussoirs plus durs." },
+      { ref: "2895-2", nom: "Automatique petite seconde", type: "auto", l: 11.5, d: 25.6, r: 30, a: 28800, base: "2892-A2" },
+      { ref: "2801-2", nom: "Manuel", type: "manuel", l: 11.5, d: 25.6, h: 3.35, r: 17, a: 28800, res: 42 },
+      { ref: "2804-2", nom: "Manuel date", type: "manuel", l: 11.5, d: 25.6, r: 17, a: 28800, base: "2801-2" },
+      { ref: "7750", nom: "Valjoux 7750 — chronographe automatique", type: "chrono-auto", debut: 1974, l: 13.25, d: 30.0, h: 7.9, r: 25, a: 28800, res: 48, note: "Chronographe à came et embrayage vertical oscillant. Le cheval de trait du chronographe moderne : robuste, réparable, fournitures partout." },
+      { ref: "7751", nom: "Chronographe automatique calendrier complet", type: "chrono-auto", l: 13.25, d: 30.0, h: 7.9, r: 25, a: 28800, base: "7750", note: "7750 avec jour, date, mois et phases de lune." },
+      { ref: "7753", nom: "Chronographe automatique compteurs 3-6-9", type: "chrono-auto", l: 13.25, d: 30.0, r: 27, a: 28800, base: "7750" },
+      { ref: "7754", nom: "Chronographe automatique GMT", type: "chrono-auto", l: 13.25, d: 30.0, r: 25, a: 28800, base: "7750" },
+      { ref: "7765", nom: "Chronographe manuel", type: "chrono", l: 13.25, d: 30.0, h: 6.35, r: 17, a: 28800, base: "7750" },
+      { ref: "6497-1", nom: "Unitas 6497 — manuel petite seconde", type: "manuel", l: 16.5, d: 36.6, h: 4.5, r: 17, a: 18000, res: 46, note: "Calibre de poche reconverti. Grande platine dégagée : le mouvement d'apprentissage par excellence." },
+      { ref: "6497-2", nom: "Manuel petite seconde, haute fréquence", type: "manuel", l: 16.5, d: 36.6, r: 17, a: 21600, base: "6497-1" },
+      { ref: "6498-1", nom: "Manuel petite seconde à 6 h", type: "manuel", l: 16.5, d: 36.6, h: 4.5, r: 17, a: 18000, res: 46 },
+      { ref: "7001", nom: "Peseux 7001 — manuel extra-plat", type: "manuel", debut: 1971, l: 10.5, d: 23.3, h: 2.5, r: 17, a: 21600, res: 42, note: "Deux millimètres et demi de hauteur : la finesse d'école. Ponts fragiles au démontage." },
+      { ref: "2000-1", nom: "Automatique petit diamètre", type: "auto", l: 10.5, d: 23.3, r: 20, a: 28800 },
+      { ref: "2671", nom: "Automatique dame", type: "auto", l: 7.75, d: 17.2, h: 4.8, r: 25, a: 28800 },
+      { ref: "2678", nom: "Automatique dame date", type: "auto", l: 7.75, d: 17.2, r: 25, a: 28800 },
+      { ref: "A07.111", nom: "Valgranges — grand diamètre automatique", type: "auto", d: 36.6, r: 24, a: 28800, base: "7750" },
+      { ref: "A31.L01", nom: "Powermatic 80", type: "auto", debut: 2012, d: 25.6, r: 23, a: 21600, res: 80, base: "2824-2", note: "Échappement à réserve de 80 heures. Réglage par masselottes, spiral Nivachron sur certaines exécutions." },
+      { ref: "955.112", nom: "Quartz 3 aiguilles date", type: "quartz", l: 11.5, d: 25.6, r: 7 },
+      { ref: "251.262", nom: "Quartz chronographe", type: "quartz", d: 29.0, r: 13 },
+      { ref: "980.153", nom: "Quartz dame", type: "quartz", d: 17.2, r: 7 },
+    ],
+  },
+  {
+    slug: "valjoux",
+    nom: "Valjoux",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1901 – 1985 (absorbé par ETA)",
+    resume:
+      "La vallée de Joux fournissait les chronographes du monde entier. Un Valjoux se reconnaît à sa roue à colonnes ou à sa came, à sa denture généreuse et à sa réputation de tenir la route. La quasi-totalité des chronographes vintage suisses en porte un.",
+    mouvements: [
+      { ref: "72", nom: "Chronographe manuel roue à colonnes, 3 compteurs", type: "chrono", debut: 1938, fin: 1974, l: 13, d: 29.5, h: 6.75, r: 17, a: 18000, note: "Le chronographe vintage par excellence : Rolex Daytona pré-Zenith, Heuer Carrera et Autavia, Breitling. Fournitures rares et chères." },
+      { ref: "72C", nom: "Chronographe manuel calendrier complet", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000, base: "72" },
+      { ref: "88", nom: "Chronographe manuel calendrier et phases de lune", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000, base: "72" },
+      { ref: "23", nom: "Chronographe manuel roue à colonnes, 1 compteur", type: "chrono", debut: 1916, l: 13, d: 29.5, r: 17, a: 18000 },
+      { ref: "22", nom: "Chronographe manuel roue à colonnes", type: "chrono", l: 14, r: 17, a: 18000 },
+      { ref: "7730", nom: "Chronographe manuel à came", type: "chrono", debut: 1966, l: 13.25, d: 30.0, r: 17, a: 18000, base: "Venus 188", note: "Reprise industrielle du Venus 188 après le rachat de Venus." },
+      { ref: "7733", nom: "Chronographe manuel 2 compteurs", type: "chrono", debut: 1969, l: 13.25, d: 30.0, h: 6.35, r: 17, a: 18000, base: "7730", note: "Le chronographe manuel le plus répandu des années 1970. Simple, solide, fournitures encore trouvables : le bon premier chronographe d'atelier." },
+      { ref: "7734", nom: "Chronographe manuel 2 compteurs date", type: "chrono", l: 13.25, d: 30.0, r: 17, a: 18000, base: "7733" },
+      { ref: "7736", nom: "Chronographe manuel 3 compteurs", type: "chrono", l: 13.25, d: 30.0, r: 17, a: 18000, base: "7733" },
+      { ref: "7765", nom: "Chronographe manuel 2 compteurs, base 7750", type: "chrono", l: 13.25, d: 30.0, r: 17, a: 28800 },
+      { ref: "7760", nom: "Chronographe manuel 3 compteurs, base 7750", type: "chrono", l: 13.25, d: 30.0, r: 17, a: 28800 },
+      { ref: "92", nom: "Chronographe manuel 2 compteurs", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000 },
+      { ref: "77", nom: "Chronographe manuel monopoussoir", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "236", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "P72", nom: "Réédition roue à colonnes", type: "chrono", debut: 2019, d: 30.0, r: 23, a: 28800 },
+    ],
+  },
+  {
+    slug: "lemania",
+    nom: "Lémania",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1884 – 1992 (Nouvelle Lémania, puis Breguet)",
+    resume:
+      "Les chronographes qui sont allés sur la Lune. Lémania a fourni Omega, Breguet, Patek Philippe et l'armée suisse. Ses calibres se reconnaissent à leur architecture de chronographe roue à colonnes d'une finesse rare, et à une exigence de réglage qui ne pardonne pas l'approximation.",
+    mouvements: [
+      { ref: "2310", nom: "Chronographe manuel roue à colonnes", type: "chrono", debut: 1942, l: 12, d: 27.0, h: 6.74, r: 17, a: 18000, note: "Vendu à Omega sous le nom 321 : le calibre du Speedmaster Moonwatch. Également chez Patek (23-300) et Breguet." },
+      { ref: "321", nom: "Omega 321 — chronographe roue à colonnes", type: "chrono", debut: 1946, fin: 1968, d: 27.0, r: 17, a: 18000, base: "2310" },
+      { ref: "1873", nom: "Omega 861 / 1861 — chronographe à came", type: "chrono", debut: 1968, d: 27.0, h: 6.87, r: 17, a: 21600, note: "Successeur industriel du 321 : came à la place de la roue à colonnes, fréquence portée à 21 600. Plus simple à régler, tout aussi fiable." },
+      { ref: "5100", nom: "Chronographe automatique", type: "chrono-auto", debut: 1978, d: 30.4, r: 17, a: 28800, note: "Roue de chronographe en matière synthétique, aiguille de minutes au centre. Bâti pour l'aviation ; réputé increvable, décrié pour sa finition." },
+      { ref: "1340", nom: "Chronographe automatique", type: "chrono-auto", debut: 1972, d: 31.0, r: 22, a: 28800, note: "Base du premier chronographe automatique Omega (1040)." },
+      { ref: "1341", nom: "Chronographe automatique jour-date", type: "chrono-auto", d: 31.0, r: 22, a: 28800, base: "1340" },
+      { ref: "27CH", nom: "Chronographe manuel", type: "chrono", d: 27.0, r: 17, a: 18000 },
+      { ref: "2320", nom: "Chronographe manuel", type: "chrono", d: 27.0, r: 17, a: 18000 },
+      { ref: "8810", nom: "Chronographe rattrapante", type: "complication", d: 27.0, a: 21600, note: "Base des rattrapantes Breguet." },
+      { ref: "1350", nom: "Automatique", type: "auto", d: 31.0, a: 28800 },
+    ],
+  },
+  {
+    slug: "venus",
+    nom: "Venus",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1923 – 1966 (repris par Valjoux)",
+    resume:
+      "Chronographes de la deuxième moitié du siècle, souvent plus abordables qu'un Valjoux à l'époque et donc très répandus chez Breitling, Heuer et les marques de catalogue. L'outillage de Venus a fini chez Valjoux, puis en Chine chez Seagull.",
+    mouvements: [
+      { ref: "175", nom: "Chronographe manuel roue à colonnes 3 compteurs", type: "chrono", debut: 1942, l: 14, d: 31.0, r: 17, a: 18000, note: "Breitling Premier et Navitimer des débuts." },
+      { ref: "178", nom: "Chronographe manuel roue à colonnes 3 compteurs", type: "chrono", l: 13.25, d: 30.0, r: 17, a: 18000, note: "Repris par Seagull sous la référence ST19 : c'est le même dessin qui vit toujours." },
+      { ref: "188", nom: "Chronographe manuel à came 2 compteurs", type: "chrono", debut: 1948, l: 13.25, d: 30.0, r: 17, a: 18000, note: "Devenu Valjoux 7730 après le rachat." },
+      { ref: "170", nom: "Chronographe manuel 2 compteurs", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000 },
+      { ref: "150", nom: "Chronographe manuel monopoussoir", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "210", nom: "Chronographe manuel", type: "chrono", l: 11.5, r: 17, a: 18000 },
+      { ref: "152", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "landeron",
+    nom: "Landeron",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1873 – 1980 (groupe Ébauches SA)",
+    resume:
+      "Le chronographe économique de l'après-guerre. Landeron a imposé la commande à came contre la roue à colonnes : moins noble, bien moins cher, et parfaitement fiable. Des millions d'exemplaires, dans à peu près toutes les marques de catalogue.",
+    mouvements: [
+      { ref: "48", nom: "Chronographe manuel à came 2 compteurs", type: "chrono", debut: 1937, l: 13, d: 29.5, h: 6.0, r: 17, a: 18000, note: "Le chronographe le plus produit de l'histoire avant le 7750. On le rencontre partout ; les fournitures se trouvent encore." },
+      { ref: "51", nom: "Chronographe manuel à came", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000, base: "48" },
+      { ref: "54", nom: "Chronographe manuel à came", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000, base: "48" },
+      { ref: "149", nom: "Chronographe manuel 2 compteurs", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000, base: "48" },
+      { ref: "187", nom: "Chronographe manuel date", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000 },
+      { ref: "189", nom: "Chronographe manuel 3 compteurs", type: "chrono", l: 13, d: 29.5, r: 17, a: 18000 },
+      { ref: "248", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "13", nom: "Chronographe manuel monopoussoir", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "39", nom: "Chronographe manuel roue à colonnes", type: "chrono", l: 13, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "unitas",
+    nom: "Unitas",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1926 – 1980 (absorbé par ETA)",
+    resume:
+      "Mouvements de poche de grand diamètre, reconvertis en mouvements-bracelets quand la mode des grands boîtiers est arrivée. Les 6497 et 6498 sont devenus les calibres d'école : tout y est grand, accessible, et pardonne l'apprentissage.",
+    mouvements: [
+      { ref: "6497", nom: "Manuel petite seconde à 9 h", type: "manuel", debut: 1950, l: 16.5, d: 36.6, h: 4.5, r: 17, a: 18000, res: 46, note: "Dit « Lépine ». Aiguille de seconde dans l'axe de la couronne." },
+      { ref: "6498", nom: "Manuel petite seconde à 6 h", type: "manuel", l: 16.5, d: 36.6, h: 4.5, r: 17, a: 18000, res: 46, note: "Dit « Savonnette ». Seconde perpendiculaire à la couronne." },
+      { ref: "6325", nom: "Manuel", type: "manuel", l: 13, r: 17, a: 18000 },
+      { ref: "6380", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "6310", nom: "Manuel de poche", type: "manuel", l: 19, r: 15, a: 18000 },
+    ],
+  },
+  {
+    slug: "peseux",
+    nom: "Peseux",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1923 – 1985 (absorbé par ETA)",
+    resume:
+      "L'extra-plat de série. Le 7001 tient en deux millimètres et demi et se retrouve sous le nom d'ETA 7001 dans des montres bien plus chères que ne le laisse penser son origine. À manipuler avec précaution : les ponts sont minces.",
+    mouvements: [
+      { ref: "7001", nom: "Manuel extra-plat", type: "manuel", debut: 1971, l: 10.5, d: 23.3, h: 2.5, r: 17, a: 21600, res: 42 },
+      { ref: "7040", nom: "Manuel", type: "manuel", l: 10.5, r: 17, a: 21600 },
+      { ref: "7046", nom: "Manuel date", type: "manuel", l: 10.5, r: 17, a: 21600, base: "7001" },
+      { ref: "320", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "330", nom: "Manuel petite seconde", type: "manuel", l: 11.5, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "as",
+    nom: "A. Schild",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1896 – 1979 (absorbé par ETA)",
+    resume:
+      "La plus grosse fabrique d'ébauches suisse pendant des décennies. Un AS se rencontre dans tout le milieu de gamme d'après-guerre : Certina, Mido, Enicar, Wittnauer, et des centaines de marques disparues. Fiables, réparables, sans prétention.",
+    mouvements: [
+      { ref: "1687", nom: "Automatique date", type: "auto", l: 11.5, r: 17, a: 21600 },
+      { ref: "1686", nom: "Automatique", type: "auto", l: 11.5, r: 17, a: 21600 },
+      { ref: "1700", nom: "Automatique", type: "auto", debut: 1958, l: 11.5, r: 17, a: 18000 },
+      { ref: "1701", nom: "Automatique date", type: "auto", l: 11.5, r: 17, a: 18000, base: "1700" },
+      { ref: "1361", nom: "Automatique", type: "auto", l: 11.5, r: 17, a: 18000 },
+      { ref: "1187", nom: "Manuel petite seconde", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "1130", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "1902", nom: "Automatique jour-date", type: "auto", l: 11.5, r: 25, a: 21600 },
+      { ref: "2063", nom: "Automatique", type: "auto", l: 11.5, r: 17, a: 21600 },
+      { ref: "2066", nom: "Automatique date", type: "auto", l: 11.5, r: 17, a: 21600 },
+      { ref: "1012", nom: "Manuel", type: "manuel", l: 10.5, r: 17, a: 18000 },
+      { ref: "5008", nom: "Manuel", type: "manuel", l: 8.75, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "fhf",
+    nom: "FHF — Fabrique d'Horlogerie de Fontainemelon",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1793 – 1985 (absorbé par ETA)",
+    resume:
+      "La doyenne des fabriques d'ébauches, fondée à la fin du XVIIIᵉ siècle. Ses mouvements manuels de petit et moyen diamètre ont équipé l'essentiel de l'horlogerie française et suisse d'entrée de gamme.",
+    mouvements: [
+      { ref: "96", nom: "Manuel petite seconde", type: "manuel", l: 11.5, r: 17, a: 18000, note: "Un des mouvements manuels les plus produits du XXᵉ siècle." },
+      { ref: "30", nom: "Manuel", type: "manuel", l: 10.5, r: 17, a: 18000 },
+      { ref: "72", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "908", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 21600 },
+      { ref: "969", nom: "Manuel date", type: "manuel", l: 11.5, r: 17, a: 21600 },
+      { ref: "973", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 21600 },
+      { ref: "150", nom: "Manuel dame", type: "manuel", l: 5.5, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "felsa",
+    nom: "Felsa",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1918 – 1970",
+    resume:
+      "L'inventeur du remontage automatique bidirectionnel de série. Le Bidynator a devancé la plupart des manufactures sur ce terrain et a été licencié un peu partout.",
+    mouvements: [
+      { ref: "690", nom: "Bidynator — automatique bidirectionnel", type: "auto", debut: 1942, l: 11.5, r: 17, a: 18000, note: "Premier automatique bidirectionnel produit en série. Rotor sur roulement à billes." },
+      { ref: "692", nom: "Bidynator date", type: "auto", l: 11.5, r: 17, a: 18000, base: "690" },
+      { ref: "4000", nom: "Automatique", type: "auto", l: 11.5, r: 17, a: 18000 },
+      { ref: "4007", nom: "Automatique date", type: "auto", l: 11.5, r: 25, a: 18000 },
+      { ref: "1560", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "sellita",
+    nom: "Sellita",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1950 – aujourd'hui",
+    resume:
+      "Longtemps sous-traitant d'ETA, Sellita produit depuis l'expiration des brevets ses propres versions des architectures les plus répandues. Les fournitures sont largement interchangeables avec leurs équivalents ETA, à quelques pierres près.",
+    mouvements: [
+      { ref: "SW200-1", nom: "Automatique date", type: "auto", debut: 2007, l: 11.5, d: 25.6, h: 4.6, r: 26, a: 28800, res: 38, note: "Équivalent du 2824-2, avec une pierre de plus. Fournitures très largement compatibles." },
+      { ref: "SW220-1", nom: "Automatique jour-date", type: "auto", d: 25.6, r: 26, a: 28800, res: 38 },
+      { ref: "SW300-1", nom: "Automatique extra-plat", type: "auto", d: 25.6, h: 3.6, r: 25, a: 28800, res: 42, note: "Équivalent du 2892-A2." },
+      { ref: "SW500", nom: "Chronographe automatique", type: "chrono-auto", d: 30.0, h: 7.9, r: 27, a: 28800, res: 48, note: "Équivalent du 7750." },
+      { ref: "SW510", nom: "Chronographe manuel", type: "chrono", d: 30.0, r: 23, a: 28800 },
+      { ref: "SW240-1", nom: "Automatique petite seconde", type: "auto", d: 25.6, r: 31, a: 28800 },
+      { ref: "SW1000-1", nom: "Automatique petit diamètre", type: "auto", d: 20.0, r: 26, a: 28800 },
+      { ref: "SW260-1", nom: "Automatique petite seconde à 6 h", type: "auto", d: 25.6, r: 31, a: 28800 },
+      { ref: "SW330-2", nom: "Automatique GMT", type: "auto", d: 25.6, r: 25, a: 28800, res: 56 },
+      { ref: "SW360-1", nom: "Automatique petite seconde", type: "auto", d: 25.6, r: 31, a: 28800 },
+    ],
+  },
+  {
+    slug: "soprod",
+    nom: "Soprod",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1966 – aujourd'hui",
+    resume:
+      "Alternative haut de gamme aux ébauches courantes, adoptée par les marques indépendantes qui veulent s'affranchir d'ETA sans construire une manufacture.",
+    mouvements: [
+      { ref: "A10", nom: "Automatique", type: "auto", d: 25.6, h: 3.6, r: 25, a: 28800, res: 42, note: "Architecture proche du 2892-A2." },
+      { ref: "M100", nom: "Automatique", type: "auto", d: 25.6, r: 25, a: 28800, res: 42 },
+      { ref: "P024", nom: "Automatique", type: "auto", d: 25.6, r: 25, a: 28800 },
+      { ref: "C125", nom: "Chronographe automatique", type: "chrono-auto", d: 30.0, a: 28800 },
+      { ref: "9335", nom: "Automatique petite seconde", type: "auto", d: 25.6, a: 28800 },
+    ],
+  },
+  {
+    slug: "dubois-depraz",
+    nom: "Dubois Dépraz",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1901 – aujourd'hui",
+    resume:
+      "Le spécialiste du module. Dubois Dépraz ne fabrique presque jamais un mouvement complet : il pose des complications sur des bases existantes. Quand un chronographe se démonte en deux étages, c'est souvent de là qu'il vient — et l'ordre de remontage ne s'improvise pas.",
+    mouvements: [
+      { ref: "2020", nom: "Module chronographe", type: "chrono-auto", base: "ETA 2892-A2", note: "Module de chronographe posé sur base automatique : le mouvement se sépare en deux étages, à ne jamais dissocier sans repérage." },
+      { ref: "2000", nom: "Module chronographe", type: "chrono-auto", base: "ETA 2892-A2" },
+      { ref: "42", nom: "Module chronographe", type: "chrono-auto", note: "Étage chronographe du Chronomatic Calibre 11." },
+      { ref: "9000", nom: "Module quantième perpétuel", type: "complication" },
+      { ref: "14400", nom: "Module GMT", type: "complication", base: "ETA 2892-A2" },
+      { ref: "9310", nom: "Module chronographe rattrapante", type: "complication" },
+    ],
+  },
+  {
+    slug: "frederic-piguet",
+    nom: "Frédéric Piguet",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1858 – 2010 (devenu Manufacture Blancpain)",
+    resume:
+      "L'extra-plat de haute horlogerie. Piguet a fourni les chronographes fins de Blancpain, Breguet et une partie de la place de Genève. Des mouvements superbes, exigeants au réglage, et dont les fournitures sont difficiles.",
+    mouvements: [
+      { ref: "1185", nom: "Chronographe automatique roue à colonnes extra-plat", type: "chrono-auto", debut: 1987, d: 25.6, h: 5.5, r: 37, a: 21600, note: "Un des chronographes automatiques les plus plats jamais produits." },
+      { ref: "1180", nom: "Chronographe manuel roue à colonnes", type: "chrono", d: 25.6, r: 30, a: 21600 },
+      { ref: "1150", nom: "Automatique extra-plat", type: "auto", d: 26.2, h: 3.25, r: 28, a: 21600, res: 100, note: "Double barillet, cent heures de réserve." },
+      { ref: "71", nom: "Manuel extra-plat", type: "manuel", d: 20.8, h: 1.75, r: 18, a: 21600 },
+      { ref: "21", nom: "Manuel extra-plat", type: "manuel", h: 1.73, a: 21600 },
+    ],
+  },
+  {
+    slug: "cortebert",
+    nom: "Cortébert",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1790 – 1974",
+    resume:
+      "Fabricant discret dont les mouvements de poche de grand diamètre ont équipé les premières Panerai à travers Rolex. Robustes, largement dimensionnés, faits pour l'usage.",
+    mouvements: [
+      { ref: "616", nom: "Manuel de poche", type: "manuel", l: 16.5, d: 36.6, r: 17, a: 18000, note: "Repris par Rolex sous la référence 618 pour les Panerai Radiomir." },
+      { ref: "618", nom: "Rolex 618 — manuel grand diamètre", type: "manuel", d: 36.6, r: 17, a: 18000, base: "616" },
+      { ref: "526", nom: "Manuel", type: "manuel", l: 13, r: 17, a: 18000 },
+      { ref: "676", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "angelus",
+    nom: "Angelus",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1891 – 1978, relancé en 2015",
+    resume:
+      "Chronographes et réveils de belle facture, souvent en avance sur leur temps : chronographe à grande date, réveil-bracelet, huit jours de réserve. Rare et recherché.",
+    mouvements: [
+      { ref: "215", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "240", nom: "Chronographe manuel 2 compteurs", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "217", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "SF240", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "8", nom: "Manuel 8 jours de réserve", type: "manuel", res: 192, a: 18000 },
+    ],
+  },
+  {
+    slug: "excelsior-park",
+    nom: "Excelsior Park",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1866 – 1983",
+    resume:
+      "Chronographes de Saint-Imier, longtemps fournisseur de Gallet et de Girard-Perregaux. Une roue à colonnes soignée, une réputation de précision, et une production restée confidentielle.",
+    mouvements: [
+      { ref: "40", nom: "Chronographe manuel roue à colonnes", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "4", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "EP40-68", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "EP101", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "martel",
+    nom: "Martel Watch",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1911 – 1970 (absorbé par Zenith)",
+    resume:
+      "Fabricant de chronographes du Locle, racheté par Zenith. C'est de cet atelier qu'est sortie une grande partie des chronographes Universal Genève et Zenith d'avant l'El Primero.",
+    mouvements: [
+      { ref: "146", nom: "Chronographe manuel roue à colonnes", type: "chrono", l: 13, r: 17, a: 18000, note: "Base des chronographes Universal Genève 285 et Zenith 146." },
+      { ref: "130", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+      { ref: "136", nom: "Chronographe manuel", type: "chrono", l: 13, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "durowe",
+    nom: "Durowe",
+    pays: "Allemagne",
+    categorie: "ebauche",
+    actif: "1933 – 1975",
+    resume:
+      "Deutsche Uhren-Rohwerke, la fabrique d'ébauches de Pforzheim. Elle a alimenté toute l'horlogerie allemande d'après-guerre, de Laco à Wempe.",
+    mouvements: [
+      { ref: "422", nom: "Automatique", type: "auto", l: 11.5, r: 17, a: 18000 },
+      { ref: "7524", nom: "Automatique date", type: "auto", l: 11.5, r: 17, a: 21600 },
+      { ref: "1060", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "870", nom: "Manuel", type: "manuel", l: 10.5, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "puw",
+    nom: "PUW",
+    pays: "Allemagne",
+    categorie: "ebauche",
+    actif: "1920 – 1980",
+    resume:
+      "Pforzheimer Uhren-Rohwerke. Mouvements manuels et automatiques d'entrée et de milieu de gamme, omniprésents dans l'horlogerie allemande de l'après-guerre.",
+    mouvements: [
+      { ref: "361", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "1361", nom: "Automatique date", type: "auto", l: 11.5, r: 17, a: 21600 },
+      { ref: "1560", nom: "Automatique", type: "auto", l: 11.5, r: 17, a: 21600 },
+      { ref: "563", nom: "Manuel date", type: "manuel", l: 11.5, r: 17, a: 18000 },
+    ],
+  },
+  {
+    slug: "ronda",
+    nom: "Ronda",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1946 – aujourd'hui",
+    resume:
+      "Passé du mécanique au quartz avec succès. Ronda est aujourd'hui l'un des premiers fournisseurs de mouvements à quartz suisses, présents dans une quantité de montres de marque.",
+    mouvements: [
+      { ref: "715", nom: "Quartz 3 aiguilles date", type: "quartz", l: 6.75, r: 1 },
+      { ref: "763", nom: "Quartz 3 aiguilles", type: "quartz", l: 11.5, r: 1 },
+      { ref: "5030.D", nom: "Quartz chronographe", type: "quartz", d: 26.0, r: 13 },
+      { ref: "6203.B", nom: "Quartz chronographe", type: "quartz", d: 26.0, r: 13 },
+      { ref: "1069", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "R150", nom: "Mecano — automatique", type: "auto", d: 25.6, r: 25, a: 28800, res: 40 },
+    ],
+  },
+  {
+    slug: "la-joux-perret",
+    nom: "La Joux-Perret",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "2004 – aujourd'hui",
+    resume:
+      "Héritière de Jaquet SA, spécialiste des modules de complication, aujourd'hui dans le giron de Citizen. Fournit les indépendants en mouvements complets et en chronographes.",
+    mouvements: [
+      { ref: "G100", nom: "Automatique", type: "auto", d: 25.6, r: 24, a: 28800, res: 68 },
+      { ref: "G101", nom: "Automatique petite seconde", type: "auto", d: 25.6, a: 28800, res: 68 },
+      { ref: "L100", nom: "Automatique", type: "auto", d: 30.0, a: 28800 },
+      { ref: "7380", nom: "Chronographe automatique", type: "chrono-auto", d: 30.0, a: 28800 },
+    ],
+  },
+  {
+    slug: "concepto",
+    nom: "Concepto",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "2006 – aujourd'hui",
+    resume:
+      "Atelier de La Chaux-de-Fonds spécialisé dans les chronographes et les mouvements à la demande pour marques indépendantes.",
+    mouvements: [
+      { ref: "C99001", nom: "Chronographe automatique roue à colonnes", type: "chrono-auto", d: 30.0, a: 28800 },
+      { ref: "C8500", nom: "Chronographe automatique", type: "chrono-auto", d: 30.0, a: 28800, base: "ETA 7750" },
+    ],
+  },
+  {
+    slug: "marvin",
+    nom: "Marvin",
+    pays: "Suisse",
+    categorie: "ebauche",
+    actif: "1850 – 1970, relancé en 2006",
+    resume:
+      "Manufacture de Villeret puis de La Chaux-de-Fonds, produisant ses propres mouvements manuels de qualité soignée jusqu'à la crise du quartz.",
+    mouvements: [
+      { ref: "560", nom: "Manuel", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "700", nom: "Manuel petite seconde", type: "manuel", l: 11.5, r: 17, a: 18000 },
+      { ref: "540", nom: "Manuel", type: "manuel", l: 10.5, r: 17, a: 18000 },
+    ],
+  },
+];

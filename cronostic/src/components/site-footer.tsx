@@ -18,7 +18,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="surtitre">Calibres</p>
+          <p className="surtitre">Calibres documentés</p>
           <div className="filet mt-2" />
           <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1.5 text-legende not-italic">
             {CALIBERS.map((c) => (
@@ -35,6 +35,11 @@ export function SiteFooter() {
           <p className="surtitre">Le site</p>
           <div className="filet mt-2" />
           <ul className="mt-4 space-y-1.5 text-legende not-italic">
+            <li>
+              <Link href="/marques" className="lien-souligne hover:text-laiton">
+                Encyclopédie des marques
+              </Link>
+            </li>
             <li>
               <Link href="/guides" className="lien-souligne hover:text-laiton">
                 Guides Cronostic

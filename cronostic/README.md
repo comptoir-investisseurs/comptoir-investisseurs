@@ -23,7 +23,7 @@ n'est jamais touché.
 
 | Le site fait                                    | Le site ne fait pas                    |
 | ----------------------------------------------- | -------------------------------------- |
-| Présenter les calibres Omega vintage            | Générer ou réécrire le contenu des PDF |
+| Répertorier 746 calibres de 94 marques          | Générer ou réécrire le contenu des PDF |
 | Vendre les guides à l'unité (Stripe)            | Analyser les manuels sources           |
 | Proposer l'abonnement Cronostic Pro             | Rédiger du contenu de guide            |
 | Servir les PDF après vérification des droits    | Gérer une validation éditoriale        |
@@ -32,6 +32,7 @@ n'est jamais touché.
 | Chercher les pièces en vente (eBay + marchands) |                                        |
 | Référencer huiles et consommables               |                                        |
 | Construire une encyclopédie gratuite            |                                        |
+| Segmenter par marque de mouvement               |                                        |
 
 ---
 
@@ -350,13 +351,80 @@ sont pas comptés. Résultats dans `/admin/audience`.
 
 ---
 
+## Encyclopédie des marques
+
+94 marques, 746 calibres. La segmentation suit la **marque de mouvement**, pas
+celle du cadran — c'est la seule qui aide à l'établi.
+
+```
+/marques                     index, groupé par nature de marque
+/marques/valjoux             les 15 Valjoux, groupés par type
+/calibres/valjoux-7733       la fiche du calibre
+```
+
+Trois familles, classées par nature et non par géographie :
+
+| Famille | Ce qu'on y trouve | Pourquoi c'est le bon découpage |
+| --- | --- | --- |
+| Fabriques d'ébauches | ETA, Valjoux, Lémania, Landeron, Sellita, Miyota… | Un guide sur un 7733 sert des dizaines de marques de montres |
+| Manufactures | Omega, Rolex, JLC, Zenith, Seiko, Poljot… | Calibres propres, fournitures spécifiques |
+| Maisons | Heuer, Cartier, Breitling, Tudor, Panerai… | Logent des mouvements d'autrui — le champ `base` renvoie vers l'ébauche réelle |
+
+Le cas Cartier illustre l'intérêt du découpage : la maison n'a pratiquement
+pas fabriqué de mouvement avant 2010. Une Tank vintage se documente du côté de
+Jaeger-LeCoultre ou de Piaget, pas de Cartier. Chaque fiche concernée porte
+l'ébauche d'origine, et la page de marque le dit en toutes lettres.
+
+### Deux niveaux de fiche
+
+- **Fiches détaillées** (`src/data/catalog.ts`) — présentation, historique,
+  architecture, nomenclature, points de lubrification, outillage. Ce sont
+  celles qui portent un guide. Elles l'emportent toujours sur l'encyclopédie.
+- **Fiches d'amorce** (`src/data/marques/*.ts`) — référence, période, type,
+  repères dimensionnels. Rien de relevé sur planche constructeur, donc tout
+  s'affiche avec le repère ◆ et la page l'annonce en préambule.
+
+Une valeur incertaine est **omise**, jamais devinée : une case vide se
+complète, une case fausse se propage. C'est la règle qui gouverne tout le
+fichier de données.
+
+### Où éditer
+
+L'encyclopédie est un jeu de données **versionné dans le dépôt**, pas une table
+que l'on modifie depuis le back-office. C'est délibéré : ces fiches se
+corrigent par lots, se relisent en diff, et se déploient avec le reste. Le
+back-office gère les guides et les calibres documentés — ce qui se vend et ce
+qui change souvent.
+
+```
+src/data/encyclopedie.ts       types, libellés, assemblage
+src/data/marques/ebauches.ts   24 fabriques d'ébauches
+src/data/marques/maisons.ts    55 maisons et manufactures
+src/data/marques/hors-suisse.ts 15 marques japonaises, russes, chinoises, américaines
+```
+
+Ajouter un mouvement : une ligne dans le tableau `mouvements` de la marque. Le
+slug (`marque-reference`), la fiche, l'entrée d'encyclopédie, le plan du site
+et l'index de recherche en découlent automatiquement.
+
+---
+
 ## Recherche
 
-Un seul champ, sur l'accueil et sur `/calibres`, qui interroge tout : calibres,
-guides, fournitures, huiles, outillage et pages du site. L'index est construit
-côté serveur (`src/lib/search-index.ts`) puis filtré côté client, sans
-aller-retour réseau — à l'établi, on tape une référence et on veut la réponse
-sous les doigts.
+Un seul champ, sur l'accueil, `/calibres` et `/marques`, qui interroge tout :
+calibres, guides, marques, fournitures, huiles, outillage et pages du site.
+Près de neuf cents entrées.
+
+Deux index, pour ne pas faire payer la recherche à qui ne s'en sert pas :
+
+- **le réduit** part avec la page — calibres documentés, guides, marques, pages.
+  Quelques kilo-octets, disponibles à la première frappe ;
+- **le complet** arrive par `/api/recherche` dès que le champ prend le curseur
+  ou le survol, donc avant que la frappe soit terminée.
+
+Le filtrage reste local dans les deux cas : aucune requête réseau ne s'intercale
+entre une touche et son résultat. La bascule a fait passer l'accueil de 262 à
+69 ko (40 à 12 ko compressés).
 
 Le classement suit la qualité de la correspondance : référence exacte, puis
 début de référence, puis occurrence dans le libellé, puis dans la description.
@@ -373,6 +441,7 @@ src/
 ├── app/
 │   ├── page.tsx                    accueil
 │   ├── calibres/[slug]/            fiche calibre (cœur du site)
+│   ├── marques/                    encyclopédie par marque de mouvement
 │   ├── guides/                     vitrine des guides
 │   ├── pieces/                     recherche de pièces
 │   ├── huiles/                     huiles, graisses, outillage
@@ -389,10 +458,12 @@ src/
 │       ├── guides/[guideId]/preview    extrait de trois pages
 │       ├── admin/guides/[guideId]/file téléversement du PDF
 │       ├── account/export              portabilité RGPD
+│       ├── recherche                   index de recherche complet
 │       ├── mesure                      compteur d'audience
 │       └── stripe/webhook
 ├── db/          schéma Drizzle + seed
 ├── data/        catalogue de lancement (seed & mode démo)
+│   └── marques/ encyclopédie : 94 marques, 746 calibres
 ├── lib/         auth, droits, repo, r2, stripe, ebay, pdf, mail,
 │                search, analytics
 └── components/

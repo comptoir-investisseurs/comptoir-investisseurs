@@ -5,6 +5,7 @@ import { nombreArticles } from "@/lib/cart";
 import { Wordmark } from "./logo";
 
 const NAV = [
+  { href: "/marques", label: "Marques" },
   { href: "/calibres", label: "Calibres" },
   { href: "/guides", label: "Guides" },
   { href: "/pieces", label: "Pièces" },
