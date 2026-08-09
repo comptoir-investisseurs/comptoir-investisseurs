@@ -19,6 +19,9 @@ export type SeedSpec = {
   value: string;
   unit?: string;
   verified?: boolean;
+  /** Publication qui porte la valeur : éditeur, nature de la fiche, date du relevé. */
+  source?: string;
+  sourceUrl?: string;
 };
 
 export type SeedLubricationPoint = {
@@ -280,27 +283,179 @@ export const TOOLS: SeedTool[] = [
    Calibres
    ──────────────────────────────────────────────────────────── */
 
-const BASE_SPECS = (opts: {
+/* ────────────────────────────────────────────────────────────
+   Relevé du 9 août 2026
+
+   Deux publications indépendantes ont été dépouillées calibre par calibre :
+
+   - **Ranfft DB** (ranfft.org), qui couvre les dix calibres. Chaque fiche
+     porte les cotes, le nombre de rubis, la réserve, l'angle de levée, et
+     reprend en pied la composition complète de la série 30.
+   - **Caliber Corner** (calibercorner.com), qui ne publie de fiche que pour
+     le 265 et le 269.
+
+   La règle appliquée est celle du dépôt : **deux sources concordantes valent
+   une attestation** (`verified: true`), une source seule vaut une valeur
+   corrigée mais toujours annoncée comme indicative, et une divergence vaut un
+   doute signalé — jamais un arbitrage silencieux.
+
+   Ce relevé a corrigé quatre erreurs de fond, dont trois portaient la mention
+   « vérifié » à tort :
+
+   1. **Diamètre.** 30,5 mm hors tout, et non 30,0. Les deux publications
+      concordent ; Caliber Corner lève l'ambiguïté en distinguant le diamètre
+      total (30,5) du diamètre d'encageage (30,0). C'est ce dernier qui donne
+      son nom à la famille — le nom est nominal, la cote ne l'est pas.
+   2. **Affichage de la seconde.** Les 267, 268 et 269 étaient donnés à
+      seconde au centre : ils sont à **petite seconde**. La série 30 se scinde
+      en deux lignées parallèles, `sub second` (30T2, 26x) et `sweep second`
+      (30T2SC, 28x). La hauteur le confirme d'elle-même : 4,05 mm sans mobile
+      de seconde au centre, 5,10 mm avec.
+   3. **Hauteur.** 4,5 mm partout, valeur qui ne correspond à aucune des deux
+      lignées.
+   4. **Balancier et spiral.** « Annulaire à vis, spiral plat » partout, alors
+      que la série évolue : balancier à vis puis annulaire à partir du 268,
+      spiral Breguet puis plat à partir du 269.
+
+   L'angle de levée (49°) est ajouté : il ne figurait pas et c'est le réglage
+   qu'on saisit au chronocomparateur avant toute mesure d'amplitude.
+   ──────────────────────────────────────────────────────────── */
+
+const RANFFT = (id: string) => `https://ranfft.org/caliber/${id}`;
+const CC = (ref: string) => `https://calibercorner.com/omega-caliber-${ref}/`;
+
+/** Attesté par Ranfft et Caliber Corner sur la fiche même du calibre. */
+const DEUX_SOURCES = "Ranfft DB et Caliber Corner, fiches du calibre, relevé du 9 août 2026";
+/** Relevé sur Ranfft seul : valeur corrigée, mais non attestée. */
+const RANFFT_SEUL = "Ranfft DB, fiche du calibre, relevé du 9 août 2026 — source unique";
+/**
+ * Caractéristiques que toute la série partage — marque, remontage, fréquence,
+ * échappement. Caliber Corner ne publie que le 265 et le 269, mais ces
+ * valeurs-là ne varient pas d'un calibre à l'autre : les deux fiches suffisent
+ * à les attester pour la famille entière. Les porter comme « source unique »
+ * sur les huit autres serait faux dans l'autre sens.
+ */
+const FAMILLE_DEUX =
+  "Ranfft DB et Caliber Corner, fiches des 265 et 269, relevé du 9 août 2026 — caractéristique commune à la série 30";
+
+type SpecsInput = {
+  /** Identifiant de la fiche Ranfft, seule source à couvrir les dix calibres. */
+  ranfft: string;
+  /** Référence Caliber Corner quand la fiche existe (265 et 269 seulement). */
+  cc?: string;
   seconds: string;
   jewels: string;
-  height?: string;
+  height: string;
+  balance: string;
+  /**
+   * Seul le 269 a son balancier décrit par les deux publications : la fiche
+   * Caliber Corner du 265 ne porte ni balancier ni spiral.
+   */
+  balanceAtteste?: boolean;
+  shock: string;
+  /** Renseigné quand les deux sources divergent : la divergence est affichée. */
+  shockNote?: string;
   reserve?: string;
-}): SeedSpec[] => [
-  { key: "brand", label: "Marque", value: "Omega", verified: true },
-  { key: "family", label: "Famille", value: "Omega 30 mm", verified: true },
-  { key: "winding", label: "Remontage", value: "Manuel", verified: true },
-  { key: "diameter", label: "Diamètre", value: "30,0", unit: "mm", verified: true },
-  { key: "lignes", label: "Diamètre en lignes", value: "13 ¼", unit: "'''", verified: true },
-  { key: "height", label: "Hauteur", value: opts.height ?? "4,5", unit: "mm", verified: false },
-  { key: "jewels", label: "Nombre de rubis", value: opts.jewels, verified: false },
-  { key: "frequency", label: "Fréquence", value: "18 000", unit: "alt/h", verified: true },
-  { key: "beat", label: "Battements", value: "2,5", unit: "Hz", verified: true },
-  { key: "seconds", label: "Affichage de la seconde", value: opts.seconds, verified: false },
-  { key: "reserve", label: "Réserve de marche", value: opts.reserve ?? "≈ 45", unit: "h", verified: false },
-  { key: "escapement", label: "Échappement", value: "Ancre suisse", verified: true },
-  { key: "shock", label: "Protection antichoc", value: "Incabloc (selon exécution)", verified: false },
-  { key: "balance", label: "Balancier", value: "Balancier annulaire à vis, spiral plat", verified: false },
-];
+};
+
+const BASE_SPECS = (o: SpecsInput): SeedSpec[] => {
+  const url = RANFFT(o.ranfft);
+  const ccUrl = o.cc ? CC(o.cc) : undefined;
+  // Une valeur n'est attestée que si les deux publications la portent : pour
+  // huit calibres sur dix, Caliber Corner n'a pas de fiche.
+  const deux = Boolean(o.cc);
+  const src = deux ? DEUX_SOURCES : RANFFT_SEUL;
+
+  return [
+    { key: "brand", label: "Marque", value: "Omega", verified: true, source: FAMILLE_DEUX, sourceUrl: url },
+    { key: "family", label: "Famille", value: "Omega 30 mm", verified: true, source: FAMILLE_DEUX, sourceUrl: url },
+    { key: "winding", label: "Remontage", value: "Manuel", verified: true, source: FAMILLE_DEUX, sourceUrl: url },
+    {
+      key: "diameter",
+      label: "Diamètre",
+      value: "30,5",
+      unit: "mm",
+      verified: true,
+      source:
+        "Ranfft DB (30,5 mm) et Caliber Corner (30,5 mm hors tout, 30,0 mm d'encageage), relevé du 9 août 2026",
+      sourceUrl: ccUrl ?? CC("269"),
+    },
+    {
+      key: "lignes",
+      label: "Diamètre en lignes",
+      value: "13 ½",
+      unit: "'''",
+      verified: true,
+      source: "Ranfft DB (13,52‴), concordant avec 30,5 mm ÷ 2,2558 — relevé du 9 août 2026",
+      sourceUrl: url,
+    },
+    { key: "height", label: "Hauteur", value: o.height, unit: "mm", verified: deux, source: src, sourceUrl: url },
+    { key: "jewels", label: "Nombre de rubis", value: o.jewels, verified: deux, source: src, sourceUrl: url },
+    {
+      key: "frequency",
+      label: "Fréquence",
+      value: "18 000",
+      unit: "alt/h",
+      verified: true,
+      source: FAMILLE_DEUX,
+      sourceUrl: url,
+    },
+    { key: "beat", label: "Battements", value: "2,5", unit: "Hz", verified: true, source: FAMILLE_DEUX, sourceUrl: url },
+    {
+      key: "lift",
+      label: "Angle de levée",
+      value: "49",
+      unit: "°",
+      verified: deux,
+      source: deux ? src : "Ranfft DB, fiche du calibre — valeur commune à l'échappement de la série",
+      sourceUrl: url,
+    },
+    {
+      // Corrigé sur trois calibres. Ranfft porte l'information deux fois — au
+      // champ « complication » et dans la composition de la série — et la
+      // hauteur la recoupe, mais cela reste un seul éditeur : la valeur ne
+      // devient attestée que là où Caliber Corner la confirme.
+      key: "seconds",
+      label: "Affichage de la seconde",
+      value: o.seconds,
+      verified: deux,
+      source: deux
+        ? DEUX_SOURCES
+        : "Ranfft DB, complication du calibre et composition de la série 30 portée en pied de fiche — source unique, recoupée par la hauteur",
+      sourceUrl: url,
+    },
+    {
+      // Ranfft donne 45 h, Caliber Corner 40~45 h sur le 265 et 42 h et plus
+      // sur le 269 : l'ordre de grandeur est constant, la valeur exacte non.
+      key: "reserve",
+      label: "Réserve de marche",
+      value: o.reserve ?? "≈ 45",
+      unit: "h",
+      verified: false,
+      source: "Ranfft DB (45 h) et Caliber Corner (40 à 45 h) — sources divergentes, valeur donnée en ordre de grandeur",
+      sourceUrl: url,
+    },
+    { key: "escapement", label: "Échappement", value: "Ancre suisse", verified: true, source: FAMILLE_DEUX, sourceUrl: url },
+    {
+      key: "shock",
+      label: "Protection antichoc",
+      value: o.shock,
+      verified: false,
+      source: o.shockNote ?? src,
+      sourceUrl: url,
+    },
+    {
+      key: "balance",
+      label: "Balancier",
+      value: o.balance,
+      verified: o.balanceAtteste ?? false,
+      source: o.balanceAtteste
+        ? "Ranfft DB (composition de la série 30) et Caliber Corner (balancier Glucydur sans vis, spiral plat), relevé du 9 août 2026"
+        : "Ranfft DB, composition de la série 30 portée en pied de fiche — source unique",
+      sourceUrl: url,
+    },
+  ];
+};
 
 export const CALIBERS: SeedCaliber[] = [
   {
@@ -314,10 +469,19 @@ export const CALIBERS: SeedCaliber[] = [
     presentation:
       "Le 30T2 ouvre en 1939 la lignée des mouvements ronds de 30 millimètres à remontage manuel qui équipera Omega pendant près d'un quart de siècle. Sa conception privilégie l'accessibilité : ponts largement dimensionnés, rouage droit, échappement dégagé. C'est un mouvement que l'on démonte sans acrobatie et que l'on règle avec une marge de manœuvre confortable.\n\nÀ l'établi, le 30T2 se distingue par la qualité de ses finitions fonctionnelles — pivots soignés, pierres bien alignées, denture régulière — plutôt que par une décoration ostentatoire. C'est un mouvement d'usage, conçu pour durer et pour être entretenu.",
     history:
-      "Introduit à la veille de la Seconde Guerre mondiale, le 30T2 a équipé aussi bien des montres civiles que des commandes militaires britanniques. Il a été décliné en plusieurs exécutions selon l'affichage de la seconde et le niveau de réglage, et a servi de base aux séries 26x et 28x qui lui succèdent au milieu des années 1950.",
+      "Introduit à la veille de la Seconde Guerre mondiale, le 30T2 a équipé aussi bien des montres civiles que des commandes militaires britanniques. Il a essaimé en références distinctes plutôt qu'en variantes d'un même calibre : le 30T2PC pour l'exécution protégée des chocs, le 30T2SC pour la seconde au centre, avant que les séries 26x et 28x ne lui succèdent au milieu des années 1950 — la première en petite seconde, la seconde au centre.",
     architecture:
-      "Barillet unique sous pont dédié, rouage à quatre mobiles, échappement à ancre suisse sous pont d'ancre séparé, balancier annulaire sous pont réglable. Le remontage et la mise à l'heure sont commandés par une bascule classique, tirette et sautoir côté platine.",
-    specs: BASE_SPECS({ seconds: "Petite seconde ou seconde au centre selon exécution", jewels: "15 à 17 selon exécution", reserve: "≈ 45" }),
+      "Barillet unique sous pont dédié, rouage à quatre mobiles, petite seconde entraînée directement, échappement à ancre suisse sous pont d'ancre séparé, balancier à vis sous pont réglable. Le remontage et la mise à l'heure sont commandés par une bascule classique, tirette et sautoir côté platine.",
+    specs: BASE_SPECS({
+      ranfft: "8414-Omega-30T2",
+      seconds: "Petite seconde",
+      jewels: "15",
+      height: "4,05",
+      balance: "Balancier à vis, spiral Breguet",
+      shock: "Sans protection antichoc (Incabloc sur l'exécution 30T2PC)",
+      shockNote: "Ranfft se contredit : la fiche du calibre porte Incabloc, la composition de la série le donne sans protection — l'antichoc distingue précisément l'exécution PC",
+      reserve: "≈ 44",
+    }),
     related: ["omega-265", "omega-266", "omega-267", "omega-268", "omega-269"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -337,7 +501,15 @@ export const CALIBERS: SeedCaliber[] = [
       "Le 265 s'inscrit dans la renumérotation des mouvements 30 millimètres opérée par Omega au milieu des années 1950. Il a équipé de très nombreuses montres de ville à petite seconde jusqu'au début des années 1960.",
     architecture:
       "Barillet unique, rouage droit, petite seconde entraînée directement par la roue de seconde. Ponts de barillet et de rouage séparés, pont d'ancre indépendant facilitant le contrôle de l'échappement.",
-    specs: BASE_SPECS({ seconds: "Petite seconde", jewels: "17" }),
+    specs: BASE_SPECS({
+      ranfft: "8376-Omega-265",
+      cc: "265",
+      seconds: "Petite seconde",
+      jewels: "15",
+      height: "4,05",
+      balance: "Balancier à vis, spiral Breguet",
+      shock: "Incabloc",
+    }),
     related: ["omega-30t2", "omega-266", "omega-267", "omega-268"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -350,14 +522,21 @@ export const CALIBERS: SeedCaliber[] = [
     family: "omega-30-mm",
     introducedYear: 1955,
     summary:
-      "Variante soignée du 265, en exécution petite seconde, avec un niveau de réglage supérieur.",
+      "Le 265 porté à dix-sept rubis, en exécution petite seconde et à balancier antimagnétique.",
     presentation:
-      "Le 266 partage la platine et le rouage du 265. Il s'en distingue par le niveau de finition et de réglage retenu par la manufacture, ce qui en fait un mouvement particulièrement agréable à ajuster.\n\nPour l'horloger, la procédure d'entretien est identique à celle du 265 : les différences portent sur la qualité des composants d'échappement et sur les tolérances de réglage, pas sur la cinématique.",
+      "Le 266 partage la platine, le rouage et l'affichage petite seconde du 265. Ce qui les sépare tient au comptage : dix-sept rubis au lieu de quinze, l'empierrage supplémentaire portant sur les mobiles les plus sollicités.\n\nPour l'horloger, la procédure d'entretien est celle du 265 — même cinématique, même ordre de remontage. La vigilance se déplace simplement sur les pierres additionnelles, qu'il faut contrôler et huiler comme les autres.",
     history:
       "Produit parallèlement au 265 au sein de la série 26x, le 266 équipe des modèles positionnés plus haut dans la gamme.",
     architecture:
       "Identique au 265 : barillet unique, rouage droit à quatre mobiles, petite seconde, échappement à ancre suisse sous pont séparé.",
-    specs: BASE_SPECS({ seconds: "Petite seconde", jewels: "17" }),
+    specs: BASE_SPECS({
+      ranfft: "8375-Omega-266",
+      seconds: "Petite seconde",
+      jewels: "17",
+      height: "4,00",
+      balance: "Balancier à vis, spiral Breguet",
+      shock: "Incabloc",
+    }),
     related: ["omega-265", "omega-267", "omega-268", "omega-30t2"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -370,14 +549,21 @@ export const CALIBERS: SeedCaliber[] = [
     family: "omega-30-mm",
     introducedYear: 1955,
     summary:
-      "Exécution à seconde au centre de la série 26x, avec le mobile intermédiaire caractéristique.",
+      "Exécution petite seconde à dix-sept rubis de la série 26x, contemporaine du 266.",
     presentation:
-      "Le 267 transpose la base 30 millimètres en affichage seconde au centre. L'aiguille est entraînée par un mobile supplémentaire, avec le dispositif de friction destiné à éviter le flottement de l'aiguille.\n\nCe détail change la méthode de travail : l'ordre de remontage du rouage n'est plus le même que sur un 265, et le contrôle de la friction de la seconde devient un point de vigilance à part entière.",
+      "Le 267 appartient au même échelon que le 266 : dix-sept rubis, balancier antimagnétique, affichage petite seconde. Les deux références sont données ensemble par la documentation, sans que ce qui les distingue soit établi ici — vraisemblablement une différence d'exécution ou de destination, pas de cinématique.\n\nÀ l'établi, cela signifie qu'un 267 se démonte et se remonte exactement comme un 266. Aucun mobile supplémentaire, aucun dispositif de friction : le rouage est celui, direct, de la petite seconde.",
     history:
-      "Introduit avec la série 26x, le 267 répond à la généralisation de la seconde au centre sur les montres de ville de la fin des années 1950.",
+      "Introduit avec la série 26x au milieu des années 1950, le 267 accompagne le 266 dans les montres de ville à petite seconde de la fin de la décennie.",
     architecture:
-      "Barillet unique, rouage droit complété par un mobile de seconde au centre et son ressort de friction. Ponts identiques à ceux du 265 dans leur découpe générale.",
-    specs: BASE_SPECS({ seconds: "Seconde au centre", jewels: "17" }),
+      "Barillet unique, rouage droit à quatre mobiles, petite seconde entraînée directement par la roue de seconde. Ponts identiques à ceux du 265 dans leur découpe générale.",
+    specs: BASE_SPECS({
+      ranfft: "8374-Omega-267",
+      seconds: "Petite seconde",
+      jewels: "17",
+      height: "4,05",
+      balance: "Balancier à vis, spiral Breguet",
+      shock: "Incabloc",
+    }),
     related: ["omega-265", "omega-266", "omega-268", "omega-269"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -390,14 +576,21 @@ export const CALIBERS: SeedCaliber[] = [
     family: "omega-30-mm",
     introducedYear: 1956,
     summary:
-      "Variante haut de gamme à seconde au centre de la série 26x.",
+      "L'exécution de la série 26x qui abandonne le balancier à vis pour un balancier annulaire.",
     presentation:
-      "Le 268 est au 267 ce que le 266 est au 265 : même architecture, exécution plus soignée. Il se règle finement et supporte bien les positions verticales lorsque l'échappement est propre et l'amplitude correcte.\n\nÀ l'entretien, on portera une attention particulière à l'état de l'axe de balancier et à la propreté des levées, deux points qui conditionnent la stabilité de marche de cette exécution.",
+      "Le 268 reprend la base petite seconde du 267 et change son organe réglant : au balancier à vis succède un balancier annulaire, sans masselottes. C'est la seule différence que la documentation retienne, et elle n'est pas anodine — c'est le passage au réglage d'usine, sans reprise possible par déplacement des vis.\n\nÀ l'entretien, la conséquence est directe : le réglage se fait à la raquette et par l'état de l'échappement, jamais en touchant au balancier. On contrôlera l'axe et la propreté des levées, qui conditionnent seuls la stabilité de marche.",
     history:
-      "Produit au sein de la série 26x à partir du milieu des années 1950, en accompagnement des modèles à seconde au centre les plus soignés.",
+      "Produit au sein de la série 26x à partir du milieu des années 1950, le 268 marque le passage de la famille au balancier annulaire.",
     architecture:
-      "Barillet unique, rouage droit, mobile de seconde au centre avec friction, échappement à ancre suisse, balancier sous pont réglable.",
-    specs: BASE_SPECS({ seconds: "Seconde au centre", jewels: "17" }),
+      "Barillet unique, rouage droit à quatre mobiles, petite seconde directe, échappement à ancre suisse, balancier annulaire et spiral Breguet sous pont réglable.",
+    specs: BASE_SPECS({
+      ranfft: "8371-Omega-268",
+      seconds: "Petite seconde",
+      jewels: "17",
+      height: "4,05",
+      balance: "Balancier annulaire, spiral Breguet",
+      shock: "Incabloc",
+    }),
     related: ["omega-267", "omega-266", "omega-269", "omega-283"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -410,14 +603,24 @@ export const CALIBERS: SeedCaliber[] = [
     family: "omega-30-mm",
     introducedYear: 1957,
     summary:
-      "Dernière évolution de la série 26x à seconde au centre, produite jusqu'au début des années 1960.",
+      "Dernière évolution de la série 26x, seule à recevoir le spiral plat. Produite jusqu'au début des années 1960.",
     presentation:
-      "Le 269 clôt la série 26x. Il bénéficie des mises au point accumulées sur la famille 30 millimètres, notamment au niveau de l'antichoc et du réglage du balancier.\n\nC'est un mouvement fiable, dont la remise en état ne pose pas de difficulté particulière dès lors que les fournitures d'échappement sont disponibles.",
+      "Le 269 clôt la série 26x en reprenant le balancier annulaire du 268 et en substituant un spiral plat au spiral Breguet. C'est la seule référence de la lignée petite seconde à recevoir ce spiral, et c'est ce qui la fait reconnaître au démontage.\n\nLe spiral plat se repose plus simplement qu'une courbe Breguet, mais il pardonne moins : la planéité et le centrage doivent être irréprochables, faute de quoi l'écart entre positions horizontales et verticales s'installe et ne se rattrape pas à la raquette.",
     history:
-      "Produit à la fin des années 1950, le 269 accompagne les dernières montres à remontage manuel de 30 millimètres avant le passage d'Omega aux nouvelles familles de calibres du début des années 1960.",
+      "Produit au début des années 1960, le 269 accompagne les dernières montres à remontage manuel de 30 millimètres avant le passage d'Omega aux nouvelles familles de calibres.",
     architecture:
-      "Barillet unique, rouage droit avec mobile de seconde au centre, échappement à ancre suisse, pont de balancier réglable.",
-    specs: BASE_SPECS({ seconds: "Seconde au centre", jewels: "17" }),
+      "Barillet unique, rouage droit à quatre mobiles, petite seconde directe, échappement à ancre suisse, balancier annulaire Glucydur et spiral plat sous pont réglable.",
+    specs: BASE_SPECS({
+      ranfft: "8381-Omega-269",
+      cc: "269",
+      seconds: "Petite seconde",
+      jewels: "17",
+      height: "4,05",
+      balance: "Balancier annulaire sans vis (Glucydur), spiral plat",
+      balanceAtteste: true,
+      shock: "KIF ou Novochoc selon la source",
+      shockNote: "Ranfft donne KIF, Caliber Corner Novochoc — sources divergentes, à trancher sur une planche Omega",
+    }),
     related: ["omega-267", "omega-268", "omega-283", "omega-284"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -437,7 +640,14 @@ export const CALIBERS: SeedCaliber[] = [
       "Produit à partir du milieu des années 1950 en parallèle de la série 26x, jusqu'au début des années 1960.",
     architecture:
       "Barillet unique, rouage droit avec mobile de seconde au centre, échappement à ancre suisse sous pont séparé.",
-    specs: BASE_SPECS({ seconds: "Seconde au centre", jewels: "17" }),
+    specs: BASE_SPECS({
+      ranfft: "8398-Omega-283",
+      seconds: "Seconde au centre",
+      jewels: "17",
+      height: "5,10",
+      balance: "Balancier à vis, spiral Breguet",
+      shock: "Incabloc",
+    }),
     related: ["omega-284", "omega-285", "omega-286", "omega-269"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -450,13 +660,20 @@ export const CALIBERS: SeedCaliber[] = [
     family: "omega-30-mm",
     introducedYear: 1956,
     summary:
-      "Variante de la série 28x sur base 30 millimètres à remontage manuel.",
+      "Le pendant du 283 dans la série 28x à seconde au centre, à dix-sept rubis et balancier antimagnétique.",
     presentation:
-      "Le 284 appartient à la même génération que le 283 et partage l'essentiel de ses fournitures. Les écarts portent sur l'exécution de l'affichage et sur le niveau de réglage.\n\nL'entretien suit la procédure standard de la famille 30 millimètres, avec un contrôle systématique de l'axe de balancier et des pierres avant remontage.",
+      "Le 284 appartient à la même génération que le 283 et partage l'essentiel de ses fournitures : seconde au centre, dix-sept rubis, balancier à vis antimagnétique. La documentation donne les deux références ensemble, sans que ce qui les sépare soit établi ici.\n\nL'entretien suit la procédure de la famille, avec le point de vigilance propre à la lignée seconde au centre : le ressort de friction du mobile de seconde, dont la tension conditionne la tenue de l'aiguille.",
     history: "Produit au sein de la série 28x à partir du milieu des années 1950.",
     architecture:
-      "Barillet unique, rouage droit, échappement à ancre suisse, balancier annulaire sous pont réglable.",
-    specs: BASE_SPECS({ seconds: "Selon exécution", jewels: "17" }),
+      "Barillet unique, rouage droit complété par un mobile de seconde au centre et son ressort de friction, échappement à ancre suisse, balancier à vis et spiral Breguet sous pont réglable.",
+    specs: BASE_SPECS({
+      ranfft: "8394-Omega-284",
+      seconds: "Seconde au centre",
+      jewels: "17",
+      height: "5,10",
+      balance: "Balancier à vis, spiral Breguet",
+      shock: "Incabloc",
+    }),
     related: ["omega-283", "omega-285", "omega-286"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -469,13 +686,20 @@ export const CALIBERS: SeedCaliber[] = [
     family: "omega-30-mm",
     introducedYear: 1957,
     summary:
-      "Exécution tardive de la série 28x, contemporaine des dernières montres 30 millimètres à remontage manuel.",
+      "L'exécution de la série 28x qui passe au balancier annulaire, sur base seconde au centre.",
     presentation:
-      "Le 285 bénéficie des dernières mises au point de la famille. Il se comporte bien au chronocomparateur et supporte un réglage fin lorsque l'échappement est en bon état.\n\nComme sur l'ensemble de la série, le remplacement du ressort de barillet et un épilamage soigné de l'échappement font une différence nette sur l'amplitude obtenue.",
+      "Le 285 est au 284 ce que le 268 est au 267 : même base, balancier annulaire à la place du balancier à vis. Les deux lignées de la série 30, petite seconde et seconde au centre, évoluent en parallèle et reçoivent les mêmes organes réglants au même moment.\n\nLe réglage se fait donc à la raquette et par l'état de l'échappement. Comme sur l'ensemble de la série, le remplacement du ressort de barillet et un épilamage soigné font une différence nette sur l'amplitude obtenue.",
     history: "Produit à la fin des années 1950 au sein de la série 28x.",
     architecture:
-      "Barillet unique, rouage droit, échappement à ancre suisse, pont de balancier réglable.",
-    specs: BASE_SPECS({ seconds: "Selon exécution", jewels: "17" }),
+      "Barillet unique, rouage droit avec mobile de seconde au centre et ressort de friction, échappement à ancre suisse, balancier annulaire et spiral Breguet sous pont réglable.",
+    specs: BASE_SPECS({
+      ranfft: "8399-Omega-285",
+      seconds: "Seconde au centre",
+      jewels: "17",
+      height: "5,10",
+      balance: "Balancier annulaire, spiral Breguet",
+      shock: "Incabloc",
+    }),
     related: ["omega-283", "omega-284", "omega-286"],
     parts: COMMON_PARTS,
     lubrication: [],
@@ -488,13 +712,20 @@ export const CALIBERS: SeedCaliber[] = [
     family: "omega-30-mm",
     introducedYear: 1958,
     summary:
-      "Dernière référence du catalogue de lancement Cronostic pour la famille 30 millimètres.",
+      "Dernière référence de la famille 30 millimètres : seconde au centre, balancier annulaire et spiral plat.",
     presentation:
-      "Le 286 ferme la série 28x. Il partage la base mécanique de la famille et se travaille exactement de la même manière, ce qui en fait un bon mouvement d'apprentissage pour qui découvre l'architecture 30 millimètres.\n\nLes fournitures étant largement communes à la famille, l'approvisionnement reste raisonnable pour un mouvement de cette époque.",
-    history: "Produit à la fin des années 1950 et au début des années 1960, en fin de vie de la famille 30 millimètres.",
+      "Le 286 ferme la série 28x et, avec elle, la famille 30 millimètres. Il est au 285 ce que le 269 est au 268 : le spiral plat y remplace le spiral Breguet. Les deux lignées s'achèvent ainsi sur la même configuration, à l'affichage de la seconde près.\n\nLes fournitures étant largement communes à la famille, l'approvisionnement reste raisonnable pour un mouvement de cette époque. La reprise d'un spiral plat demande en revanche une planéité irréprochable : c'est là que se joue l'écart entre positions.",
+    history: "Produit au début des années 1960, en fin de vie de la famille 30 millimètres.",
     architecture:
-      "Barillet unique, rouage droit, échappement à ancre suisse, balancier sous pont réglable.",
-    specs: BASE_SPECS({ seconds: "Selon exécution", jewels: "17" }),
+      "Barillet unique, rouage droit avec mobile de seconde au centre et ressort de friction, échappement à ancre suisse, balancier annulaire et spiral plat sous pont réglable.",
+    specs: BASE_SPECS({
+      ranfft: "8395-Omega-286",
+      seconds: "Seconde au centre",
+      jewels: "17",
+      height: "5,10",
+      balance: "Balancier annulaire, spiral plat",
+      shock: "KIF",
+    }),
     related: ["omega-283", "omega-284", "omega-285"],
     parts: COMMON_PARTS,
     lubrication: [],

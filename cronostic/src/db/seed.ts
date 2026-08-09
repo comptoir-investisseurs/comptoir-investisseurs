@@ -84,6 +84,8 @@ async function main() {
         unit: spec.unit ?? null,
         position,
         isVerified: spec.verified ?? false,
+        source: spec.source ?? null,
+        sourceUrl: spec.sourceUrl ?? null,
       })),
     );
   }

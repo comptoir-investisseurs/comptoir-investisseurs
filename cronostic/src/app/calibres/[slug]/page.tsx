@@ -459,9 +459,29 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                     {/* Même police que la nomenclature : les deux tableaux se
                         lisent côte à côte, une différence de fonte y ferait
                         croire à une différence de nature. */}
-                    <td className={spec.isVerified ? "" : "indicatif"}>
-                      {spec.value}
-                      {spec.unit ? <span className="text-encre/60"> {spec.unit}</span> : null}
+                    <td>
+                      {/* Le repère ◆ est posé par ::after sur .indicatif : il
+                          doit donc envelopper la seule valeur, sinon il se
+                          retrouve rejeté après la ligne de provenance. */}
+                      <span className={spec.isVerified ? "" : "indicatif"}>
+                        {spec.value}
+                        {spec.unit ? <span className="text-encre/60"> {spec.unit}</span> : null}
+                      </span>
+                      {/* La provenance sous la valeur plutôt qu'en colonne : une
+                          troisième colonne rendrait le tableau illisible sur
+                          téléphone, et la source se lit avec la valeur, pas à
+                          côté d'elle. */}
+                      {spec.source ? (
+                        <span className="legende mt-1 block font-normal normal-case">
+                          {spec.sourceUrl ? (
+                            <a href={spec.sourceUrl} rel="noreferrer nofollow" target="_blank">
+                              {spec.source}
+                            </a>
+                          ) : (
+                            spec.source
+                          )}
+                        </span>
+                      ) : null}
                     </td>
                   </tr>
                 ))}

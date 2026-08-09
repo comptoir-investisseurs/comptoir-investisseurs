@@ -134,8 +134,8 @@ export async function getCaliberBySlug(slug: string): Promise<CaliberDetail | nu
           value: corrige?.value ?? s.value,
           unit: s.unit ?? null,
           isVerified: corrige?.isVerified ?? s.verified ?? false,
-          source: corrige?.source ?? null,
-          sourceUrl: corrige?.sourceUrl ?? null,
+          source: corrige?.source ?? s.source ?? null,
+          sourceUrl: corrige?.sourceUrl ?? s.sourceUrl ?? null,
         };
       }),
       parts: demoParts.filter((p) => seed.parts.includes(p.reference)),
