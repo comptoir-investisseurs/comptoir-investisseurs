@@ -270,7 +270,7 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                 <table className="tableau">
                   <thead>
                     <tr>
-                      <th scope="col">N°</th>
+                      <th scope="col">Référence</th>
                       <th scope="col">Fourniture</th>
                       <th scope="col" className="hidden sm:table-cell">
                         Désignation
@@ -281,8 +281,14 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                   <tbody>
                     {caliber.parts.map((part) => (
                       <tr key={part.id}>
-                        <td>
-                          <span className="pastille-cerclee">{part.positionNumber ?? "—"}</span>
+                        {/* La référence de commande est propre au calibre :
+                            le numéro de nomenclature seul ne suffit pas à
+                            commander une fourniture, il faut le calibre avec.
+                            C'est aussi sous cette forme que les vendeurs de
+                            fournitures la portent. */}
+                        <td className="whitespace-nowrap tabular-nums">
+                          {caliber.reference}
+                          {part.positionNumber ? `-${part.positionNumber}` : ""}
                         </td>
                         <td>
                           {part.name}
@@ -306,9 +312,11 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                   </tbody>
                 </table>
               </div>
-              <p className="legende mt-2">
-                Numéros de nomenclature indicatifs ◆, à recouper avec les planches{" "}
-                {caliber.brand} d&apos;époque
+              <p className="legende indicatif mt-2 max-w-[68ch]">
+                Référence de commande = calibre + numéro de la nomenclature suisse des fournitures.
+                Reconstituée, à recouper avec les planches {caliber.brand} d&apos;époque — certaines
+                fournitures sont communes à plusieurs calibres de la famille et se commandent alors
+                sous la référence du calibre d&apos;origine
               </p>
             </Section>
           )}
@@ -411,7 +419,10 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                 {caliber.specs.map((spec) => (
                   <tr key={spec.key}>
                     <td className="text-encre/70">{spec.label}</td>
-                    <td className={`font-technique ${spec.isVerified ? "" : "indicatif"}`}>
+                    {/* Même police que la nomenclature : les deux tableaux se
+                        lisent côte à côte, une différence de fonte y ferait
+                        croire à une différence de nature. */}
+                    <td className={spec.isVerified ? "" : "indicatif"}>
                       {spec.value}
                       {spec.unit ? <span className="text-encre/60"> {spec.unit}</span> : null}
                     </td>

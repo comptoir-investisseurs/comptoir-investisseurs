@@ -127,7 +127,9 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
                         p.reference === sp.piece ? "bg-papier text-laiton" : "text-encre/72"
                       }`}
                     >
-                      <span className="pastille-cerclee shrink-0">{p.positionNumber}</span>
+                      <span className="shrink-0 tabular-nums text-encre/55">
+                        {caliber.reference}-{p.positionNumber}
+                      </span>
                       {p.name}
                     </Link>
                   </li>
