@@ -26,6 +26,9 @@ export type SpecRow = {
   value: string;
   unit: string | null;
   isVerified: boolean;
+  /** Document qui atteste la valeur. Vide tant qu'elle ne l'est pas. */
+  source?: string | null;
+  sourceUrl?: string | null;
 };
 
 export type PartRow = {
@@ -54,6 +57,9 @@ export type LubricantRow = {
   viscosity: string | null;
   usage: string | null;
   colorHex: string | null;
+  isVerified: boolean;
+  source: string | null;
+  sourceUrl: string | null;
 };
 
 export type LubricationPointRow = {

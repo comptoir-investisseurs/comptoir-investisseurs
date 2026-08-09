@@ -7,9 +7,10 @@ import { usingDatabase } from "@/lib/repo";
 
 const SECTIONS = [
   { href: "/admin", label: "Tableau de bord" },
+  { href: "/admin/donnees", label: "Ce qui manque" },
   { href: "/admin/calibres", label: "Calibres" },
   { href: "/admin/guides", label: "Guides" },
-  { href: "/admin/pieces", label: "Pièces" },
+  { href: "/admin/pieces", label: "Fournitures" },
   { href: "/admin/huiles", label: "Huiles" },
   { href: "/admin/utilisateurs", label: "Utilisateurs" },
   { href: "/admin/achats", label: "Achats" },

@@ -468,6 +468,44 @@ et l'index de recherche en découlent automatiquement.
 
 ---
 
+## Sources : ce que cet environnement ne permet pas
+
+Une recherche a été menée pour attester les caractéristiques des calibres et
+les viscosités des lubrifiants. Elle a buté sur la politique réseau : **toutes
+les sources horlogères de référence sont bloquées à la sortie**.
+
+```
+ranfft.org               base de référence des mouvements     bloqué
+calibercorner.com        fiches calibres                      bloqué
+emmywatch.com            base de mouvements                   bloqué
+eta.ch / portal.eta.ch   communications techniques ETA        bloqué
+sellita.ch               fiches techniques Sellita            bloqué
+moebius-lubricants.ch    fiches techniques des lubrifiants    bloqué
+cousinsuk.com, ofrei.com catalogues de fournitures            bloqué
+wikipedia.org                                                 bloqué
+```
+
+Les moteurs de recherche restent joignables, mais ils ne renvoient que des
+**résumés de seconde main**, et ces résumés se contredisent. Deux exemples
+relevés pendant la recherche :
+
+- réserve de marche de l'ETA 2824-2 : 38 heures selon une page, 42 selon une
+  autre. Sans la communication technique d'ETA, impossible de trancher ;
+- un résumé attribuait la graisse Moebius 9415 au ressort de barillet. C'est
+  faux — 9415 est la graisse d'échappement, 8200 celle du barillet. Recopier
+  ce résumé aurait introduit une erreur d'atelier dans une page qui prétend
+  faire autorité.
+
+Rien n'a donc été ajouté au catalogue depuis ces recherches. Deux façons
+d'avancer : ouvrir ces domaines dans la politique réseau de l'environnement,
+ou saisir les valeurs depuis les documents en main — les écrans de validation
+demandent une source pour chaque valeur.
+
+`/admin/donnees` tient l'inventaire de ce qui reste à attester et l'exporte en
+CSV, une ligne par valeur, prêt à être travaillé dans un tableur.
+
+---
+
 ## Références de fournitures : ce qui est vérifiable et ce qui ne l'est pas
 
 Deux numéros cohabitent sur une fiche calibre, et les confondre fait commander
@@ -480,6 +518,11 @@ la mauvaise pièce.
 
 Le second ne se déduit pas du premier. Une référence reconstituée aurait l'air
 juste et ferait commander de travers : le site n'en affiche donc aucune.
+
+La même règle vaut pour les **lubrifiants** : viscosité et usage portent le
+repère ◆ tant qu'ils n'ont pas été lus sur la fiche technique du fabricant, et
+`/admin/huiles` demande le lien de cette fiche — il s'affiche sous la
+référence, vérifiable par n'importe qui.
 
 `/admin/pieces` permet de saisir la référence relevée **et la source qui
 l'atteste** — planche, catalogue, page, date. Sans source, la case « attestée »

@@ -17,6 +17,7 @@ import {
   listCalibresTous,
   listGuides,
   updateGuide,
+  validerLubrifiant,
   validerPiece,
 } from "@/lib/repo";
 
@@ -216,7 +217,38 @@ export async function validerPieceAction(formData: FormData) {
   });
 
   revalidatePath("/admin/pieces");
+  revalidatePath("/admin/donnees");
   revalidatePath("/pieces");
   revalidatePath("/calibres", "layout");
   redirect("/admin/pieces?validee=1");
+}
+
+/**
+ * Validation d'un lubrifiant. Même règle que pour les fournitures : sans
+ * source, l'attestation ne prend pas. Une viscosité sans provenance ne vaut
+ * pas mieux qu'une viscosité absente — elle est seulement plus trompeuse.
+ */
+export async function validerLubrifiantAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("lubricantId") ?? "");
+  if (!id) throw new Error("Lubrifiant inconnu.");
+
+  const viscosity = String(formData.get("viscosity") ?? "").trim() || null;
+  const usage = String(formData.get("usage") ?? "").trim() || null;
+  const source = String(formData.get("source") ?? "").trim() || null;
+  const sourceUrl = String(formData.get("sourceUrl") ?? "").trim() || null;
+  const coche = formData.get("isVerified") === "on";
+
+  await validerLubrifiant(id, {
+    viscosity,
+    usage,
+    source,
+    sourceUrl,
+    isVerified: coche && Boolean(source),
+  });
+
+  revalidatePath("/admin/huiles");
+  revalidatePath("/admin/donnees");
+  revalidatePath("/huiles");
+  redirect("/admin/huiles?validee=1");
 }

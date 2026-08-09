@@ -908,6 +908,83 @@ export async function listLubricants(): Promise<LubricantRow[]> {
   return rows as LubricantRow[];
 }
 
+/**
+ * Validation d'un lubrifiant. Même règle que pour les fournitures : pas de
+ * source, pas d'attestation. Une viscosité est une donnée mesurée ; la
+ * reprendre de seconde main revient à propager l'erreur d'un tiers.
+ */
+export async function validerLubrifiant(
+  id: string,
+  patch: {
+    viscosity: string | null;
+    usage: string | null;
+    source: string | null;
+    sourceUrl: string | null;
+    isVerified: boolean;
+  },
+): Promise<void> {
+  if (!hasDatabase()) {
+    const l = demoLubricants.find((x) => x.id === id);
+    if (l) Object.assign(l, patch);
+    return;
+  }
+  const db = getDb();
+  await db.update(schema.lubricants).set(patch).where(eq(schema.lubricants.id, id));
+}
+
+/**
+ * Inventaire de ce qui reste à attester, section par section.
+ *
+ * Ce n'est pas un tableau de bord de vanité : c'est la liste de travail. Tant
+ * qu'une ligne y figure, la donnée correspondante s'affiche avec le repère ◆
+ * et n'est pas présentée comme certaine.
+ */
+export type Manques = {
+  calibres: { total: number; documentes: number; amorces: number };
+  specs: { total: number; attestees: number };
+  fournitures: { total: number; attestees: number; sansReference: number };
+  lubrifiants: { total: number; attestes: number; sansViscosite: number };
+  guides: { total: number; publies: number; sansPdf: number };
+};
+
+export async function inventaireDesManques(): Promise<Manques> {
+  const [documentes, encyclopedie, pieces, lubrifiants, guides] = await Promise.all([
+    listCalibers(),
+    listCalibresEncyclopedie(),
+    listParts(),
+    listLubricants(),
+    listGuides(),
+  ]);
+
+  // Les caractéristiques ne sont portées que par les fiches détaillées.
+  const details = await Promise.all(documentes.map((c) => getCaliberBySlug(c.slug)));
+  const specs = details.flatMap((d) => d?.specs ?? []);
+
+  return {
+    calibres: {
+      total: documentes.length + encyclopedie.length,
+      documentes: documentes.length,
+      amorces: encyclopedie.length,
+    },
+    specs: { total: specs.length, attestees: specs.filter((s) => s.isVerified).length },
+    fournitures: {
+      total: pieces.length,
+      attestees: pieces.filter((p) => p.isVerified).length,
+      sansReference: pieces.filter((p) => !p.orderReference).length,
+    },
+    lubrifiants: {
+      total: lubrifiants.length,
+      attestes: lubrifiants.filter((l) => l.isVerified).length,
+      sansViscosite: lubrifiants.filter((l) => !l.viscosity).length,
+    },
+    guides: {
+      total: guides.length,
+      publies: guides.filter((g) => g.isActive).length,
+      sansPdf: guides.filter((g) => !g.r2FileKey).length,
+    },
+  };
+}
+
 export async function listTools(): Promise<ToolRow[]> {
   if (!hasDatabase()) return demoTools;
   const db = getDb();

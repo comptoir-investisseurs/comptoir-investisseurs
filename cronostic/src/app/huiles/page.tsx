@@ -15,6 +15,8 @@ const ORDRE = ["huile", "graisse", "épilame", "produit de nettoyage"];
 export default async function HuilesPage() {
   const [lubricants, tools] = await Promise.all([listLubricants(), listTools()]);
 
+  const attestees = lubricants.filter((l) => l.isVerified).length;
+
   const groupes = ORDRE.map((type) => ({
     type,
     items: lubricants.filter((l) => l.type === type),
@@ -30,6 +32,17 @@ export default async function HuilesPage() {
         l&apos;échappement coûte de l&apos;amplitude, une huile trop fine sur le barillet ne tient
         pas.
       </p>
+
+      <div className="encart encart-alerte mt-8 max-w-[76ch]">
+        <p className="encart-titre">Sur ces valeurs</p>
+        <p className="mt-2">
+          Viscosités et usages portent le repère <span className="text-laiton">◆</span> tant
+          qu&apos;ils n&apos;ont pas été lus sur la fiche technique du fabricant. Une viscosité est
+          une donnée mesurée : la reprendre de seconde main, c&apos;est risquer de propager
+          l&apos;erreur d&apos;un tiers. {attestees} référence{attestees > 1 ? "s" : ""} sur{" "}
+          {lubricants.length} {attestees > 1 ? "sont attestées" : "est attestée"} à ce jour.
+        </p>
+      </div>
 
       {groupes.map((groupe) => (
         <section key={groupe.type} className="mt-14">
@@ -50,12 +63,38 @@ export default async function HuilesPage() {
                 <p className="font-titre mt-2 text-section text-encre">{l.reference}</p>
                 <p className="mt-1 text-legende text-encre/72">{l.name}</p>
                 {l.viscosity && (
-                  <p className="mt-3 text-[0.7rem] tracking-[0.14em] text-laiton uppercase">
+                  <p
+                    className={`mt-3 text-[0.7rem] tracking-[0.14em] text-laiton uppercase ${
+                      l.isVerified ? "" : "indicatif"
+                    }`}
+                  >
                     Viscosité&nbsp;: {l.viscosity}
                   </p>
                 )}
                 {l.usage && (
-                  <p className="mt-3 text-legende leading-relaxed text-encre/72">{l.usage}</p>
+                  <p
+                    className={`mt-3 text-legende leading-relaxed text-encre/72 ${
+                      l.isVerified ? "" : "indicatif"
+                    }`}
+                  >
+                    {l.usage}
+                  </p>
+                )}
+                {l.isVerified && l.source && (
+                  <p className="legende mt-3">
+                    {l.sourceUrl ? (
+                      <a
+                        href={l.sourceUrl}
+                        className="lien-souligne"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {l.source}
+                      </a>
+                    ) : (
+                      l.source
+                    )}
+                  </p>
                 )}
               </li>
             ))}

@@ -136,6 +136,9 @@ export const demoLubricants: LubricantRow[] = LUBRICANTS.map((l) => ({
   viscosity: l.viscosity ?? null,
   usage: l.usage,
   colorHex: l.colorHex,
+  isVerified: false,
+  source: null,
+  sourceUrl: null,
 }));
 
 export const demoTools: ToolRow[] = TOOLS.map((t) => ({

@@ -84,6 +84,9 @@ export const caliberSpecs = pgTable(
     unit: text("unit"),
     position: integer("position").notNull().default(0),
     isVerified: boolean("is_verified").notNull().default(false),
+    /** Document qui atteste la valeur : éditeur, titre, page, date. */
+    source: text("source"),
+    sourceUrl: text("source_url"),
   },
   (t) => [uniqueIndex("caliber_specs_caliber_key").on(t.caliberId, t.key)],
 );
@@ -287,6 +290,12 @@ export const lubricants = pgTable(
     viscosity: text("viscosity"),
     usage: text("usage"),
     colorHex: text("color_hex"),
+    /** Faux tant que la valeur n'a pas été lue sur une fiche technique. */
+    isVerified: boolean("is_verified").notNull().default(false),
+    /** Ce qui atteste la valeur : éditeur, document, date. */
+    source: text("source"),
+    /** Lien vers la fiche technique du fabricant. */
+    sourceUrl: text("source_url"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [uniqueIndex("lubricants_brand_reference_key").on(t.brand, t.reference)],
