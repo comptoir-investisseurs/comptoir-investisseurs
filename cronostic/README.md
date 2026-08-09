@@ -504,9 +504,12 @@ demandent une source pour chaque valeur.
 ### Trois façons de fournir les données
 
 **1. Ouvrir les domaines** dans la politique réseau de l'environnement
-(`claude.ai/code` → environnement → réseau). Au minimum `ranfft.org`,
-`eta.ch`, `moebius-lubricants.ch`. C'est la voie la plus rapide : la recherche
-reprend et chaque valeur arrive avec sa source.
+(`claude.ai/code` → environnement → réseau). La liste complète, classée par
+priorité, est dans [`docs/domaines-a-ouvrir.md`](docs/domaines-a-ouvrir.md) —
+tous gratuits et en accès libre. Six suffisent à couvrir l'essentiel :
+`ranfft.org`, `moebius-lubricants.ch`, `cousinsuk.com`, `archive.org` (avec
+ses sous-domaines) et `api.ebay.com`. C'est la voie la plus rapide : la
+recherche reprend et chaque valeur arrive avec sa source.
 
 **2. Déposer les documents** dans `sources/` — planches, fiches techniques,
 catalogues. Ce dossier est hors de `public/`, rien n'y est servi. Conventions
