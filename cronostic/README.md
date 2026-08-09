@@ -474,10 +474,10 @@ L'en-tête porte la navigation, sur téléphone comme sur ordinateur : une bande
 défilante de six entrées sous 768 px, plutôt qu'un menu à déplier — les entrées
 sont visibles d'un coup d'œil, sans clic préalable et sans JavaScript.
 
-Le bas de page ne porte plus de menu. Répéter la navigation en pied ajoutait un
-mur de liens sans rien apporter ; ne subsistent que les mentions obligatoires
-d'un site marchand — mentions légales, conditions de vente, confidentialité —
-et l'attribution des marques citées.
+Le pied de page reprend l'essentiel — encyclopédie, guides, pièces, huiles,
+abonnements d'un côté ; compte et mentions obligatoires de l'autre — plus un
+compteur qui renvoie vers l'encyclopédie. Il ne porte plus la liste des
+calibres : pertinent à dix, absurde à sept cents.
 
 Sur téléphone, l'ouverture a la même composition que sur ordinateur : la
 photographie occupe le fond, le texte est posé dessus dans un cartouche papier.
