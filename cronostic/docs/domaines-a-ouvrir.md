@@ -5,6 +5,36 @@ l'environnement d'exécution. Tous sont **gratuits et en accès libre** — aucu
 ne demande d'abonnement pour la consultation qui nous intéresse. Quelques-uns
 demandent un compte gratuit pour aller plus loin ; c'est signalé.
 
+## État au 9 août 2026 : la politique est ouverte
+
+La liste a été appliquée. Vérification faite domaine par domaine depuis la
+session, **le réseau n'est plus ce qui bloque** : Ranfft, Caliber Corner,
+17jewels, Otto Frei, Miyota, Sellita, Ronda, Mikrolisk, ETA, Wikipédia,
+archive.org et l'API eBay répondent tous.
+
+Ce qui reste inaccessible ne l'est plus du fait de la politique, mais du fait
+des sites eux-mêmes :
+
+| Site | Ce qui se passe | Conséquence |
+| --- | --- | --- |
+| **Ranfft** | renvoie 403 à un client sans en-tête de navigateur | contourné : un `User-Agent` de navigateur suffit, les dix calibres ont été relevés |
+| **Cousins UK** | 403 permanent, protection anti-robot Cloudflare | **bloqué** — les références de commande restent inaccessibles |
+| **Moebius** | l'en-tête revient, le corps de page ne vient jamais ; connexion réinitialisée sous navigateur | **bloqué** — les viscosités restent inaccessibles |
+| **web.archive.org** | connexion réinitialisée, alors que `archive.org` répond | replis d'archive indisponibles |
+| **jules-borel.com, nihs.ch, drtillwich.com** | le tunnel échoue en 502, le nom ne résout pas | à revoir : `julesborel.com` s'écrit sans tiret |
+
+Un navigateur sans interface (Chromium est préinstallé) ne change rien : il ne
+sort pas par le mandataire de la session. Inutile d'insister de ce côté.
+
+**Ce qui en découle.** Les deux gisements que ce document classait en priorité 1
+et 2 — les viscosités Moebius et les références de commande Cousins — ne
+s'obtiendront pas depuis cette session. Ils passeront par `sources/` : une
+fiche technique Moebius déposée en PDF, une planche de fournitures
+photographiée. C'est la voie décrite dans `sources/README.md`, et c'est
+désormais la seule pour ces deux données.
+
+Ce qui a pu être fait sans elles est consigné dans `releve-2026-08-09.md`.
+
 ## Où se règle cette politique
 
 Le réglage n'appartient pas à la session mais à l'**environnement** qui
