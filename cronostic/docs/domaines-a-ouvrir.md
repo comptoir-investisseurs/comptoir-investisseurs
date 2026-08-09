@@ -5,8 +5,36 @@ l'environnement d'exécution. Tous sont **gratuits et en accès libre** — aucu
 ne demande d'abonnement pour la consultation qui nous intéresse. Quelques-uns
 demandent un compte gratuit pour aller plus loin ; c'est signalé.
 
-À ajouter dans `claude.ai/code` → environnement → réseau. Si la politique
-accepte les jokers, `*.domaine.tld` évite d'énumérer les sous-domaines.
+## Où se règle cette politique
+
+Le réglage n'appartient pas à la session mais à l'**environnement** qui
+l'exécute — la configuration enregistrée qui porte l'accès réseau, les
+variables d'environnement et les scripts d'installation. Une session hérite
+de son environnement ; la modifier depuis la conversation est impossible.
+
+1. Ouvrir **claude.ai/code** dans un navigateur — pas l'application de bureau,
+   pas le terminal.
+2. Aller dans les **réglages**, section **Environnements**.
+3. L'environnement s'appelle **Default** s'il n'a jamais été renommé : c'est
+   celui créé à l'inscription, avec l'accès réseau **Trusted**.
+4. L'ouvrir, puis modifier l'**accès réseau** : c'est là que se collent les
+   domaines ci-dessous.
+
+Deux choses qui font qu'on ne le trouve pas. Sur un compte Team ou Enterprise,
+les environnements peuvent être partagés au niveau de l'organisation : seul un
+propriétaire les modifie, et le réglage n'apparaît pas aux autres. Et sur un
+environnement hébergé par Anthropic, l'accès réseau est restreint par défaut —
+il n'est pas absent, il est fermé.
+
+La référence : <https://code.claude.com/docs/en/cloud-environments>, et les
+niveaux d'accès sur <https://code.claude.com/docs/en/cloud-environments#access-levels>.
+
+Si la politique accepte les jokers, `*.domaine.tld` évite d'énumérer les
+sous-domaines.
+
+**Ce n'est pas la seule voie.** Déposer des documents dans `sources/` ou
+remplir le CSV de `/admin/donnees` marche sans toucher au réseau, et attribue
+les mêmes attestations. Voir `sources/README.md`.
 
 Une règle vaut pour toute cette liste : **un forum n'atteste rien**. Ces
 sources servent à retrouver un document primaire — une planche, une
