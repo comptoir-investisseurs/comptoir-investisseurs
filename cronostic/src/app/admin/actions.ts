@@ -3,8 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { readFile } from "node:fs/promises";
+
 import { requireAdmin } from "@/lib/auth";
-import { aUnPdfDansLeDepot } from "@/lib/guide-files";
+import { aUnPdfDansLeDepot, pdfDuDepot } from "@/lib/guide-files";
+import { compterPages } from "@/lib/pdf";
+import { readObject } from "@/lib/r2";
 import { slugify } from "@/lib/format";
 import {
   createGuide,
@@ -12,6 +16,28 @@ import {
   getGuideById,
   updateGuide,
 } from "@/lib/repo";
+
+/**
+ * Nombre de pages relevé sur le fichier lui-même, quand la fiche ne le porte
+ * pas encore. Le saisir à la main pour chaque guide n'apporte rien : la valeur
+ * est dans le PDF. Un échec de lecture laisse simplement le champ vide.
+ */
+async function pagesDuFichier(guide: {
+  r2FileKey: string | null;
+  caliberSlug: string;
+}): Promise<number | null> {
+  try {
+    if (guide.r2FileKey) {
+      const buffer = await readObject(guide.r2FileKey);
+      if (buffer) return compterPages(buffer);
+    }
+    const chemin = pdfDuDepot(guide.caliberSlug);
+    if (chemin) return compterPages(await readFile(chemin));
+  } catch {
+    // Sans conséquence : la fiche reste sans nombre de pages.
+  }
+  return null;
+}
 
 function refresh(caliberSlug?: string) {
   revalidatePath("/admin/guides");
@@ -67,7 +93,10 @@ export async function updateGuideAction(formData: FormData) {
     redirect(`/admin/guides/${id}?erreur=pdf-manquant`);
   }
 
-  await updateGuide(id, patch);
+  await updateGuide(id, {
+    ...patch,
+    pageCount: patch.pageCount ?? (await pagesDuFichier(existing)),
+  });
   refresh(existing.caliberSlug);
   redirect(`/admin/guides/${id}?enregistre=1`);
 }
@@ -82,7 +111,10 @@ export async function togglePublishAction(formData: FormData) {
     redirect(`/admin/guides/${id}?erreur=pdf-manquant`);
   }
 
-  await updateGuide(id, { isActive: !guide.isActive });
+  await updateGuide(id, {
+    isActive: !guide.isActive,
+    ...(guide.pageCount === null ? { pageCount: await pagesDuFichier(guide) } : {}),
+  });
   refresh(guide.caliberSlug);
   redirect("/admin/guides");
 }
