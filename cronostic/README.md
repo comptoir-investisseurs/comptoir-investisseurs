@@ -375,6 +375,30 @@ pas fabriqué de mouvement avant 2010. Une Tank vintage se documente du côté d
 Jaeger-LeCoultre ou de Piaget, pas de Cartier. Chaque fiche concernée porte
 l'ébauche d'origine, et la page de marque le dit en toutes lettres.
 
+### Chaque calibre a sa page, et chaque page peut vendre
+
+Les 746 calibres ont une page à part entière, à l'adresse
+`/calibres/<marque>-<référence>` — même gabarit que les fiches Omega, même
+bloc guide, même recherche de fournitures. Aucune n'est un cul-de-sac.
+
+Surtout, **n'importe lequel peut porter un guide sans préparation**. Les
+identifiants suivent la même convention (`cal_<slug>`) que les calibres
+documentés, les fiches d'amorce entrent en base au seed, et le sélecteur du
+back-office propose les 746 groupés par marque. Il n'y a pas de calibre « à
+promouvoir » avant de pouvoir lui rattacher un PDF.
+
+Deux voies pour alimenter :
+
+1. **Déposer le fichier** dans `guides-pdf/` — un nom contenant la référence
+   suffit (`Cronostic_Valjoux_7733_manuel_de_service.pdf`). La fiche guide
+   apparaît en brouillon, prix à 14,90 €, nombre de pages relevé sur le PDF.
+   En base, le bouton **Importer les PDF du dépôt** de `/admin/guides` fait le
+   même travail en une fois, et signale les fichiers qu'il n'a pas su rattacher.
+2. **Créer la fiche** depuis `/admin/guides/nouveau` puis téléverser sur R2.
+
+Dans les deux cas la publication reste un geste volontaire : un PDF posé dans
+le dépôt ne se met jamais en vente tout seul.
+
 ### Deux niveaux de fiche
 
 - **Fiches détaillées** (`src/data/catalog.ts`) — présentation, historique,
@@ -402,6 +426,10 @@ src/data/marques/ebauches.ts   24 fabriques d'ébauches
 src/data/marques/maisons.ts    55 maisons et manufactures
 src/data/marques/hors-suisse.ts 15 marques japonaises, russes, chinoises, américaines
 ```
+
+Les guides, eux, portent la marque de leur calibre de bout en bout : titre,
+couverture, courriel de confirmation, marquage nominatif et nom du fichier
+remis — `Cronostic_Valjoux_7733_manuel_de_service.pdf`.
 
 Ajouter un mouvement : une ligne dans le tableau `mouvements` de la marque. Le
 slug (`marque-reference`), la fiche, l'entrée d'encyclopédie, le plan du site

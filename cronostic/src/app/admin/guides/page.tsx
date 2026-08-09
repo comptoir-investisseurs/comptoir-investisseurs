@@ -2,24 +2,59 @@ import Link from "next/link";
 
 import { formatPrice } from "@/lib/format";
 import { guideSalesCounts, listGuides } from "@/lib/repo";
-import { deleteGuideAction, toggleProAction, togglePublishAction } from "../actions";
+import { pdfDisponibles } from "@/lib/guide-files";
+import {
+  deleteGuideAction,
+  importerPdfDuDepotAction,
+  toggleProAction,
+  togglePublishAction,
+} from "../actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminGuidesPage() {
+export default async function AdminGuidesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ importes?: string; orphelins?: string }>;
+}) {
+  const sp = await searchParams;
   const [guides, sales] = await Promise.all([listGuides(), guideSalesCounts()]);
+  const fichiers = pdfDisponibles();
 
   return (
     <>
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <h2 className="surtitre">Guides</h2>
-        <Link
-          href="/admin/guides/nouveau"
-          className="bouton-secondaire"
-        >
-          Ajouter
-        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          {fichiers.length > 0 && (
+            <form action={importerPdfDuDepotAction}>
+              <button type="submit" className="bouton-secondaire">
+                Importer les PDF du dépôt
+              </button>
+            </form>
+          )}
+          <Link href="/admin/guides/nouveau" className="bouton-secondaire">
+            Ajouter
+          </Link>
+        </div>
       </div>
+
+      {sp.importes !== undefined && (
+        <p className="mt-6 border-l-2 border-laiton bg-papier px-5 py-4 text-legende leading-relaxed text-encre/72">
+          {Number(sp.importes) === 0
+            ? "Aucune fiche à créer : tous les PDF du dépôt sont déjà rattachés à un guide."
+            : `${sp.importes} fiche${Number(sp.importes) > 1 ? "s" : ""} créée${Number(sp.importes) > 1 ? "s" : ""} en brouillon. Vérifiez le titre et le prix, puis publiez.`}
+          {Number(sp.orphelins) > 0 &&
+            ` ${sp.orphelins} fichier(s) n'ont été rattachés à aucun calibre : leur nom ne contient pas de référence reconnue, ou en contient plusieurs.`}
+        </p>
+      )}
+
+      <p className="mt-4 text-legende leading-relaxed text-encre/55">
+        {fichiers.length} PDF dans <code className="font-technique">guides-pdf/</code>. Déposer un
+        fichier dont le nom contient la référence du calibre —{" "}
+        <code className="font-technique">Cronostic_Valjoux_7733_manuel_de_service.pdf</code> — suffit
+        à créer la fiche&nbsp;; la publication reste manuelle.
+      </p>
 
       <div className="cadre mt-6 overflow-x-auto">
         <table className="w-full min-w-[52rem] text-left text-legende">

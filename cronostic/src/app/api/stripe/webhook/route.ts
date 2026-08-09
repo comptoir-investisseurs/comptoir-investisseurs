@@ -112,11 +112,15 @@ async function handleGuidePayment(session: Stripe.Checkout.Session) {
   const user = await findUserById(userId);
   if (!user) return;
 
-  const achetes: { id: string; caliberReference: string }[] = [];
+  const achetes: { id: string; caliberBrand: string; caliberReference: string }[] = [];
   for (const guideId of ids) {
     const guide = await getGuideById(guideId);
     if (!guide) continue;
-    achetes.push({ id: guide.id, caliberReference: guide.caliberReference });
+    achetes.push({
+      id: guide.id,
+      caliberBrand: guide.caliberBrand,
+      caliberReference: guide.caliberReference,
+    });
     await recordPurchase({
       userId: user.id,
       guideId: guide.id,

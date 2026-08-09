@@ -3,6 +3,8 @@ import "dotenv/config";
 import { eq } from "drizzle-orm";
 
 import { CALIBERS, FAMILIES, GUIDES, LUBRICANTS, PARTS, TOOLS } from "../data/catalog";
+import { MARQUES } from "../data/encyclopedie";
+import { slugMouvement, specsDe } from "../lib/encyclopedie";
 import { getDb, schema } from "./index";
 
 /**
@@ -202,6 +204,73 @@ async function main() {
     }
   }
 
+  /* Encyclopédie --------------------------------------------
+     Les fiches d'amorce entrent en base au même titre que les calibres
+     documentés. Ce n'est pas une redondance : sans ligne en base, aucun guide
+     ne pourrait leur être rattaché — la clé étrangère l'interdirait. Une fiche
+     d'amorce doit pouvoir devenir vendeuse sans migration préalable. */
+  let amorces = 0;
+  for (const marque of MARQUES) {
+    for (const mvt of marque.mouvements) {
+      const slug = slugMouvement(marque, mvt);
+      if (caliberIds.has(slug)) continue; // le calibre documenté l'emporte
+
+      const periode =
+        mvt.debut && mvt.fin
+          ? `${mvt.debut}–${mvt.fin}`
+          : mvt.debut
+            ? `à partir de ${mvt.debut}`
+            : null;
+      const resume = [mvt.nom, mvt.base ? `base ${mvt.base}` : null, periode]
+        .filter(Boolean)
+        .join(", ");
+
+      const [row] = await db
+        .insert(schema.calibers)
+        .values({
+          slug,
+          brand: marque.nom,
+          reference: mvt.ref,
+          name: mvt.nom ? `${marque.nom} ${mvt.ref} — ${mvt.nom}` : `${marque.nom} calibre ${mvt.ref}`,
+          familyId: null,
+          introducedYear: mvt.debut ?? null,
+          discontinuedYear: mvt.fin ?? null,
+          summary: `${marque.nom} — ${resume}.`,
+          // Aucune présentation rédigée : c'est ce qui distingue une fiche
+          // d'amorce d'une fiche relue à l'établi.
+          presentation: mvt.note ?? null,
+          history: null,
+          architecture: null,
+          dataStatus: "draft",
+          isPublished: true,
+        })
+        .onConflictDoUpdate({
+          target: schema.calibers.slug,
+          set: { brand: marque.nom, reference: mvt.ref, summary: `${marque.nom} — ${resume}.` },
+        })
+        .returning({ id: schema.calibers.id });
+
+      caliberIds.set(slug, row.id);
+      amorces++;
+
+      const specs = specsDe(mvt).map((spec, i) => ({
+        caliberId: row.id,
+        key: spec.key,
+        label: spec.label,
+        value: spec.value,
+        unit: spec.unit,
+        isVerified: false,
+        position: i,
+      }));
+      if (specs.length > 0) {
+        await db
+          .insert(schema.caliberSpecs)
+          .values(specs)
+          .onConflictDoNothing({ target: [schema.caliberSpecs.caliberId, schema.caliberSpecs.key] });
+      }
+    }
+  }
+
   /* Guides --------------------------------------------------- */
   // Créés en brouillon, sans PDF : le fichier se téléverse depuis /admin/guides.
   for (const guide of GUIDES) {
@@ -224,7 +293,7 @@ async function main() {
   }
 
   console.log(
-    `Seed terminé : ${FAMILIES.length} famille(s), ${CALIBERS.length} calibres, ${PARTS.length} fournitures, ${LUBRICANTS.length} lubrifiants, ${TOOLS.length} outils, ${GUIDES.length} guides (brouillon).`,
+    `Seed terminé : ${FAMILIES.length} famille(s), ${CALIBERS.length} calibres documentés, ${amorces} fiches d'amorce sur ${MARQUES.length} marques, ${PARTS.length} fournitures, ${LUBRICANTS.length} lubrifiants, ${TOOLS.length} outils, ${GUIDES.length} guides (brouillon).`,
   );
   process.exit(0);
 }

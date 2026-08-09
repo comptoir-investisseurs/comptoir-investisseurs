@@ -33,12 +33,27 @@ export function GuideForm({
           <option value="" disabled>
             Choisir un calibre…
           </option>
-          {calibers.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.brand} {c.reference}
-            </option>
+          {/* Groupé par marque : à sept cents entrées, une liste à plat est
+              inutilisable. Le navigateur laisse taper les premières lettres
+              pour sauter directement à la marque. */}
+          {Object.entries(
+            calibers.reduce<Record<string, CaliberSummary[]>>((acc, c) => {
+              (acc[c.brand] ??= []).push(c);
+              return acc;
+            }, {}),
+          ).map(([marque, lot]) => (
+            <optgroup key={marque} label={marque}>
+              {lot.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.brand} {c.reference}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
+        <p className="mt-2 text-legende not-italic text-encre/55">
+          {calibers.length} calibres disponibles, toutes marques confondues.
+        </p>
       </div>
 
       <div>

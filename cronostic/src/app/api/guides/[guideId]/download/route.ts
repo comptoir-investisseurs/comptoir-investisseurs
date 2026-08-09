@@ -60,7 +60,7 @@ export async function GET(
     );
   }
 
-  const filename = `Cronostic_Omega_${guide.caliberReference}_manuel_de_service.pdf`;
+  const filename = `Cronostic_${guide.caliberBrand.replace(/[^A-Za-z0-9]+/g, "_")}_${guide.caliberReference}_manuel_de_service.pdf`;
 
   // Le tatouage impose de servir le flux nous-mêmes : une URL signée livrerait
   // le fichier d'origine, non personnalisé.
@@ -68,7 +68,7 @@ export async function GET(
     personnaliserPdf(buffer, {
       nom: user.displayName,
       email: user.email,
-      reference: `Omega ${guide.caliberReference}`,
+      reference: `${guide.caliberBrand} ${guide.caliberReference}`,
     });
 
   // 1. Bucket R2, quand un fichier y a été téléversé.

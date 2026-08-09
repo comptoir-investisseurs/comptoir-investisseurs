@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { GuideForm } from "@/components/admin/guide-form";
 import { GuideCover } from "@/components/guide-cover";
 import { hasR2 } from "@/lib/env";
-import { getGuideById, listCalibers } from "@/lib/repo";
+import { getGuideById, listCalibresTous } from "@/lib/repo";
 import { updateGuideAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,7 @@ export default async function EditerGuidePage({
 }) {
   const { guideId } = await params;
   const sp = await searchParams;
-  const [guide, calibers] = await Promise.all([getGuideById(guideId), listCalibers()]);
+  const [guide, calibers] = await Promise.all([getGuideById(guideId), listCalibresTous()]);
   if (!guide) notFound();
 
   return (
@@ -64,6 +64,7 @@ export default async function EditerGuidePage({
             <p className="surtitre">Couverture</p>
             <GuideCover
               caliberReference={guide.caliberReference}
+          brand={guide.caliberBrand}
               coverImageUrl={guide.coverImageUrl}
               pageCount={guide.pageCount}
               className="mt-4"

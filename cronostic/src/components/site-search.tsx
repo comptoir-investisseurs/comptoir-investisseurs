@@ -141,6 +141,11 @@ export function SiteSearch({
                 : "Recherche en cours de chargement…"}
             </li>
           )}
+          {!complet && results.length > 0 && (
+            <li className="border-b border-gris-clair px-5 py-2 text-legende not-italic text-encre/45">
+              Recherche en cours de chargement — l&apos;encyclopédie complète arrive.
+            </li>
+          )}
           {results.map((r, i) => (
             <li key={`${r.type}-${r.href}-${r.titre}`}>
               <Link

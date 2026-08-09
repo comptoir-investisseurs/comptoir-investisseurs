@@ -22,7 +22,11 @@ export async function GET() {
   // chez le visiteur.
   return NextResponse.json(index, {
     headers: {
-      "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
+      // `must-revalidate` et non `stale-while-revalidate` : ce dernier autorise
+      // le navigateur à resservir sa copie périmée sans attendre, si bien
+      // qu'un guide publié restait invisible dans la recherche pour qui avait
+      // déjà ouvert le champ. Une revalidation conditionnelle coûte un 304.
+      "Cache-Control": "public, max-age=0, must-revalidate, s-maxage=3600",
     },
   });
 }

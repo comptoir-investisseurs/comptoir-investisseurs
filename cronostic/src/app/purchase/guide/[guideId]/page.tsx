@@ -43,12 +43,13 @@ export default async function PurchaseGuidePage({
     <div className="mx-auto max-w-3xl px-5 py-20">
       <p className="surtitre">Récapitulatif</p>
       <h1 className="titre mt-4 text-section text-encre sm:text-couverture">
-        Guide Cronostic — Omega {guide.caliberReference}
+        Guide Cronostic — {guide.caliberBrand} {guide.caliberReference}
       </h1>
 
       <div className="cadre mt-10 flex flex-wrap items-start gap-8 p-8">
         <GuideCover
           caliberReference={guide.caliberReference}
+          brand={guide.caliberBrand}
           coverImageUrl={guide.coverImageUrl}
           pageCount={guide.pageCount}
           className="w-36 shrink-0"

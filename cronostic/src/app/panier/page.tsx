@@ -63,12 +63,15 @@ export default async function PanierPage({
                   <GuideCover
                     compact
                     caliberReference={guide.caliberReference}
+          brand={guide.caliberBrand}
                     coverImageUrl={guide.coverImageUrl}
                   />
                 </Link>
 
                 <div className="min-w-[12rem] flex-1">
-                  <p className="titre text-etape">Omega {guide.caliberReference}</p>
+                  <p className="titre text-etape">
+                    {guide.caliberBrand} {guide.caliberReference}
+                  </p>
                   <p className="mt-1 text-legende not-italic text-encre/60">
                     Guide complet d&apos;entretien
                     {guide.pageCount ? ` · ${guide.pageCount} pages` : ""} · PDF

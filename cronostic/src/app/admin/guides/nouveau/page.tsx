@@ -1,13 +1,13 @@
 import Link from "next/link";
 
 import { GuideForm } from "@/components/admin/guide-form";
-import { listCalibers } from "@/lib/repo";
+import { listCalibresTous } from "@/lib/repo";
 import { createGuideAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function NouveauGuidePage() {
-  const calibers = await listCalibers();
+  const calibers = await listCalibresTous();
 
   return (
     <>
@@ -20,7 +20,9 @@ export default async function NouveauGuidePage() {
 
       <p className="mt-4 max-w-2xl text-legende leading-relaxed text-encre/55">
         Créez d&apos;abord la fiche produit, puis téléversez le PDF final depuis la page du guide.
-        Le site ne produit ni ne modifie les PDF&nbsp;: il les distribue.
+        Le site ne produit ni ne modifie les PDF&nbsp;: il les distribue. N&apos;importe lequel des
+        calibres de l&apos;encyclopédie peut porter un guide — inutile de compléter sa fiche
+        technique au préalable.
       </p>
 
       <div className="mt-8">

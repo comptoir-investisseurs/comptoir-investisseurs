@@ -85,11 +85,14 @@ export default async function PurchaseSuccessPage({
                 <GuideCover
                   compact
                   caliberReference={guide.caliberReference}
+          brand={guide.caliberBrand}
                   coverImageUrl={guide.coverImageUrl}
                 />
               </div>
               <div className="min-w-[10rem] flex-1">
-                <p className="titre text-etape">Omega {guide.caliberReference}</p>
+                <p className="titre text-etape">
+                  {guide.caliberBrand} {guide.caliberReference}
+                </p>
                 <p className="legende mt-1">
                   Guide complet d&apos;entretien
                   {guide.pageCount ? ` · ${guide.pageCount} pages` : ""}

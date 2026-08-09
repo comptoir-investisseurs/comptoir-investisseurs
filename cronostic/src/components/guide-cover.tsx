@@ -9,7 +9,7 @@
  */
 export function GuideCover({
   caliberReference,
-  brand = "Omega",
+  brand = "Omega",  // remplacé par la marque du calibre partout où elle est connue
   subtitle = "Guide complet d'entretien",
   coverImageUrl,
   pageCount,

@@ -224,6 +224,27 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
             </Section>
           )}
 
+          {caliber.parts.length === 0 && (
+            <Section
+              titre="Pièces détachées"
+              id="pieces"
+              action={
+                <Link
+                  href={`/pieces?q=${encodeURIComponent(`${caliber.brand} ${caliber.reference} part`)}`}
+                  className="lien-souligne text-legende not-italic"
+                >
+                  Chercher des offres
+                </Link>
+              }
+            >
+              <p className="max-w-[68ch] text-encre/72">
+                La nomenclature des fournitures de ce calibre n&apos;est pas encore relevée. La
+                recherche de pièces reste ouverte : elle interroge les vendeurs de fournitures sur
+                la référence {caliber.brand} {caliber.reference} et en donne le prix moyen.
+              </p>
+            </Section>
+          )}
+
           {caliber.parts.length > 0 && (
             <Section
               titre="Pièces détachées"
@@ -278,8 +299,8 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                 </table>
               </div>
               <p className="legende mt-2">
-                Numéros de nomenclature indicatifs ◆, à recouper avec les planches Omega
-                d&apos;époque
+                Numéros de nomenclature indicatifs ◆, à recouper avec les planches{" "}
+                {caliber.brand} d&apos;époque
               </p>
             </Section>
           )}

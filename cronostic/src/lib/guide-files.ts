@@ -50,6 +50,30 @@ export function aUnPdfDansLeDepot(caliberSlug: string): boolean {
   return pdfDuDepot(caliberSlug) !== null;
 }
 
+/**
+ * Parmi les slugs proposés, ceux dont le PDF est déjà présent dans le dépôt.
+ *
+ * C'est le mécanisme qui rend une fiche vendeuse sans rien saisir : on dépose
+ * `Cronostic_Valjoux_7733_manuel_de_service.pdf`, la fiche du 7733 porte un
+ * guide au redémarrage suivant. Le balayage se fait une seule fois, sur la
+ * liste des fichiers lue une seule fois — pas un accès disque par calibre.
+ */
+export function calibresAvecPdf(slugs: string[]): string[] {
+  if (!existsSync(RACINE)) return [];
+  const fichiers = readdirSync(RACINE)
+    .filter((f) => f.toLowerCase().endsWith(".pdf"))
+    .map((f) => path.basename(f, ".pdf").toLowerCase());
+  if (fichiers.length === 0) return [];
+
+  return slugs.filter((slug) => {
+    const motif = new RegExp(
+      `(^|[^a-z0-9])${slug.split("-").join("[^a-z0-9]*")}([^a-z0-9]|$)`,
+      "i",
+    );
+    return fichiers.filter((f) => motif.test(f)).length === 1;
+  });
+}
+
 /** Fichiers PDF présents dans le dépôt. */
 export function pdfDisponibles(): string[] {
   if (!existsSync(RACINE)) return [];

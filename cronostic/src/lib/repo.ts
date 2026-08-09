@@ -89,6 +89,27 @@ export async function listCalibresEncyclopedie(): Promise<CaliberSummary[]> {
   return sommairesEncyclopedie();
 }
 
+/**
+ * Tous les calibres, documentés et fiches d'amorce confondus.
+ *
+ * C'est la liste qu'il faut partout où un calibre doit pouvoir **recevoir**
+ * quelque chose : rattachement d'un guide au back-office, résolution d'un
+ * identifiant. Les listes d'affichage, elles, continuent de s'appuyer sur
+ * `listCalibers()`, qui ne renvoie que les fiches complètes.
+ */
+export async function listCalibresTous(): Promise<CaliberSummary[]> {
+  const [documentes, encyclopedie] = await Promise.all([
+    listCalibers(),
+    listCalibresEncyclopedie(),
+  ]);
+  return [...documentes, ...encyclopedie];
+}
+
+/** Retrouve un calibre par son identifiant, quelle que soit son origine. */
+export async function getCaliberById(id: string): Promise<CaliberSummary | null> {
+  return (await listCalibresTous()).find((c) => c.id === id) ?? null;
+}
+
 export async function getCaliberBySlug(slug: string): Promise<CaliberDetail | null> {
   if (!hasDatabase()) {
     const seed = CALIBERS.find((c) => c.slug === slug);
@@ -273,6 +294,7 @@ export async function listGuides(opts: { activeOnly?: boolean } = {}): Promise<G
       id: schema.guides.id,
       caliberId: schema.guides.caliberId,
       caliberSlug: schema.calibers.slug,
+      caliberBrand: schema.calibers.brand,
       caliberReference: schema.calibers.reference,
       caliberName: schema.calibers.name,
       title: schema.guides.title,
@@ -338,12 +360,15 @@ export type GuideInput = {
 export async function createGuide(input: GuideInput): Promise<GuideRow> {
   if (!hasDatabase()) {
     const s = store();
-    const caliber = CALIBERS.find((c) => caliberIdFor(c.slug) === input.caliberId);
+    // N'importe quel calibre peut porter un guide, y compris une fiche
+    // d'amorce : c'est le PDF qui fait le guide, pas le niveau de la fiche.
+    const caliber = await getCaliberById(input.caliberId);
     if (!caliber) throw new Error("Calibre inconnu.");
     const row: GuideRow = {
       ...input,
       id: `gid_${input.slug}`,
       caliberSlug: caliber.slug,
+      caliberBrand: caliber.brand,
       caliberReference: caliber.reference,
       caliberName: caliber.name,
       currency: "EUR",
@@ -370,9 +395,10 @@ export async function updateGuide(id: string, patch: GuidePatch) {
     if (!guide) throw new Error("Guide introuvable.");
     Object.assign(guide, patch);
     if (patch.caliberId) {
-      const caliber = CALIBERS.find((c) => caliberIdFor(c.slug) === patch.caliberId);
+      const caliber = await getCaliberById(patch.caliberId);
       if (caliber) {
         guide.caliberSlug = caliber.slug;
+        guide.caliberBrand = caliber.brand;
         guide.caliberReference = caliber.reference;
         guide.caliberName = caliber.name;
       }

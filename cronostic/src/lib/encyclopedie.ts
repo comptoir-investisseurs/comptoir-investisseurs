@@ -19,7 +19,15 @@ import type { CaliberDetail, CaliberSummary, SpecRow } from "./types";
  * repère ◆ s'affiche partout tant que la valeur n'a pas été relevée.
  */
 
-/** Slug d'un mouvement : `marque-reference`, sans surprise. */
+/**
+ * Slug d'un mouvement : `marque-reference`, sans surprise.
+ *
+ * L'identifiant qui en découle suit la même convention que les calibres
+ * documentés (`cal_<slug>`), et ce n'est pas un détail : c'est ce qui permet
+ * de rattacher un guide à n'importe quel calibre de l'encyclopédie sans avoir
+ * à le « promouvoir » au préalable. Une fiche d'amorce devient vendeuse à la
+ * seconde où un PDF lui est associé.
+ */
 export function slugMouvement(marque: Marque, m: Mvt): string {
   return `${marque.slug}-${slugify(m.ref)}`;
 }
@@ -38,7 +46,7 @@ function resumeMouvement(marque: Marque, m: Mvt): string {
 
 export function sommaireDe(marque: Marque, m: Mvt): CaliberSummary {
   return {
-    id: `enc_${slugMouvement(marque, m)}`,
+    id: `cal_${slugMouvement(marque, m)}`,
     slug: slugMouvement(marque, m),
     brand: marque.nom,
     reference: m.ref,

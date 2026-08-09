@@ -18,6 +18,7 @@ export function GuideCard({
       <Link href={`/calibres/${guide.caliberSlug}#guide`}>
         <GuideCover
           caliberReference={guide.caliberReference}
+          brand={guide.caliberBrand}
           coverImageUrl={guide.coverImageUrl}
           pageCount={guide.pageCount}
         />
@@ -28,7 +29,7 @@ export function GuideCard({
 
         <h3 className="titre mt-1.5 text-etape">
           <Link href={`/calibres/${guide.caliberSlug}#guide`} className="lien-souligne">
-            Omega {guide.caliberReference}
+            {guide.caliberBrand} {guide.caliberReference}
           </Link>
         </h3>
 

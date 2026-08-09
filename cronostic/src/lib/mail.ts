@@ -64,12 +64,12 @@ export async function envoyer(message: {
 
 export async function courrielAchat(
   destinataire: string,
-  guides: { caliberReference: string; id: string }[],
+  guides: { caliberBrand: string; caliberReference: string; id: string }[],
   totalCents: number,
 ): Promise<void> {
   const base = siteUrl();
   const liste = guides
-    .map((g) => `  · Omega ${g.caliberReference}\n    ${base}/api/guides/${g.id}/download`)
+    .map((g) => `  · ${g.caliberBrand} ${g.caliberReference}\n    ${base}/api/guides/${g.id}/download`)
     .join("\n");
 
   await envoyer({
@@ -77,7 +77,7 @@ export async function courrielAchat(
     subject:
       guides.length > 1
         ? `Vos ${guides.length} guides Cronostic`
-        : `Votre guide Cronostic — Omega ${guides[0]?.caliberReference ?? ""}`,
+        : `Votre guide Cronostic — ${guides[0]?.caliberBrand ?? ""} ${guides[0]?.caliberReference ?? ""}`,
     texte: `Merci pour votre commande.
 
 ${guides.length > 1 ? "Vos guides sont disponibles" : "Votre guide est disponible"} au téléchargement :

@@ -50,17 +50,18 @@ export function GuidePanel({
       <div className="cadre-papier mt-6 grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,200px)_1fr] lg:items-start">
         <GuideCover
           caliberReference={guide.caliberReference}
+          brand={guide.caliberBrand}
           coverImageUrl={guide.coverImageUrl}
           pageCount={guide.pageCount}
         />
 
         <div>
-          <p className="surtitre">Omega {guide.caliberReference}</p>
+          <p className="surtitre">{guide.caliberBrand} {guide.caliberReference}</p>
           <p className="titre mt-1 text-section">Guide complet d&apos;entretien</p>
 
           <p className="mt-4 max-w-[60ch] text-encre/72">
             {guide.shortDescription ??
-              `Guide d'atelier Cronostic consacré au calibre Omega ${guide.caliberReference}.`}
+              `Guide d'atelier Cronostic consacré au calibre ${guide.caliberBrand} ${guide.caliberReference}.`}
           </p>
 
           <ul className="mt-6 grid max-w-lg grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">

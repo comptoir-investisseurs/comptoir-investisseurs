@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { readFile } from "node:fs/promises";
 
 import { requireAdmin } from "@/lib/auth";
-import { aUnPdfDansLeDepot, pdfDuDepot } from "@/lib/guide-files";
+import { aUnPdfDansLeDepot, calibresAvecPdf, pdfDisponibles, pdfDuDepot } from "@/lib/guide-files";
 import { compterPages } from "@/lib/pdf";
 import { readObject } from "@/lib/r2";
 import { slugify } from "@/lib/format";
@@ -14,6 +14,8 @@ import {
   createGuide,
   deleteGuide as deleteGuideRow,
   getGuideById,
+  listCalibresTous,
+  listGuides,
   updateGuide,
 } from "@/lib/repo";
 
@@ -141,4 +143,51 @@ export async function deleteGuideAction(formData: FormData) {
   await deleteGuideRow(id);
   refresh(guide?.caliberSlug);
   redirect("/admin/guides");
+}
+
+/**
+ * Crée les fiches guides manquantes à partir des PDF déposés dans `guides-pdf/`.
+ *
+ * C'est le geste qui accompagne l'alimentation du catalogue : on dépose les
+ * fichiers, on clique une fois, les fiches existent. Elles naissent en
+ * **brouillon** — un PDF posé dans le dépôt ne se met jamais en vente tout
+ * seul, la publication reste une décision.
+ *
+ * Idempotent : un calibre qui porte déjà un guide est ignoré. Un fichier dont
+ * le nom ne désigne aucun calibre, ou en désigne deux, est laissé de côté et
+ * signalé — on ne devine pas.
+ */
+export async function importerPdfDuDepotAction() {
+  await requireAdmin();
+
+  const [calibres, guides] = await Promise.all([listCalibresTous(), listGuides()]);
+  const dejaServis = new Set(guides.map((g) => g.caliberSlug));
+  const candidats = calibresAvecPdf(calibres.map((c) => c.slug)).filter(
+    (slug) => !dejaServis.has(slug),
+  );
+
+  let crees = 0;
+  for (const slug of candidats) {
+    const calibre = calibres.find((c) => c.slug === slug);
+    if (!calibre) continue;
+    const chemin = pdfDuDepot(slug);
+    if (!chemin) continue;
+
+    await createGuide({
+      caliberId: calibre.id,
+      title: `${calibre.brand.toUpperCase()} ${calibre.reference} — Guide complet d'entretien`,
+      slug: `guide-${slug}`,
+      shortDescription: `Le guide d'atelier Cronostic consacré au calibre ${calibre.brand} ${calibre.reference} : démontage, nettoyage, contrôle, lubrification, remontage et points de vigilance.`,
+      priceCents: 1490,
+      pageCount: await compterPages(await readFile(chemin)),
+      includedInSubscription: true,
+      isActive: false,
+      coverImageUrl: null,
+    });
+    crees++;
+  }
+
+  const orphelins = pdfDisponibles().length - guides.length - crees;
+  refresh();
+  redirect(`/admin/guides?importes=${crees}&orphelins=${Math.max(0, orphelins)}`);
 }

@@ -81,6 +81,7 @@ export type GuideRow = {
   id: string;
   caliberId: string;
   caliberSlug: string;
+  caliberBrand: string;
   caliberReference: string;
   caliberName: string;
   title: string;

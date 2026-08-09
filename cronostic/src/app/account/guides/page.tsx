@@ -68,12 +68,15 @@ export default async function MesGuidesPage() {
                 <GuideCover
                   compact
                   caliberReference={guide.caliberReference}
+          brand={guide.caliberBrand}
                   coverImageUrl={guide.coverImageUrl}
                 />
               </Link>
 
               <div className="min-w-[12rem] flex-1">
-                <p className="font-titre text-etape text-encre">Omega {guide.caliberReference}</p>
+                <p className="font-titre text-etape text-encre">
+                  {guide.caliberBrand} {guide.caliberReference}
+                </p>
                 <p className="mt-1 text-legende text-encre/72">Guide complet Cronostic</p>
                 <p className="mt-2 text-[0.7rem] tracking-[0.14em] text-encre/55 uppercase">
                   {isOwned ? "Acheté — accès définitif" : "Inclus avec Cronostic Pro"}

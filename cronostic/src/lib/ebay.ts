@@ -267,8 +267,12 @@ export async function searchParts(query: string, limit = 40): Promise<PartSearch
  * Requête construite à partir d'un calibre et éventuellement d'une pièce.
  * Le terme anglais est privilégié : c'est celui des vendeurs de fournitures.
  */
-export function buildPartQuery(caliberReference: string, partNameEn?: string | null): string {
-  const base = `Omega ${caliberReference}`;
+export function buildPartQuery(
+  caliberReference: string,
+  partNameEn?: string | null,
+  marque = "Omega",
+): string {
+  const base = `${marque} ${caliberReference}`;
   return partNameEn ? `${base} ${partNameEn}` : `${base} part`;
 }
 
