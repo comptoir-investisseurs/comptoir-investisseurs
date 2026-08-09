@@ -12,25 +12,49 @@ l'exécute — la configuration enregistrée qui porte l'accès réseau, les
 variables d'environnement et les scripts d'installation. Une session hérite
 de son environnement ; la modifier depuis la conversation est impossible.
 
+Il n'y a **pas** de page « Environnements » dans les réglages du compte : un
+environnement personnel ne se modifie que depuis son sélecteur.
+
 1. Ouvrir **claude.ai/code** dans un navigateur — pas l'application de bureau,
    pas le terminal.
-2. Aller dans les **réglages**, section **Environnements**.
-3. L'environnement s'appelle **Default** s'il n'a jamais été renommé : c'est
-   celui créé à l'inscription, avec l'accès réseau **Trusted**.
-4. L'ouvrir, puis modifier l'**accès réseau** : c'est là que se collent les
-   domaines ci-dessous.
+2. Cliquer sur la pastille en forme de nuage au-dessus de la zone de saisie,
+   à gauche du nom du dépôt. Elle affiche **Default** tant que l'environnement
+   n'a pas été renommé.
+3. Dans la liste qui s'ouvre : soit **Add cloud environment** pour en créer un
+   neuf, soit survoler **Default** et cliquer l'icône de réglages qui apparaît
+   à droite de la ligne.
+4. Dans la boîte de dialogue, champ **Network access** — quatre niveaux :
 
-Deux choses qui font qu'on ne le trouve pas. Sur un compte Team ou Enterprise,
-les environnements peuvent être partagés au niveau de l'organisation : seul un
-propriétaire les modifie, et le réglage n'apparaît pas aux autres. Et sur un
-environnement hébergé par Anthropic, l'accès réseau est restreint par défaut —
-il n'est pas absent, il est fermé.
+   | Niveau | Sorties autorisées |
+   | --- | --- |
+   | **None** | aucune |
+   | **Trusted** | la liste par défaut : dépôts de paquets, GitHub, SDK cloud |
+   | **Full** | tout |
+   | **Custom** | votre propre liste |
+
+5. Choisir **Custom**. Un champ **Allowed domains** apparaît : y coller les
+   domaines ci-dessous, **un par ligne**. Le joker `*.` est accepté et couvre
+   tous les sous-domaines.
+6. **Cocher « Also include default list of common package managers ».** Sans
+   cette case, la liste personnalisée *remplace* celle par défaut : npm, le
+   registre GitHub et les dépôts de paquets tombent, et l'installation des
+   dépendances du site échoue au démarrage de session.
+7. Valider.
+
+Mieux vaut **créer un second environnement** que modifier `Default` : les
+autres chantiers continuent de tourner sur un réseau connu, et une liste mal
+saisie ne casse qu'une session.
+
+Ce qui ne passe pas par cette liste : le trafic GitHub, qui emprunte un proxy
+dédié quel que soit le niveau, et les connecteurs MCP, qui transitent par les
+serveurs Anthropic. Inutile donc d'y ajouter `github.com`.
+
+Sur un compte Team ou Enterprise, les environnements *partagés* se gèrent
+ailleurs — `claude.ai/admin-settings`, page **Cloud environments** — et seul
+un propriétaire ou un administrateur y touche.
 
 La référence : <https://code.claude.com/docs/en/cloud-environments>, et les
 niveaux d'accès sur <https://code.claude.com/docs/en/cloud-environments#access-levels>.
-
-Si la politique accepte les jokers, `*.domaine.tld` évite d'énumérer les
-sous-domaines.
 
 **Ce n'est pas la seule voie.** Déposer des documents dans `sources/` ou
 remplir le CSV de `/admin/donnees` marche sans toucher au réseau, et attribue
