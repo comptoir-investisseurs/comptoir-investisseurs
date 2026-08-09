@@ -55,12 +55,18 @@ export type SeedFamily = {
 };
 
 export type SeedPart = {
+  /** Identifiant interne, jamais affiché : ce n'est pas une référence de commande. */
   reference: string;
+  /** Numéro de la liste normalisée des fournitures d'horlogerie. */
   positionNumber: string;
   name: string;
   nameEn: string;
   category: string;
   description?: string;
+  /** Relevé sur une planche constructeur ? Faux tant que ce n'est pas le cas. */
+  verified?: boolean;
+  /** D'où vient la valeur validée : planche, catalogue, page et date. */
+  source?: string;
 };
 
 export type SeedLubricant = {
@@ -98,8 +104,22 @@ export const FAMILIES: SeedFamily[] = [
 
 /* ────────────────────────────────────────────────────────────
    Nomenclature des fournitures (famille 30 mm)
-   Les numéros suivent la nomenclature suisse des fournitures.
-   Ils restent à recouper avec les planches Omega d'époque.
+
+   ⚠️ Deux choses distinctes, à ne pas confondre :
+
+   1. Le **numéro de fourniture** (100, 195, 721…) vient de la liste
+      normalisée de l'horlogerie suisse, commune à tous les calibres. Elle est
+      publique et stable — mais les valeurs ci-dessous n'ont pas été recoupées
+      une à une sur un document d'époque.
+
+   2. La **référence de commande** du constructeur, qui seule permet de
+      commander une fourniture, ne se déduit pas du numéro. Elle figure sur la
+      planche du calibre. Aucune n'est connue ici : le champ `reference`
+      ci-dessous est un identifiant interne, jamais affiché comme référence.
+
+   Tant que `verified` est faux, la fiche l'annonce et n'affiche pas de
+   référence de commande. La validation se fait depuis /admin/pieces, où l'on
+   saisit la référence relevée et la source qui l'atteste.
    ──────────────────────────────────────────────────────────── */
 
 export const PARTS: SeedPart[] = [

@@ -468,6 +468,53 @@ et l'index de recherche en découlent automatiquement.
 
 ---
 
+## Références de fournitures : ce qui est vérifiable et ce qui ne l'est pas
+
+Deux numéros cohabitent sur une fiche calibre, et les confondre fait commander
+la mauvaise pièce.
+
+| | Origine | Statut |
+| --- | --- | --- |
+| **N° de fourniture** (100, 195, 721) | Liste normalisée de l'horlogerie suisse, commune à tous les calibres | Publique et stable. Celles du catalogue n'ont pas été recoupées une à une sur un document d'époque |
+| **Référence de commande** | Planche du constructeur, propre au calibre | Aucune n'est connue. La colonne reste vide tant qu'elle n'a pas été relevée |
+
+Le second ne se déduit pas du premier. Une référence reconstituée aurait l'air
+juste et ferait commander de travers : le site n'en affiche donc aucune.
+
+`/admin/pieces` permet de saisir la référence relevée **et la source qui
+l'atteste** — planche, catalogue, page, date. Sans source, la case « attestée »
+se décoche d'elle-même : sans elle, personne ne saura dans six mois d'où sort
+la valeur. La fiche publique compte les fournitures attestées et n'affiche que
+celles-là.
+
+---
+
+## Vue éclatée
+
+En tête de chaque fiche calibre, un schéma d'assemblage interactif : cinq
+couches de la platine au remontage, reliées par les couples qui s'engrènent.
+Chaque pièce se survole, se clique, se navigue au clavier, et affiche son nom,
+son numéro de fourniture, sa référence de commande et un accès à la recherche
+d'offres.
+
+C'est un **schéma**, pas un relevé, et la légende le dit : l'ordre des couches
+et la chaîne cinématique sont exacts, les cotes ne le sont pas. Sur un calibre
+dont la nomenclature n'est pas relevée, le schéma s'annonce comme générique.
+
+Pourquoi du dessin vectoriel plutôt qu'un rendu tridimensionnel : il n'existe
+pas de modèle 3D de ces mouvements, et en fabriquer un donnerait une précision
+apparente que la donnée n'a pas. Un trait s'annonce pour ce qu'il est. Il
+s'imprime, se navigue au clavier, pèse quelques kilo-octets et ne demande
+aucune carte graphique — à l'établi, sur un téléphone posé à côté de l'outil,
+c'est ce qui compte.
+
+Détail d'implémentation qui n'en est pas un : le barillet, son ressort et son
+arbre partagent un centre. Une cible circulaire pleine pour chacun rendrait le
+ressort inatteignable. Chaque pièce reçoit donc une **couronne** cliquable
+comprise entre le rayon de sa voisine intérieure et le sien.
+
+---
+
 ## Navigation
 
 L'en-tête porte la navigation, sur téléphone comme sur ordinateur : une bande

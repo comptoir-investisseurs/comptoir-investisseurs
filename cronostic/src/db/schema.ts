@@ -219,13 +219,21 @@ export const parts = pgTable(
   "parts",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    // Référence Omega de la pièce (ex. 265-1100 pour le barillet complet)
+    // Identifiant interne de la fourniture. Ce n'est PAS une référence de
+    // commande : celle du constructeur se saisit dans `orderReference`, et
+    // seulement une fois relevée sur une planche.
     reference: text("reference").notNull(),
     name: text("name").notNull(), // Barillet complet
     nameEn: text("name_en"), // Barrel complete — utile pour chercher sur eBay
     category: text("category"), // rouage | échappement | remontage | cadrature | habillage
     description: text("description"),
     imageUrl: text("image_url"),
+    /** Référence de commande relevée sur une planche constructeur. */
+    orderReference: text("order_reference"),
+    /** Faux tant que la fourniture n'a pas été recoupée sur un document. */
+    isVerified: boolean("is_verified").notNull().default(false),
+    /** Planche, catalogue, page et date : ce qui atteste la référence. */
+    source: text("source"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [uniqueIndex("parts_reference_key").on(t.reference)],

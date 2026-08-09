@@ -30,12 +30,18 @@ export type SpecRow = {
 
 export type PartRow = {
   id: string;
+  /** Identifiant interne — jamais affiché comme référence de commande. */
   reference: string;
+  /** Numéro de la liste normalisée des fournitures. */
   positionNumber: string | null;
   name: string;
   nameEn: string | null;
   category: string | null;
   description: string | null;
+  /** Référence de commande du constructeur, quand elle a été relevée. */
+  orderReference: string | null;
+  isVerified: boolean;
+  source: string | null;
 };
 
 export type LubricantRow = {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Eclate } from "@/components/eclate";
 import { GuidePanel } from "@/components/guide-panel";
 import { getCurrentUser } from "@/lib/auth";
 import { panierContient } from "@/lib/cart";
@@ -155,8 +156,23 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
         </dl>
       </header>
 
-      <div className="mt-12 grid gap-14 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-        <div className="space-y-14">
+      {/* La vue éclatée ouvre la fiche : c'est par le dessin qu'on identifie
+          une pièce, pas par une liste de noms. */}
+      <div className="mt-10">
+        <Eclate
+          parts={caliber.parts}
+          caliberReference={caliber.reference}
+          caliberBrand={caliber.brand}
+          caliberSlug={caliber.slug}
+          generique={caliber.parts.length === 0}
+        />
+      </div>
+
+      <div className="mt-14 grid gap-14 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+        {/* `min-w-0` : un élément de grille prend par défaut la largeur de son
+            contenu. Les tableaux qui défilent horizontalement étireraient
+            sinon toute la colonne, et la page avec. */}
+        <div className="min-w-0 space-y-14">
           {/* Périmètre et statut des données, énoncés en préambule. */}
           {indicatives > 0 && (
             <div className="encart encart-alerte">
@@ -270,6 +286,7 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                 <table className="tableau">
                   <thead>
                     <tr>
+                      <th scope="col">N° fourniture</th>
                       <th scope="col">Référence</th>
                       <th scope="col">Fourniture</th>
                       <th scope="col" className="hidden sm:table-cell">
@@ -281,14 +298,22 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                   <tbody>
                     {caliber.parts.map((part) => (
                       <tr key={part.id}>
-                        {/* La référence de commande est propre au calibre :
-                            le numéro de nomenclature seul ne suffit pas à
-                            commander une fourniture, il faut le calibre avec.
-                            C'est aussi sous cette forme que les vendeurs de
-                            fournitures la portent. */}
+                        {/* Deux colonnes, parce que ce sont deux choses.
+                            Le numéro vient de la liste normalisée des
+                            fournitures, commune à tous les calibres. La
+                            référence de commande, elle, est propre au
+                            constructeur et ne se déduit pas du numéro : tant
+                            qu'elle n'a pas été relevée sur une planche, on
+                            n'en invente pas. */}
                         <td className="whitespace-nowrap tabular-nums">
-                          {caliber.reference}
-                          {part.positionNumber ? `-${part.positionNumber}` : ""}
+                          {part.positionNumber ?? "—"}
+                        </td>
+                        <td className="whitespace-nowrap">
+                          {part.isVerified && part.orderReference ? (
+                            <span className="tabular-nums">{part.orderReference}</span>
+                          ) : (
+                            <span className="text-encre/45">à relever</span>
+                          )}
                         </td>
                         <td>
                           {part.name}
@@ -312,12 +337,24 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
                   </tbody>
                 </table>
               </div>
-              <p className="legende indicatif mt-2 max-w-[68ch]">
-                Référence de commande = calibre + numéro de la nomenclature suisse des fournitures.
-                Reconstituée, à recouper avec les planches {caliber.brand} d&apos;époque — certaines
-                fournitures sont communes à plusieurs calibres de la famille et se commandent alors
-                sous la référence du calibre d&apos;origine
-              </p>
+              <div className="encart encart-alerte mt-4 max-w-[76ch]">
+                <p className="encart-titre">Deux numéros, deux natures</p>
+                <p className="mt-2">
+                  Le <strong>numéro de fourniture</strong> vient de la liste normalisée de
+                  l&apos;horlogerie suisse — 195 désigne le ressort de barillet sur n&apos;importe
+                  quel calibre. Il sert à identifier la pièce, pas à la commander.
+                </p>
+                <p className="mt-2">
+                  La <strong>référence de commande</strong> est propre à {caliber.brand} et figure
+                  sur la planche du calibre. Elle ne se déduit pas du numéro. Tant qu&apos;elle
+                  n&apos;a pas été relevée sur un document d&apos;époque, cette colonne reste vide :
+                  une référence inventée ferait commander la mauvaise fourniture.
+                </p>
+                <p className="legende mt-2">
+                  {caliber.parts.filter((p) => p.isVerified).length} sur {caliber.parts.length}{" "}
+                  fournitures attestées à ce jour.
+                </p>
+              </div>
             </Section>
           )}
 

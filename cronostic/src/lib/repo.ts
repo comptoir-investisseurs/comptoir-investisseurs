@@ -189,6 +189,9 @@ export async function getCaliberBySlug(slug: string): Promise<CaliberDetail | nu
         nameEn: schema.parts.nameEn,
         category: schema.parts.category,
         description: schema.parts.description,
+        orderReference: schema.parts.orderReference,
+        isVerified: schema.parts.isVerified,
+        source: schema.parts.source,
       })
       .from(schema.partCalibers)
       .innerJoin(schema.parts, eq(schema.partCalibers.partId, schema.parts.id))
@@ -837,6 +840,9 @@ export async function listParts(): Promise<PartRow[]> {
       nameEn: schema.parts.nameEn,
       category: schema.parts.category,
       description: schema.parts.description,
+      orderReference: schema.parts.orderReference,
+      isVerified: schema.parts.isVerified,
+      source: schema.parts.source,
     })
     .from(schema.parts)
     .orderBy(asc(schema.parts.reference));
@@ -846,6 +852,24 @@ export async function listParts(): Promise<PartRow[]> {
 export async function getPartByReference(reference: string): Promise<PartRow | null> {
   const parts = await listParts();
   return parts.find((p) => p.reference === reference) ?? null;
+}
+
+/**
+ * Validation d'une fourniture : référence de commande relevée sur un document,
+ * et la source qui l'atteste. Tant que ce n'est pas fait, la fiche du calibre
+ * n'affiche aucune référence — seulement le numéro de la liste normalisée.
+ */
+export async function validerPiece(
+  id: string,
+  patch: { orderReference: string | null; source: string | null; isVerified: boolean },
+): Promise<void> {
+  if (!hasDatabase()) {
+    const piece = demoParts.find((p) => p.id === id);
+    if (piece) Object.assign(piece, patch);
+    return;
+  }
+  const db = getDb();
+  await db.update(schema.parts).set(patch).where(eq(schema.parts.id, id));
 }
 
 export async function calibersForPart(partId: string): Promise<CaliberSummary[]> {

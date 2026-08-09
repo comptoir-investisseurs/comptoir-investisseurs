@@ -128,7 +128,7 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
                       }`}
                     >
                       <span className="shrink-0 tabular-nums text-encre/55">
-                        {caliber.reference}-{p.positionNumber}
+                        {p.isVerified && p.orderReference ? p.orderReference : p.positionNumber}
                       </span>
                       {p.name}
                     </Link>

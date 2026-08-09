@@ -121,6 +121,9 @@ export const demoParts: PartRow[] = PARTS.map((p) => ({
   nameEn: p.nameEn,
   category: p.category,
   description: p.description ?? null,
+  orderReference: null,
+  isVerified: p.verified ?? false,
+  source: p.source ?? null,
 }));
 
 export const demoLubricants: LubricantRow[] = LUBRICANTS.map((l) => ({

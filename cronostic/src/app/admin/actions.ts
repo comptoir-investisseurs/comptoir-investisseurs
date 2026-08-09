@@ -17,6 +17,7 @@ import {
   listCalibresTous,
   listGuides,
   updateGuide,
+  validerPiece,
 } from "@/lib/repo";
 
 /**
@@ -190,4 +191,32 @@ export async function importerPdfDuDepotAction() {
   const orphelins = pdfDisponibles().length - guides.length - crees;
   refresh();
   redirect(`/admin/guides?importes=${crees}&orphelins=${Math.max(0, orphelins)}`);
+}
+
+/**
+ * Validation d'une fourniture.
+ *
+ * Une référence ne peut être marquée comme attestée qu'accompagnée d'une
+ * source : sans elle, personne ne saura dans six mois d'où sort la valeur, et
+ * « attesté » ne voudra plus rien dire. La case se décoche alors d'elle-même.
+ */
+export async function validerPieceAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("partId") ?? "");
+  if (!id) throw new Error("Fourniture inconnue.");
+
+  const orderReference = String(formData.get("orderReference") ?? "").trim() || null;
+  const source = String(formData.get("source") ?? "").trim() || null;
+  const coche = formData.get("isVerified") === "on";
+
+  await validerPiece(id, {
+    orderReference,
+    source,
+    isVerified: coche && Boolean(orderReference) && Boolean(source),
+  });
+
+  revalidatePath("/admin/pieces");
+  revalidatePath("/pieces");
+  revalidatePath("/calibres", "layout");
+  redirect("/admin/pieces?validee=1");
 }
