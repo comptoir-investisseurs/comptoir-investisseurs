@@ -20,12 +20,16 @@ export function GuidePanel({
   isSignedIn,
   caliberSlug,
   dansLePanier = false,
+  apercuDisponible = false,
 }: {
   guide: GuideRow | null;
   access: GuideAccess;
   isSignedIn: boolean;
   caliberSlug: string;
   dansLePanier?: boolean;
+  /** Un fichier existe réellement derrière l'aperçu. Sans lui, le lien
+   *  mènerait à une erreur : mieux vaut ne pas le proposer. */
+  apercuDisponible?: boolean;
 }) {
   if (!guide || !guide.isActive) {
     return (
@@ -137,7 +141,7 @@ export function GuidePanel({
             </div>
           )}
 
-          {!access.canDownload && (
+          {!access.canDownload && apercuDisponible && (
             <a
               href={`/api/guides/${guide.id}/preview`}
               target="_blank"

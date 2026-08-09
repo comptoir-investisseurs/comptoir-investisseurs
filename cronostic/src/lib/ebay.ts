@@ -56,6 +56,8 @@ export type PartSearchResult =
       /** Annonce la moins chère parmi celles retenues. */
       meilleureOffre: Listing | null;
       ecartees: number;
+      /** Vrai uniquement en mode démonstration : annonces fictives. */
+      exemple?: boolean;
     }
   | {
       mode: "links";
@@ -73,13 +75,21 @@ const globalForToken = globalThis as unknown as {
 };
 
 /**
- * Catégories eBay des fournitures et outillage horlogers. Surchargeable par
- * `EBAY_CATEGORY_IDS` si le marché interrogé utilise d'autres identifiants.
- *   173699 → Watch Parts
- *   175776 → Watchmaking Tools & Parts
+ * Catégories eBay, **facultatives et non renseignées par défaut**.
+ *
+ * Les identifiants de catégorie diffèrent d'une place de marché à l'autre :
+ * un identifiant valable sur ebay.com ne l'est pas forcément sur ebay.fr, et
+ * une catégorie inconnue ne renvoie pas une erreur — elle renvoie zéro
+ * résultat. Le symptôme est alors indiscernable d'une panne d'API.
+ *
+ * On préfère donc ne rien filtrer côté eBay et écarter les montres complètes
+ * sur l'intitulé, ce qui fonctionne sur toutes les places de marché. Qui veut
+ * resserrer renseigne `EBAY_CATEGORY_IDS` après avoir vérifié les
+ * identifiants de sa place de marché.
  */
-function categories(): string {
-  return process.env.EBAY_CATEGORY_IDS ?? "173699,175776";
+function categories(): string | null {
+  const brut = process.env.EBAY_CATEGORY_IDS?.trim();
+  return brut ? brut : null;
 }
 
 /** Intitulés qui trahissent une montre complète plutôt qu'une fourniture. */
@@ -182,8 +192,58 @@ function estimer(listings: Listing[]): Estimation | null {
   };
 }
 
+/**
+ * Jeu d'annonces d'exemple, servi uniquement quand `EBAY_DEMO=1`.
+ *
+ * Sa seule raison d'être est de montrer la mise en page des annonces avant
+ * d'avoir la clé d'API — sur une maquette, une capture, une démonstration.
+ * Chaque carte est estampillée « exemple » à l'écran et aucun lien ne pointe
+ * vers une annonce réelle : faire passer des données inventées pour des
+ * offres du marché serait trompeur.
+ *
+ * Jamais actif par défaut, jamais actif sans la variable.
+ */
+function annoncesExemple(query: string): Listing[] {
+  const graine = query.length;
+  const modeles = [
+    ["Axe de balancier — fourniture d'origine, neuve de stock", 3450, "Neuf", "atelier-horloger-fr", "FR"],
+    ["Lot de 3 ressorts de barillet — fournitures d'époque", 2790, "Neuf", "vintage-parts-ch", "CH"],
+    ["Roue de centre — dépose sur mouvement, contrôlée", 1890, "Occasion", "watchpartsuk", "GB"],
+    ["Tige de remontoir — fourniture générique adaptable", 990, "Neuf", "fournitures-horlogerie", "FR"],
+    ["Jeu de pierres empierrées — reste de stock d'atelier", 4600, "Neuf", "oldstock-watch", "DE"],
+    ["Pont de rouage — pièce de récupération, bon état", 2400, "Occasion", "movement-spares", "IT"],
+  ] as const;
+
+  return modeles.map(([titre, prix, etat, vendeur, pays], i) => ({
+    id: `exemple-${i}`,
+    title: `${query} · ${titre}`,
+    // Aucune annonce réelle derrière : on renvoie vers la recherche eBay.
+    url: `https://www.ebay.fr/sch/i.html?_nkw=${encodeURIComponent(query)}`,
+    imageUrl: null,
+    priceCents: prix + graine * 7,
+    currency: "EUR",
+    condition: etat,
+    sellerName: vendeur,
+    location: pays,
+  }));
+}
+
 export async function searchParts(query: string, limit = 40): Promise<PartSearchResult> {
   const links = merchantLinks(query);
+
+  if (!hasEbay && process.env.EBAY_DEMO === "1") {
+    const listings = annoncesExemple(query);
+    return {
+      mode: "live",
+      query,
+      listings,
+      links,
+      estimation: estimer(listings),
+      meilleureOffre: [...listings].sort((a, b) => (a.priceCents ?? 0) - (b.priceCents ?? 0))[0],
+      ecartees: 0,
+      exemple: true,
+    };
+  }
 
   if (!hasEbay) {
     return {
@@ -195,7 +255,7 @@ export async function searchParts(query: string, limit = 40): Promise<PartSearch
       meilleureOffre: null,
       ecartees: 0,
       reason:
-        "Recherche live indisponible : les identifiants eBay ne sont pas configurés. Les liens ci-dessous ouvrent la recherche directement chez les marchands, restreinte aux fournitures.",
+        "Les annonces en direct demandent une clé d'API eBay, qui n'est pas encore configurée sur cette instance. En attendant, les liens ci-dessous ouvrent la recherche chez les marchands spécialisés.",
     };
   }
 
@@ -204,9 +264,12 @@ export async function searchParts(query: string, limit = 40): Promise<PartSearch
     const url = new URL(`https://${apiHost()}/buy/browse/v1/item_summary/search`);
     url.searchParams.set("q", query);
     url.searchParams.set("limit", String(limit));
-    url.searchParams.set("category_ids", categories());
+    const cats = categories();
+    if (cats) url.searchParams.set("category_ids", cats);
     url.searchParams.set("filter", "buyingOptions:{FIXED_PRICE|AUCTION}");
-    url.searchParams.set("sort", "price");
+    // Pas de tri par prix : il remonterait d'abord la visserie à deux euros.
+    // La pertinence donne de meilleures premières lignes, et la moins chère
+    // est de toute façon calculée ici.
 
     const res = await fetch(url, {
       headers: {
@@ -216,7 +279,12 @@ export async function searchParts(query: string, limit = 40): Promise<PartSearch
       next: { revalidate: 900 },
     });
 
-    if (!res.ok) throw new Error(`eBay Browse ${res.status}`);
+    if (!res.ok) {
+      // Le corps porte le motif exact : identifiants refusés, quota, filtre
+      // invalide. Le taire rendrait tout diagnostic impossible.
+      const corps = await res.text().catch(() => "");
+      throw new Error(`eBay Browse ${res.status}${corps ? ` — ${corps.slice(0, 300)}` : ""}`);
+    }
 
     const json = (await res.json()) as { itemSummaries?: EbayItemSummary[] };
     const brut = json.itemSummaries ?? [];
@@ -274,6 +342,100 @@ export function buildPartQuery(
 ): string {
   const base = `${marque} ${caliberReference}`;
   return partNameEn ? `${base} ${partNameEn}` : `${base} part`;
+}
+
+/**
+ * Diagnostic de la connexion eBay, pour le back-office.
+ *
+ * Chaque étape est isolée : sans cela, un « ça ne marche pas » ne distingue
+ * pas une clé refusée d'un filtre invalide ou d'un quota atteint.
+ */
+export type DiagnosticEbay = {
+  configure: boolean;
+  environnement: string;
+  marche: string;
+  categories: string | null;
+  jeton: { ok: boolean; detail: string };
+  recherche: { ok: boolean; detail: string; brut: number; retenus: number };
+};
+
+export async function diagnostiquerEbay(query = "Omega 265 balance staff"): Promise<DiagnosticEbay> {
+  const base: DiagnosticEbay = {
+    configure: hasEbay,
+    environnement: process.env.EBAY_ENV === "sandbox" ? "sandbox" : "production",
+    marche: process.env.EBAY_MARKETPLACE_ID ?? "EBAY_FR",
+    categories: categories(),
+    jeton: { ok: false, detail: "non tenté" },
+    recherche: { ok: false, detail: "non tentée", brut: 0, retenus: 0 },
+  };
+
+  if (!hasEbay) {
+    base.jeton.detail = "EBAY_CLIENT_ID ou EBAY_CLIENT_SECRET manquante";
+    return base;
+  }
+
+  let token: string;
+  try {
+    token = await accessToken();
+    base.jeton = { ok: true, detail: `jeton obtenu (${token.slice(0, 12)}…)` };
+  } catch (error) {
+    base.jeton = {
+      ok: false,
+      detail: error instanceof Error ? error.message : "erreur inconnue",
+    };
+    return base;
+  }
+
+  try {
+    const url = new URL(`https://${apiHost()}/buy/browse/v1/item_summary/search`);
+    url.searchParams.set("q", query);
+    url.searchParams.set("limit", "10");
+    const cats = categories();
+    if (cats) url.searchParams.set("category_ids", cats);
+
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "X-EBAY-C-MARKETPLACE-ID": base.marche,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const corps = await res.text().catch(() => "");
+      base.recherche = {
+        ok: false,
+        detail: `HTTP ${res.status} — ${corps.slice(0, 300)}`,
+        brut: 0,
+        retenus: 0,
+      };
+      return base;
+    }
+
+    const json = (await res.json()) as { itemSummaries?: EbayItemSummary[] };
+    const brut = json.itemSummaries ?? [];
+    const retenus = brut.filter((i) => !MONTRE_COMPLETE.test(i.title ?? ""));
+    base.recherche = {
+      ok: retenus.length > 0,
+      detail:
+        retenus.length > 0
+          ? `${retenus.length} annonce(s) exploitables sur « ${query} »`
+          : brut.length > 0
+            ? "des annonces remontent mais toutes ressemblent à des montres complètes"
+            : "aucune annonce — vérifier la place de marché et les catégories",
+      brut: brut.length,
+      retenus: retenus.length,
+    };
+  } catch (error) {
+    base.recherche = {
+      ok: false,
+      detail: error instanceof Error ? error.message : "erreur inconnue",
+      brut: 0,
+      retenus: 0,
+    };
+  }
+
+  return base;
 }
 
 export { hasEbay };

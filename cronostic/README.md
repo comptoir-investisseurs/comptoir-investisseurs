@@ -164,20 +164,51 @@ Les objets suivent la convention `premium/guides/omega-265.pdf`. L'URL du
 bucket n'est **jamais** exposée : `/api/guides/[guideId]/download` vérifie la
 session puis le droit, et ne délivre qu'ensuite une URL signée de 5 minutes.
 
-### 5. Recherche de pièces (eBay Browse API)
+### 5. Annonces de pièces détachées (eBay Browse API)
 
-Créer une application sur developer.ebay.com, puis renseigner
-`EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET`. Le jeton OAuth
-(`client_credentials`) est mis en cache en mémoire et les résultats sont
-revalidés toutes les 15 minutes. En cas d'erreur ou de quota, la page retombe
-automatiquement sur les liens marchands.
+Le site **affiche les annonces en cours**, avec photo, prix, état, vendeur et
+pays, plus le prix moyen du marché et un accès direct à la moins chère. Ce
+n'est pas un lien vers une page de recherche : les offres sont dans la page.
+Cela demande une clé d'API, sans laquelle rien ne peut être affiché.
 
-La recherche est restreinte aux **catégories de fournitures** (`173699`,
-`175776`, surchargeables par `EBAY_CATEGORY_IDS`) et les intitulés de montres
-complètes sont écartés : sans cela, « Omega 265 » remonte surtout des montres
-entières. La page affiche une **estimation de prix** — moyenne des annonces
-retenues, hors décile haut et bas au-delà de cinq offres, avec la fourchette et
-l'effectif — et un accès direct à l'annonce la moins chère.
+**Obtenir la clé** — cinq minutes, gratuit, sans validation manuelle :
+
+1. Créer un compte sur [developer.ebay.com](https://developer.ebay.com) avec le
+   compte eBay habituel.
+2. *Application keys* → créer un jeu de clés **Production**. Le Sandbox ne
+   contient aucune annonce réelle : il ne sert à rien ici.
+3. Recopier *App ID (Client ID)* dans `EBAY_CLIENT_ID` et *Cert ID (Client
+   Secret)* dans `EBAY_CLIENT_SECRET`.
+4. Redéployer, puis ouvrir `/admin/ebay`.
+
+**`/admin/ebay`** interroge réellement l'API à chaque affichage et sépare les
+étapes — identifiants, jeton OAuth, recherche — parce qu'un « ça ne marche
+pas » global ne dit pas s'il faut corriger une clé, une place de marché ou un
+filtre. Trois voyants, le corps de l'erreur eBay affiché tel quel, et un champ
+pour tester une requête.
+
+**Réglages facultatifs.** `EBAY_MARKETPLACE_ID` choisit la place de marché
+(`EBAY_FR` par défaut, `EBAY_GB`, `EBAY_US`, `EBAY_DE`). `EBAY_CATEGORY_IDS`
+restreint aux catégories de fournitures — **laissé vide par défaut, et c'est
+volontaire** : les identifiants de catégorie diffèrent d'une place de marché à
+l'autre, et une catégorie inconnue ne renvoie pas une erreur mais zéro
+résultat, symptôme indiscernable d'une panne. Le tri des montres complètes se
+fait donc sur l'intitulé, ce qui fonctionne partout.
+
+Le jeton `client_credentials` est mis en cache en mémoire et les résultats sont
+revalidés toutes les quinze minutes. Le quota gratuit est de cinq mille appels
+par jour, très au-delà des besoins.
+
+**Sans clé**, la page le dit franchement et propose les liens marchands en
+second rang. Pour voir la mise en page des annonces avant d'avoir la clé,
+`EBAY_DEMO=1` affiche six annonces **fictives**, chacune surmontée d'un bandeau
+qui l'annonce. Jamais actif par défaut : faire passer des données inventées
+pour des offres du marché serait trompeur.
+
+La page affiche une **estimation de prix** — moyenne des annonces retenues,
+hors décile haut et bas au-delà de cinq offres, avec la fourchette et
+l'effectif — et n'importe lequel des 746 calibres peut être interrogé, pas
+seulement ceux dont la nomenclature est relevée.
 
 ---
 
@@ -434,6 +465,28 @@ remis — `Cronostic_Valjoux_7733_manuel_de_service.pdf`.
 Ajouter un mouvement : une ligne dans le tableau `mouvements` de la marque. Le
 slug (`marque-reference`), la fiche, l'entrée d'encyclopédie, le plan du site
 et l'index de recherche en découlent automatiquement.
+
+---
+
+## Navigation
+
+L'en-tête porte la navigation, sur téléphone comme sur ordinateur : une bande
+défilante de six entrées sous 768 px, plutôt qu'un menu à déplier — les entrées
+sont visibles d'un coup d'œil, sans clic préalable et sans JavaScript.
+
+Le bas de page ne porte plus de menu. Répéter la navigation en pied ajoutait un
+mur de liens sans rien apporter ; ne subsistent que les mentions obligatoires
+d'un site marchand — mentions légales, conditions de vente, confidentialité —
+et l'attribution des marques citées.
+
+Sur téléphone, l'ouverture a la même composition que sur ordinateur : la
+photographie occupe le fond, le texte est posé dessus dans un cartouche papier.
+Elle était auparavant reléguée en bande sous le texte, deux blocs qui ne se
+parlaient pas.
+
+Un parcours automatisé (`crawl.mjs`) part de l'accueil et du plan du site,
+suit tous les liens internes et signale cassures et pages orphelines. Dernier
+passage : **1 895 adresses, aucun lien mort, aucune page du plan non liée**.
 
 ---
 

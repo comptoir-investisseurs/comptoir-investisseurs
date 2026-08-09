@@ -23,12 +23,16 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-gris-trait bg-gris-clair">
-      <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center px-5">
-        <Link href="/" aria-label="Cronostic — accueil">
-          <Wordmark hauteur={32} />
+      {/* Pas de marge à gauche : la zone de protection du logotype — la charte
+          impose la hauteur du « C » de chaque côté — tient lieu de marge de
+          page. Elle existe donc bien, sans consommer deux fois la place, ce
+          qui compte sur 390 px de large. */}
+      <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center pr-4 sm:pr-5">
+        <Link href="/" aria-label="Cronostic — accueil" className="shrink-0">
+          <Wordmark />
         </Link>
 
-        <nav className="ml-2 hidden flex-1 items-center gap-7 md:flex">
+        <nav className="hidden flex-1 items-center gap-7 md:flex">
           {NAV.map((item) => (
             <Link
               key={item.href}
@@ -40,10 +44,12 @@ export async function SiteHeader() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-5">
+        {/* Le groupe de droite doit rentrer dans 390 px de large sans repousser
+            la page : libellés resserrés, boutons compacts sous 640 px. */}
+        <div className="ml-auto flex min-w-0 items-center gap-3 sm:gap-5">
           <Link
             href="/panier"
-            className="flex items-center gap-2 text-[0.9375rem] text-encre transition-colors hover:text-laiton"
+            className="flex shrink-0 items-center gap-2 text-legende not-italic text-encre transition-colors hover:text-laiton sm:text-[0.9375rem]"
           >
             Panier
             {articles > 0 && <span className="pastille">{articles}</span>}
@@ -58,19 +64,26 @@ export async function SiteHeader() {
                   Admin
                 </Link>
               )}
-              <Link href="/account/guides" className="bouton-secondaire">
-                Mes guides
+              <Link
+                href="/account/guides"
+                className="bouton-secondaire shrink-0 !px-3 sm:!px-6"
+              >
+                <span className="sm:hidden">Compte</span>
+                <span className="hidden sm:inline">Mes guides</span>
               </Link>
             </>
           ) : (
-            <Link href="/connexion" className="bouton-secondaire">
+            <Link href="/connexion" className="bouton-secondaire shrink-0 !px-3 sm:!px-6">
               Connexion
             </Link>
           )}
         </div>
       </div>
 
-      <nav className="flex gap-6 overflow-x-auto border-t border-gris-trait px-5 py-2.5 md:hidden">
+      {/* Navigation de téléphone : une bande défilante plutôt qu'un menu à
+          déplier. Les six entrées sont visibles d'un coup d'œil, sans clic
+          préalable et sans JavaScript. */}
+      <nav className="flex gap-6 overflow-x-auto border-t border-gris-trait px-4 py-2.5 sm:px-5 md:hidden">
         {NAV.map((item) => (
           <Link
             key={item.href}

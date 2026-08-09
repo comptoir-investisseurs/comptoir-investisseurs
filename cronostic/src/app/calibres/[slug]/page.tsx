@@ -8,6 +8,7 @@ import { panierContient } from "@/lib/cart";
 import { guideAccessFor } from "@/lib/entitlements";
 import { toParagraphs } from "@/lib/format";
 import { trouverMouvement } from "@/lib/encyclopedie";
+import { aUnPdfDansLeDepot } from "@/lib/guide-files";
 import { getCaliberBySlug, getGuideForCaliber, listCalibers } from "@/lib/repo";
 
 export const revalidate = 3600;
@@ -76,6 +77,12 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
         creditsRestants: null,
       };
   const dansLePanier = guide ? await panierContient(guide.id) : false;
+  // Le lien « Lire les premières pages » n'a de sens que si un fichier existe
+  // derrière : un guide publié dont le PDF a disparu ne doit pas mener à une
+  // erreur.
+  const apercuDisponible = Boolean(
+    guide && (guide.previewFileKey || guide.r2FileKey || aUnPdfDansLeDepot(guide.caliberSlug)),
+  );
 
   const indicatives = caliber.specs.filter((s) => !s.isVerified).length;
   // Fiche d'amorce : pas de présentation rédigée, pas de nomenclature relevée.
@@ -202,6 +209,7 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
             isSignedIn={Boolean(user)}
             caliberSlug={caliber.slug}
             dansLePanier={dansLePanier}
+            apercuDisponible={apercuDisponible}
           />
 
           {caliber.history && (

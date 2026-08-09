@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { buildPartQuery, searchParts } from "@/lib/ebay";
 import { formatPrice } from "@/lib/format";
-import { getCaliberBySlug, listCalibers } from "@/lib/repo";
+import { getCaliberBySlug, listCalibers, listCalibresTous } from "@/lib/repo";
 
 export const metadata: Metadata = {
   title: "Recherche de pièces détachées",
@@ -16,14 +16,16 @@ type SearchParams = Promise<{ calibre?: string; piece?: string; q?: string }>;
 
 export default async function PiecesPage({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
-  const calibers = await listCalibers();
+  const [calibers, tous] = await Promise.all([listCalibers(), listCalibresTous()]);
   const selectedSlug = sp.calibre ?? calibers[0]?.slug;
   const caliber = selectedSlug ? await getCaliberBySlug(selectedSlug) : null;
   const part = caliber?.parts.find((p) => p.reference === sp.piece) ?? null;
 
   const query =
     sp.q?.trim() ||
-    (caliber ? buildPartQuery(caliber.reference, part?.nameEn ?? null) : "Omega watch part");
+    (caliber
+      ? buildPartQuery(caliber.reference, part?.nameEn ?? null, caliber.brand)
+      : "watch movement part");
 
   const result = await searchParts(query);
 
@@ -35,20 +37,20 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
         Trouvez la bonne référence. Puis trouvez la pièce.
       </h1>
       <p className="mt-4 max-w-[64ch] text-encre/72">
-        La recherche est restreinte aux vendeurs de fournitures : les montres complètes sont
-        écartées.
+        Les annonces en cours sont affichées directement, avec le prix moyen du marché. Les montres
+        complètes sont écartées : on cherche une fourniture, pas une montre.
       </p>
 
-      <form action="/pieces" method="get" className="mt-8 flex max-w-2xl gap-3">
+      <form action="/pieces" method="get" className="mt-8 flex max-w-2xl flex-wrap gap-3">
         <input
           type="search"
           name="q"
           defaultValue={sp.q ?? ""}
           placeholder="Omega 265 balance staff, ressort de barillet 30T2..."
-          className="flex-1 border border-gris-trait bg-papier px-4 py-2.5 text-encre outline-none focus:border-laiton"
+          className="min-w-0 flex-1 border border-gris-trait bg-papier px-4 py-2.5 text-encre outline-none focus:border-laiton"
           aria-label="Recherche libre d'une fourniture"
         />
-        <button type="submit" className="bouton-secondaire">
+        <button type="submit" className="bouton-secondaire shrink-0">
           Chercher
         </button>
       </form>
@@ -59,7 +61,42 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
           <div>
             <h2 className="surtitre">Calibre</h2>
             <div className="filet mt-2" />
-            <ul className="mt-4 flex flex-wrap gap-2">
+
+            {/* Les 746 calibres sont sélectionnables, pas seulement les dix
+                documentés : la recherche de fournitures a du sens pour
+                n'importe quel mouvement de l'encyclopédie. */}
+            <form action="/pieces" method="get" className="mt-4">
+              <label htmlFor="calibre" className="sr-only">
+                Choisir un calibre
+              </label>
+              <select
+                id="calibre"
+                name="calibre"
+                defaultValue={selectedSlug ?? ""}
+                className="w-full border border-gris-trait bg-papier px-3 py-2 text-legende text-encre outline-none focus:border-laiton"
+              >
+                {Object.entries(
+                  tous.reduce<Record<string, typeof tous>>((acc, c) => {
+                    (acc[c.brand] ??= []).push(c);
+                    return acc;
+                  }, {}),
+                ).map(([marque, lot]) => (
+                  <optgroup key={marque} label={marque}>
+                    {lot.map((c) => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.brand} {c.reference}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <button type="submit" className="bouton-secondaire mt-3 w-full">
+                Chercher ce calibre
+              </button>
+            </form>
+
+            <p className="legende mt-4">Raccourcis</p>
+            <ul className="mt-2 flex flex-wrap gap-2">
               {calibers.map((c) => (
                 <li key={c.slug}>
                   <Link
@@ -116,6 +153,20 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
             </p>
           </div>
           <div className="filet mt-2" />
+
+          {result.mode === "live" && result.exemple && (
+            <div className="encart encart-alerte mt-6">
+              <p className="encart-titre">Annonces d&apos;exemple</p>
+              <p className="mt-2">
+                La clé d&apos;API eBay n&apos;est pas configurée : les annonces ci-dessous sont
+                fictives et ne correspondent à aucune offre réelle. Elles ne servent qu&apos;à
+                montrer la mise en page. Renseignez{" "}
+                <code className="font-technique">EBAY_CLIENT_ID</code> et{" "}
+                <code className="font-technique">EBAY_CLIENT_SECRET</code> pour afficher les
+                véritables annonces.
+              </p>
+            </div>
+          )}
 
           {/* Estimation de prix */}
           {result.estimation && (
@@ -205,14 +256,19 @@ export default async function PiecesPage({ searchParams }: { searchParams: Searc
               </ul>
             )
           ) : (
-            <div className="encart mt-6">
-              <p className="encart-titre text-laiton">Recherche</p>
+            <div className="encart encart-alerte mt-6">
+              <p className="encart-titre">Annonces indisponibles</p>
               <p className="mt-2">{result.reason}</p>
             </div>
           )}
 
-          <h2 className="surtitre mt-12">Marchands de fournitures</h2>
+          <h2 className="surtitre mt-12">Autres marchands</h2>
           <div className="filet mt-2" />
+          <p className="legende mt-3 max-w-[64ch]">
+            Ces enseignes n&apos;exposent pas d&apos;interface publique : le lien ouvre leur
+            recherche, déjà remplie avec la référence. Utile pour les fournitures génériques que le
+            marché de l&apos;occasion ne porte pas.
+          </p>
           <ul className="cadre mt-4 divide-y divide-gris-clair">
             {result.links.map((link) => (
               <li key={link.merchant}>

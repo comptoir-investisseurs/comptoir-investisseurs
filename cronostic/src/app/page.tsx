@@ -47,21 +47,29 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Ouverture ────────────────────────────────────────
-          La photographie occupe toute la largeur ; le texte est posé dessus
-          dans un cartouche papier plein. Le fond de l'image comporte le
-          bracelet noir : du texte directement incrusté y tomberait à 3,5:1,
-          en deçà du seuil de lisibilité. Le cartouche, lui, est un aplat —
-          la charte proscrit les dégradés, pas les aplats. */}
+          Même composition sur téléphone et sur ordinateur : la photographie
+          occupe le fond, le texte est posé dessus dans un cartouche papier
+          plein. Elle était auparavant reléguée en bande sous le texte sur
+          petit écran — deux blocs qui ne se parlaient pas.
+
+          Le cartouche n'est pas une coquetterie : le bracelet noir traverse
+          le tiers gauche de l'image et du texte directement incrusté y
+          tomberait à 3,5:1, en deçà du seuil de lisibilité. Un aplat, que la
+          charte autorise — contrairement aux dégradés — règle la question à
+          toutes les tailles.
+
+          Le cadrage suit la taille d'écran : sur téléphone on serre sur le
+          mouvement, sur grand écran on laisse respirer. */}
       <section className="relative border-b border-gris-trait bg-gris-fond">
         {hero && (
-          <figure className="absolute inset-0 hidden lg:block">
+          <figure className="absolute inset-0">
             <Image
               src={hero.src}
               alt={hero.legende}
               fill
               sizes="100vw"
               priority
-              className="object-cover object-[68%_center]"
+              className="object-cover object-[78%_center] lg:object-[68%_center]"
             />
             <figcaption className="legende absolute right-0 bottom-0 bg-papier px-3 py-1 not-italic">
               {hero.legende}
@@ -69,17 +77,17 @@ export default async function HomePage() {
           </figure>
         )}
 
-        <div className="relative mx-auto max-w-6xl px-5 py-12 lg:py-16">
+        <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-5 sm:py-12 lg:py-16">
           <div
             className={
               hero
-                ? "max-w-2xl border-l-[3px] border-l-laiton bg-papier px-7 py-9 lg:px-9 lg:py-11"
+                ? "max-w-2xl border-l-[3px] border-l-laiton bg-papier px-5 py-7 sm:px-7 sm:py-9 lg:px-9 lg:py-11"
                 : undefined
             }
           >
             <p className="surtitre">Documentation technique horlogère</p>
             <div className="filet mt-3" />
-            <h1 className="titre mt-6 max-w-[20ch] text-couverture">
+            <h1 className="titre mt-5 max-w-[20ch] text-couverture sm:mt-6">
               La documentation technique de l&apos;horloger.
             </h1>
             <p className="mt-5 max-w-[56ch] text-encre/72">
@@ -90,7 +98,7 @@ export default async function HomePage() {
               — d&apos;Omega à Valjoux, de Rolex à Seiko. La consultation est libre.
             </p>
 
-            <div className="mt-8">
+            <div className="mt-7 sm:mt-8">
               <p className="mb-2 text-legende not-italic text-encre/60">
                 Que recherchez-vous&nbsp;? Calibre, fourniture, huile, guide.
               </p>
@@ -98,17 +106,6 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-
-        {hero && (
-          <figure className="border-t border-gris-trait lg:hidden">
-            <div className="relative h-56">
-              <Image src={hero.src} alt={hero.legende} fill sizes="100vw" className="object-cover" />
-            </div>
-            <figcaption className="legende bg-papier px-5 py-1.5 not-italic">
-              {hero.legende}
-            </figcaption>
-          </figure>
-        )}
       </section>
 
       {/* ── L'encyclopédie ───────────────────────────────

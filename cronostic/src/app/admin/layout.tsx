@@ -15,6 +15,7 @@ const SECTIONS = [
   { href: "/admin/achats", label: "Achats" },
   { href: "/admin/abonnements", label: "Abonnements" },
   { href: "/admin/audience", label: "Audience" },
+  { href: "/admin/ebay", label: "eBay" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
