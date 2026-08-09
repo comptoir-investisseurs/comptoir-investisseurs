@@ -102,9 +102,14 @@ export default async function AccountPage({
             })}
           </ul>
         )}
-        <Link href="/account/guides" className="lien-souligne mt-5 inline-block text-legende text-laiton">
-          Accéder à mes guides
-        </Link>
+        <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2">
+          <Link href="/account/guides" className="lien-souligne text-legende text-laiton">
+            Accéder à mes guides
+          </Link>
+          <Link href="/account/donnees" className="lien-souligne text-legende text-laiton">
+            Mes données personnelles
+          </Link>
+        </div>
       </section>
 
       {!hasClerk && (

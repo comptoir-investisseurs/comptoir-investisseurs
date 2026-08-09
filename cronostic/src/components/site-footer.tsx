@@ -77,6 +77,16 @@ export function SiteFooter() {
                 Conditions de vente
               </Link>
             </li>
+            <li>
+              <Link href="/confidentialite" className="lien-souligne hover:text-laiton">
+                Confidentialité
+              </Link>
+            </li>
+            <li>
+              <Link href="/account/donnees" className="lien-souligne hover:text-laiton">
+                Mes données
+              </Link>
+            </li>
           </ul>
           <p className="mt-5 text-legende not-italic leading-relaxed text-encre/60">
             Éditeur indépendant. Les marques citées appartiennent à leurs détenteurs respectifs et

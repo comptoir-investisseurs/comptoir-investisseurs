@@ -3,9 +3,10 @@ import Link from "next/link";
 
 import { payerLePanier, retirerDuPanierAction } from "@/app/actions";
 import { GuideCover } from "@/components/guide-cover";
+import { Renonciation } from "@/components/renonciation";
 import { getCurrentUser, signInPath } from "@/lib/auth";
 import { lirePanier } from "@/lib/cart";
-import { proPriceCents } from "@/lib/env";
+import { TARIFS } from "@/lib/env";
 import { formatPrice } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -15,12 +16,17 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function PanierPage() {
+export default async function PanierPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ erreur?: string }>;
+}) {
+  const sp = await searchParams;
   const user = await getCurrentUser();
   const panier = await lirePanier(user);
 
   // Au-delà de deux guides, l'abonnement revient moins cher : autant le dire.
-  const seuilAbonnement = panier.totalCents >= proPriceCents();
+  const seuilAbonnement = panier.totalCents >= TARIFS.atelier.mois();
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12">
@@ -95,24 +101,33 @@ export default async function PanierPage() {
               </p>
             </div>
 
-            {user ? (
-              <form action={payerLePanier}>
-                <button type="submit" className="bouton">
-                  Payer
-                </button>
-              </form>
-            ) : (
+            {!user && (
               <Link href={signInPath("/panier")} className="bouton">
                 Se connecter pour payer
               </Link>
             )}
           </div>
 
+          {user && (
+            <form action={payerLePanier}>
+              <Renonciation objet="guide" />
+              {sp.erreur === "renonciation" && (
+                <p className="mt-4 border-l-2 border-alerte bg-papier px-5 py-3 text-legende not-italic text-alerte">
+                  La commande n&apos;a pas été passée : la renonciation au droit de rétractation
+                  doit être cochée pour que les fichiers soient mis à disposition immédiatement.
+                </p>
+              )}
+              <button type="submit" className="bouton mt-6">
+                Payer {formatPrice(panier.totalCents, panier.currency)}
+              </button>
+            </form>
+          )}
+
           {seuilAbonnement && (
             <div className="encart mt-10">
               <p className="encart-titre text-laiton">Cronostic Pro</p>
               <p className="mt-2">
-                À partir de {formatPrice(proPriceCents())} par mois, l&apos;abonnement donne accès à
+                À partir de {formatPrice(TARIFS.atelier.mois())} par mois, l&apos;abonnement donne accès à
                 l&apos;ensemble des guides — soit moins que ce panier.{" "}
                 <Link href="/pro" className="lien-souligne">
                   Comparer

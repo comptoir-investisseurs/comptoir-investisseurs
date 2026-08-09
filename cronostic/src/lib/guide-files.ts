@@ -17,7 +17,8 @@ import path from "node:path";
  * prend automatiquement le pas dès qu'un PDF est téléversé depuis le
  * back-office.
  *
- * Nommage : `guides-pdf/<slug-du-calibre>.pdf`, par exemple `omega-265.pdf`.
+ * Nommage : le fichier doit contenir le slug du calibre. `omega-265.pdf` comme
+ * `Cronostic_Omega_265_manuel_de_service.pdf` conviennent tous deux.
  */
 
 const RACINE = path.join(process.cwd(), "guides-pdf");
@@ -27,25 +28,30 @@ export function pdfDuDepot(caliberSlug: string): string | null {
   const attendu = path.join(RACINE, `${caliberSlug}.pdf`);
   if (existsSync(attendu)) return attendu;
 
-  // Tolérance sur la casse et les séparateurs, pour éviter qu'un fichier
-  // nommé « Omega_265.pdf » passe inaperçu.
   if (!existsSync(RACINE)) return null;
-  const normalise = (n: string) => n.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const cible = normalise(caliberSlug);
-  const trouve = readdirSync(RACINE).find(
-    (f) => f.toLowerCase().endsWith(".pdf") && normalise(path.basename(f, ".pdf")) === cible,
+
+  // Les fichiers livrés portent souvent un nom complet —
+  // « Cronostic_Omega_265_manuel_de_service.pdf ». On accepte donc tout nom
+  // qui contient le slug, séparateurs libres, à condition qu'il soit délimité :
+  // « omega-265 » ne doit pas se reconnaître dans « omega-2650 ».
+  const motif = new RegExp(
+    `(^|[^a-z0-9])${caliberSlug.split("-").join("[^a-z0-9]*")}([^a-z0-9]|$)`,
+    "i",
   );
-  return trouve ? path.join(RACINE, trouve) : null;
+  const candidats = readdirSync(RACINE).filter(
+    (f) => f.toLowerCase().endsWith(".pdf") && motif.test(path.basename(f, ".pdf")),
+  );
+  // Ambiguïté : deux fichiers pour un même calibre, on ne devine pas.
+  if (candidats.length !== 1) return null;
+  return path.join(RACINE, candidats[0]);
 }
 
 export function aUnPdfDansLeDepot(caliberSlug: string): boolean {
   return pdfDuDepot(caliberSlug) !== null;
 }
 
-/** Slugs de calibres pour lesquels un PDF est présent dans le dépôt. */
-export function calibresAvecPdf(): string[] {
+/** Fichiers PDF présents dans le dépôt. */
+export function pdfDisponibles(): string[] {
   if (!existsSync(RACINE)) return [];
-  return readdirSync(RACINE)
-    .filter((f) => f.toLowerCase().endsWith(".pdf"))
-    .map((f) => path.basename(f, path.extname(f)));
+  return readdirSync(RACINE).filter((f) => f.toLowerCase().endsWith(".pdf"));
 }

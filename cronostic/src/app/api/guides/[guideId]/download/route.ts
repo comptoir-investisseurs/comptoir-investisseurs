@@ -3,9 +3,10 @@ import { readFile } from "node:fs/promises";
 import { NextResponse } from "next/server";
 
 import { getCurrentUser, signInPath } from "@/lib/auth";
-import { guideAccessFor } from "@/lib/entitlements";
+import { guideAccessFor, ouvrirAvecQuota } from "@/lib/entitlements";
+import { personnaliserPdf } from "@/lib/pdf";
 import { pdfDuDepot } from "@/lib/guide-files";
-import { readObject, signedDownloadUrl } from "@/lib/r2";
+import { readObject } from "@/lib/r2";
 import { getGuideById } from "@/lib/repo";
 
 export const dynamic = "force-dynamic";
@@ -17,10 +18,13 @@ export const dynamic = "force-dynamic";
  * le droit (achat OU abonnement Cronostic Pro actif couvrant ce guide), et ne
  * délivre qu'ensuite le fichier.
  *
- * Trois sources, dans cet ordre : le bucket R2 quand un PDF y a été téléversé,
- * le stockage local qui le remplace en développement, puis le PDF déposé dans
- * `guides-pdf/` au sein du dépôt. Ce dernier n'est jamais servi statiquement :
- * il ne sort que par ici, après contrôle des droits.
+ * Deux sources, dans cet ordre : le bucket R2 quand un PDF y a été téléversé,
+ * puis le PDF déposé dans `guides-pdf/` au sein du dépôt. Ce dernier n'est
+ * jamais servi statiquement : il ne sort que par ici.
+ *
+ * Le fichier remis est personnalisé au nom de l'acheteur. C'est pourquoi la
+ * route sert le flux elle-même plutôt que de rediriger vers une URL signée :
+ * une redirection livrerait le fichier d'origine, non marqué.
  */
 export async function GET(
   request: Request,
@@ -41,11 +45,16 @@ export async function GET(
   }
 
   const access = await guideAccessFor(user, guide);
-  if (!access.canDownload) {
+  // Formule Atelier : le premier téléchargement consomme un crédit de la
+  // période. Un guide déjà ouvert n'en consomme plus.
+  const autorise = access.canDownload || (await ouvrirAvecQuota(user, guide));
+  if (!autorise) {
     return NextResponse.json(
       {
         error:
-          "Accès refusé. Ce guide nécessite un achat à l'unité ou un abonnement Cronostic Pro actif.",
+          access.creditsRestants === 0
+            ? "Quota atteint pour la période en cours. Passez à la formule Intégrale ou achetez ce guide à l'unité."
+            : "Accès refusé. Ce guide nécessite un achat à l'unité ou un abonnement actif.",
       },
       { status: 403 },
     );
@@ -53,18 +62,24 @@ export async function GET(
 
   const filename = `Cronostic_Omega_${guide.caliberReference}_manuel_de_service.pdf`;
 
+  // Le tatouage impose de servir le flux nous-mêmes : une URL signée livrerait
+  // le fichier d'origine, non personnalisé.
+  const marquer = (buffer: Buffer) =>
+    personnaliserPdf(buffer, {
+      nom: user.displayName,
+      email: user.email,
+      reference: `Omega ${guide.caliberReference}`,
+    });
+
   // 1. Bucket R2, quand un fichier y a été téléversé.
   if (guide.r2FileKey) {
-    const url = await signedDownloadUrl(guide.r2FileKey, filename);
-    if (url) return NextResponse.redirect(url);
-
     const buffer = await readObject(guide.r2FileKey);
-    if (buffer) return servirPdf(buffer, filename);
+    if (buffer) return servirPdf(await marquer(buffer), filename);
   }
 
   // 2. PDF déposé dans le dépôt.
   const chemin = pdfDuDepot(guide.caliberSlug);
-  if (chemin) return servirPdf(await readFile(chemin), filename);
+  if (chemin) return servirPdf(await marquer(await readFile(chemin)), filename);
 
   return NextResponse.json(
     { error: "Aucun fichier n'est encore associé à ce guide." },

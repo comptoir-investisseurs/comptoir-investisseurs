@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, inArray, sql } from "drizzle-orm";
 
 import { CALIBERS, FAMILIES } from "@/data/catalog";
 import { getDb, hasDatabase, schema } from "@/db";
@@ -601,7 +601,58 @@ export async function getSubscriptionForUser(userId: string): Promise<Subscripti
     .where(eq(schema.subscriptions.userId, userId))
     .orderBy(desc(schema.subscriptions.updatedAt))
     .limit(1);
-  return (row as SubscriptionRow) ?? null;
+  return row ? (row as unknown as SubscriptionRow) : null;
+}
+
+/* Déblocages au titre du quota de la formule Atelier ---------- */
+
+export async function deblocagesDeLUtilisateur(
+  userId: string,
+): Promise<{ guideId: string; periodStart: Date }[]> {
+  if (!hasDatabase()) {
+    return store().unlocks.filter((u) => u.userId === userId);
+  }
+  const db = getDb();
+  return db
+    .select({
+      guideId: schema.guideUnlocks.guideId,
+      periodStart: schema.guideUnlocks.periodStart,
+    })
+    .from(schema.guideUnlocks)
+    .where(eq(schema.guideUnlocks.userId, userId));
+}
+
+export async function compterDeblocages(userId: string, depuis: Date): Promise<number> {
+  if (!hasDatabase()) {
+    return store().unlocks.filter((u) => u.userId === userId && u.periodStart >= depuis).length;
+  }
+  const db = getDb();
+  const [row] = await db
+    .select({ total: count() })
+    .from(schema.guideUnlocks)
+    .where(
+      and(eq(schema.guideUnlocks.userId, userId), gte(schema.guideUnlocks.periodStart, depuis)),
+    );
+  return Number(row?.total ?? 0);
+}
+
+export async function enregistrerDeblocage(
+  userId: string,
+  guideId: string,
+  periodStart: Date,
+): Promise<void> {
+  if (!hasDatabase()) {
+    const s = store();
+    if (!s.unlocks.some((u) => u.userId === userId && u.guideId === guideId)) {
+      s.unlocks.push({ userId, guideId, periodStart });
+    }
+    return;
+  }
+  const db = getDb();
+  await db
+    .insert(schema.guideUnlocks)
+    .values({ userId, guideId, periodStart })
+    .onConflictDoNothing({ target: [schema.guideUnlocks.userId, schema.guideUnlocks.guideId] });
 }
 
 export function isSubscriptionActive(sub: SubscriptionRow | null): boolean {
@@ -619,6 +670,8 @@ export async function upsertSubscription(input: {
   status: string;
   priceCents: number | null;
   currency?: string;
+  plan?: "atelier" | "integral";
+  interval?: "month" | "year";
   currentPeriodEnd: Date | null;
   cancelAtPeriodEnd: boolean;
 }): Promise<void> {
@@ -634,6 +687,8 @@ export async function upsertSubscription(input: {
         status: input.status,
         stripeSubscriptionId: input.stripeSubscriptionId,
         priceCents: input.priceCents,
+        plan: input.plan ?? existing.plan,
+        interval: input.interval ?? existing.interval,
         currentPeriodEnd: input.currentPeriodEnd,
         cancelAtPeriodEnd: input.cancelAtPeriodEnd,
       });
@@ -646,6 +701,8 @@ export async function upsertSubscription(input: {
       stripeSubscriptionId: input.stripeSubscriptionId,
       priceCents: input.priceCents,
       currency: input.currency ?? "EUR",
+      plan: input.plan ?? "atelier",
+      interval: input.interval ?? "month",
       currentPeriodEnd: input.currentPeriodEnd,
       cancelAtPeriodEnd: input.cancelAtPeriodEnd,
     });
@@ -660,6 +717,8 @@ export async function upsertSubscription(input: {
     status: input.status,
     priceCents: input.priceCents,
     currency: input.currency ?? "EUR",
+    plan: input.plan ?? "atelier",
+    interval: input.interval ?? "month",
     currentPeriodEnd: input.currentPeriodEnd,
     cancelAtPeriodEnd: input.cancelAtPeriodEnd,
     updatedAt: new Date(),
@@ -693,7 +752,7 @@ export async function listSubscriptions(): Promise<(SubscriptionRow & { userEmai
     }));
   }
   const db = getDb();
-  const rows = await db
+  const rows = (await db
     .select({
       id: schema.subscriptions.id,
       userId: schema.subscriptions.userId,
@@ -701,6 +760,8 @@ export async function listSubscriptions(): Promise<(SubscriptionRow & { userEmai
       stripeSubscriptionId: schema.subscriptions.stripeSubscriptionId,
       priceCents: schema.subscriptions.priceCents,
       currency: schema.subscriptions.currency,
+      plan: schema.subscriptions.plan,
+      interval: schema.subscriptions.interval,
       currentPeriodEnd: schema.subscriptions.currentPeriodEnd,
       cancelAtPeriodEnd: schema.subscriptions.cancelAtPeriodEnd,
       userEmail: schema.users.email,
@@ -708,7 +769,7 @@ export async function listSubscriptions(): Promise<(SubscriptionRow & { userEmai
     .from(schema.subscriptions)
     .innerJoin(schema.users, eq(schema.subscriptions.userId, schema.users.id))
     .orderBy(desc(schema.subscriptions.updatedAt))
-    .limit(200);
+    .limit(200)) as unknown as (SubscriptionRow & { userEmail: string })[];
   return rows;
 }
 
@@ -825,4 +886,106 @@ export async function listCachedListings(partIds: string[]) {
         eq(schema.marketplaceListings.source, "manuel"),
       ),
     );
+}
+
+/* ────────────────────────────────────────────────────────────
+   RGPD — portabilité et effacement
+   ──────────────────────────────────────────────────────────── */
+
+export type ExportPersonnel = {
+  genere_le: string;
+  compte: {
+    identifiant: string;
+    email: string;
+    nom_affiche: string | null;
+    role: string;
+    identifiant_stripe: string | null;
+  };
+  achats: {
+    guide: string;
+    reference_calibre: string | null;
+    montant_eur: number;
+    date: string;
+  }[];
+  abonnement: {
+    formule: string;
+    periodicite: string;
+    statut: string;
+    fin_de_periode: string | null;
+    resiliation_programmee: boolean;
+  } | null;
+  guides_ouverts_par_abonnement: { guide: string; debut_de_periode: string }[];
+};
+
+/**
+ * Export de portabilité (RGPD, art. 20). Contient tout ce que le site
+ * conserve sur une personne — rien de plus : aucune donnée bancaire ne
+ * transite ni n'est stockée ici, elle reste chez Stripe.
+ */
+export async function exporterDonneesUtilisateur(user: AppUser): Promise<ExportPersonnel> {
+  const [achats, abonnement, deblocages, guides] = await Promise.all([
+    listPurchasesForUser(user.id),
+    getSubscriptionForUser(user.id),
+    deblocagesDeLUtilisateur(user.id),
+    listGuides(),
+  ]);
+
+  const titre = (guideId: string) => {
+    const g = guides.find((x) => x.id === guideId);
+    return g ? g.title : guideId;
+  };
+
+  return {
+    genere_le: new Date().toISOString(),
+    compte: {
+      identifiant: user.id,
+      email: user.email,
+      nom_affiche: user.displayName,
+      role: user.role,
+      identifiant_stripe: user.stripeCustomerId,
+    },
+    achats: achats.map((p) => ({
+      guide: titre(p.guideId),
+      reference_calibre: guides.find((g) => g.id === p.guideId)?.caliberReference ?? null,
+      montant_eur: p.amountCents / 100,
+      date: new Date(p.purchasedAt).toISOString(),
+    })),
+    abonnement: abonnement
+      ? {
+          formule: abonnement.plan,
+          periodicite: abonnement.interval,
+          statut: abonnement.status,
+          fin_de_periode: abonnement.currentPeriodEnd
+            ? new Date(abonnement.currentPeriodEnd).toISOString()
+            : null,
+          resiliation_programmee: abonnement.cancelAtPeriodEnd,
+        }
+      : null,
+    guides_ouverts_par_abonnement: deblocages.map((d) => ({
+      guide: titre(d.guideId),
+      debut_de_periode: new Date(d.periodStart).toISOString(),
+    })),
+  };
+}
+
+/**
+ * Effacement du compte (RGPD, art. 17).
+ *
+ * Les achats, abonnements et déblocages tombent en cascade : c'est voulu,
+ * l'accès aux guides disparaît avec le compte. Les pièces comptables, elles,
+ * vivent chez Stripe, où la conservation légale de dix ans s'applique — les
+ * effacer ici n'y changerait rien et n'est pas de notre ressort.
+ */
+export async function supprimerUtilisateur(userId: string): Promise<void> {
+  if (!hasDatabase()) {
+    const s = store();
+    s.users = s.users.filter((u) => u.id !== userId);
+    s.purchases = s.purchases.filter((p) => p.userId !== userId);
+    s.subscriptions = s.subscriptions.filter((sub) => sub.userId !== userId);
+    s.unlocks = s.unlocks.filter((u) => u.userId !== userId);
+    s.favorites = s.favorites.filter((f) => f.userId !== userId);
+    return;
+  }
+  const db = getDb();
+  await db.delete(schema.users).where(eq(schema.users.id, userId));
 }

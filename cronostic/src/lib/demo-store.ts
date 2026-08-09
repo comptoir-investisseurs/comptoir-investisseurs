@@ -23,6 +23,7 @@ type Store = {
   users: AppUser[];
   purchases: PurchaseRow[];
   subscriptions: SubscriptionRow[];
+  unlocks: { userId: string; guideId: string; periodStart: Date }[];
   favorites: { userId: string; entityType: string; entityId: string }[];
 };
 
@@ -63,6 +64,7 @@ export function store(): Store {
       users: [],
       purchases: [],
       subscriptions: [],
+      unlocks: [],
       favorites: [],
     };
   }

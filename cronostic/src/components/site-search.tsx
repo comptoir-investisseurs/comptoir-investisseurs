@@ -4,19 +4,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 
-import type { CaliberSummary } from "@/lib/types";
+import { chercher, libelle, type EntreeIndex } from "@/lib/search";
 
 /**
- * Moteur de recherche par calibre. Le catalogue de lancement tient
- * intégralement en mémoire : le filtrage est instantané, sans aller-retour
- * serveur, ce qui est exactement le comportement attendu à l'établi.
+ * Recherche transversale : calibres, guides, fournitures, consommables,
+ * outillage et pages. L'index arrive du serveur et le filtrage se fait ici,
+ * sans aller-retour : la réponse est instantanée sous les doigts.
  */
-export function CaliberSearch({
-  calibers,
+export function SiteSearch({
+  index,
   size = "large",
+  placeholder = "265, roue de centre, 9010, chronographe...",
 }: {
-  calibers: CaliberSummary[];
+  index: EntreeIndex[];
   size?: "large" | "compact";
+  placeholder?: string;
 }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -24,29 +26,19 @@ export function CaliberSearch({
   const router = useRouter();
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    const normalized = q.replace(/^(omega|cal(ibre)?)\s+/i, "");
-    return calibers
-      .filter((c) => {
-        const haystack = [c.reference, c.name, c.slug, c.familyName ?? ""].join(" ").toLowerCase();
-        return haystack.includes(normalized) || haystack.includes(q);
-      })
-      .slice(0, 8);
-  }, [calibers, query]);
+  const results = useMemo(() => chercher(index, query), [index, query]);
 
-  function go(index: number) {
-    const target = results[index];
-    if (target) router.push(`/calibres/${target.slug}`);
+  function go(i: number) {
+    const cible = results[i];
+    if (cible) router.push(cible.href);
   }
 
   const isLarge = size === "large";
 
   return (
     <div className="relative w-full">
-      <label htmlFor="recherche-calibre" className="sr-only">
-        Quel calibre recherchez-vous ?
+      <label htmlFor="recherche-site" className="sr-only">
+        Que recherchez-vous ?
       </label>
       <div
         className={`flex items-center gap-3 border border-gris-trait bg-papier transition-colors focus-within:border-laiton ${
@@ -65,7 +57,7 @@ export function CaliberSearch({
           <path d="M13.25 13.25L17.5 17.5" stroke="currentColor" strokeWidth="1.4" />
         </svg>
         <input
-          id="recherche-calibre"
+          id="recherche-site"
           type="search"
           autoComplete="off"
           value={query}
@@ -92,8 +84,8 @@ export function CaliberSearch({
               setOpen(false);
             }
           }}
-          placeholder="30T2, 265, 266, 267..."
-          aria-label="Quel calibre recherchez-vous ?"
+          placeholder={placeholder}
+          aria-label="Que recherchez-vous ?"
           className={`w-full bg-transparent text-encre outline-none ${
             isLarge ? "text-etape" : "text-legende"
           }`}
@@ -113,16 +105,17 @@ export function CaliberSearch({
       </div>
 
       {open && query.trim() !== "" && (
-        <ul className="absolute inset-x-0 top-full z-40 mt-2 max-h-80 overflow-auto border border-gris-trait bg-white">
+        <ul className="absolute inset-x-0 top-full z-40 mt-2 max-h-96 overflow-auto border border-gris-trait bg-white">
           {results.length === 0 && (
             <li className="px-5 py-4 text-legende text-encre/55">
-              Aucun calibre ne correspond à « {query} » dans le catalogue actuel.
+              Rien ne correspond à « {query} » — ni calibre, ni fourniture, ni consommable au
+              catalogue actuel.
             </li>
           )}
-          {results.map((c, i) => (
-            <li key={c.slug}>
+          {results.map((r, i) => (
+            <li key={`${r.type}-${r.href}-${r.titre}`}>
               <Link
-                href={`/calibres/${c.slug}`}
+                href={r.href}
                 onMouseEnter={() => setHighlight(i)}
                 onClick={() => {
                   if (blurTimer.current) clearTimeout(blurTimer.current);
@@ -131,10 +124,13 @@ export function CaliberSearch({
                   i === highlight ? "bg-papier" : ""
                 }`}
               >
-                <span className="font-titre text-etape text-encre">{c.reference}</span>
-                <span className="truncate text-legende text-encre/72">{c.name}</span>
-                {c.introducedYear && (
-                  <span className="ml-auto text-legende text-encre/55">{c.introducedYear}</span>
+                <span className="surtitre w-24 shrink-0 text-encre/45">{libelle(r.type)}</span>
+                <span className="font-titre text-etape text-encre">{r.titre}</span>
+                <span className="truncate text-legende text-encre/72">{r.sous_titre}</span>
+                {r.detail && (
+                  <span className="ml-auto shrink-0 font-technique text-legende not-italic text-encre/55">
+                    {r.detail}
+                  </span>
                 )}
               </Link>
             </li>

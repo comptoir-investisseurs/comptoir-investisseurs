@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { EB_Garamond, Jost } from "next/font/google";
 import localFont from "next/font/local";
 
+import { Mesure } from "@/components/mesure";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { hasClerk, siteUrl } from "@/lib/env";
@@ -73,6 +74,7 @@ function Shell({ children }: { children: React.ReactNode }) {
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </div>
+        <Mesure />
       </body>
     </html>
   );

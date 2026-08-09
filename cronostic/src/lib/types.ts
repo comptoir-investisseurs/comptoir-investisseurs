@@ -105,6 +105,8 @@ export type PurchaseRow = {
   purchasedAt: Date;
 };
 
+export type PlanAbonnement = "atelier" | "integral";
+
 export type SubscriptionRow = {
   id: string;
   userId: string;
@@ -112,12 +114,19 @@ export type SubscriptionRow = {
   stripeSubscriptionId: string | null;
   priceCents: number | null;
   currency: string;
+  plan: PlanAbonnement;
+  interval: "month" | "year";
   currentPeriodEnd: Date | null;
   cancelAtPeriodEnd: boolean;
 };
 
 export type GuideAccess = {
+  /** Acheté à l'unité : définitif. */
   owned: boolean;
+  /** Ouvert par l'abonnement — quota déjà consommé, ou formule intégrale. */
   viaSubscription: boolean;
   canDownload: boolean;
+  /** Formule Atelier : le guide peut être ouvert en consommant un crédit. */
+  deblocablePar: "quota" | null;
+  creditsRestants: number | null;
 };

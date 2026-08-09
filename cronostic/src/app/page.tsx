@@ -1,18 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { CaliberSearch } from "@/components/caliber-search";
+import { SiteSearch } from "@/components/site-search";
 import { GuideCover } from "@/components/guide-cover";
 import { GUIDE_HIGHLIGHTS } from "@/data/catalog";
-import { proPriceCents } from "@/lib/env";
+import { TARIFS } from "@/lib/env";
 import { formatPrice } from "@/lib/format";
 import { heroPhoto } from "@/lib/photos";
 import { listCalibers, listGuides } from "@/lib/repo";
+import { indexDeRecherche } from "@/lib/search-index";
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [calibers, guides] = await Promise.all([listCalibers(), listGuides({ activeOnly: true })]);
+  const [calibers, guides, index] = await Promise.all([
+    listCalibers(),
+    listGuides({ activeOnly: true }),
+    indexDeRecherche(),
+  ]);
   const vitrine = guides.slice(0, 4);
   const hero = heroPhoto();
 
@@ -60,9 +65,9 @@ export default async function HomePage() {
 
             <div className="mt-8">
               <p className="mb-2 text-legende not-italic text-encre/60">
-                Quel calibre recherchez-vous&nbsp;?
+                Que recherchez-vous&nbsp;? Calibre, fourniture, huile, guide.
               </p>
-              <CaliberSearch calibers={calibers} />
+              <SiteSearch index={index} />
             </div>
           </div>
         </div>
@@ -233,7 +238,7 @@ export default async function HomePage() {
               dès leur publication, et au téléchargement des PDF.
             </p>
             <p className="titre mt-6 text-section">
-              {formatPrice(proPriceCents())}
+              {formatPrice(TARIFS.atelier.mois())}
               <span className="ml-1 text-legende not-italic text-encre/60">par mois</span>
             </p>
             <Link href="/pro" className="bouton mt-6">

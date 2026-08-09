@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser, signInPath } from "@/lib/auth";
 import { ajouterAuPanier, lirePanier, retirerDuPanier, viderPanier } from "@/lib/cart";
-import { proAnnualPriceCents, proPriceCents, siteUrl } from "@/lib/env";
+import { prixAbonnement, siteUrl, stripePriceId } from "@/lib/env";
 import {
   getGuideById,
   getSubscriptionForUser,
@@ -13,6 +13,7 @@ import {
   setUserStripeCustomer,
   upsertSubscription,
 } from "@/lib/repo";
+import { courrielAbonnement, courrielAchat } from "@/lib/mail";
 import { hasStripe, stripe } from "@/lib/stripe";
 
 /* ────────────────────────────────────────────────────────────
@@ -38,6 +39,16 @@ export async function retirerDuPanierAction(formData: FormData) {
    Achat — un guide seul, ou le panier entier
    ──────────────────────────────────────────────────────────── */
 
+/**
+ * La renonciation au droit de rétractation est revérifiée ici : la case
+ * `required` du formulaire ne prouve rien, un formulaire se rejoue. Sans elle,
+ * la commande est refusée — c'est la condition posée par l'article
+ * L. 221-28, 13° pour livrer un contenu numérique sans délai.
+ */
+function renonciationDonnee(formData: FormData | undefined): boolean {
+  return String(formData?.get("renonciation") ?? "") === "oui";
+}
+
 export async function startGuideCheckout(formData: FormData) {
   const guideId = String(formData.get("guideId") ?? "");
   const guide = await getGuideById(guideId);
@@ -46,12 +57,18 @@ export async function startGuideCheckout(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect(signInPath(`/purchase/guide/${guideId}`));
 
+  if (!renonciationDonnee(formData)) {
+    redirect(`/purchase/guide/${guideId}?erreur=renonciation`);
+  }
+
   await payer(user, [guide], `/calibres/${guide.caliberSlug}#guide`);
 }
 
-export async function payerLePanier() {
+export async function payerLePanier(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) redirect(signInPath("/panier"));
+
+  if (!renonciationDonnee(formData)) redirect("/panier?erreur=renonciation");
 
   const panier = await lirePanier(user);
   if (panier.lignes.length === 0) redirect("/panier");
@@ -82,6 +99,7 @@ async function payer(
         currency: guide.currency,
       });
     }
+    await courrielAchat(user.email, lignes, total);
     await viderPanier();
     revalidatePath("/account/guides");
     redirect(
@@ -116,12 +134,13 @@ async function payer(
         },
       },
     })),
+    // Stripe émet et archive la facture : un professionnel en a besoin.
+    invoice_creation: { enabled: true },
     success_url: `${siteUrl()}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${siteUrl()}${annulation}`,
     locale: "fr",
   });
 
-  void total;
   redirect(session.url!);
 }
 
@@ -130,15 +149,19 @@ async function payer(
    ──────────────────────────────────────────────────────────── */
 
 export async function startProCheckout(formData?: FormData) {
-  const annuel = String(formData?.get("periode") ?? "mensuel") === "annuel";
+  const plan = String(formData?.get("plan") ?? "atelier") === "integral" ? "integral" : "atelier";
+  const interval = String(formData?.get("periode") ?? "mensuel") === "annuel" ? "year" : "month";
+
   const user = await getCurrentUser();
   if (!user) redirect(signInPath("/pro"));
 
-  const prix = annuel ? proAnnualPriceCents() : proPriceCents();
+  if (!renonciationDonnee(formData)) redirect("/pro?erreur=renonciation");
+
+  const prix = prixAbonnement(plan, interval);
 
   if (!hasStripe) {
     const fin = new Date();
-    if (annuel) fin.setFullYear(fin.getFullYear() + 1);
+    if (interval === "year") fin.setFullYear(fin.getFullYear() + 1);
     else fin.setMonth(fin.getMonth() + 1);
     await upsertSubscription({
       userId: user.id,
@@ -146,24 +169,25 @@ export async function startProCheckout(formData?: FormData) {
       stripeCustomerId: null,
       status: "active",
       priceCents: prix,
+      plan,
+      interval,
       currentPeriodEnd: fin,
       cancelAtPeriodEnd: false,
     });
+    await courrielAbonnement(user.email, plan, interval);
     revalidatePath("/account/guides");
     redirect("/pro?simule=1");
   }
 
   const customerId = await ensureStripeCustomer(user.id, user.email, user.stripeCustomerId);
-  const priceId = annuel
-    ? process.env.STRIPE_PRO_ANNUAL_PRICE_ID
-    : process.env.STRIPE_PRO_PRICE_ID;
+  const priceId = stripePriceId(plan, interval);
 
   const session = await stripe().checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
     client_reference_id: user.id,
-    metadata: { userId: user.id, kind: "subscription" },
-    subscription_data: { metadata: { userId: user.id } },
+    metadata: { userId: user.id, kind: "subscription", plan, interval },
+    subscription_data: { metadata: { userId: user.id, plan, interval } },
     line_items: [
       priceId
         ? { price: priceId, quantity: 1 }
@@ -172,8 +196,12 @@ export async function startProCheckout(formData?: FormData) {
             price_data: {
               currency: "eur",
               unit_amount: prix,
-              recurring: { interval: annuel ? "year" : "month" },
-              product_data: { name: `Cronostic Pro — ${annuel ? "annuel" : "mensuel"}` },
+              recurring: { interval },
+              product_data: {
+                name: `Cronostic ${plan === "integral" ? "Intégrale" : "Atelier"} — ${
+                  interval === "year" ? "annuel" : "mensuel"
+                }`,
+              },
             },
           },
     ],

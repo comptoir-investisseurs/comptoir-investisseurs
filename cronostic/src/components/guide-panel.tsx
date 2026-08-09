@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ajouterAuPanierAction, startGuideCheckout } from "@/app/actions";
+import { ajouterAuPanierAction } from "@/app/actions";
 import { GUIDE_HIGHLIGHTS } from "@/data/catalog";
 import { formatPrice } from "@/lib/format";
 import type { GuideAccess, GuideRow } from "@/lib/types";
@@ -96,21 +96,20 @@ export function GuidePanel({
               </p>
 
               <div className="flex flex-wrap items-center gap-3">
-                {isSignedIn ? (
-                  <form action={startGuideCheckout}>
-                    <input type="hidden" name="guideId" value={guide.id} />
-                    <button type="submit" className="bouton">
-                      Acheter
-                    </button>
-                  </form>
-                ) : (
-                  <Link
-                    href={`/connexion?redirect=${encodeURIComponent(`/purchase/guide/${guide.id}`)}`}
-                    className="bouton"
-                  >
-                    Acheter
-                  </Link>
-                )}
+                {/* Un clic sur « Acheter » passe toujours par le récapitulatif :
+                    c'est là qu'est recueillie la renonciation au droit de
+                    rétractation, sans laquelle le fichier ne peut pas être
+                    remis immédiatement. */}
+                <Link
+                  href={
+                    isSignedIn
+                      ? `/purchase/guide/${guide.id}`
+                      : `/connexion?redirect=${encodeURIComponent(`/purchase/guide/${guide.id}`)}`
+                  }
+                  className="bouton"
+                >
+                  Acheter
+                </Link>
 
                 {/* Le panier n'exige pas de compte : on le remplit d'abord,
                     on se connecte au moment de payer. */}
@@ -137,13 +136,15 @@ export function GuidePanel({
             </div>
           )}
 
-          {guide.previewFileKey && !access.canDownload && (
-            <Link
+          {!access.canDownload && (
+            <a
               href={`/api/guides/${guide.id}/preview`}
+              target="_blank"
+              rel="noopener"
               className="lien-souligne mt-5 inline-block text-legende not-italic"
             >
-              Extrait
-            </Link>
+              Lire les premières pages
+            </a>
           )}
 
           <p className="mt-5 text-legende not-italic text-encre/60">

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CaliberSearch } from "@/components/caliber-search";
+import { SiteSearch } from "@/components/site-search";
 import { PageHeader } from "@/components/page-header";
 import { listCalibers } from "@/lib/repo";
+import { indexDeRecherche } from "@/lib/search-index";
 
 export const revalidate = 3600;
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CalibresPage() {
-  const calibers = await listCalibers();
+  const [calibers, index] = await Promise.all([listCalibers(), indexDeRecherche()]);
 
   return (
     <>
@@ -25,7 +26,7 @@ export default async function CalibresPage() {
         cle="calibres"
       >
         <div className="mt-8 max-w-xl">
-          <CaliberSearch calibers={calibers} size="compact" />
+          <SiteSearch index={index} size="compact" />
         </div>
       </PageHeader>
 

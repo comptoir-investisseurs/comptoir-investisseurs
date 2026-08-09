@@ -20,6 +20,8 @@
     "@clerk/nextjs": "^7.7.1",
     "drizzle-orm": "^0.45.2",
     "next": "^16.3.0",
+    "nodemailer": "^9.0.5",
+    "pdf-lib": "^1.17.1",
     "pg": "^8.22.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.2.0",
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.21.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",

@@ -67,7 +67,13 @@ export default async function CaliberPage({ params }: { params: Promise<{ slug: 
   const [user, guide] = await Promise.all([getCurrentUser(), getGuideForCaliber(caliber.id)]);
   const access = guide
     ? await guideAccessFor(user, guide)
-    : { owned: false, viaSubscription: false, canDownload: false };
+    : {
+        owned: false,
+        viaSubscription: false,
+        canDownload: false,
+        deblocablePar: null,
+        creditsRestants: null,
+      };
   const dansLePanier = guide ? await panierContient(guide.id) : false;
 
   const indicatives = caliber.specs.filter((s) => !s.isVerified).length;

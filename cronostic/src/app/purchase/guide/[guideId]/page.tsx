@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { startGuideCheckout } from "@/app/actions";
 import { GuideCover } from "@/components/guide-cover";
+import { Renonciation } from "@/components/renonciation";
 import { GUIDE_HIGHLIGHTS } from "@/data/catalog";
 import { requireUser } from "@/lib/auth";
 import { guideAccessFor } from "@/lib/entitlements";
@@ -23,10 +24,13 @@ export const dynamic = "force-dynamic";
  */
 export default async function PurchaseGuidePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ guideId: string }>;
+  searchParams: Promise<{ erreur?: string }>;
 }) {
   const { guideId } = await params;
+  const sp = await searchParams;
   const user = await requireUser(`/purchase/guide/${guideId}`);
   const guide = await getGuideById(guideId);
   if (!guide || !guide.isActive) notFound();
@@ -63,20 +67,24 @@ export default async function PurchaseGuidePage({
 
           <div className="filet my-7" />
 
-          <div className="flex flex-wrap items-center gap-6">
-            <span className="font-titre text-section text-encre">
-              {formatPrice(guide.priceCents, guide.currency)}
-            </span>
-            <form action={startGuideCheckout}>
-              <input type="hidden" name="guideId" value={guide.id} />
-              <button
-                type="submit"
-                className="bouton"
-              >
+          <form action={startGuideCheckout}>
+            <input type="hidden" name="guideId" value={guide.id} />
+            <Renonciation objet="guide" />
+            {sp.erreur === "renonciation" && (
+              <p className="mt-4 border-l-2 border-alerte bg-papier px-5 py-3 text-legende not-italic text-alerte">
+                La commande n&apos;a pas été passée : la renonciation au droit de rétractation doit
+                être cochée pour que le fichier soit mis à disposition immédiatement.
+              </p>
+            )}
+            <div className="mt-6 flex flex-wrap items-center gap-6">
+              <span className="font-titre text-section text-encre">
+                {formatPrice(guide.priceCents, guide.currency)}
+              </span>
+              <button type="submit" className="bouton">
                 Payer
               </button>
-            </form>
-          </div>
+            </div>
+          </form>
 
           {guide.includedInSubscription && (
             <p className="mt-5 text-legende text-encre/55">

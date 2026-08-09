@@ -9,6 +9,7 @@ import {
   setUserStripeCustomer,
   upsertSubscription,
 } from "@/lib/repo";
+import { courrielAbonnement, courrielAchat } from "@/lib/mail";
 import { hasStripe, stripe } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
@@ -111,9 +112,11 @@ async function handleGuidePayment(session: Stripe.Checkout.Session) {
   const user = await findUserById(userId);
   if (!user) return;
 
+  const achetes: { id: string; caliberReference: string }[] = [];
   for (const guideId of ids) {
     const guide = await getGuideById(guideId);
     if (!guide) continue;
+    achetes.push({ id: guide.id, caliberReference: guide.caliberReference });
     await recordPurchase({
       userId: user.id,
       guideId: guide.id,
@@ -127,6 +130,10 @@ async function handleGuidePayment(session: Stripe.Checkout.Session) {
       stripePaymentIntentId:
         typeof session.payment_intent === "string" ? session.payment_intent : null,
     });
+  }
+
+  if (achetes.length > 0) {
+    await courrielAchat(user.email, achetes, session.amount_total ?? 0);
   }
 }
 
@@ -155,7 +162,26 @@ async function handleSubscription(subscription: Stripe.Subscription, fallbackUse
     status: subscription.status,
     priceCents: item?.price?.unit_amount ?? null,
     currency: (item?.price?.currency ?? "eur").toUpperCase(),
+    plan: subscription.metadata?.plan === "integral" ? "integral" : "atelier",
+    interval: item?.price?.recurring?.interval === "year" ? "year" : "month",
     currentPeriodEnd: periodEnd ? new Date(periodEnd * 1000) : null,
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
   });
+
+  // Un seul message, à l'ouverture de l'abonnement : ni au renouvellement,
+  // ni à la résiliation.
+  if (subscription.status === "active" && subscription.metadata?.bienvenue !== "envoye") {
+    await courrielAbonnement(
+      user.email,
+      subscription.metadata?.plan === "integral" ? "integral" : "atelier",
+      item?.price?.recurring?.interval === "year" ? "year" : "month",
+    );
+    try {
+      await stripe().subscriptions.update(subscription.id, {
+        metadata: { ...subscription.metadata, bienvenue: "envoye" },
+      });
+    } catch {
+      // Sans marquage, un renouvellement peut renvoyer le message : sans gravité.
+    }
+  }
 }

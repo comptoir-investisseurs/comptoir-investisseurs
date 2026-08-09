@@ -40,12 +40,40 @@ export function adminEmails(): string[] {
     .filter(Boolean);
 }
 
-export function proPriceCents(): number {
-  const raw = Number(process.env.NEXT_PUBLIC_PRO_PRICE_CENTS);
-  return Number.isFinite(raw) && raw > 0 ? raw : 1990;
+function entier(valeur: string | undefined, defaut: number): number {
+  const raw = Number(valeur);
+  return Number.isFinite(raw) && raw > 0 ? raw : defaut;
 }
 
-export function proAnnualPriceCents(): number {
-  const raw = Number(process.env.NEXT_PUBLIC_PRO_ANNUAL_PRICE_CENTS);
-  return Number.isFinite(raw) && raw > 0 ? raw : 14900;
+/** Formule Atelier : quota de guides par période de facturation. */
+export function quotaAtelier(): number {
+  return entier(process.env.NEXT_PUBLIC_QUOTA_ATELIER, 5);
+}
+
+export const TARIFS = {
+  atelier: {
+    mois: () => entier(process.env.NEXT_PUBLIC_ATELIER_MENSUEL_CENTS, 1990),
+    an: () => entier(process.env.NEXT_PUBLIC_ATELIER_ANNUEL_CENTS, 19900),
+  },
+  integral: {
+    mois: () => entier(process.env.NEXT_PUBLIC_INTEGRAL_MENSUEL_CENTS, 2990),
+    an: () => entier(process.env.NEXT_PUBLIC_INTEGRAL_ANNUEL_CENTS, 29900),
+  },
+} as const;
+
+export function prixAbonnement(plan: "atelier" | "integral", interval: "month" | "year"): number {
+  return interval === "year" ? TARIFS[plan].an() : TARIFS[plan].mois();
+}
+
+/** Identifiant de prix Stripe correspondant, quand il est configuré. */
+export function stripePriceId(
+  plan: "atelier" | "integral",
+  interval: "month" | "year",
+): string | undefined {
+  const cle = `STRIPE_${plan.toUpperCase()}_${interval === "year" ? "ANNUEL" : "MENSUEL"}_PRICE_ID`;
+  return process.env[cle] || undefined;
+}
+
+export function contactEmail(): string {
+  return process.env.CONTACT_EMAIL ?? "cronostic.info@gmail.com";
 }

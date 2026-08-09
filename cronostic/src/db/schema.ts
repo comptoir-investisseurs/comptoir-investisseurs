@@ -1,5 +1,6 @@
 import {
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -116,7 +117,7 @@ export const guides = pgTable(
     title: text("title").notNull(),
     slug: text("slug").notNull().unique(),
     shortDescription: text("short_description"),
-    priceCents: integer("price_cents").notNull().default(2490),
+    priceCents: integer("price_cents").notNull().default(1490),
     currency: text("currency").notNull().default("EUR"),
     // Clé de l'objet dans le bucket privé — ex. premium/guides/omega-265.pdf
     r2FileKey: text("r2_file_key"),
@@ -170,6 +171,9 @@ export const subscriptions = pgTable(
     stripeSubscriptionId: text("stripe_subscription_id").unique(),
     stripeCustomerId: text("stripe_customer_id"),
     status: text("status").notNull(), // active | trialing | past_due | canceled | incomplete
+    // atelier : quota de guides par période. integral : accès à tout.
+    plan: text("plan").notNull().default("atelier"),
+    interval: text("interval").notNull().default("month"), // month | year
     priceCents: integer("price_cents"),
     currency: text("currency").notNull().default("EUR"),
     currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
@@ -178,6 +182,33 @@ export const subscriptions = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("subscriptions_user_idx").on(t.userId)],
+);
+
+/**
+ * Déblocage d'un guide au titre du quota de la formule Atelier.
+ *
+ * Un déblocage consomme un crédit de la période en cours et reste valable tant
+ * que l'abonnement est actif : l'abonné constitue sa bibliothèque, il ne
+ * repaie pas chaque mois ce qu'il a déjà ouvert.
+ */
+export const guideUnlocks = pgTable(
+  "guide_unlocks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    guideId: uuid("guide_id")
+      .notNull()
+      .references(() => guides.id, { onDelete: "cascade" }),
+    // Début de la période de facturation qui a porté ce déblocage.
+    periodStart: timestamp("period_start", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("guide_unlocks_user_guide_key").on(t.userId, t.guideId),
+    index("guide_unlocks_period_idx").on(t.userId, t.periodStart),
+  ],
 );
 
 /* ────────────────────────────────────────────────────────────
@@ -341,11 +372,44 @@ export const favorites = pgTable(
   (t) => [uniqueIndex("favorites_user_entity_key").on(t.userId, t.entityType, t.entityId)],
 );
 
+/* ────────────────────────────────────────────────────────────
+   Mesure d'audience — sans cookie, sans identifiant persistant
+   ──────────────────────────────────────────────────────────── */
+
+/** Compteur agrégé : une ligne par jour et par page. Rien d'individuel. */
+export const pageViews = pgTable(
+  "page_views",
+  {
+    day: date("day").notNull(),
+    path: text("path").notNull(),
+    views: integer("views").notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.day, t.path] }),
+    index("page_views_day_idx").on(t.day),
+  ],
+);
+
+/**
+ * Empreintes de visite. Le sel change chaque jour : une même personne n'est
+ * pas reconnaissable d'un jour sur l'autre, et l'empreinte n'est réversible
+ * ni vers l'adresse IP, ni vers le navigateur. Purgée au bout de 30 jours.
+ */
+export const visitFingerprints = pgTable(
+  "visit_fingerprints",
+  {
+    day: date("day").notNull(),
+    fingerprint: text("fingerprint").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.fingerprint] })],
+);
+
 export type User = typeof users.$inferSelect;
 export type Caliber = typeof calibers.$inferSelect;
 export type CaliberSpec = typeof caliberSpecs.$inferSelect;
 export type Guide = typeof guides.$inferSelect;
 export type Purchase = typeof purchases.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
+export type GuideUnlock = typeof guideUnlocks.$inferSelect;
 export type Part = typeof parts.$inferSelect;
 export type Lubricant = typeof lubricants.$inferSelect;
