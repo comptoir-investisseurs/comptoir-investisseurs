@@ -243,14 +243,137 @@ change rien.
 
 ---
 
+## Liste prête à coller
+
+Le champ **Domaines autorisés** n'accepte que des domaines, un par ligne :
+pas de commentaire, pas de ligne de titre — une ligne parasite est traitée
+comme un domaine et fait échouer la saisie. Le bloc ci-dessous est donc nu,
+dédoublonné, et les sous-domaines sont couverts par le joker plutôt
+qu'énumérés. Chaque domaine apparaît deux fois, nu puis en `*.` : le joker
+ne couvre que les sous-domaines, jamais le domaine lui-même.
+
+```
+ranfft.org
+*.ranfft.org
+ranfft.de
+*.ranfft.de
+calibercorner.com
+*.calibercorner.com
+emmywatch.com
+*.emmywatch.com
+17jewels.info
+*.17jewels.info
+moebius-lubricants.ch
+*.moebius-lubricants.ch
+eta.ch
+*.eta.ch
+archive.org
+*.archive.org
+cousinsuk.com
+*.cousinsuk.com
+ofrei.com
+*.ofrei.com
+jules-borel.com
+*.jules-borel.com
+boley.de
+*.boley.de
+hswalsh.com
+*.hswalsh.com
+perrinwatchparts.com
+*.perrinwatchparts.com
+esslinger.com
+*.esslinger.com
+sellita.ch
+*.sellita.ch
+swatchgroup.com
+*.swatchgroup.com
+ronda.ch
+*.ronda.ch
+soprod.ch
+*.soprod.ch
+lajouxperret.com
+*.lajouxperret.com
+miyotamovement.com
+*.miyotamovement.com
+timemodule.com
+*.timemodule.com
+sii.co.jp
+*.sii.co.jp
+citizenwatch-global.com
+*.citizenwatch-global.com
+seikowatches.com
+*.seikowatches.com
+orient-watch.com
+*.orient-watch.com
+omegawatches.com
+*.omegawatches.com
+rolex.com
+*.rolex.com
+tudorwatch.com
+*.tudorwatch.com
+nomos-glashuette.com
+*.nomos-glashuette.com
+oris.ch
+*.oris.ch
+drtillwich.com
+*.drtillwich.com
+klueber.com
+*.klueber.com
+wikipedia.org
+*.wikipedia.org
+wikimedia.org
+*.wikimedia.org
+wikidata.org
+*.wikidata.org
+watch-wiki.net
+*.watch-wiki.net
+watch-wiki.org
+*.watch-wiki.org
+mikrolisk.de
+*.mikrolisk.de
+nihs.ch
+*.nihs.ch
+fhs.swiss
+*.fhs.swiss
+watchguy.co.uk
+*.watchguy.co.uk
+speedmaster101.com
+*.speedmaster101.com
+chronomaddox.com
+*.chronomaddox.com
+adjustingvintagewatches.com
+*.adjustingvintagewatches.com
+omegaforums.net
+*.omegaforums.net
+nawcc.org
+*.nawcc.org
+watchuseek.com
+*.watchuseek.com
+thewatchsite.com
+*.thewatchsite.com
+ebay.com
+*.ebay.com
+ebay.fr
+*.ebay.fr
+ebay.co.uk
+*.ebay.co.uk
+ebay.de
+*.ebay.de
+ebayimg.com
+*.ebayimg.com
+```
+
 ## Si la liste doit être courte
 
 Six domaines couvrent l'essentiel :
 
 ```
 ranfft.org
+*.ranfft.org
 moebius-lubricants.ch
+*.moebius-lubricants.ch
 cousinsuk.com
+*.cousinsuk.com
 archive.org
 *.archive.org
 api.ebay.com
