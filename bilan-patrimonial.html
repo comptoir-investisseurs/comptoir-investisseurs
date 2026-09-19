@@ -17,20 +17,24 @@
      ÉCRAN 1 — ACCUEIL : nouveau bilan / reprendre / importer
      ====================================================================== -->
 <section id="bp-home" class="bp-home is-active">
-  <div class="bp-home__panel">
-    <img class="bp-home__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart">
-    <p class="eyebrow eyebrow--light">Outil conseiller · confidentiel</p>
-    <h1>Bilan <em>patrimonial</em></h1>
-    <p class="bp-home__sub">Conduite guidée de l'entretien de découverte, calculs automatiques et synthèse complète prête à remettre.</p>
-    <div class="bp-home__actions">
+  <div class="sl sl--cover">
+    <div class="cov__green"></div>
+    <div class="cov__wave cov__wave--l"></div><div class="cov__wave cov__wave--r"></div>
+    <div class="cov__plate"></div>
+    <img class="cov__photo" src="assets/img/escalier.jpg" alt="">
+    <div class="cov__vline"></div>
+    <img class="cov__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart">
+    <div class="cov__bar"></div>
+    <div class="cov__title">Gestion privée &amp;<br>placement de trésorerie</div>
+    <div class="cov__sub">Conseil sur mesure pour entrepreneurs, familles et dirigeants.</div>
+    <div class="cov__actions">
       <button type="button" class="bp-btn bp-btn--gold" id="bp-new">Nouveau bilan</button>
-      <button type="button" class="bp-btn bp-btn--ghost" id="bp-resume" hidden>Reprendre le bilan en cours</button>
-      <label class="bp-btn bp-btn--ghost bp-file">Importer un bilan (.json)<input type="file" id="bp-import" accept="application/json,.json"></label>
+      <button type="button" class="bp-tool" id="bp-resume" hidden>Reprendre</button>
+      <label class="bp-tool bp-file">Importer (.json)<input type="file" id="bp-import" accept="application/json,.json"></label>
     </div>
-    <p class="bp-home__note">Les données restent dans ce navigateur (aucun envoi). Exportez le fichier .json pour archiver ou transférer un dossier.</p>
-  </div>
-  <div class="bp-home__side">
-    <img src="assets/img/escalier.jpg" alt="">
+    <div class="cov__hline"></div>
+    <div class="cov__client">Bilan patrimonial — outil conseiller</div>
+    <div class="cov__note">Les données restent dans ce navigateur. Exportez le fichier .json pour archiver ou transférer un dossier.</div>
   </div>
 </section>
 

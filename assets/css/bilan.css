@@ -34,21 +34,15 @@
 .bp-tool:hover{ border-color:var(--gold); color:var(--gold-light); }
 
 /* =========================================================================
-   ACCUEIL
+   ACCUEIL — reprend la page de garde de la présentation commerciale
    ========================================================================= */
-.bp-home{ display:none; min-height:100vh; grid-template-columns:1.2fr .8fr; }
-.bp-home.is-active{ display:grid; }
-.bp-home__panel{ padding:clamp(40px,7vw,96px) clamp(28px,7vw,110px); display:flex; flex-direction:column; justify-content:center; }
-.bp-home__logo{ height:46px; width:auto; margin-bottom:56px; }
-.bp-home h1{ font-size:clamp(2.8rem,6vw,4.6rem); color:#fff; font-weight:500; }
-.bp-home h1 em{ font-style:italic; color:var(--gold-light); }
-.bp-home__sub{ font-family:var(--serif); font-style:italic; font-size:1.35rem; color:var(--gold-soft); margin:14px 0 36px; max-width:560px; }
-.bp-home__actions{ display:flex; flex-wrap:wrap; gap:14px; }
-.bp-home__note{ margin-top:40px; font-size:.8rem; color:rgba(246,242,233,.55); max-width:520px; }
-.bp-home__side{ position:relative; overflow:hidden; }
-.bp-home__side img{ width:100%; height:100%; object-fit:cover; }
-.bp-home__side::after{ content:""; position:absolute; inset:0; background:linear-gradient(90deg,var(--green) 0%,rgba(0,27,0,0) 45%); }
-@media (max-width:860px){ .bp-home{ grid-template-columns:1fr; } .bp-home__side{ display:none; } }
+.bp-home{ display:none; min-height:100vh; background:#fff; align-items:center; justify-content:center; padding:24px 12px; }
+.bp-home.is-active{ display:flex; }
+.bp-home .sl{ box-shadow:0 8px 34px rgba(0,0,0,.12); }
+.cov__actions{ position:absolute; left:55.7%; top:75.5%; display:flex; flex-wrap:wrap; gap:.6em; }
+.cov__actions .bp-btn{ font-size:.95em; padding:.7em 1.5em; }
+.cov__actions .bp-tool{ font-size:.8em; padding:.6em 1.3em; }
+.cov__note{ position:absolute; left:11.2%; bottom:6.5%; width:38%; font-size:.72em; color:rgba(252,249,239,.55); }
 
 /* =========================================================================
    ENTRETIEN GUIDÉ
@@ -179,18 +173,22 @@
 .sl .muted{ color:var(--bp-grey); }
 .sl-rule{ width:5.2em; height:2px; background:var(--gold); margin:.8em 0 1.4em; }
 
-/* couverture */
-.sl--cover{ background:var(--green); color:#fff; padding:0; }
+/* couverture — géométrie exacte de la diapositive 1 (13,33 × 7,5 in) */
+.sl--cover{ background:#fff; color:#fff; padding:0; }
 .sl--cover::before{ display:none; }
-.sl--cover .cov__frame{ position:absolute; inset:5.5% 4% 5.5% 4%; border:1px solid rgba(230,201,136,.45); }
-.sl--cover .cov__wave{ position:absolute; left:-4%; right:-4%; top:14%; width:108%; opacity:.9; pointer-events:none; }
-.sl--cover .cov__photo{ position:absolute; left:11%; top:27%; width:28%; aspect-ratio:330/360; object-fit:cover; box-shadow:0 10px 40px rgba(0,0,0,.35); }
-.sl--cover .cov__logo{ position:absolute; left:55%; top:29%; width:28%; }
-.sl--cover .cov__bar{ position:absolute; left:55%; top:49.5%; width:5.4%; height:2px; background:var(--gold); }
-.sl--cover .cov__title{ position:absolute; left:55%; top:53%; width:38%; font-family:var(--serif); font-weight:500; font-size:3.1em; line-height:1.05; color:#fff; }
-.sl--cover .cov__sub{ position:absolute; left:55%; top:71%; width:38%; font-family:var(--serif); font-style:italic; font-size:1.35em; color:var(--gold-soft); }
-.sl--cover .cov__client{ position:absolute; left:55%; bottom:9%; font-size:.95em; letter-spacing:.12em; text-transform:uppercase; color:rgba(246,242,233,.85); }
-.sl--cover .cov__conf{ position:absolute; left:11%; bottom:9%; font-size:.72em; letter-spacing:.2em; text-transform:uppercase; color:rgba(246,242,233,.5); }
+.sl--cover .cov__green{ position:absolute; left:3.83%; top:5.07%; width:92.33%; height:89.47%; background:var(--green); }
+.sl--cover .cov__wave{ position:absolute; background:url(../img/vague-or.webp) center/cover no-repeat; opacity:.2; filter:saturate(.66); pointer-events:none; }
+.sl--cover .cov__wave--l{ left:-.2%; top:10.5%; width:5.5%; height:81.8%; }
+.sl--cover .cov__wave--r{ left:95.1%; top:2.3%; width:4.9%; height:97.7%; }
+.sl--cover .cov__plate{ position:absolute; left:11.2%; top:25.9%; width:23.4%; height:39.2%; background:#FCF7EC; }
+.sl--cover .cov__photo{ position:absolute; left:15.2%; top:32.5%; width:27.7%; height:42.3%; object-fit:cover; object-position:100% 100%; }
+.sl--cover .cov__vline{ position:absolute; left:30.9%; top:13.5%; width:1px; height:73.2%; background:var(--gold); }
+.sl--cover .cov__logo{ position:absolute; left:54.3%; top:28.7%; width:28%; height:auto; }
+.sl--cover .cov__bar{ position:absolute; left:56%; top:49.1%; width:5%; height:1px; background:var(--gold); }
+.sl--cover .cov__title{ position:absolute; left:55.7%; top:55.3%; width:32%; font-family:var(--sans); font-weight:500; font-size:2em; line-height:1.2; color:#FBFBFB; white-space:nowrap; }
+.sl--cover .cov__sub{ position:absolute; left:55.7%; top:66.1%; width:23.5%; font-family:var(--sans); font-weight:500; font-size:1.05em; line-height:1.35; color:#FCF9EF; }
+.sl--cover .cov__hline{ position:absolute; left:89%; top:82.8%; width:4.4%; height:1px; background:var(--gold); }
+.sl--cover .cov__client{ position:absolute; right:5.8%; top:85.7%; width:35%; text-align:right; font-family:var(--sans); font-weight:500; font-size:1.05em; color:#FDFDFD; }
 
 /* intercalaire de section */
 .sl--divider{ background:var(--green); color:#fff; }

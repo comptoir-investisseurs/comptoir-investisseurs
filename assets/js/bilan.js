@@ -759,8 +759,9 @@
     save(); var R = compute(), S = state, L = insights(R); pageNo = 0; var H = '';
     var date = fmtDate(S.notes.date);
 
-    // 1. Couverture
-    H += slide('<div class="cov__frame"></div><img class="cov__wave" src="assets/img/vague-or.webp" alt=""><img class="cov__photo" src="assets/img/escalier.jpg" alt=""><img class="cov__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart"><div class="cov__bar"></div><div class="cov__title">Votre bilan<br>patrimonial</div><div class="cov__sub">Comprendre votre situation pour bâtir une stratégie sur mesure.</div><div class="cov__client">' + esc(clientLabel()) + ' — ' + esc(date) + '</div><div class="cov__conf">Confidentiel</div>', 'sl--cover');
+    // 1. Couverture — reprise à l'identique de la diapositive 1 de la présentation commerciale
+    var clientLine = (clientLabel() === 'Client' ? 'Madame & Monsieur XXX' : clientLabel()) + ' - ' + (S.notes.date ? date : 'Date');
+    H += slide('<div class="cov__green"></div><div class="cov__wave cov__wave--l"></div><div class="cov__wave cov__wave--r"></div><div class="cov__plate"></div><img class="cov__photo" src="assets/img/escalier.jpg" alt=""><div class="cov__vline"></div><img class="cov__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart"><div class="cov__bar"></div><div class="cov__title">Gestion privée &amp;<br>placement de trésorerie</div><div class="cov__sub">Conseil sur mesure pour entrepreneurs, familles et dirigeants.</div><div class="cov__hline"></div><div class="cov__client">' + esc(clientLine) + '</div>', 'sl--cover');
 
     // 2. Sommaire
     var toc = [['1', 'Votre situation familiale et professionnelle'], ['2', 'Vos revenus et votre fiscalité'], ['3', 'Votre patrimoine : actif et passif'], ['4', 'Analyse du patrimoine financier'], ['5', 'Votre immobilier'], ['6', 'Budget, endettement et capacité d\'épargne'], ['7', 'Vos objectifs et projets'], ['8', 'Synthèse et points d\'attention'], ['9', 'Vos mots, nos commentaires'], ['10', 'Informations importantes']];
@@ -889,5 +890,5 @@
   /* ---- démarrage ---- */
   state = blank();
   $('bp-resume').hidden = !load();
-  var j = load(); if (j && j.state) { /* pré-charge pour afficher le nom sur « Reprendre » */ var tmp = Object.assign(blank(), j.state); var sv = state; state = tmp; var lab = clientLabel(); state = sv; if (lab !== 'Client') $('bp-resume').textContent = 'Reprendre : ' + lab; }
+  var j = load(); if (j && j.state) { /* pré-charge pour afficher le nom sur « Reprendre » */ var tmp = Object.assign(blank(), j.state); var sv = state; state = tmp; var lab = clientLabel(); state = sv; if (lab !== 'Client') $('bp-resume').textContent = 'Reprendre (' + lab + ')'; }
 })();
