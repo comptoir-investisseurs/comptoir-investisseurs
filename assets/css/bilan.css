@@ -113,6 +113,7 @@
 .bp-field{ display:flex; flex-direction:column; }
 .bp-field--wide{ grid-column:1 / -1; }
 .bp-field label{ font-size:.76rem; letter-spacing:.03em; color:rgba(255,255,255,.72); margin-bottom:6px; }
+.bp-field label .opt{ font-style:normal; font-size:.66rem; color:rgba(255,255,255,.38); margin-left:4px; letter-spacing:.06em; }
 .bp-field input, .bp-field select, .bp-field textarea{
   width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06);
   color:#fff; font-family:var(--sans); font-size:1rem; font-weight:300; outline:none; transition:border-color .2s, box-shadow .2s;

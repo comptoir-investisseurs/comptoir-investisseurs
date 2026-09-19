@@ -69,7 +69,7 @@
 
   function blank() {
     return {
-      meta: { date: today(), conseiller: '' },
+      meta: {},
       dec: {},                              // découverte (verbatims)
       foyer: { situation: '', regime: '', enfants: 0, ages: '', parts: '' },
       lui: {}, elle: {},
@@ -82,7 +82,7 @@
       plac: [],
       budget: {},
       obj: { liste: [], echeances: {} },
-      notes: {}
+      notes: { date: today() }
     };
   }
   function today() { var d = new Date(); return d.toISOString().slice(0, 10); }
@@ -378,117 +378,94 @@
      ÉCRANS DE L'ENTRETIEN
      Types : open · choice · multi · fields · list
      ====================================================================== */
-  var CHAPTERS = ['Cadre', 'Découverte', 'État civil', 'Revenus & fiscalité', 'Immobilier', 'Financier', 'Budget', 'Objectifs', 'Notes'];
+  var CHAPTERS = ['Situation', 'Revenus', 'Immobilier', 'Financier', 'Budget', 'Objectifs', 'Notes'];
   var SIT = ['Célibataire', 'Marié(e)', 'Pacsé(e)', 'Concubinage', 'Divorcé(e)', 'Veuf(ve)'];
-  var REGIMES = ['Communauté réduite aux acquêts', 'Séparation de biens', 'Communauté universelle', 'Participation aux acquêts', 'PACS — séparation (par défaut)', 'PACS — indivision', 'Non concerné'];
+  var REGIMES = ['Communauté réduite aux acquêts', 'Séparation de biens', 'Communauté universelle', 'Participation aux acquêts', 'PACS — séparation (par défaut)', 'PACS — indivision', 'Ne sait pas'];
   var STATUTS_PRO = ['Salarié(e)', 'Cadre dirigeant salarié', 'Dirigeant TNS', 'Profession libérale', 'Indépendant / auto-entrepreneur', 'Fonctionnaire', 'Retraité(e)', 'Sans activité'];
   var BIEN_TYPES = ['Appartement', 'Maison', 'Immeuble', 'Local commercial / bureaux', 'Parking / box', 'Terrain', 'Parts de SCI'];
   var BIEN_STATUTS = ['Nu (revenus fonciers)', 'LMNP', 'LMP', 'SCI à l\'IR', 'SCI à l\'IS', 'Dispositif fiscal (Pinel, Denormandie, Malraux…)', 'Résidence secondaire (jouissance)', 'Mis à disposition (famille)', 'Vacant'];
-  var PROPRIO = ['Monsieur', 'Madame', 'Les deux', 'SCI', 'Indivision', 'Démembré'];
 
-  function creditFields(prefix) {
+  function creditFields() {
     return [
-      { k: 'capital', l: 'Capital emprunté', t: 'number', u: '€' }, { k: 'mensualite', l: 'Mensualité (assurance incl.)', t: 'number', u: '€ / mois — laissez vide pour calculer' },
-      { k: 'debut', l: 'Début', t: 'month' }, { k: 'duree', l: 'Durée', t: 'number', u: 'années' }, { k: 'taux', l: 'Taux', t: 'number', u: '% (ex. 1,8)' }, { k: 'crd', l: 'Capital restant dû (si connu)', t: 'number', u: '€ — sinon calculé' }
+      { k: 'capital', l: 'Capital emprunté', t: 'number', u: '€' }, { k: 'mensualite', l: 'Mensualité', t: 'number', u: '€ / mois', opt: true },
+      { k: 'debut', l: 'Début', t: 'month', opt: true }, { k: 'duree', l: 'Durée', t: 'number', u: 'années', opt: true }, { k: 'taux', l: 'Taux', t: 'number', u: '% (ex. 1,8)', opt: true }, { k: 'crd', l: 'Capital restant dû', t: 'number', u: '€ — sinon calculé', opt: true }
     ];
   }
-  function personScreens(k, label) {
+  function personScreen(k, label) {
     var isElle = k === 'elle';
-    return [
-      { ch: 2, when: function () { return !isElle || isCouple(); }, type: 'fields', title: 'État civil — ' + label, hint: 'Identité et coordonnées.', path: k, fields: [
+    return { ch: 0, when: function () { return !isElle || isCouple(); }, type: 'fields', title: label, hint: 'Identité, activité et revenus annuels. Le net est estimé à 78 % du brut si laissé vide.', path: k,
+      calc: function (R) { var p = R.pers[k]; return [['Net retenu', eur(p.net)], ['Après abattement 10 %', eur(p.apresAbat)]]; },
+      fields: [
         { k: 'civilite', l: 'Civilité', t: 'select', o: ['Monsieur', 'Madame'] }, { k: 'nom', l: 'Nom' }, { k: 'prenom', l: 'Prénom' },
-        { k: 'naissance', l: 'Date de naissance', t: 'date' }, { k: 'tel', l: 'Téléphone', t: 'tel' }, { k: 'email', l: 'Email', t: 'email' }
-      ] },
-      { ch: 3, when: function () { return !isElle || isCouple(); }, type: 'fields', title: 'Activité professionnelle — ' + label, script: isElle ? '' : 'Alors, qu\'est-ce que vous faites dans la vie ? 😊', hint: 'Profession, entreprise, ancienneté, perspectives.', path: k, fields: [
-        { k: 'profession', l: 'Profession' }, { k: 'entreprise', l: 'Entreprise / employeur' }, { k: 'statut', l: 'Statut', t: 'select', o: STATUTS_PRO },
-        { k: 'anciennete', l: 'Ancienneté' }, { k: 'evolution', l: 'Évolution salariale attendue / an', u: 'ex. +3 %' },
-        { k: 'depart', l: 'Velléités de départ ?', t: 'select', o: ['Non', 'Oui, à court terme', 'Oui, à moyen terme', 'Peut-être'] }, { k: 'departComment', l: 'Précisions', w: true }
-      ] },
-      { ch: 3, when: function () { return !isElle || isCouple(); }, type: 'fields', title: 'Revenus — ' + label, hint: 'Montants annuels. Le net est estimé à 78 % du brut si laissé vide.', path: k, calc: function (R) { var p = R.pers[k]; return [['Total brut', eur(p.brut)], ['Net (retenu)', eur(p.net)], ['Après abattement 10 %', eur(p.apresAbat)]]; }, fields: [
-        { k: 'fixes', l: 'Revenus fixes bruts', t: 'number', u: '€ / an' }, { k: 'variables', l: 'Revenus variables bruts réguliers', t: 'number', u: '€ / an (primes, bonus)' },
-        { k: 'net', l: 'Revenus nets imposables', t: 'number', u: '€ / an — vide = 78 % du brut' }, { k: 'divers', l: 'Autres revenus imposables', t: 'number', u: '€ / an (BNC/BIC, pensions, dividendes)' }
-      ] }
-    ];
+        { k: 'naissance', l: 'Date de naissance', t: 'date' }, { k: 'tel', l: 'Téléphone', t: 'tel', opt: true }, { k: 'email', l: 'Email', t: 'email', opt: true },
+        { k: 'profession', l: 'Profession' }, { k: 'statut', l: 'Statut', t: 'select', o: STATUTS_PRO }, { k: 'entreprise', l: 'Entreprise / employeur', opt: true },
+        { k: 'fixes', l: 'Revenus fixes bruts', t: 'number', u: '€ / an' }, { k: 'variables', l: 'Revenus variables bruts', t: 'number', u: '€ / an', opt: true },
+        { k: 'net', l: 'Revenus nets imposables', t: 'number', u: '€ / an — vide = 78 % du brut', opt: true }, { k: 'divers', l: 'Autres revenus (BNC/BIC, pensions, dividendes)', t: 'number', u: '€ / an', opt: true },
+        { k: 'depart', l: 'Changement professionnel envisagé ?', t: 'select', o: ['Non', 'Oui, à court terme', 'Oui, à moyen terme', 'Peut-être'], opt: true }
+      ] };
   }
 
   var SCREENS = [
-    { ch: 0, type: 'fields', title: 'Cadre de l\'entretien', hint: 'Date du rendez-vous et conseiller.', path: 'meta', fields: [{ k: 'date', l: 'Date', t: 'date' }, { k: 'conseiller', l: 'Conseiller' }, { k: 'lieu', l: 'Lieu / format', u: 'cabinet, visio, domicile…' }] },
-    { ch: 1, type: 'choice', title: 'Avez-vous déjà fait cet exercice de bilan patrimonial ?', path: 'dec.dejaFait', options: ['Non, jamais', 'Oui, avec ma banque', 'Oui, avec un conseiller indépendant', 'Oui, seul(e)'], grid: true },
-    { ch: 1, type: 'open', title: 'Pourquoi avoir accepté ce rendez-vous ?', script: 'Laissez parler. Notez les mots exacts : ils reviendront dans la synthèse.', path: 'dec.pourquoiRdv' },
-    { ch: 1, type: 'open', title: 'Pourquoi est-ce important pour vous d\'atteindre ces objectifs ?', script: 'Cherchez l\'émotion derrière l\'objectif (sécurité, liberté, famille, reconnaissance…).', path: 'dec.importance' },
-    { ch: 1, type: 'open', title: 'Reformulation', script: '« Ok John, si je comprends bien, vous voulez … pour … , mais vous n\'avez aucune idée de comment faire, c\'est bien ça ? »', hint: 'Notez la reformulation validée par le client.', path: 'dec.reformulation' },
-    { ch: 1, type: 'open', title: 'Depuis combien de temps essayez-vous de faire cela ?', path: 'dec.depuis' },
-    { ch: 1, type: 'open', title: 'Qu\'avez-vous déjà essayé de faire ?', script: 'Ce qui a été tenté, ce qui a échoué, et pourquoi selon lui.', path: 'dec.essaye' },
-
-    { ch: 2, type: 'choice', title: 'Situation familiale', path: 'foyer.situation', options: SIT, grid: true },
-    { ch: 2, when: function () { return ['Marié(e)', 'Pacsé(e)'].indexOf(state.foyer.situation) >= 0; }, type: 'choice', title: 'Régime matrimonial', path: 'foyer.regime', options: REGIMES, grid: true },
-    { ch: 2, type: 'fields', title: 'Enfants et foyer fiscal', hint: 'Nombre de parts proposé automatiquement (modifiable).', path: 'foyer', calc: function () { return [['Parts suggérées', String(suggestedParts()).replace('.', ',')]]; }, fields: [
-      { k: 'enfants', l: 'Nombre d\'enfants à charge', t: 'number' }, { k: 'ages', l: 'Âges des enfants', u: 'ex. 4, 7 et 12 ans' }, { k: 'parts', l: 'Nombre de parts fiscales', t: 'number', u: 'vide = valeur suggérée' }, { k: 'adresse', l: 'Adresse du foyer', w: true }
-    ] }
-  ].concat(personScreens('lui', 'Monsieur'), personScreens('elle', 'Madame'), [
-    { ch: 3, type: 'fields', title: 'Fiscalité du foyer', hint: 'L\'impôt est estimé par le barème ; saisissez le montant réel si vous l\'avez.', path: 'fisc', calc: function (R) { return [['Revenu imposable global', eur(R.fisc.rni)], ['TMI', pc(R.fisc.tmi, 0)], ['Impôt estimé', eur(R.fisc.impot)], ['Impôt retenu', eur(R.fisc.impotRetenu)]]; }, fields: [
-      { k: 'impotPaye', l: 'Impôt payé l\'an dernier (avis d\'imposition)', t: 'number', u: '€' }, { k: 'reductions', l: 'Réductions / crédits d\'impôt existants', t: 'number', u: '€ / an (dons, dispositifs…)' },
-      { k: 'pensionVersee', l: 'Pension alimentaire versée', t: 'number', u: '€ / an (déductible)' }, { k: 'gardeDomicile', l: 'Garde à domicile / emploi à domicile', t: 'number', u: '€ / an' },
-      { k: 'gardeExt', l: 'Frais de garde extérieurs (< 6 ans)', t: 'number', u: '€ / an' }, { k: 'menage', l: 'Femme / homme de ménage', t: 'number', u: '€ / an' }, { k: 'ifi', l: 'Assujetti à l\'IFI ?', t: 'select', o: ['Non', 'Oui', 'Ne sait pas'] }
+    { ch: 0, type: 'choice', title: 'Situation familiale', path: 'foyer.situation', options: SIT, grid: true },
+    { ch: 0, when: function () { return ['Marié(e)', 'Pacsé(e)'].indexOf(state.foyer.situation) >= 0; }, type: 'choice', title: 'Régime matrimonial', path: 'foyer.regime', options: REGIMES, grid: true },
+    personScreen('lui', 'Monsieur'), personScreen('elle', 'Madame'),
+    { ch: 0, type: 'fields', title: 'Enfants et foyer', hint: 'Le nombre de parts est proposé automatiquement.', path: 'foyer', calc: function () { return [['Parts suggérées', String(suggestedParts()).replace('.', ',')]]; }, fields: [
+      { k: 'enfants', l: 'Nombre d\'enfants à charge', t: 'number' }, { k: 'ages', l: 'Âges des enfants', u: 'ex. 4, 7 et 12 ans', opt: true }, { k: 'parts', l: 'Nombre de parts fiscales', t: 'number', u: 'vide = valeur suggérée', opt: true }, { k: 'adresse', l: 'Adresse', w: true, opt: true }
     ] },
 
-    { ch: 4, type: 'choice', title: 'Résidence principale', path: 'rp.statut', options: ['Locataire', 'Propriétaire', 'Logé(e) à titre gratuit'], grid: true },
-    { ch: 4, when: function () { return state.rp.statut === 'Locataire'; }, type: 'fields', title: 'Votre location', path: 'rp', fields: [{ k: 'loyer', l: 'Loyer mensuel (charges comprises)', t: 'number', u: '€ / mois' }, { k: 'adresse', l: 'Adresse', w: true }, { k: 'type', l: 'Type' }, { k: 'surface', l: 'Surface', u: 'm²' }] },
-    { ch: 4, when: function () { return state.rp.statut === 'Propriétaire'; }, type: 'fields', title: 'Votre résidence principale', path: 'rp', fields: [
-      { k: 'adresse', l: 'Adresse', w: true }, { k: 'type', l: 'Type', t: 'select', o: BIEN_TYPES }, { k: 'surface', l: 'Surface', u: 'm²' }, { k: 'proprietaire', l: 'Propriétaire', t: 'select', o: PROPRIO },
-      { k: 'valeur', l: 'Valeur estimée', t: 'number', u: '€' }, { k: 'achat', l: 'Valeur d\'achat', t: 'number', u: '€' }, { k: 'dateAchat', l: 'Date d\'achat', t: 'month' }
+    { ch: 1, type: 'fields', title: 'Impôt du foyer', hint: 'L\'impôt est estimé par le barème ; le montant réel de l\'avis d\'imposition prime s\'il est saisi.', path: 'fisc', calc: function (R) { return [['Revenu imposable global', eur(R.fisc.rni)], ['TMI', pc(R.fisc.tmi, 0)], ['Impôt estimé', eur(R.fisc.impot)]]; }, fields: [
+      { k: 'impotPaye', l: 'Impôt payé l\'an dernier', t: 'number', u: '€ (avis d\'imposition)', opt: true }, { k: 'reductions', l: 'Réductions et crédits d\'impôt en place', t: 'number', u: '€ / an (dispositifs, dons, emploi à domicile…)', opt: true },
+      { k: 'pensionVersee', l: 'Pension alimentaire versée', t: 'number', u: '€ / an', opt: true }, { k: 'ifi', l: 'Assujetti à l\'IFI ?', t: 'select', o: ['Non', 'Oui', 'Ne sait pas'], opt: true }
     ] },
-    { ch: 4, when: function () { return state.rp.statut === 'Propriétaire'; }, type: 'list', title: 'Crédits sur la résidence principale', hint: 'Ajoutez chaque prêt (jusqu\'à 4). Mensualité et capital restant dû sont calculés si absents.', path: 'rp.credits', itemLabel: 'Prêt', fields: creditFields(), calcItem: function (c) { var i = creditInfo(c); return 'Mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd) + (i.fin ? ' · fin ' + i.fin : ''); } },
-    { ch: 4, type: 'list', title: 'Autres biens immobiliers', hint: 'Biens locatifs, résidence secondaire, parts de SCI… Un bloc par bien.', path: 'biens', itemLabel: 'Bien', fields: [
-      { k: 'proprietaire', l: 'Propriétaire', t: 'select', o: PROPRIO }, { k: 'localisation', l: 'Localisation' }, { k: 'type', l: 'Type', t: 'select', o: BIEN_TYPES }, { k: 'surface', l: 'Surface', u: 'm²' },
-      { k: 'valeur', l: 'Valeur estimée', t: 'number', u: '€' }, { k: 'achat', l: 'Valeur d\'achat', t: 'number', u: '€' }, { k: 'dateAchat', l: 'Date d\'achat', t: 'month' },
-      { k: 'loyer', l: 'Loyer net perçu', t: 'number', u: '€ / mois' }, { k: 'gestion', l: 'Sous gestion ?', t: 'select', o: ['Non', 'Oui (agence)'] }, { k: 'statut', l: 'Statut', t: 'select', o: BIEN_STATUTS }
-    ], sub: { path: 'credits', label: 'Crédits sur ce bien', fields: creditFields() }, calcItem: function (b) { var v = num(b.achat) || num(b.valeur); var r = v ? num(b.loyer) * 12 / v : 0; var m = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).mensualite; }, 0); var crd = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).crd; }, 0); return 'Rentabilité brute ' + pc(r) + ' · mensualités ' + eurM(m) + ' · CRD ' + eur(crd) + ' · cash-flow ' + eurM(num(b.loyer) - m); } },
-    { ch: 4, type: 'open', title: 'Que cherchez-vous à faire avec ces investissements immobiliers ?', script: '« C\'est bien, vous avez commencé — mais on va faire mieux, et je vous montrerai comment. »', path: 'dec.immoObjectif' },
-    { ch: 4, type: 'choice', title: 'Un projet d\'acquisition ou de changement de résidence principale ?', path: 'projet.echeance', options: ['Non', 'Moins d\'un an', '1 à 3 ans', 'Plus de 3 ans'], grid: true },
-    { ch: 4, when: function () { return state.projet.echeance && state.projet.echeance !== 'Non'; }, type: 'fields', title: 'Le projet', path: 'projet', fields: [
-      { k: 'type', l: 'Type de bien' }, { k: 'surfaceMin', l: 'Surface minimum', u: 'm²' }, { k: 'localisation', l: 'Localisation' }, { k: 'budget', l: 'Budget', t: 'number', u: '€' },
-      { k: 'apport', l: 'Apport', t: 'number', u: '€' }, { k: 'emprunt', l: 'Emprunt nécessaire', t: 'number', u: '€ — vide = budget − apport' }, { k: 'raisons', l: 'Raisons (affectives, financières…)', t: 'textarea', w: true }
-    ] },
-    { ch: 4, type: 'list', title: 'Autres crédits', hint: 'Crédits à la consommation, auto, prêt étudiant, prêt familial, LOA…', path: 'creditsAutres', itemLabel: 'Crédit', fields: [{ k: 'designation', l: 'Désignation' }, { k: 'type', l: 'Nature', t: 'select', o: ['Consommation', 'Auto / LOA', 'Étudiant', 'Familial', 'Professionnel', 'Immobilier'] }].concat(creditFields()), calcItem: function (c) { var i = creditInfo(c); return 'Mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd); } },
 
-    { ch: 5, type: 'list', title: 'Trésorerie et épargne disponible', hint: 'Comptes courants, Livret A, LDDS, LEP, PEL, CEL, comptes à terme… Un bloc par compte.', path: 'treso', itemLabel: 'Compte', fields: [
-      { k: 'type', l: 'Type', t: 'select', o: TRESO_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'etab', l: 'Établissement' }, { k: 'titulaire', l: 'Titulaire', t: 'select', o: ['Monsieur', 'Madame', 'Joint', 'Enfant'] },
-      { k: 'montant', l: 'Montant', t: 'number', u: '€' }, { k: 'taux', l: 'Taux', t: 'number', u: '% / an — vide = taux usuel' }
+    { ch: 2, type: 'choice', title: 'Résidence principale', path: 'rp.statut', options: ['Locataire', 'Propriétaire', 'Logé(e) à titre gratuit'], grid: true },
+    { ch: 2, when: function () { return state.rp.statut === 'Locataire'; }, type: 'fields', title: 'Votre location', path: 'rp', fields: [{ k: 'loyer', l: 'Loyer mensuel', t: 'number', u: '€ / mois' }, { k: 'adresse', l: 'Ville', opt: true }] },
+    { ch: 2, when: function () { return state.rp.statut === 'Propriétaire'; }, type: 'fields', title: 'Votre résidence principale', path: 'rp', fields: [
+      { k: 'valeur', l: 'Valeur estimée', t: 'number', u: '€' }, { k: 'achat', l: 'Valeur d\'achat', t: 'number', u: '€', opt: true }, { k: 'dateAchat', l: 'Année d\'achat', t: 'month', opt: true }, { k: 'adresse', l: 'Ville', opt: true }
+    ] },
+    { ch: 2, when: function () { return state.rp.statut === 'Propriétaire'; }, type: 'list', title: 'Crédit sur la résidence principale', hint: 'Continuez si le bien est payé. Mensualité et capital restant dû sont calculés à partir du capital, du taux, de la durée et de la date de début.', path: 'rp.credits', itemLabel: 'Prêt', fields: creditFields(), calcItem: function (c) { var i = creditInfo(c); return 'Mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd) + (i.fin ? ' · fin ' + i.fin : ''); } },
+    { ch: 2, type: 'list', title: 'Autres biens immobiliers', hint: 'Locatif, résidence secondaire, SCI… Continuez si aucun.', path: 'biens', itemLabel: 'Bien', fields: [
+      { k: 'type', l: 'Type', t: 'select', o: BIEN_TYPES }, { k: 'localisation', l: 'Ville', opt: true }, { k: 'statut', l: 'Détention', t: 'select', o: BIEN_STATUTS },
+      { k: 'valeur', l: 'Valeur estimée', t: 'number', u: '€' }, { k: 'achat', l: 'Valeur d\'achat', t: 'number', u: '€', opt: true }, { k: 'loyer', l: 'Loyer net perçu', t: 'number', u: '€ / mois', opt: true }
+    ], sub: { path: 'credits', label: 'Crédit sur ce bien', fields: creditFields() }, calcItem: function (b) { var v = num(b.achat) || num(b.valeur); var r = v ? num(b.loyer) * 12 / v : 0; var m = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).mensualite; }, 0); var crd = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).crd; }, 0); return 'Rentabilité brute ' + pc(r) + ' · mensualités ' + eurM(m) + ' · CRD ' + eur(crd) + ' · cash-flow ' + eurM(num(b.loyer) - m); } },
+    { ch: 2, type: 'choice', title: 'Un projet d\'acquisition immobilière ?', path: 'projet.echeance', options: ['Non', 'Moins d\'un an', '1 à 3 ans', 'Plus de 3 ans'], grid: true },
+    { ch: 2, when: function () { return state.projet.echeance && state.projet.echeance !== 'Non'; }, type: 'fields', title: 'Le projet', path: 'projet', fields: [
+      { k: 'type', l: 'Type de bien', opt: true }, { k: 'localisation', l: 'Localisation', opt: true }, { k: 'budget', l: 'Budget', t: 'number', u: '€' }, { k: 'apport', l: 'Apport', t: 'number', u: '€', opt: true }
+    ] },
+    { ch: 2, type: 'list', title: 'Autres crédits en cours', hint: 'Consommation, auto, étudiant… Continuez si aucun.', path: 'creditsAutres', itemLabel: 'Crédit', fields: [{ k: 'designation', l: 'Désignation' }, { k: 'type', l: 'Nature', t: 'select', o: ['Consommation', 'Auto / LOA', 'Étudiant', 'Familial', 'Professionnel', 'Immobilier'], opt: true }].concat(creditFields()), calcItem: function (c) { var i = creditInfo(c); return 'Mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd); } },
+
+    { ch: 3, type: 'list', title: 'Comptes et livrets', hint: 'Comptes courants, Livret A, LDDS, PEL… Un bloc par compte, une estimation suffit.', path: 'treso', itemLabel: 'Compte', fields: [
+      { k: 'type', l: 'Type', t: 'select', o: TRESO_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'montant', l: 'Montant', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement', opt: true }, { k: 'taux', l: 'Taux', t: 'number', u: '% / an — vide = taux usuel', opt: true }
     ], onItem: function (it) { if (it.type && (it.taux === '' || it.taux == null)) { var d = TRESO_TYPES.filter(function (t) { return t[0] === it.type; })[0]; if (d) it.taux = String(d[2] * 100); } } },
-    { ch: 5, when: function () { return state.treso.some(function (t) { return t.type === 'pel'; }); }, type: 'open', title: 'Pourquoi avoir ouvert un PEL ? Quand ? Chez qui ?', path: 'dec.pel' },
-    { ch: 5, type: 'list', title: 'Placements financiers', hint: 'Assurance-vie, PEA, compte-titres, capitalisation, PEE, PER, SCPI… Un bloc par contrat.', path: 'plac', itemLabel: 'Placement', fields: [
-      { k: 'type', l: 'Type', t: 'select', o: PLAC_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'etab', l: 'Établissement / assureur' }, { k: 'titulaire', l: 'Titulaire', t: 'select', o: ['Monsieur', 'Madame', 'Joint', 'Enfant', 'Société'] },
-      { k: 'montant', l: 'Valorisation', t: 'number', u: '€' }, { k: 'taux', l: 'Performance annuelle moyenne', t: 'number', u: '% / an' }, { k: 'risque', l: 'Niveau de risque', t: 'select', o: [['1', '1/4 — faible'], ['2', '2/4 — moyen faible'], ['3', '3/4 — moyen fort'], ['4', '4/4 — fort']] },
-      { k: 'dispo', l: 'Disponibilité', t: 'select', o: ['Disponible', 'Bloqué'] }, { k: 'support', l: 'Supports', t: 'select', o: ['Fonds euros', 'Unités de compte', 'Mixte', 'Actions en direct', 'Obligations', 'Immobilier', 'Autre'] },
-      { k: 'gestion', l: 'Mode de gestion', t: 'select', o: ['Libre', 'Conseillée', 'Sous mandat / pilotée'] }, { k: 'ouverture', l: 'Date d\'ouverture', t: 'month' }
+    { ch: 3, type: 'list', title: 'Placements', hint: 'Assurance-vie, PEA, compte-titres, PER, PEE, SCPI… Un bloc par contrat.', path: 'plac', itemLabel: 'Placement', fields: [
+      { k: 'type', l: 'Type', t: 'select', o: PLAC_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'montant', l: 'Valorisation', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement / assureur', opt: true },
+      { k: 'taux', l: 'Performance annuelle moyenne', t: 'number', u: '% / an', opt: true }, { k: 'risque', l: 'Niveau de risque', t: 'select', o: [['1', '1/4 — faible'], ['2', '2/4 — moyen faible'], ['3', '3/4 — moyen fort'], ['4', '4/4 — fort']], opt: true },
+      { k: 'dispo', l: 'Disponibilité', t: 'select', o: ['Disponible', 'Bloqué'], opt: true }, { k: 'support', l: 'Supports', t: 'select', o: ['Fonds euros', 'Unités de compte', 'Mixte', 'Actions en direct', 'Obligations', 'Immobilier', 'Autre'], opt: true }
     ] },
-    { ch: 5, when: function () { return state.plac.length > 0; }, type: 'open', title: 'Pourquoi avoir ouvert ces placements ? Chez qui ? Quand ?', script: 'Comprendre la logique passée : conseil reçu, opportunité, fiscalité, habitude familiale…', path: 'dec.placPourquoi' },
-    { ch: 5, type: 'choice', title: 'Avez-vous déjà fait des dons à vos enfants ?', path: 'dec.dons', options: ['Non', 'Oui, des dons manuels', 'Oui, une donation notariée', 'Sans objet'], grid: true },
-    { ch: 5, when: function () { return /^Oui/.test(state.dec.dons || ''); }, type: 'open', title: 'Précisions sur les dons', hint: 'Montants, dates, bénéficiaires, déclarés ou non.', path: 'dec.donsDetail' },
+    { ch: 3, type: 'choice', title: 'Des donations déjà réalisées aux enfants ?', path: 'dec.dons', options: ['Non', 'Oui, des dons manuels', 'Oui, une donation notariée', 'Sans objet'], grid: true },
 
-    { ch: 6, type: 'fields', title: 'Revenus mensuels du foyer', hint: 'Les revenus nets et fonciers sont repris automatiquement ; complétez le reste (onglet Endettement).', path: 'budget', calc: function (R) { return [['Revenus nets T/S', eurM(R.revM['Revenus nets (T/S)'])], ['Fonciers pondérés 80 %', eurM(R.revM['Revenus fonciers (80 %)'])], ['Total revenus', eurM(R.revTotalM)]]; }, fields: [
-      { k: 'netMensuel', l: 'Revenus nets mensuels (forcer)', t: 'number', u: '€ / mois — vide = nets annuels / 12' }, { k: 'pensions', l: 'Pensions perçues', t: 'number', u: '€ / mois' }, { k: 'bnc', l: 'BNC / BIC', t: 'number', u: '€ / mois' },
-      { k: 'dividendes', l: 'Dividendes', t: 'number', u: '€ / mois' }, { k: 'agricole', l: 'Revenus agricoles', t: 'number', u: '€ / mois' }, { k: 'revDivers', l: 'Revenus divers', t: 'number', u: '€ / mois' }
-    ] },
-    { ch: 6, type: 'fields', title: 'Charges mensuelles et train de vie', hint: 'Loyer, crédits et impôt sont repris automatiquement.', path: 'budget', calc: function (R) { return [['Total charges', eurM(R.chTotalM)], ['Endettement brut', pc(R.endBrut, 0)], ['Endettement différentiel', pc(R.endDiff, 0)], ['Capacité d\'épargne', eurM(R.capaciteEpargne)]]; }, fields: [
-      { k: 'chargesDiverses', l: 'Charges fixes diverses', t: 'number', u: '€ / mois (assurances, scolarité, abonnements…)' }, { k: 'trainDeVie', l: 'Train de vie mensuel', t: 'number', u: '€ / mois (courses, loisirs, vacances…)' },
-      { k: 'epargneMensuelle', l: 'Épargne réellement mise de côté', t: 'number', u: '€ / mois' }
+    { ch: 4, type: 'fields', title: 'Budget mensuel', hint: 'Revenus nets, loyers, crédits et impôt sont repris automatiquement. Complétez le reste.', path: 'budget', calc: function (R) { return [['Revenus / mois', eurM(R.revTotalM)], ['Charges / mois', eurM(R.chTotalM)], ['Endettement brut', pc(R.endBrut, 0)], ['Capacité d\'épargne', eurM(R.capaciteEpargne)]]; }, fields: [
+      { k: 'trainDeVie', l: 'Train de vie mensuel', t: 'number', u: '€ / mois (courses, loisirs, vacances…)' }, { k: 'epargneMensuelle', l: 'Épargne réellement mise de côté', t: 'number', u: '€ / mois' },
+      { k: 'chargesDiverses', l: 'Autres charges fixes', t: 'number', u: '€ / mois (assurances, scolarité…)', opt: true }, { k: 'pensions', l: 'Pensions perçues', t: 'number', u: '€ / mois', opt: true },
+      { k: 'dividendes', l: 'Dividendes', t: 'number', u: '€ / mois', opt: true }, { k: 'revDivers', l: 'Autres revenus', t: 'number', u: '€ / mois', opt: true }
     ] },
 
-    { ch: 7, type: 'open', title: 'Qu\'attendez-vous de moi ?', script: 'Question clé : laissez un silence. Notez la réponse mot pour mot.', path: 'dec.attentes' },
-    { ch: 7, type: 'multi', title: 'Vos objectifs', hint: 'Sélectionnez tous les objectifs exprimés, puis précisez l\'échéance à l\'écran suivant.', path: 'obj.liste', options: OBJECTIFS, grid: true },
-    { ch: 7, when: function () { return (state.obj.liste || []).length > 0; }, type: 'echeances', title: 'Échéance de chaque objectif', hint: 'CT : moins de 2 ans · MT : 2 à 5 ans · LT : plus de 5 ans.' },
-    { ch: 7, type: 'fields', title: 'Retraite et études', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Années avant retraite', R.retraite.annees == null ? '—' : R.retraite.annees + ' ans'], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '—']]; }, fields: [
-      { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)' }, { k: 'renteRetraite', l: 'Rente nécessaire à la retraite', t: 'number', u: '€ / mois nets' }, { k: 'pensionEstimee', l: 'Pension estimée (régimes obligatoires)', t: 'number', u: '€ / mois' },
-      { k: 'capitalEtudes', l: 'Capital études des enfants', t: 'number', u: '€ (total)' }, { k: 'horizonEtudes', l: 'Horizon des études', u: 'ex. dans 8 ans' }
+    { ch: 5, type: 'multi', title: 'Vos objectifs', hint: 'Sélectionnez les objectifs exprimés, puis leur échéance à l\'écran suivant.', path: 'obj.liste', options: OBJECTIFS, grid: true },
+    { ch: 5, when: function () { return (state.obj.liste || []).length > 0; }, type: 'echeances', title: 'Échéance de chaque objectif', hint: 'CT : moins de 2 ans · MT : 2 à 5 ans · LT : plus de 5 ans.' },
+    { ch: 5, type: 'fields', title: 'Ce qui compte pour vous', hint: 'Les mots du client, repris tels quels dans la synthèse.', path: 'dec', fields: [
+      { k: 'pourquoiRdv', l: 'Ce que vous cherchez à faire', t: 'textarea', w: true }, { k: 'importance', l: 'Pourquoi c\'est important pour vous', t: 'textarea', w: true, opt: true }, { k: 'essaye', l: 'Ce que vous avez déjà essayé', t: 'textarea', w: true, opt: true }
     ] },
-    { ch: 7, type: 'choice', title: 'Quelle attitude face au risque ?', hint: 'Profil déclaré (à confirmer par le questionnaire réglementaire).', path: 'obj.profil', options: ['Conservateur — je refuse toute perte', 'Équilibré — j\'accepte des fluctuations modérées', 'Opportuniste — je vise la performance avec des à-coups', 'Dynamique — j\'accepte des baisses fortes pour un rendement élevé'] },
+    { ch: 5, type: 'fields', title: 'Retraite et études', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '—']]; }, fields: [
+      { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)', opt: true }, { k: 'renteRetraite', l: 'Revenu souhaité à la retraite', t: 'number', u: '€ / mois nets', opt: true }, { k: 'pensionEstimee', l: 'Pension estimée', t: 'number', u: '€ / mois', opt: true },
+      { k: 'capitalEtudes', l: 'Capital études des enfants', t: 'number', u: '€', opt: true }
+    ] },
+    { ch: 5, type: 'choice', title: 'Quelle attitude face au risque ?', path: 'obj.profil', options: ['Conservateur — je refuse toute perte', 'Équilibré — j\'accepte des fluctuations modérées', 'Opportuniste — je vise la performance avec des à-coups', 'Dynamique — j\'accepte des baisses fortes pour un rendement élevé'] },
 
-    { ch: 8, type: 'fields', title: 'Commentaires du conseiller', hint: 'Notes libres reprises dans la synthèse (rubrique « Commentaires »).', path: 'notes', fields: [
-      { k: 'situation', l: 'Sur la situation', t: 'textarea', w: true }, { k: 'patrimoine', l: 'Sur le patrimoine', t: 'textarea', w: true }, { k: 'objectifs', l: 'Sur les objectifs', t: 'textarea', w: true }, { k: 'sales', l: 'Message pour l\'équipe commerciale', t: 'textarea', w: true }
+    { ch: 6, type: 'fields', title: 'Notes du conseiller', hint: 'Facultatif. Repris dans la synthèse et la fiche sales.', path: 'notes', fields: [
+      { k: 'situation', l: 'Commentaires', t: 'textarea', w: true, opt: true }, { k: 'sales', l: 'Message pour l\'équipe commerciale', t: 'textarea', w: true, opt: true },
+      { k: 'date', l: 'Date de l\'entretien', t: 'date' }, { k: 'conseiller', l: 'Conseiller', opt: true }
     ], last: true }
-  ]);
+  ];
 
   /* ======================================================================
      MOTEUR D'AFFICHAGE
@@ -504,7 +481,7 @@
 
   function field(f, path, val) {
     var id = 'f_' + path.replace(/[^a-z0-9]/gi, '_') + '_' + f.k;
-    var h = '<div class="bp-field' + (f.w ? ' bp-field--wide' : '') + '"><label for="' + id + '">' + esc(f.l) + '</label>';
+    var h = '<div class="bp-field' + (f.w ? ' bp-field--wide' : '') + '"><label for="' + id + '">' + esc(f.l) + (f.opt ? ' <em class="opt">facultatif</em>' : '') + '</label>';
     var v = val == null ? '' : val;
     var dp = ' data-path="' + esc(path) + '" data-key="' + esc(f.k) + '"';
     if (f.t === 'select') {
@@ -672,7 +649,7 @@
   });
   function exportJSON() {
     var blob = new Blob([JSON.stringify({ app: 'lfdr-bilan', version: 1, exportedAt: new Date().toISOString(), state: state }, null, 2)], { type: 'application/json' });
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bilan-' + (clientLabel().replace(/[^a-z0-9]+/gi, '-').toLowerCase() || 'client') + '-' + (state.meta.date || today()) + '.json'; a.click();
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bilan-' + (clientLabel().replace(/[^a-z0-9]+/gi, '-').toLowerCase() || 'client') + '-' + (state.notes.date || today()) + '.json'; a.click();
   }
   $('bp-save-json').addEventListener('click', exportJSON);
   $('bp-save-json-2').addEventListener('click', exportJSON);
@@ -780,7 +757,7 @@
 
   function showSynth() {
     save(); var R = compute(), S = state, L = insights(R); pageNo = 0; var H = '';
-    var date = fmtDate(S.meta.date);
+    var date = fmtDate(S.notes.date);
 
     // 1. Couverture
     H += slide('<div class="cov__frame"></div><img class="cov__wave" src="assets/img/vague-or.webp" alt=""><img class="cov__photo" src="assets/img/escalier.jpg" alt=""><img class="cov__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart"><div class="cov__bar"></div><div class="cov__title">Votre bilan<br>patrimonial</div><div class="cov__sub">Comprendre votre situation pour bâtir une stratégie sur mesure.</div><div class="cov__client">' + esc(clientLabel()) + ' — ' + esc(date) + '</div><div class="cov__conf">Confidentiel</div>', 'sl--cover');
@@ -795,8 +772,7 @@
       var p = S[k] || {}, o = R.pers[k]; if (!o) return '';
       return '<div class="card"><div class="card__t">' + esc(label) + ' — ' + esc(nomComplet(p) || '—') + '</div>' + kv([
         ['Date de naissance', dash(fmtDate(p.naissance)) + (o.age != null ? ' <span class="muted">(' + o.age + ' ans)</span>' : '')],
-        ['Profession', dash(p.profession) + (p.entreprise ? ' · ' + esc(p.entreprise) : '')], ['Statut', dash(p.statut)], ['Ancienneté', dash(p.anciennete)],
-        ['Évolution attendue', dash(p.evolution)], ['Velléités de départ', dash(p.depart)], ['Téléphone / email', dash(p.tel) + (p.email ? ' · ' + esc(p.email) : '')]
+        ['Profession', dash(p.profession) + (p.entreprise ? ' · ' + esc(p.entreprise) : '')], ['Statut', dash(p.statut)], ['Changement professionnel', dash(p.depart)], ['Téléphone / email', dash(p.tel) + (p.email ? ' · ' + esc(p.email) : '')]
       ]) + '</div>';
     }
     H += slide(head('Situation familiale et professionnelle', 'Qui vous êtes, ce que vous faites') + '<div class="g2">' + personCard('lui', 'Monsieur') + (R.couple ? personCard('elle', 'Madame') : '<div class="card card--sand"><div class="card__t">Foyer</div>' + kv([['Situation', dash(S.foyer.situation)], ['Régime', dash(S.foyer.regime)], ['Enfants à charge', num(S.foyer.enfants) + (S.foyer.ages ? ' (' + esc(S.foyer.ages) + ')' : '')], ['Parts fiscales', String(R.fisc.parts).replace('.', ',')], ['Adresse', dash(S.foyer.adresse)]]) + '</div>') + '</div>' + (R.couple ? '<div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--g"><div class="kpi__l">Situation</div><div class="kpi__v" style="font-size:1.3em">' + esc(S.foyer.situation) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Régime</div><div class="kpi__v" style="font-size:1.1em">' + dash(S.foyer.regime) + '</div></div><div class="kpi"><div class="kpi__l">Enfants à charge</div><div class="kpi__v">' + num(S.foyer.enfants) + ' <small>' + esc(S.foyer.ages || '') + '</small></div></div><div class="kpi"><div class="kpi__l">Parts fiscales</div><div class="kpi__v">' + String(R.fisc.parts).replace('.', ',') + '</div></div></div>' : ''));
@@ -841,7 +817,7 @@
     R.biens.forEach(function (b, i) { immoCards += '<div class="card"><div class="card__t">Bien ' + (i + 1) + ' — ' + esc(b.src.type || '') + ' · ' + esc(b.src.localisation || '') + '</div>' + kv([['Statut', dash(b.src.statut)], ['Propriétaire', dash(b.src.proprietaire)], ['Valeur estimée / achat', eur(b.valeur) + (b.achat ? ' / ' + eur(b.achat) : '')], ['Loyer net perçu', eurM(b.loyerM)], ['Rentabilité brute', b.loyerM ? pc(b.renta) : '—'], ['Mensualités', eurM(b.mens)], ['Cash-flow mensuel', '<b style="color:' + (b.cashflow >= 0 ? '#15462A' : '#8B2E2E') + '">' + eurM(b.cashflow) + '</b>'], ['Capital restant dû', eur(b.crd)], ['Gestion', dash(b.src.gestion)]]) + '</div>'; });
     if (!immoCards) immoCards = '<div class="card"><p class="muted">Aucun bien immobilier renseigné.</p></div>';
     var projet = S.projet.echeance && S.projet.echeance !== 'Non' ? '<div class="card card--gold"><div class="card__t">Projet d\'acquisition — ' + esc(S.projet.echeance) + '</div>' + kv([['Type / surface', dash(S.projet.type) + (S.projet.surfaceMin ? ' · ' + esc(S.projet.surfaceMin) + ' m² min.' : '')], ['Localisation', dash(S.projet.localisation)], ['Budget', eur(S.projet.budget)], ['Apport', eur(S.projet.apport)], ['Emprunt nécessaire', eur(num(S.projet.emprunt) || Math.max(0, num(S.projet.budget) - num(S.projet.apport)))], ['Raisons', dash(S.projet.raisons)]]) + '</div>' : '';
-    H += slide(head('Immobilier', 'Vos biens, leur rendement et leur financement') + '<div class="g3">' + immoCards + projet + '</div>' + (S.dec.immoObjectif ? '<div class="vb" style="margin-top:1.2em"><div class="vb__q">Ce que vous attendez de vos investissements immobiliers</div><div class="vb__a">« ' + esc(S.dec.immoObjectif) + ' »</div></div>' : ''));
+    H += slide(head('Immobilier', 'Vos biens, leur rendement et leur financement') + '<div class="g3">' + immoCards + projet + '</div>');
 
     // 9. Budget
     H += divider(6, 'Budget et capacité d\'épargne');
@@ -869,12 +845,12 @@
 
     // 12. Verbatims & commentaires
     H += divider(9, 'Vos mots, nos commentaires');
-    var verbs = [['Pourquoi ce rendez-vous', S.dec.pourquoiRdv], ['Pourquoi c\'est important', S.dec.importance], ['Reformulation validée', S.dec.reformulation], ['Depuis combien de temps', S.dec.depuis], ['Ce qui a déjà été tenté', S.dec.essaye], ['Ce que vous attendez de nous', S.dec.attentes], ['Placements : pourquoi, chez qui, quand', S.dec.placPourquoi], ['PEL', S.dec.pel], ['Dons', S.dec.dons ? S.dec.dons + (S.dec.donsDetail ? ' — ' + S.dec.donsDetail : '') : '']].filter(function (v) { return v[1]; });
-    var notes = [['Situation', S.notes.situation], ['Patrimoine', S.notes.patrimoine], ['Objectifs', S.notes.objectifs]].filter(function (v) { return v[1]; });
-    H += slide(head('Vos mots', 'Ce que vous nous avez confié' + (S.dec.dejaFait ? ' · exercice déjà réalisé : ' + esc(S.dec.dejaFait).toLowerCase() : '')) + '<div class="g2"><div>' + (verbs.slice(0, Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') || '<p class="muted">—</p>') + '</div><div>' + verbs.slice(Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') + (notes.length ? '<div class="card card--soft" style="margin-top:.6em"><div class="card__t">Commentaires du conseiller</div>' + notes.map(function (n) { return '<p><b style="color:var(--gold-light)">' + esc(n[0]) + ' — </b>' + esc(n[1]) + '</p>'; }).join('') + '</div>' : '') + '</div></div>');
+    var verbs = [['Ce que vous cherchez à faire', S.dec.pourquoiRdv], ['Pourquoi c\'est important', S.dec.importance], ['Ce qui a déjà été tenté', S.dec.essaye], ['Donations réalisées', S.dec.dons]].filter(function (v) { return v[1]; });
+    var notes = [['Commentaires', S.notes.situation]].filter(function (v) { return v[1]; });
+    H += slide(head('Vos mots', 'Ce que vous nous avez confié') + '<div class="g2"><div>' + (verbs.slice(0, Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') || '<p class="muted">—</p>') + '</div><div>' + verbs.slice(Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') + (notes.length ? '<div class="card card--soft" style="margin-top:.6em"><div class="card__t">Commentaires du conseiller</div>' + notes.map(function (n) { return '<p><b style="color:var(--gold-light)">' + esc(n[0]) + ' — </b>' + esc(n[1]) + '</p>'; }).join('') + '</div>' : '') + '</div></div>');
 
     // 13. Informations importantes
-    H += slide(head('Informations importantes', '') + '<div class="disc"><p><b>Nature du document.</b> Ce bilan patrimonial est établi à partir des informations déclarées par le client lors de l\'entretien du ' + esc(date) + '. Il constitue un état des lieux et un support de réflexion ; il ne constitue ni une recommandation personnalisée, ni une offre de souscription, ni un conseil juridique ou fiscal.</p><p><b>Estimations.</b> L\'impôt sur le revenu, la taxation marginale, les capitaux restant dus, les rentabilités et les projections sont des estimations calculées à partir d\'hypothèses simplifiées (barème ' + PARAMS.annee + ', rendement constant de ' + pc(PARAMS.rendementProjection, 0) + ', règle de retrait de ' + pc(PARAMS.tauxRetraitRente, 0) + '). Elles ne tiennent pas compte de l\'ensemble des règles fiscales et sociales applicables, ni de l\'inflation, et ne sauraient engager La Financière de Rochechouart.</p><p><b>Risques liés aux investissements.</b> Tout investissement comporte des risques, notamment un risque de perte partielle ou totale du capital investi. Les performances passées ne préjugent pas des performances futures.</p><p><b>Confidentialité.</b> Ce document est strictement personnel et confidentiel. Les données qu\'il contient sont traitées dans le cadre de la relation de conseil et conformément à la réglementation applicable en matière de protection des données.</p><p><b>La Financière de Rochechouart</b> — 58 rue de Monceau, 75008 Paris · contact@lfdr.fr · www.lafinancierederochechouart.com</p></div>');
+    H += slide(head('Informations importantes', '') + '<div class="disc"><p><b>Nature du document.</b> Ce bilan patrimonial est établi à partir des informations déclarées par le client lors de l\'entretien du ' + esc(date) + '. Il constitue un état des lieux et un support de réflexion ; il ne constitue ni une recommandation personnalisée, ni une offre de souscription, ni un conseil juridique ou fiscal.</p><p><b>Estimations.</b> L\'impôt sur le revenu, la taxation marginale, les capitaux restant dus, les rentabilités et les projections sont des estimations calculées à partir d\'hypothèses simplifiées (barème ' + PARAMS.annee + ', rendement constant de ' + pc(PARAMS.rendementProjection, 0) + ', règle de retrait de ' + pc(PARAMS.tauxRetraitRente, 0) + '). Elles ne tiennent pas compte de l\'ensemble des règles fiscales et sociales applicables, ni de l\'inflation, et ne sauraient engager La Financière de Rochechouart.</p><p><b>Risques liés aux investissements.</b> Tout investissement comporte des risques, notamment un risque de perte partielle ou totale du capital investi. Les performances passées ne préjugent pas des performances futures.</p><p><b>Confidentialité.</b> Ce document est strictement personnel et confidentiel. Les données qu\'il contient sont traitées dans le cadre de la relation de conseil et conformément à la réglementation applicable en matière de protection des données.</p><p><b>La Financière de Rochechouart</b> — 58 rue de Monceau, 75008 Paris · contact@lfd-rochechouart.com · www.lafinancierederochechouart.com</p></div>');
 
     $('bp-deck').innerHTML = H;
     goto(elSynth);
@@ -883,7 +859,7 @@
   /* ---- fiche sales en texte brut (CRM) ---- */
   function salesBrief(R) {
     var S = state, L = insights(R), t = [];
-    t.push('FICHE SALES — ' + clientLabel() + ' — bilan du ' + fmtDate(S.meta.date) + (S.meta.conseiller ? ' (' + S.meta.conseiller + ')' : ''));
+    t.push('FICHE SALES — ' + clientLabel() + ' — bilan du ' + fmtDate(S.notes.date) + (S.notes.conseiller ? ' (' + S.notes.conseiller + ')' : ''));
     t.push('');
     t.push('PROFIL : ' + S.foyer.situation + (S.foyer.regime ? ' · ' + S.foyer.regime : '') + ' · ' + num(S.foyer.enfants) + ' enfant(s)' + (S.foyer.ages ? ' (' + S.foyer.ages + ')' : ''));
     R.persons.forEach(function (k) { var p = S[k]; t.push(' - ' + nomComplet(p) + (R.pers[k].age != null ? ', ' + R.pers[k].age + ' ans' : '') + ' · ' + (p.profession || '—') + (p.entreprise ? ' @ ' + p.entreprise : '') + ' · ' + (p.statut || '') + ' · net ' + eur(R.pers[k].net) + '/an' + (p.tel ? ' · ' + p.tel : '') + (p.email ? ' · ' + p.email : '')); });
@@ -900,7 +876,7 @@
     if (S.projet.echeance && S.projet.echeance !== 'Non') t.push('PROJET IMMO : ' + S.projet.echeance + ' · budget ' + eur(S.projet.budget) + ' · apport ' + eur(S.projet.apport));
     t.push('');
     t.push('VERBATIMS');
-    [['Pourquoi ce rdv', S.dec.pourquoiRdv], ['Importance', S.dec.importance], ['Reformulation', S.dec.reformulation], ['Attentes', S.dec.attentes], ['Déjà tenté', S.dec.essaye]].forEach(function (v) { if (v[1]) t.push(' - ' + v[0] + ' : « ' + v[1] + ' »'); });
+    [['Ce qu\'il cherche', S.dec.pourquoiRdv], ['Importance', S.dec.importance], ['Déjà tenté', S.dec.essaye]].forEach(function (v) { if (v[1]) t.push(' - ' + v[0] + ' : « ' + v[1] + ' »'); });
     t.push('');
     t.push('POINTS D\'ATTENTION (constats, pas de solution)');
     L.forEach(function (i) { t.push(' [' + i.prio.toUpperCase() + '] ' + i.titre + ' — ' + i.constat + ' → À creuser : ' + i.question); });
