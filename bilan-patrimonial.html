@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilan patrimonial — La Financière de Rochechouart</title>
+<meta name="description" content="Outil interne : conduite guidée de l'entretien de découverte et synthèse patrimoniale complète.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/monogram.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/bilan.css">
+</head>
+<body class="bp-body">
+
+<!-- ======================================================================
+     ÉCRAN 1 — ACCUEIL : nouveau bilan / reprendre / importer
+     ====================================================================== -->
+<section id="bp-home" class="bp-home is-active">
+  <div class="bp-home__panel">
+    <img class="bp-home__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart">
+    <p class="eyebrow eyebrow--light">Outil conseiller · confidentiel</p>
+    <h1>Bilan <em>patrimonial</em></h1>
+    <p class="bp-home__sub">Conduite guidée de l'entretien de découverte, calculs automatiques et synthèse complète prête à remettre.</p>
+    <div class="bp-home__actions">
+      <button type="button" class="bp-btn bp-btn--gold" id="bp-new">Nouveau bilan</button>
+      <button type="button" class="bp-btn bp-btn--ghost" id="bp-resume" hidden>Reprendre le bilan en cours</button>
+      <label class="bp-btn bp-btn--ghost bp-file">Importer un bilan (.json)<input type="file" id="bp-import" accept="application/json,.json"></label>
+    </div>
+    <p class="bp-home__note">Les données restent dans ce navigateur (aucun envoi). Exportez le fichier .json pour archiver ou transférer un dossier.</p>
+  </div>
+  <div class="bp-home__side">
+    <img src="assets/img/escalier.jpg" alt="">
+  </div>
+</section>
+
+<!-- ======================================================================
+     ÉCRAN 2 — ENTRETIEN GUIDÉ : une question par écran
+     ====================================================================== -->
+<section id="bp-wizard" class="bp-wizard">
+  <div class="bp-progress"><div class="bp-progress__fill" id="bp-progress"></div></div>
+
+  <header class="bp-top">
+    <a href="index.html" class="bp-top__brand" aria-label="Accueil"><img src="assets/img/logo-light.png" alt="La Financière de Rochechouart"></a>
+    <div class="bp-top__client" id="bp-top-client"></div>
+    <div class="bp-top__tools">
+      <button type="button" class="bp-tool" id="bp-save-json" title="Exporter le dossier (.json)">Exporter</button>
+      <button type="button" class="bp-tool" id="bp-go-synth" title="Voir la synthèse">Synthèse</button>
+      <button type="button" class="bp-tool" id="bp-quit" title="Retour à l'accueil">Quitter</button>
+    </div>
+  </header>
+
+  <div class="bp-layout">
+    <nav class="bp-rail" id="bp-rail" aria-label="Chapitres"></nav>
+    <main class="bp-stage">
+      <div class="bp-card" id="bp-card"></div>
+      <div class="bp-nav">
+        <button type="button" class="bp-back" id="bp-prev">← Précédent</button>
+        <span class="bp-help" id="bp-help">Entrée pour continuer · Échap pour revenir</span>
+        <button type="button" class="bp-btn bp-btn--gold" id="bp-next">Continuer →</button>
+      </div>
+    </main>
+    <aside class="bp-live" id="bp-live" aria-label="Indicateurs en direct"></aside>
+  </div>
+</section>
+
+<!-- ======================================================================
+     ÉCRAN 3 — SYNTHÈSE : rendu type présentation (imprimable)
+     ====================================================================== -->
+<section id="bp-synth" class="bp-synth">
+  <header class="bp-synth__bar no-print">
+    <button type="button" class="bp-tool" id="bp-back-wizard">← Modifier les réponses</button>
+    <div class="bp-synth__bar-right">
+      <button type="button" class="bp-tool" id="bp-copy-brief">Copier la fiche sales</button>
+      <button type="button" class="bp-tool" id="bp-save-json-2">Exporter .json</button>
+      <button type="button" class="bp-btn bp-btn--gold" id="bp-print">Imprimer / PDF</button>
+    </div>
+  </header>
+  <div class="bp-deck" id="bp-deck"></div>
+</section>
+
+<script src="assets/js/bilan.js"></script>
+</body>
+</html>

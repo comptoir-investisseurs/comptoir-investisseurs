@@ -17,6 +17,16 @@ animations modernes (révélations au défilement, transitions de page, effets d
   Placements immobiliers · Structuration juridique et fiscale · Accès à notre Family Office.
 - **Nous contacter** — `contact.html` : formulaire fonctionnel (mailto), coordonnées et plan.
 - `mentions-legales.html`.
+- **Bilan patrimonial (outil conseiller)** — `bilan-patrimonial.html` : entretien de découverte
+  guidé (une question par écran, scripts conseiller, listes de biens / crédits / placements),
+  calculs automatiques (impôt & TMI, mensualités et capital restant dû, endettement brut et
+  différentiel, rentabilités, capacité d'épargne, capital retraite) et **synthèse type
+  présentation** imprimable en PDF (charte LFDR) avec graphiques, verbatims et fiche
+  « points d'attention » pour l'équipe commerciale (constats chiffrés, sans préconisation de
+  produit). Données conservées dans le navigateur, export / import `.json`, bouton « Copier
+  la fiche sales ». Fichiers : `assets/js/bilan.js` (questions, calculs, rendu) et
+  `assets/css/bilan.css`. Le barème de l'impôt et les hypothèses sont dans l'objet `PARAMS`
+  en tête de `bilan.js` (à actualiser chaque année).
 
 Les sujets demandés sont traités en détail : **assurance-vie de droit luxembourgeois**
 (triangle de sécurité, FID/FAS, neutralité fiscale), **produits structurés sur-mesure**,
