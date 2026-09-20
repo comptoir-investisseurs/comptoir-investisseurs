@@ -16,7 +16,7 @@
 <!-- ======================================================================
      ÉCRAN 1 : ACCUEIL : nouveau bilan / reprendre / importer
      ====================================================================== -->
-<section id="bp-home" class="bp-home is-active">
+<section id="bp-home" class="bp-home">
   <div class="sl sl--cover">
     <div class="wave cov__wave--l"></div><div class="wave cov__wave--r"></div>
     <div class="cov__green"></div>
@@ -92,8 +92,8 @@
 <!-- Connexion CRM (Supabase) -->
 <div class="bp-modal" id="bp-login">
   <form class="bp-modal__card" id="bp-login-form">
-    <h3>Connexion au CRM</h3>
-    <p>Identifiants conseiller (les mêmes que le CRM).</p>
+    <h3 id="bp-login-title">Connexion</h3>
+    <p id="bp-login-sub">Cet outil est réservé à l'équipe. Connectez-vous avec vos identifiants habituels.</p>
     <div class="bp-fields"><div class="bp-field bp-field--wide"><label for="bp-login-email">Email</label><input type="email" id="bp-login-email" autocomplete="email" required></div>
     <div class="bp-field bp-field--wide"><label for="bp-login-pass">Mot de passe</label><input type="password" id="bp-login-pass" autocomplete="current-password" required></div></div>
     <div class="bp-modal__err" id="bp-login-err"></div>

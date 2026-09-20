@@ -930,13 +930,14 @@
     }
   };
   function toast(msg, ms) { var t = $('bp-toast'); t.textContent = msg; t.classList.add('is-on'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('is-on'); }, ms || 3200); }
-  function ensureLogin() {
+  function ensureLogin(mandatory) {
     if (CRM.token()) return Promise.resolve();
     return new Promise(function (resolve, reject) {
-      var m = $('bp-login'), f = $('bp-login-form'), err = $('bp-login-err');
+      var m = $('bp-login'), f = $('bp-login-form'), err = $('bp-login-err'), cancelBtn = $('bp-login-cancel');
       m.classList.add('is-open'); err.textContent = ''; setTimeout(function () { $('bp-login-email').focus(); }, 100);
-      function close() { m.classList.remove('is-open'); f.onsubmit = null; $('bp-login-cancel').onclick = null; }
-      $('bp-login-cancel').onclick = function () { close(); reject(new Error('cancel')); };
+      cancelBtn.hidden = !!mandatory;
+      function close() { m.classList.remove('is-open'); f.onsubmit = null; cancelBtn.onclick = null; }
+      cancelBtn.onclick = function () { close(); reject(new Error('cancel')); };
       f.onsubmit = function (e) {
         e.preventDefault(); err.textContent = 'Connexion…';
         fetch(CRM.url + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: CRM.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('bp-login-email').value.trim(), password: $('bp-login-pass').value }) })
@@ -1032,9 +1033,15 @@
     renderSynthIfNeeded: function () { if (!$('bp-deck').children.length) showSynth(); }
   };
 
-  /* ---- démarrage ---- */
-  state = blank();
-  $('bp-resume').hidden = !load();
-  crmOpenFromUrl();
-  var j = load(); if (j && j.state) { /* pré-charge pour afficher le nom sur « Reprendre » */ var tmp = Object.assign(blank(), j.state); var sv = state; state = tmp; var lab = maskedLabel(); state = sv; if (lab) $('bp-resume').textContent = 'Reprendre (' + lab + ')'; }
+  /* ---- démarrage : connexion obligatoire avant d'ouvrir l'outil ---- */
+  function boot() {
+    state = blank();
+    $('bp-resume').hidden = !load();
+    goto(elHome);
+    if (!crmOpenFromUrl()) {
+      var j = load(); if (j && j.state) { /* pré-charge pour afficher le nom sur « Reprendre » */ var tmp = Object.assign(blank(), j.state); var sv = state; state = tmp; var lab = maskedLabel(); state = sv; if (lab) $('bp-resume').textContent = 'Reprendre (' + lab + ')'; }
+    }
+  }
+  if (!CRM.url) { document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#fff;font-family:sans-serif;padding:20px;text-align:center">Configuration manquante : assets/js/supabase-config.js doit définir SUPABASE_URL et SUPABASE_ANON_KEY pour que la connexion fonctionne.</div>'; }
+  else ensureLogin(true).then(boot);
 })();
