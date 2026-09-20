@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bilan patrimonial — La Financière de Rochechouart</title>
+<title>Bilan patrimonial : La Financière de Rochechouart</title>
 <meta name="description" content="Outil interne : conduite guidée de l'entretien de découverte et synthèse patrimoniale complète.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="assets/img/monogram.svg">
@@ -14,15 +14,15 @@
 <body class="bp-body">
 
 <!-- ======================================================================
-     ÉCRAN 1 — ACCUEIL : nouveau bilan / reprendre / importer
+     ÉCRAN 1 : ACCUEIL : nouveau bilan / reprendre / importer
      ====================================================================== -->
 <section id="bp-home" class="bp-home is-active">
   <div class="sl sl--cover">
+    <div class="wave cov__wave--l"></div><div class="wave cov__wave--r"></div>
     <div class="cov__green"></div>
-    <div class="cov__wave cov__wave--l"></div><div class="cov__wave cov__wave--r"></div>
-    <div class="cov__plate"></div>
-    <img class="cov__photo" src="assets/img/escalier.jpg" alt="">
     <div class="cov__vline"></div>
+    <div class="cov__plate"></div>
+    <div class="cov__photo"><img src="assets/img/escalier.jpg" alt=""></div>
     <img class="cov__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart">
     <div class="cov__bar"></div>
     <div class="cov__title">Gestion privée &amp;<br>placement de trésorerie</div>
@@ -33,13 +33,13 @@
       <label class="bp-tool bp-file">Importer (.json)<input type="file" id="bp-import" accept="application/json,.json"></label>
     </div>
     <div class="cov__hline"></div>
-    <div class="cov__client">Bilan patrimonial — outil conseiller</div>
+    <div class="cov__client">Bilan patrimonial : outil conseiller</div>
     <div class="cov__note">Les données restent dans ce navigateur. Exportez le fichier .json pour archiver ou transférer un dossier.</div>
   </div>
 </section>
 
 <!-- ======================================================================
-     ÉCRAN 2 — ENTRETIEN GUIDÉ : une question par écran
+     ÉCRAN 2 : ENTRETIEN GUIDÉ : une question par écran
      ====================================================================== -->
 <section id="bp-wizard" class="bp-wizard">
   <div class="bp-progress"><div class="bp-progress__fill" id="bp-progress"></div></div>
@@ -48,6 +48,7 @@
     <a href="index.html" class="bp-top__brand" aria-label="Accueil"><img src="assets/img/logo-light.png" alt="La Financière de Rochechouart"></a>
     <div class="bp-top__client" id="bp-top-client"></div>
     <div class="bp-top__tools">
+      <button type="button" class="bp-tool" id="bp-crm-save" title="Enregistrer le prospect et le bilan dans le CRM (Supabase)">Enregistrer au CRM</button>
       <button type="button" class="bp-tool" id="bp-save-json" title="Exporter le dossier (.json)">Exporter</button>
       <button type="button" class="bp-tool" id="bp-go-synth" title="Voir la synthèse">Synthèse</button>
       <button type="button" class="bp-tool" id="bp-quit" title="Retour à l'accueil">Quitter</button>
@@ -69,12 +70,13 @@
 </section>
 
 <!-- ======================================================================
-     ÉCRAN 3 — SYNTHÈSE : rendu type présentation (imprimable)
+     ÉCRAN 3 : SYNTHÈSE : rendu type présentation (imprimable)
      ====================================================================== -->
 <section id="bp-synth" class="bp-synth">
   <header class="bp-synth__bar no-print">
     <button type="button" class="bp-tool" id="bp-back-wizard">← Modifier les réponses</button>
     <div class="bp-synth__bar-right">
+      <button type="button" class="bp-tool" id="bp-crm-save-2">Enregistrer au CRM</button>
       <button type="button" class="bp-tool" id="bp-copy-brief">Copier la fiche sales</button>
       <button type="button" class="bp-tool" id="bp-save-json-2">Exporter .json</button>
       <button type="button" class="bp-btn bp-btn--gold" id="bp-print">Imprimer / PDF</button>
@@ -83,6 +85,20 @@
   <div class="bp-deck" id="bp-deck"></div>
 </section>
 
+<!-- Connexion CRM (Supabase) -->
+<div class="bp-modal" id="bp-login">
+  <form class="bp-modal__card" id="bp-login-form">
+    <h3>Connexion au CRM</h3>
+    <p>Identifiants conseiller (les mêmes que le CRM).</p>
+    <div class="bp-fields"><div class="bp-field bp-field--wide"><label for="bp-login-email">Email</label><input type="email" id="bp-login-email" autocomplete="email" required></div>
+    <div class="bp-field bp-field--wide"><label for="bp-login-pass">Mot de passe</label><input type="password" id="bp-login-pass" autocomplete="current-password" required></div></div>
+    <div class="bp-modal__err" id="bp-login-err"></div>
+    <div class="bp-nav" style="margin-top:14px"><button type="button" class="bp-back" id="bp-login-cancel">Annuler</button><button type="submit" class="bp-btn bp-btn--gold" style="margin-left:auto">Se connecter</button></div>
+  </form>
+</div>
+<div class="bp-toast" id="bp-toast"></div>
+
+<script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/bilan.js"></script>
 </body>
 </html>

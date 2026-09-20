@@ -9,7 +9,11 @@
     'Content-Type': 'application/json'
   }, extra || {});
 
-  const STAGES = ['Nouveau', 'Contacté', 'RDV planifié', 'Proposition', 'Gagné', 'Perdu'];
+  // Pipeline commercial : le prospect entre en R1 avec son bilan patrimonial, R2 répond à ses objectifs,
+  // R3 porte l'offre, puis prospect chaud, puis gagné (bascule en client) ou perdu.
+  const STAGES = ['Nouveau', 'R1 : Bilan', 'R2 : Objectifs', 'R3 : Offre', 'Prospect chaud', 'Gagné', 'Perdu'];
+  const LEGACY_STAGES = {'Contacté':'R1 : Bilan','RDV planifié':'R1 : Bilan','Proposition':'R3 : Offre'};
+  function stageOf(c){ const s = c.stage || 'Nouveau'; return LEGACY_STAGES[s] || s; }
 
   // Sections communes aux deux types de personne
   const SEC_PATRIMOINE = {title:'Patrimoine', fields:[
@@ -225,7 +229,7 @@
   function renderPipeline(){
     const board = document.getElementById('kanban');
     board.innerHTML = STAGES.map(stage => {
-      const cards = contacts.filter(c => (c.stage||'Nouveau') === stage);
+      const cards = contacts.filter(c => stageOf(c) === stage);
       return `<div class="kanban-col" data-stage="${esc(stage)}">
         <div class="kanban-col__head"><span class="kanban-col__title">${esc(stage)}</span><span class="kanban-col__count">${cards.length}</span></div>
         <div class="kanban-col__body">${cards.map(cardHTML).join('')}</div>
@@ -257,10 +261,12 @@
   }
   function updateStage(id, stage){
     const c = contacts.find(x => x.id === id); if(!c) return;
-    c.stage = stage;
-    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage})})
+    const patch = {stage};
+    if(stage === 'Gagné' && (c.type||'client') === 'prospect') patch.type = 'client';   // gagné = devient client
+    Object.assign(c, patch);
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
       .catch(err => console.error(err));
-    renderPipeline();
+    updateStats(); renderPipeline();
   }
 
   // ---------- CLIENTS TABLE ----------
@@ -363,7 +369,7 @@
 
   function contactInfoInner(c, id){
     const stageBar = `<div class="contact-pipeline">${STAGES.map(s =>
-      `<div class="contact-stage ${(c.stage||'Nouveau')===s?'is-active':''}" data-stage="${esc(s)}">${esc(s)}</div>`).join('')}</div>`;
+      `<div class="contact-stage ${stageOf(c)===s?'is-active':''}" data-stage="${esc(s)}">${esc(s)}</div>`).join('')}</div>`;
     const personneSwitch = `<div class="detail-section"><h4>Type de personne</h4><div class="edit-grid">
       <div class="edit-field"><label>Personne</label><select id="f_personne">
         <option value="physique" ${!isMorale(c)?'selected':''}>Personne physique</option>
@@ -416,10 +422,13 @@
         <button class="modal-tab is-active" data-pane="infos">Informations</button>
         <button class="modal-tab" data-pane="portefeuille">Portefeuille</button>
         <button class="modal-tab" data-pane="activites">Activités</button>
+        <button class="modal-tab" data-pane="bilans">Bilans</button>
       </div>
       <div class="modal-pane is-active" id="pane-infos">${contactInfoInner(c, id)}</div>
       <div class="modal-pane" id="pane-portefeuille">${portfolioPaneHTML()}</div>
-      <div class="modal-pane" id="pane-activites">${activitiesPaneHTML(id)}</div>`;
+      <div class="modal-pane" id="pane-activites">${activitiesPaneHTML(id)}</div>
+      <div class="modal-pane" id="pane-bilans"><p class="dash-empty">Chargement…</p></div>`;
+    loadBilans(id);
     modalBody.querySelectorAll('.modal-tab').forEach(t => t.addEventListener('click', () => {
       modalBody.querySelectorAll('.modal-tab').forEach(x => x.classList.toggle('is-active', x===t));
       modalBody.querySelectorAll('.modal-pane').forEach(p => p.classList.remove('is-active'));
@@ -437,7 +446,7 @@
     const patch = collectForm();
     const pe = document.getElementById('f_personne'); if(pe) patch.personne = pe.value;
     const activeStage = modalBody.querySelector('.contact-stage.is-active');
-    if(activeStage) patch.stage = activeStage.dataset.stage;
+    if(activeStage){ patch.stage = activeStage.dataset.stage; if(patch.stage === 'Gagné' && patch.type === 'prospect') patch.type = 'client'; }
     // Personne morale : garantir les colonnes NOT NULL nom/prenom (recherche + intégrité)
     if(patch.personne==='morale'){ if(patch.raison_sociale) patch.nom = patch.raison_sociale; if(patch.prenom==null) patch.prenom = ''; }
 
@@ -470,6 +479,31 @@
 
   // ---------- ACTIVITIES (within contact) ----------
   let selectedActType = 'appel';
+  // ---------- BILANS PATRIMONIAUX (table bilans, alimentée par bilan-patrimonial.html) ----------
+  const eurFmt = v => (v==null||isNaN(v)) ? '-' : Math.round(v).toLocaleString('fr-FR') + ' €';
+  const pctFmt = v => (v==null||isNaN(v)) ? '-' : (v*100).toFixed(0) + ' %';
+  function loadBilans(id){
+    const pane = document.getElementById('pane-bilans'); if(!pane) return;
+    const newBtn = `<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><a class="btn btn--solid" href="bilan-patrimonial.html?client=${encodeURIComponent(id)}" style="text-decoration:none">＋ Nouveau bilan patrimonial</a></div>`;
+    fetch(API + '/bilans?client_id=eq.' + id + '&select=id,created_at,updated_at,date_entretien,conseiller,etape,resume,points&order=created_at.desc', {headers: headers()})
+      .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(rows => {
+        if(!rows.length){ pane.innerHTML = newBtn + '<p class="dash-empty">Aucun bilan patrimonial enregistré pour cette fiche.</p>'; return; }
+        pane.innerHTML = newBtn + rows.map(b => {
+          const r = b.resume || {}, pts = Array.isArray(b.points) ? b.points : [];
+          const kpis = [['Revenu imposable', eurFmt(r.rni)], ['TMI', pctFmt(r.tmi)], ['Impôt', eurFmt(r.impot)], ['Actif net', eurFmt(r.actif_net)], ['Épargne financière', eurFmt(r.epargne_financiere)], ['Endettement', pctFmt(r.endettement_brut)], ['Capacité d\'épargne', eurFmt(r.capacite_epargne) + ' / mois']];
+          return `<div class="detail-section">
+            <h4>Bilan du ${fmtDate(b.date_entretien || b.created_at)}${b.conseiller ? ' · ' + esc(b.conseiller) : ''} <a class="btn" style="float:right;padding:5px 12px;font-size:.74rem;text-decoration:none" href="bilan-patrimonial.html?bilan=${b.id}">Ouvrir / modifier</a></h4>
+            <div class="edit-grid">${kpis.map(k => `<div class="edit-field"><label>${k[0]}</label><div style="font-weight:500">${k[1]}</div></div>`).join('')}</div>
+            ${r.objectifs && r.objectifs.length ? `<p style="font-size:.85rem;margin:10px 0 4px"><strong>Objectifs :</strong> ${esc(r.objectifs.join(', '))}</p>` : ''}
+            ${r.profil ? `<p style="font-size:.85rem;margin:0 0 8px"><strong>Profil déclaré :</strong> ${esc(r.profil)}</p>` : ''}
+            ${pts.length ? `<div style="font-size:.85rem"><strong>Points d'attention :</strong><ul style="margin:6px 0 0;padding-left:18px">${pts.slice(0,8).map(p => `<li style="margin-bottom:4px"><b>${esc(p.titre)}</b> (${esc(p.prio)}) : ${esc(p.constat)}</li>`).join('')}</ul></div>` : ''}
+          </div>`;
+        }).join('');
+      })
+      .catch(err => { console.error(err); pane.innerHTML = newBtn + '<p class="dash-empty">Bilans indisponibles (exécutez supabase-bilans.sql dans Supabase).</p>'; });
+  }
+
   function activitiesPaneHTML(id){
     const list = activities.filter(a => a.client_id === id);
     const types = [['appel','Appel'],['email','Email'],['rdv','RDV'],['tache','Tâche'],['note','Note']];

@@ -1,5 +1,5 @@
 /* =========================================================================
-   Bilan patrimonial — outil conseiller (La Financière de Rochechouart)
+   Bilan patrimonial : outil conseiller (La Financière de Rochechouart)
    -------------------------------------------------------------------------
    1. Entretien guidé : une question par écran (reprise du classeur d'audit :
       onglets « Audit », « Endettement », « Feuille Calcul », « Audit Bilan »).
@@ -18,7 +18,7 @@
      ====================================================================== */
   var PARAMS = {
     annee: 2026,
-    // Barème IR 2026 (revenus 2025) — seuils par part
+    // Barème IR 2026 (revenus 2025) : seuils par part
     bareme: [
       { max: 11497, taux: 0 },
       { max: 29315, taux: 0.11 },
@@ -108,10 +108,12 @@
   function pc(v, d) { return (num(v) * 100).toFixed(d == null ? 1 : d).replace('.', ',') + ' %'; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function age(dateStr) { if (!dateStr) return null; var d = new Date(dateStr); if (isNaN(d)) return null; var t = new Date(); var a = t.getFullYear() - d.getFullYear(); var m = t.getMonth() - d.getMonth(); if (m < 0 || (m === 0 && t.getDate() < d.getDate())) a--; return a; }
-  function fmtDate(s) { if (!s) return '—'; var d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('fr-FR'); }
+  function fmtDate(s) { if (!s) return '-'; var d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('fr-FR'); }
   function isCouple() { return ['Marié(e)', 'Pacsé(e)', 'Concubinage'].indexOf(state.foyer.situation) >= 0; }
   function civ(p) { return p.civilite || ''; }
   function nomComplet(p) { return ((p.prenom || '') + ' ' + (p.nom || '')).trim(); }
+  function maskName(p) { var n = (p.nom || '').trim(); if (!n) return ''; return (p.civilite === 'Madame' ? 'Mme ' : 'M. ') + n.charAt(0).toUpperCase() + '*'.repeat(Math.max(2, n.length - 1)); }
+  function maskedLabel() { var a = maskName(state.lui), b = maskName(state.elle); return [a, b].filter(Boolean).join(' & '); }
   function clientLabel() {
     var a = nomComplet(state.lui), b = nomComplet(state.elle);
     if (a && b) return (civ(state.elle) === 'Madame' ? 'Madame & Monsieur ' : '') + (state.lui.nom === state.elle.nom ? state.lui.nom : a + ' & ' + b);
@@ -161,7 +163,7 @@
   function tmi(rniParPart) { for (var i = 0; i < PARAMS.bareme.length; i++) if (rniParPart <= PARAMS.bareme[i].max) return PARAMS.bareme[i].taux; return 0.45; }
 
   /* ======================================================================
-     CALCULS — le cœur du classeur, recalculé à chaque saisie
+     CALCULS : le cœur du classeur, recalculé à chaque saisie
      ====================================================================== */
   function compute() {
     var S = state, R = {};
@@ -227,7 +229,7 @@
     R.actifNet = R.actifBrut - R.crdTotal;
     R.liquidites = liquid + R.plac.filter(function (p) { return p.src.dispo === 'Disponible'; }).reduce(function (a, p) { return a + p.montant; }, 0);
 
-    // répartition risque / rendement / liquidité (Feuille Calcul) — sur le patrimoine financier
+    // répartition risque / rendement / liquidité (Feuille Calcul) : sur le patrimoine financier
     R.risque = { 1: 0, 2: 0, 3: 0, 4: 0 };
     R.rend = [0, 0, 0, 0];
     R.dispo = { dispo: 0, bloque: 0 };
@@ -256,7 +258,7 @@
     R.fisc.impotRetenu = R.fisc.declare || R.fisc.impot;
     R.fisc.tauxMoyen = rni ? R.fisc.impotRetenu / rni : 0;
 
-    // --- endettement (onglet Endettement) — flux mensuels
+    // --- endettement (onglet Endettement) : flux mensuels
     var B = S.budget || {};
     var netM = persons.reduce(function (a, k) { return a + R.pers[k].net; }, 0) / 12;
     if (num(B.netMensuel)) netM = num(B.netMensuel);
@@ -308,7 +310,7 @@
   }
 
   /* ======================================================================
-     CONSTATS POUR LES SALES — observations chiffrées, pas de solution nommée
+     CONSTATS POUR LES SALES : observations chiffrées, pas de solution nommée
      ====================================================================== */
   function insights(R) {
     var L = [], S = state;
@@ -342,9 +344,9 @@
       add('haute', 'Budget déficitaire', 'Le train de vie déclaré (' + eurM(R.trainDeVie) + ') dépasse le reste à vivre après charges (' + eurM(R.resteAVivre) + ').', 'Le train de vie est-il correctement estimé ? Des revenus non déclarés lors de l\'entretien ?');
     R.biens.forEach(function (b) {
       if (b.loyerM && b.renta < 0.035 && !b.jouissance)
-        add('moyenne', 'Rendement locatif faible — ' + (b.src.localisation || b.src.type || 'bien'), 'Rentabilité brute de ' + pc(b.renta) + ' pour une valeur de ' + eur(b.valeur) + ' ; cash-flow mensuel de ' + eurM(b.cashflow) + '.', 'Le client connaît-il sa rentabilité nette après charges et fiscalité ? Attachement affectif ou logique financière ?');
+        add('moyenne', 'Rendement locatif faible : ' + (b.src.localisation || b.src.type || 'bien'), 'Rentabilité brute de ' + pc(b.renta) + ' pour une valeur de ' + eur(b.valeur) + ' ; cash-flow mensuel de ' + eurM(b.cashflow) + '.', 'Le client connaît-il sa rentabilité nette après charges et fiscalité ? Attachement affectif ou logique financière ?');
       if (b.src.statut === 'Nu (revenus fonciers)' && R.fisc.tmi >= 0.30)
-        add('moyenne', 'Loyers imposés au barème — ' + (b.src.localisation || 'bien'), 'Location nue avec une TMI de ' + pc(R.fisc.tmi, 0) + ' + 17,2 % de prélèvements sociaux : près de ' + pc(R.fisc.tmi + 0.172, 0) + ' des loyers partent en impôt.', 'Le régime de détention a-t-il déjà été questionné ? Le bien est-il meublable ou cessible ?');
+        add('moyenne', 'Loyers imposés au barème : ' + (b.src.localisation || 'bien'), 'Location nue avec une TMI de ' + pc(R.fisc.tmi, 0) + ' + 17,2 % de prélèvements sociaux : près de ' + pc(R.fisc.tmi + 0.172, 0) + ' des loyers partent en impôt.', 'Le régime de détention a-t-il déjà été questionné ? Le bien est-il meublable ou cessible ?');
     });
     if (S.rp.statut === 'Locataire' && (S.projet.echeance === 'Non' || !S.projet.echeance))
       add('basse', 'Locataire sans projet d\'acquisition', 'Loyer de ' + eurM(num(S.rp.loyer)) + ' soit ' + eur(num(S.rp.loyer) * 12) + ' par an sans constitution de capital.', 'Pourquoi rester locataire ? Mobilité, prix du marché, capacité d\'apport ?');
@@ -363,9 +365,9 @@
     R.persons.forEach(function (k) {
       var p = S[k]; if (!p) return;
       if (['Dirigeant TNS', 'Profession libérale', 'Indépendant / auto-entrepreneur'].indexOf(p.statut || '') >= 0 || /gérant|président|fondateur|associé|chef d'entreprise/i.test(p.profession || ''))
-        add('haute', 'Statut de dirigeant — ' + nomComplet(p), (p.statut || 'Dirigeant') + ' chez ' + (p.entreprise || 'son entreprise') + (p.anciennete ? ' depuis ' + p.anciennete : '') + '. Trésorerie de société, rémunération/dividendes et retraite du dirigeant non détaillées dans ce bilan.', 'Quel est le niveau de trésorerie excédentaire de la société ? Comment la rémunération est-elle arbitrée ?');
+        add('haute', 'Statut de dirigeant' + (nomComplet(p) ? ' : ' + nomComplet(p) : ''), (p.statut || 'Dirigeant') + ' chez ' + (p.entreprise || 'son entreprise') + (p.anciennete ? ' depuis ' + p.anciennete : '') + '. Trésorerie de société, rémunération/dividendes et retraite du dirigeant non détaillées dans ce bilan.', 'Quel est le niveau de trésorerie excédentaire de la société ? Comment la rémunération est-elle arbitrée ?');
       if (p.depart && /Oui/i.test(p.depart))
-        add('moyenne', 'Changement professionnel envisagé — ' + nomComplet(p), 'Velléités de départ déclarées' + (p.departComment ? ' : « ' + p.departComment + ' »' : '') + '.', 'À quelle échéance ? Impact sur les revenus et la capacité d\'emprunt ?');
+        add('moyenne', 'Changement professionnel envisagé' + (nomComplet(p) ? ' : ' + nomComplet(p) : ''), 'Velléités de départ déclarées' + (p.departComment ? ' : « ' + p.departComment + ' »' : '') + '.', 'À quelle échéance ? Impact sur les revenus et la capacité d\'emprunt ?');
     });
     if (S.obj.liste && S.obj.liste.length > 4)
       add('basse', 'Objectifs nombreux à hiérarchiser', S.obj.liste.length + ' objectifs exprimés : ' + S.obj.liste.join(', ') + '.', 'Quels sont les deux objectifs prioritaires ? Lequel déclenche une décision ce trimestre ?');
@@ -380,7 +382,7 @@
      ====================================================================== */
   var CHAPTERS = ['Situation', 'Revenus', 'Immobilier', 'Financier', 'Budget', 'Objectifs', 'Notes'];
   var SIT = ['Célibataire', 'Marié(e)', 'Pacsé(e)', 'Concubinage', 'Divorcé(e)', 'Veuf(ve)'];
-  var REGIMES = ['Communauté réduite aux acquêts', 'Séparation de biens', 'Communauté universelle', 'Participation aux acquêts', 'PACS — séparation (par défaut)', 'PACS — indivision', 'Ne sait pas'];
+  var REGIMES = ['Communauté réduite aux acquêts', 'Séparation de biens', 'Communauté universelle', 'Participation aux acquêts', 'PACS : séparation (par défaut)', 'PACS : indivision', 'Ne sait pas'];
   var STATUTS_PRO = ['Salarié(e)', 'Cadre dirigeant salarié', 'Dirigeant TNS', 'Profession libérale', 'Indépendant / auto-entrepreneur', 'Fonctionnaire', 'Retraité(e)', 'Sans activité'];
   var BIEN_TYPES = ['Appartement', 'Maison', 'Immeuble', 'Local commercial / bureaux', 'Parking / box', 'Terrain', 'Parts de SCI'];
   var BIEN_STATUTS = ['Nu (revenus fonciers)', 'LMNP', 'LMP', 'SCI à l\'IR', 'SCI à l\'IS', 'Dispositif fiscal (Pinel, Denormandie, Malraux…)', 'Résidence secondaire (jouissance)', 'Mis à disposition (famille)', 'Vacant'];
@@ -388,7 +390,7 @@
   function creditFields() {
     return [
       { k: 'capital', l: 'Capital emprunté', t: 'number', u: '€' }, { k: 'mensualite', l: 'Mensualité', t: 'number', u: '€ / mois', opt: true },
-      { k: 'debut', l: 'Début', t: 'month', opt: true }, { k: 'duree', l: 'Durée', t: 'number', u: 'années', opt: true }, { k: 'taux', l: 'Taux', t: 'number', u: '% (ex. 1,8)', opt: true }, { k: 'crd', l: 'Capital restant dû', t: 'number', u: '€ — sinon calculé', opt: true }
+      { k: 'debut', l: 'Début', t: 'month', opt: true }, { k: 'duree', l: 'Durée', t: 'number', u: 'années', opt: true }, { k: 'taux', l: 'Taux', t: 'number', u: '% (ex. 1,8)', opt: true }, { k: 'crd', l: 'Capital restant dû', t: 'number', u: '€, sinon calculé', opt: true }
     ];
   }
   function personScreen(k, label) {
@@ -400,7 +402,7 @@
         { k: 'naissance', l: 'Date de naissance', t: 'date' }, { k: 'tel', l: 'Téléphone', t: 'tel', opt: true }, { k: 'email', l: 'Email', t: 'email', opt: true },
         { k: 'profession', l: 'Profession' }, { k: 'statut', l: 'Statut', t: 'select', o: STATUTS_PRO }, { k: 'entreprise', l: 'Entreprise / employeur', opt: true },
         { k: 'fixes', l: 'Revenus fixes bruts', t: 'number', u: '€ / an' }, { k: 'variables', l: 'Revenus variables bruts', t: 'number', u: '€ / an', opt: true },
-        { k: 'net', l: 'Revenus nets imposables', t: 'number', u: '€ / an — vide = 78 % du brut', opt: true }, { k: 'divers', l: 'Autres revenus (BNC/BIC, pensions, dividendes)', t: 'number', u: '€ / an', opt: true },
+        { k: 'net', l: 'Revenus nets imposables', t: 'number', u: '€ / an, vide = 78 % du brut', opt: true }, { k: 'divers', l: 'Autres revenus (BNC/BIC, pensions, dividendes)', t: 'number', u: '€ / an', opt: true },
         { k: 'depart', l: 'Changement professionnel envisagé ?', t: 'select', o: ['Non', 'Oui, à court terme', 'Oui, à moyen terme', 'Peut-être'], opt: true }
       ] };
   }
@@ -410,7 +412,7 @@
     { ch: 0, when: function () { return ['Marié(e)', 'Pacsé(e)'].indexOf(state.foyer.situation) >= 0; }, type: 'choice', title: 'Régime matrimonial', path: 'foyer.regime', options: REGIMES, grid: true },
     personScreen('lui', 'Monsieur'), personScreen('elle', 'Madame'),
     { ch: 0, type: 'fields', title: 'Enfants et foyer', hint: 'Le nombre de parts est proposé automatiquement.', path: 'foyer', calc: function () { return [['Parts suggérées', String(suggestedParts()).replace('.', ',')]]; }, fields: [
-      { k: 'enfants', l: 'Nombre d\'enfants à charge', t: 'number' }, { k: 'ages', l: 'Âges des enfants', u: 'ex. 4, 7 et 12 ans', opt: true }, { k: 'parts', l: 'Nombre de parts fiscales', t: 'number', u: 'vide = valeur suggérée', opt: true }, { k: 'adresse', l: 'Adresse', w: true, opt: true }
+      { k: 'enfants', l: 'Nombre d\'enfants à charge', t: 'number' }, { k: 'ages', l: 'Âges des enfants', u: 'ex. 4, 7 et 12 ans', opt: true }, { k: 'parts', l: 'Nombre de parts fiscales', t: 'number', u: 'vide = valeur suggérée', opt: true }
     ] },
 
     { ch: 1, type: 'fields', title: 'Impôt du foyer', hint: 'L\'impôt est estimé par le barème ; le montant réel de l\'avis d\'imposition prime s\'il est saisi.', path: 'fisc', calc: function (R) { return [['Revenu imposable global', eur(R.fisc.rni)], ['TMI', pc(R.fisc.tmi, 0)], ['Impôt estimé', eur(R.fisc.impot)]]; }, fields: [
@@ -435,11 +437,11 @@
     { ch: 2, type: 'list', title: 'Autres crédits en cours', hint: 'Consommation, auto, étudiant… Continuez si aucun.', path: 'creditsAutres', itemLabel: 'Crédit', fields: [{ k: 'designation', l: 'Désignation' }, { k: 'type', l: 'Nature', t: 'select', o: ['Consommation', 'Auto / LOA', 'Étudiant', 'Familial', 'Professionnel', 'Immobilier'], opt: true }].concat(creditFields()), calcItem: function (c) { var i = creditInfo(c); return 'Mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd); } },
 
     { ch: 3, type: 'list', title: 'Comptes et livrets', hint: 'Comptes courants, Livret A, LDDS, PEL… Un bloc par compte, une estimation suffit.', path: 'treso', itemLabel: 'Compte', fields: [
-      { k: 'type', l: 'Type', t: 'select', o: TRESO_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'montant', l: 'Montant', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement', opt: true }, { k: 'taux', l: 'Taux', t: 'number', u: '% / an — vide = taux usuel', opt: true }
+      { k: 'type', l: 'Type', t: 'select', o: TRESO_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'montant', l: 'Montant', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement', opt: true }, { k: 'taux', l: 'Taux', t: 'number', u: '% / an, vide = taux usuel', opt: true }
     ], onItem: function (it) { if (it.type && (it.taux === '' || it.taux == null)) { var d = TRESO_TYPES.filter(function (t) { return t[0] === it.type; })[0]; if (d) it.taux = String(d[2] * 100); } } },
     { ch: 3, type: 'list', title: 'Placements', hint: 'Assurance-vie, PEA, compte-titres, PER, PEE, SCPI… Un bloc par contrat.', path: 'plac', itemLabel: 'Placement', fields: [
       { k: 'type', l: 'Type', t: 'select', o: PLAC_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'montant', l: 'Valorisation', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement / assureur', opt: true },
-      { k: 'taux', l: 'Performance annuelle moyenne', t: 'number', u: '% / an', opt: true }, { k: 'risque', l: 'Niveau de risque', t: 'select', o: [['1', '1/4 — faible'], ['2', '2/4 — moyen faible'], ['3', '3/4 — moyen fort'], ['4', '4/4 — fort']], opt: true },
+      { k: 'taux', l: 'Performance annuelle moyenne', t: 'number', u: '% / an', opt: true }, { k: 'risque', l: 'Niveau de risque', t: 'select', o: [['1', '1/4 faible'], ['2', '2/4 moyen faible'], ['3', '3/4 moyen fort'], ['4', '4/4 fort']], opt: true },
       { k: 'dispo', l: 'Disponibilité', t: 'select', o: ['Disponible', 'Bloqué'], opt: true }, { k: 'support', l: 'Supports', t: 'select', o: ['Fonds euros', 'Unités de compte', 'Mixte', 'Actions en direct', 'Obligations', 'Immobilier', 'Autre'], opt: true }
     ] },
     { ch: 3, type: 'choice', title: 'Des donations déjà réalisées aux enfants ?', path: 'dec.dons', options: ['Non', 'Oui, des dons manuels', 'Oui, une donation notariée', 'Sans objet'], grid: true },
@@ -455,11 +457,11 @@
     { ch: 5, type: 'fields', title: 'Ce qui compte pour vous', hint: 'Les mots du client, repris tels quels dans la synthèse.', path: 'dec', fields: [
       { k: 'pourquoiRdv', l: 'Ce que vous cherchez à faire', t: 'textarea', w: true }, { k: 'importance', l: 'Pourquoi c\'est important pour vous', t: 'textarea', w: true, opt: true }, { k: 'essaye', l: 'Ce que vous avez déjà essayé', t: 'textarea', w: true, opt: true }
     ] },
-    { ch: 5, type: 'fields', title: 'Retraite et études', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '—']]; }, fields: [
+    { ch: 5, type: 'fields', title: 'Retraite et études', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-']]; }, fields: [
       { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)', opt: true }, { k: 'renteRetraite', l: 'Revenu souhaité à la retraite', t: 'number', u: '€ / mois nets', opt: true }, { k: 'pensionEstimee', l: 'Pension estimée', t: 'number', u: '€ / mois', opt: true },
       { k: 'capitalEtudes', l: 'Capital études des enfants', t: 'number', u: '€', opt: true }
     ] },
-    { ch: 5, type: 'choice', title: 'Quelle attitude face au risque ?', path: 'obj.profil', options: ['Conservateur — je refuse toute perte', 'Équilibré — j\'accepte des fluctuations modérées', 'Opportuniste — je vise la performance avec des à-coups', 'Dynamique — j\'accepte des baisses fortes pour un rendement élevé'] },
+    { ch: 5, type: 'choice', title: 'Quelle attitude face au risque ?', path: 'obj.profil', options: ['Conservateur : je refuse toute perte', 'Équilibré : j\'accepte des fluctuations modérées', 'Opportuniste : je vise la performance avec des à-coups', 'Dynamique : j\'accepte des baisses fortes pour un rendement élevé'] },
 
     { ch: 6, type: 'fields', title: 'Notes du conseiller', hint: 'Facultatif. Repris dans la synthèse et la fiche sales.', path: 'notes', fields: [
       { k: 'situation', l: 'Commentaires', t: 'textarea', w: true, opt: true }, { k: 'sales', l: 'Message pour l\'équipe commerciale', t: 'textarea', w: true, opt: true },
@@ -485,7 +487,7 @@
     var v = val == null ? '' : val;
     var dp = ' data-path="' + esc(path) + '" data-key="' + esc(f.k) + '"';
     if (f.t === 'select') {
-      h += '<select id="' + id + '"' + dp + '><option value="">—</option>' + f.o.map(function (o) { var ov = Array.isArray(o) ? o[0] : o, ol = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(ov) + '"' + (String(v) === String(ov) ? ' selected' : '') + '>' + esc(ol) + '</option>'; }).join('') + '</select>';
+      h += '<select id="' + id + '"' + dp + '><option value="">-</option>' + f.o.map(function (o) { var ov = Array.isArray(o) ? o[0] : o, ol = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(ov) + '"' + (String(v) === String(ov) ? ' selected' : '') + '>' + esc(ol) + '</option>'; }).join('') + '</select>';
     } else if (f.t === 'textarea') {
       h += '<textarea id="' + id + '"' + dp + '>' + esc(v) + '</textarea>';
     } else {
@@ -530,7 +532,7 @@
     } else if (s.type === 'list') {
       var items = get(s.path) || [];
       h += '<div class="bp-list">';
-      if (!items.length) h += '<div class="bp-empty">Aucun élément — cliquez sur « Ajouter » ou continuez si sans objet.</div>';
+      if (!items.length) h += '<div class="bp-empty">Aucun élément : cliquez sur « Ajouter » ou continuez si sans objet.</div>';
       items.forEach(function (it, i) {
         var p = s.path + '.' + i;
         h += '<div class="bp-item"><div class="bp-item__head"><div class="bp-item__title">' + esc(s.itemLabel) + ' ' + (i + 1) + '</div><button type="button" class="bp-item__del" data-del="' + i + '">Supprimer</button></div>';
@@ -664,7 +666,7 @@
   });
 
   /* ======================================================================
-     GRAPHIQUES SVG (sans dépendance) — étiquettes directes + légende chiffrée
+     GRAPHIQUES SVG (sans dépendance) : étiquettes directes + légende chiffrée
      ====================================================================== */
   function donut(items, opts) {
     opts = opts || {}; var total = items.reduce(function (a, i) { return a + i.v; }, 0);
@@ -745,33 +747,34 @@
   }
 
   /* ======================================================================
-     SYNTHÈSE — rendu des « slides »
+     SYNTHÈSE : rendu des « slides »
      ====================================================================== */
   var pageNo = 0;
   function slide(inner, cls) { pageNo++; return '<section class="sl' + (cls ? ' ' + cls : '') + '">' + inner + (cls ? '' : '<img class="sl__logo" src="assets/img/logo.png" alt=""><div class="sl__foot">La Financière de Rochechouart · Bilan patrimonial · ' + esc(clientLabel()) + ' · Document confidentiel</div><div class="sl__pn">' + pageNo + '</div>') + '</section>'; }
   function head(t, sub) { return '<h2>' + esc(t) + '</h2><h3>' + esc(sub || '') + '</h3>'; }
-  function divider(n, t) { return slide('<div class="dv__panel"></div><img class="dv__photo" src="assets/img/salon-lumiere.jpg" alt=""><div class="dv__num">Partie ' + n + '</div><div class="dv__title">' + esc(t) + '</div><div class="dv__rule"></div><img class="dv__logo" src="assets/img/logo.png" alt="">', 'sl--divider'); }
+  var tocPages = [];
+  function divider(n, t) { tocPages.push([n, t, pageNo + 1]); return slide('<div class="dv__green"></div><div class="dv__title">' + n + '. ' + esc(t) + '</div><div class="dv__rule"></div><div class="wave dv__wave"></div><img class="dv__logo" src="assets/img/logo.png" alt="">', 'sl--divider'); }
+  function tocSlide() { return slide('<div class="wave toc__wave--l"></div><div class="wave toc__wave--r"></div><div class="toc__panel"></div><div class="toc__title">SOMMAIRE</div><div class="toc__rule"></div><div class="toc__list">' + tocPages.map(function (t) { return '<div class="toc__row"><span class="n">' + t[0] + '. ' + esc(t[1]) + '</span><span class="d"></span><span class="p">p. ' + t[2] + '</span></div>'; }).join('') + '</div><img class="toc__logo" src="assets/img/logo.png" alt="">', 'sl--toc'); }
   function kv(rows) { return '<table class="tb tb--kv">' + rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + r[1] + '</td></tr>'; }).join('') + '</table>'; }
   function riskPill(r) { return '<span class="pill pill--' + r + '">' + r + '/4</span>'; }
-  function dash(v) { return v ? esc(v) : '—'; }
+  function dash(v) { return v ? esc(v) : '-'; }
 
   function showSynth() {
     save(); var R = compute(), S = state, L = insights(R); pageNo = 0; var H = '';
     var date = fmtDate(S.notes.date);
 
-    // 1. Couverture — reprise à l'identique de la diapositive 1 de la présentation commerciale
+    // 1. Couverture : reprise à l'identique de la diapositive 1 de la présentation commerciale
     var clientLine = (clientLabel() === 'Client' ? 'Madame & Monsieur XXX' : clientLabel()) + ' - ' + (S.notes.date ? date : 'Date');
-    H += slide('<div class="cov__green"></div><div class="cov__wave cov__wave--l"></div><div class="cov__wave cov__wave--r"></div><div class="cov__plate"></div><img class="cov__photo" src="assets/img/escalier.jpg" alt=""><div class="cov__vline"></div><img class="cov__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart"><div class="cov__bar"></div><div class="cov__title">Gestion privée &amp;<br>placement de trésorerie</div><div class="cov__sub">Conseil sur mesure pour entrepreneurs, familles et dirigeants.</div><div class="cov__hline"></div><div class="cov__client">' + esc(clientLine) + '</div>', 'sl--cover');
+    H += slide('<div class="wave cov__wave--l"></div><div class="wave cov__wave--r"></div><div class="cov__green"></div><div class="cov__vline"></div><div class="cov__plate"></div><div class="cov__photo"><img src="assets/img/escalier.jpg" alt=""></div><img class="cov__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart"><div class="cov__bar"></div><div class="cov__title">Gestion privée &amp;<br>placement de trésorerie</div><div class="cov__sub">Conseil sur mesure pour entrepreneurs, familles et dirigeants.</div><div class="cov__hline"></div><div class="cov__client">' + esc(clientLine) + '</div>', 'sl--cover');
 
-    // 2. Sommaire
-    var toc = [['1', 'Votre situation familiale et professionnelle'], ['2', 'Vos revenus et votre fiscalité'], ['3', 'Votre patrimoine : actif et passif'], ['4', 'Analyse du patrimoine financier'], ['5', 'Votre immobilier'], ['6', 'Budget, endettement et capacité d\'épargne'], ['7', 'Vos objectifs et projets'], ['8', 'Synthèse et points d\'attention'], ['9', 'Vos mots, nos commentaires'], ['10', 'Informations importantes']];
-    H += slide(head('Sommaire', 'Votre audit en date du ' + date) + '<div class="toc">' + toc.map(function (t) { return '<div class="toc__row"><span class="n">' + t[0] + '.</span>' + esc(t[1]) + '</div>'; }).join('') + '</div>');
+    // 2. Sommaire : construit en fin de rendu (numéros de page), même mise en page que la diapositive 2 du deck
+    tocPages = []; pageNo++; H += '%%TOC%%';
 
     // 3. Situation
     H += divider(1, 'Votre situation');
     function personCard(k, label) {
       var p = S[k] || {}, o = R.pers[k]; if (!o) return '';
-      return '<div class="card"><div class="card__t">' + esc(label) + ' — ' + esc(nomComplet(p) || '—') + '</div>' + kv([
+      return '<div class="card"><div class="card__t">' + esc(label) + ' : ' + esc(nomComplet(p) || '-') + '</div>' + kv([
         ['Date de naissance', dash(fmtDate(p.naissance)) + (o.age != null ? ' <span class="muted">(' + o.age + ' ans)</span>' : '')],
         ['Profession', dash(p.profession) + (p.entreprise ? ' · ' + esc(p.entreprise) : '')], ['Statut', dash(p.statut)], ['Changement professionnel', dash(p.depart)], ['Téléphone / email', dash(p.tel) + (p.email ? ' · ' + esc(p.email) : '')]
       ]) + '</div>';
@@ -787,37 +790,37 @@
     // 5. Actif
     H += divider(3, 'Votre patrimoine');
     var actifRows = [];
-    if (R.rp) actifRows.push('<tr><td>Résidence principale</td><td class="r">' + eur(R.rp.valeur) + '</td><td class="r">—</td><td>' + riskPill(1) + '</td><td>Bloqué</td><td>' + esc(CAT_LABELS.immojou) + '</td><td>' + dash(S.rp.proprietaire) + '</td></tr>');
-    R.biens.forEach(function (b) { actifRows.push('<tr><td>' + esc(b.src.type || 'Bien') + ' <span class="muted">· ' + esc(b.src.localisation || '') + '</span></td><td class="r">' + eur(b.valeur) + '</td><td class="r">' + (b.loyerM ? pc(b.renta) : '—') + '</td><td>' + riskPill(2) + '</td><td>Bloqué</td><td>' + esc(b.jouissance ? CAT_LABELS.immojou : CAT_LABELS.immorap) + ' · ' + dash(b.src.statut) + '</td><td>' + dash(b.src.proprietaire) + '</td></tr>'); });
+    if (R.rp) actifRows.push('<tr><td>Résidence principale</td><td class="r">' + eur(R.rp.valeur) + '</td><td class="r">-</td><td>' + riskPill(1) + '</td><td>Bloqué</td><td>' + esc(CAT_LABELS.immojou) + '</td><td>' + dash(S.rp.proprietaire) + '</td></tr>');
+    R.biens.forEach(function (b) { actifRows.push('<tr><td>' + esc(b.src.type || 'Bien') + ' <span class="muted">· ' + esc(b.src.localisation || '') + '</span></td><td class="r">' + eur(b.valeur) + '</td><td class="r">' + (b.loyerM ? pc(b.renta) : '-') + '</td><td>' + riskPill(2) + '</td><td>Bloqué</td><td>' + esc(b.jouissance ? CAT_LABELS.immojou : CAT_LABELS.immorap) + ' · ' + dash(b.src.statut) + '</td><td>' + dash(b.src.proprietaire) + '</td></tr>'); });
     R.plac.forEach(function (p) { actifRows.push('<tr><td>' + esc(p.label) + ' <span class="muted">· ' + esc(p.src.etab || '') + '</span></td><td class="r">' + eur(p.montant) + '</td><td class="r">' + pc(p.taux) + '</td><td>' + riskPill(p.risque) + '</td><td>' + dash(p.src.dispo) + '</td><td>' + dash(p.src.support) + '</td><td>' + dash(p.src.gestion) + (p.src.titulaire ? ' · ' + esc(p.src.titulaire) : '') + '</td></tr>'); });
     R.treso.forEach(function (t) { var d = TRESO_TYPES.filter(function (x) { return x[0] === t.src.type; })[0]; actifRows.push('<tr><td>' + esc(d ? d[1] : 'Compte') + ' <span class="muted">· ' + esc(t.src.etab || '') + '</span></td><td class="r">' + eur(t.montant) + '</td><td class="r">' + pc(t.taux) + '</td><td>' + riskPill(1) + '</td><td>' + (/pel|cel|cat/.test(t.src.type) ? 'Bloqué' : 'Disponible') + '</td><td>Liquidités</td><td>' + dash(t.src.titulaire) + '</td></tr>'); });
     var actifKpis = '<div class="kpis"><div class="kpi kpi--g"><div class="kpi__l">Actif brut</div><div class="kpi__v">' + eur(R.actifBrut) + '</div></div><div class="kpi kpi--gd"><div class="kpi__l">Passif (capital restant dû)</div><div class="kpi__v">' + eur(R.crdTotal) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Actif net</div><div class="kpi__v">' + eur(R.actifNet) + '</div></div><div class="kpi"><div class="kpi__l">Épargne financière</div><div class="kpi__v">' + eur(R.finTotal) + '</div></div></div>';
     var actifHead = '<tr><th>Produit</th><th class="r">Montant</th><th class="r">Tx</th><th>Risque</th><th>Dispo.</th><th>Support / nature</th><th>Gestion / titulaire</th></tr>';
-    var actifTot = '<tr class="tot"><td>Total actif</td><td class="r">' + eur(R.actifBrut) + '</td><td class="r">' + (R.finTotal ? pc(R.rendMoyen) : '—') + '</td><td colspan="4"></td></tr>';
+    var actifTot = '<tr class="tot"><td>Total actif</td><td class="r">' + eur(R.actifBrut) + '</td><td class="r">' + (R.finTotal ? pc(R.rendMoyen) : '-') + '</td><td colspan="4"></td></tr>';
     var actifDonut = '<div><h4>Répartition par nature</h4>' + donut(CAT_ORDER.map(function (c) { return { l: CAT_LABELS[c], v: R.cats[c], c: CAT_COLORS[c], dark: c === 'immojou' || c === 'immorap' }; }), { label: 'Actif brut' }) + '</div>';
     if (!actifRows.length) actifRows = ['<tr><td colspan="7" class="muted">Aucun actif renseigné.</td></tr>'];
     var PER = 10, pages = []; for (var ai = 0; ai < actifRows.length; ai += PER) pages.push(actifRows.slice(ai, ai + PER));
     pages.forEach(function (rows, pi) {
       var last = pi === pages.length - 1, cls = rows.length > 7 ? 'tb tb--xs' : 'tb tb--sm';
-      H += slide(head('Actif' + (pages.length > 1 ? ' (' + (pi + 1) + '/' + pages.length + ')' : ''), 'Inventaire de vos avoirs') + actifKpis + '<div class="g21" style="grid-template-columns:1.8fr 1fr"><table class="' + cls + '">' + actifHead + rows.join('') + (last ? actifTot : '') + '</table>' + (pi === 0 ? actifDonut : '') + '</div>');
+      H += slide(head('Actifs' + (pages.length > 1 ? ' (' + (pi + 1) + '/' + pages.length + ')' : ''), 'Inventaire de vos avoirs') + actifKpis + '<div class="g21" style="grid-template-columns:1.8fr 1fr"><table class="' + cls + '">' + actifHead + rows.join('') + (last ? actifTot : '') + '</table>' + (pi === 0 ? actifDonut : '') + '</div>');
     });
 
     // 6. Passif
-    var passRows = R.credits.map(function (c) { var i = c.info, s = c.src || {}; return '<tr><td>' + esc(c.objet) + '</td><td class="r">' + eur(i.capital) + '</td><td class="r">' + (s.taux ? pc(pct(s.taux), 2) : '—') + '</td><td class="r">' + eurM(i.mensualite) + '</td><td>' + esc(c.type) + '</td><td class="r">' + eur(i.crd) + '</td><td>' + (s.debut ? esc(s.debut) : '—') + (i.fin ? ' → ' + i.fin : '') + '</td><td class="r">' + (i.dureeMois ? Math.round(i.dureeMois / 12) + ' ans' : '—') + '</td></tr>'; }).join('') || '<tr><td colspan="8" class="muted">Aucun crédit en cours.</td></tr>';
+    var passRows = R.credits.map(function (c) { var i = c.info, s = c.src || {}; return '<tr><td>' + esc(c.objet) + '</td><td class="r">' + eur(i.capital) + '</td><td class="r">' + (s.taux ? pc(pct(s.taux), 2) : '-') + '</td><td class="r">' + eurM(i.mensualite) + '</td><td>' + esc(c.type) + '</td><td class="r">' + eur(i.crd) + '</td><td>' + (s.debut ? esc(s.debut) : '-') + (i.fin ? ' → ' + i.fin : '') + '</td><td class="r">' + (i.dureeMois ? Math.round(i.dureeMois / 12) + ' ans' : '-') + '</td></tr>'; }).join('') || '<tr><td colspan="8" class="muted">Aucun crédit en cours.</td></tr>';
     H += slide(head('Passif', 'Vos engagements et votre taux d\'endettement') + '<div class="g21"><div><table class="tb tb--sm"><tr><th>Objet</th><th class="r">Montant</th><th class="r">Tx</th><th class="r">Mens.</th><th>Type</th><th class="r">Restant dû</th><th>Début – fin</th><th class="r">Durée</th></tr>' + passRows + '<tr class="tot"><td>Total</td><td class="r">' + eur(R.credits.reduce(function (a, c) { return a + c.info.capital; }, 0)) + '</td><td></td><td class="r">' + eurM(R.mensCredits) + '</td><td></td><td class="r">' + eur(R.crdTotal) + '</td><td colspan="2"></td></tr></table>' + (S.rp.statut === 'Locataire' ? '<p class="muted" style="margin-top:.6em;font-size:.85em">Loyer de la résidence principale : ' + eurM(S.rp.loyer) + ' (intégré au taux d\'endettement).</p>' : '') + '</div><div class="g2" style="align-content:start"><div class="card"><div class="card__t">Endettement brut (1)</div>' + gauge(R.endBrut, { label: '80 % des revenus fonciers' }) + '</div><div class="card"><div class="card__t">Endettement différentiel (2)</div>' + gauge(R.endDiff, { label: 'crédits moins loyers' }) + '</div><p class="muted" style="grid-column:1/-1;font-size:.8em">(1) Charges de crédit et loyer rapportées aux revenus, loyers perçus pondérés à 80 %. (2) Crédits nets des loyers perçus, rapportés aux revenus hors loyers. Seuil usuel des banques : 35 %.</p></div></div>' + (R.credits.length ? '<div class="g21" style="margin-top:1.2em"><div><h4>Capital restant dû par crédit</h4>' + hbars(R.credits.map(function (c) { return { l: c.objet.length > 26 ? c.objet.slice(0, 25) + '…' : c.objet, v: c.info.crd, c: c.type === 'Immobilier' ? '#15462A' : '#A9853F' }; })) + '</div><div><h4>Mensualités par crédit</h4>' + hbars(R.credits.map(function (c) { return { l: c.objet.length > 26 ? c.objet.slice(0, 25) + '…' : c.objet, v: c.info.mensualite, c: c.type === 'Immobilier' ? '#15462A' : '#A9853F' }; }), { fmt: eurM }) + '</div></div>' : ''));
 
     // 7. Analyse financière (Feuille Calcul)
     H += divider(4, 'Analyse du patrimoine financier');
-    H += slide(head('Lecture de votre épargne', 'Risque, rendement et disponibilité de ' + eur(R.finTotal) + ' d\'avoirs financiers') + '<div class="g3"><div class="card"><div class="card__t">Par niveau de risque</div>' + donut([1, 2, 3, 4].map(function (r) { return { l: RISK_LABELS[r], v: R.risque[r], c: RISK_COLORS[r], dark: r === 4 }; }), { label: 'Financier' }) + '</div><div class="card"><div class="card__t">Par rendement annuel</div>' + donut(REND_BUCKETS.map(function (b, i) { return { l: b[0], v: R.rend[i], c: REND_COLORS[i], dark: i >= 2 }; }), { label: 'Rendement moyen', center: pc(R.rendMoyen) }) + '</div><div class="card"><div class="card__t">Par disponibilité</div>' + donut([{ l: 'Disponible', v: R.dispo.dispo, c: '#A9853F' }, { l: 'Bloqué / long terme', v: R.dispo.bloque, c: '#001B00', dark: true }], { label: 'Financier' }) + '</div></div><div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--s"><div class="kpi__l">Revenus financiers annuels</div><div class="kpi__v">' + eur(R.revFinAnnuel) + '</div></div><div class="kpi"><div class="kpi__l">Liquidités immédiates</div><div class="kpi__v">' + eur(R.liquidites) + '</div></div><div class="kpi"><div class="kpi__l">Mois de dépenses couverts</div><div class="kpi__v">' + ((R.chTotalM + R.trainDeVie) ? Math.round(R.cats.liquid / (R.chTotalM + R.trainDeVie)) : '—') + '</div></div><div class="kpi kpi--gl"><div class="kpi__l">Profil déclaré</div><div class="kpi__v" style="font-size:1.1em">' + esc((S.obj.profil || '—').split(' — ')[0]) + '</div></div></div>');
+    H += slide(head('Lecture de votre épargne', 'Risque, rendement et disponibilité de ' + eur(R.finTotal) + ' d\'avoirs financiers') + '<div class="g3"><div class="card"><div class="card__t">Par niveau de risque</div>' + donut([1, 2, 3, 4].map(function (r) { return { l: RISK_LABELS[r], v: R.risque[r], c: RISK_COLORS[r], dark: r === 4 }; }), { label: 'Financier' }) + '</div><div class="card"><div class="card__t">Par rendement annuel</div>' + donut(REND_BUCKETS.map(function (b, i) { return { l: b[0], v: R.rend[i], c: REND_COLORS[i], dark: i >= 2 }; }), { label: 'Rendement moyen', center: pc(R.rendMoyen) }) + '</div><div class="card"><div class="card__t">Par disponibilité</div>' + donut([{ l: 'Disponible', v: R.dispo.dispo, c: '#A9853F' }, { l: 'Bloqué / long terme', v: R.dispo.bloque, c: '#001B00', dark: true }], { label: 'Financier' }) + '</div></div><div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--s"><div class="kpi__l">Revenus financiers annuels</div><div class="kpi__v">' + eur(R.revFinAnnuel) + '</div></div><div class="kpi"><div class="kpi__l">Liquidités immédiates</div><div class="kpi__v">' + eur(R.liquidites) + '</div></div><div class="kpi"><div class="kpi__l">Mois de dépenses couverts</div><div class="kpi__v">' + ((R.chTotalM + R.trainDeVie) ? Math.round(R.cats.liquid / (R.chTotalM + R.trainDeVie)) : '-') + '</div></div><div class="kpi kpi--gl"><div class="kpi__l">Profil déclaré</div><div class="kpi__v" style="font-size:1.1em">' + esc((S.obj.profil || '-').split(' : ')[0]) + '</div></div></div>');
 
     // 8. Immobilier
     H += divider(5, 'Votre immobilier');
     var immoCards = '';
-    if (R.rp) immoCards += '<div class="card card--green"><div class="card__t">Résidence principale</div>' + kv([['Adresse', dash(S.rp.adresse)], ['Type / surface', dash(S.rp.type) + (S.rp.surface ? ' · ' + esc(S.rp.surface) + ' m²' : '')], ['Valeur estimée', eur(R.rp.valeur)], ['Valeur d\'achat', S.rp.achat ? eur(S.rp.achat) + (S.rp.dateAchat ? ' (' + esc(S.rp.dateAchat) + ')' : '') : '—'], ['Plus-value latente', S.rp.achat ? eur(R.rp.valeur - num(S.rp.achat)) : '—'], ['Mensualités', eurM(R.rp.mens)], ['Capital restant dû', eur(R.rp.crd)]]) + '</div>';
-    else if (S.rp.statut) immoCards += '<div class="card card--green"><div class="card__t">Résidence principale</div><p>' + esc(S.rp.statut) + (S.rp.loyer ? ' — loyer ' + eurM(S.rp.loyer) : '') + '</p>' + (S.rp.adresse ? '<p class="muted" style="color:rgba(255,255,255,.7)">' + esc(S.rp.adresse) + '</p>' : '') + '</div>';
-    R.biens.forEach(function (b, i) { immoCards += '<div class="card"><div class="card__t">Bien ' + (i + 1) + ' — ' + esc(b.src.type || '') + ' · ' + esc(b.src.localisation || '') + '</div>' + kv([['Statut', dash(b.src.statut)], ['Propriétaire', dash(b.src.proprietaire)], ['Valeur estimée / achat', eur(b.valeur) + (b.achat ? ' / ' + eur(b.achat) : '')], ['Loyer net perçu', eurM(b.loyerM)], ['Rentabilité brute', b.loyerM ? pc(b.renta) : '—'], ['Mensualités', eurM(b.mens)], ['Cash-flow mensuel', '<b style="color:' + (b.cashflow >= 0 ? '#15462A' : '#8B2E2E') + '">' + eurM(b.cashflow) + '</b>'], ['Capital restant dû', eur(b.crd)], ['Gestion', dash(b.src.gestion)]]) + '</div>'; });
+    if (R.rp) immoCards += '<div class="card card--green"><div class="card__t">Résidence principale</div>' + kv([['Ville', dash(S.rp.adresse)], ['Valeur estimée', eur(R.rp.valeur)], ['Valeur d\'achat', S.rp.achat ? eur(S.rp.achat) + (S.rp.dateAchat ? ' (' + esc(S.rp.dateAchat) + ')' : '') : '-'], ['Plus-value latente', S.rp.achat ? eur(R.rp.valeur - num(S.rp.achat)) : '-'], ['Mensualités', eurM(R.rp.mens)], ['Capital restant dû', eur(R.rp.crd)]]) + '</div>';
+    else if (S.rp.statut) immoCards += '<div class="card card--green"><div class="card__t">Résidence principale</div><p>' + esc(S.rp.statut) + (S.rp.loyer ? ' : loyer ' + eurM(S.rp.loyer) : '') + '</p>' + (S.rp.adresse ? '<p class="muted" style="color:rgba(255,255,255,.7)">' + esc(S.rp.adresse) + '</p>' : '') + '</div>';
+    R.biens.forEach(function (b, i) { immoCards += '<div class="card"><div class="card__t">Bien ' + (i + 1) + ' : ' + esc(b.src.type || '') + ' · ' + esc(b.src.localisation || '') + '</div>' + kv([['Statut', dash(b.src.statut)], ['Propriétaire', dash(b.src.proprietaire)], ['Valeur estimée / achat', eur(b.valeur) + (b.achat ? ' / ' + eur(b.achat) : '')], ['Loyer net perçu', eurM(b.loyerM)], ['Rentabilité brute', b.loyerM ? pc(b.renta) : '-'], ['Mensualités', eurM(b.mens)], ['Cash-flow mensuel', '<b style="color:' + (b.cashflow >= 0 ? '#15462A' : '#8B2E2E') + '">' + eurM(b.cashflow) + '</b>'], ['Capital restant dû', eur(b.crd)], ['Gestion', dash(b.src.gestion)]]) + '</div>'; });
     if (!immoCards) immoCards = '<div class="card"><p class="muted">Aucun bien immobilier renseigné.</p></div>';
-    var projet = S.projet.echeance && S.projet.echeance !== 'Non' ? '<div class="card card--gold"><div class="card__t">Projet d\'acquisition — ' + esc(S.projet.echeance) + '</div>' + kv([['Type / surface', dash(S.projet.type) + (S.projet.surfaceMin ? ' · ' + esc(S.projet.surfaceMin) + ' m² min.' : '')], ['Localisation', dash(S.projet.localisation)], ['Budget', eur(S.projet.budget)], ['Apport', eur(S.projet.apport)], ['Emprunt nécessaire', eur(num(S.projet.emprunt) || Math.max(0, num(S.projet.budget) - num(S.projet.apport)))], ['Raisons', dash(S.projet.raisons)]]) + '</div>' : '';
+    var projet = S.projet.echeance && S.projet.echeance !== 'Non' ? '<div class="card card--gold"><div class="card__t">Projet d\'acquisition : ' + esc(S.projet.echeance) + '</div>' + kv([['Type de bien', dash(S.projet.type)], ['Localisation', dash(S.projet.localisation)], ['Budget', eur(S.projet.budget)], ['Apport', eur(S.projet.apport)], ['Emprunt nécessaire', eur(num(S.projet.emprunt) || Math.max(0, num(S.projet.budget) - num(S.projet.apport)))], ['Raisons', dash(S.projet.raisons)]]) + '</div>' : '';
     H += slide(head('Immobilier', 'Vos biens, leur rendement et leur financement') + '<div class="g3">' + immoCards + projet + '</div>');
 
     // 9. Budget
@@ -825,18 +828,24 @@
     var budgetItems = [{ l: 'Revenus', v: R.revTotalM, c: '#15462A' }, { l: 'Charges fixes', v: R.chTotalM, c: '#A9853F' }, { l: 'Train de vie', v: R.trainDeVie, c: '#C9A86A' }, { l: 'Capacité d\'épargne', v: Math.max(0, R.capaciteEpargne), c: '#001B00' }, { l: 'Épargne réelle', v: R.epargneActuelle, c: '#E6C989' }];
     H += slide(head('Budget mensuel', 'Des revenus à la capacité d\'épargne') + '<div class="kpis"><div class="kpi kpi--g"><div class="kpi__l">Revenus nets mensuels</div><div class="kpi__v">' + eur(R.revTotalM) + '</div></div><div class="kpi kpi--gd"><div class="kpi__l">Charges mensuelles</div><div class="kpi__v">' + eur(R.chTotalM) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Reste à vivre</div><div class="kpi__v">' + eur(R.resteAVivre) + '</div></div><div class="kpi"><div class="kpi__l">Capacité d\'épargne</div><div class="kpi__v">' + eur(R.capaciteEpargne) + '</div></div><div class="kpi kpi--gl"><div class="kpi__l">Effort d\'épargne actuel</div><div class="kpi__v">' + eur(R.epargneActuelle) + '</div></div></div><div class="g3"><div><h4>Revenus mensuels</h4><table class="tb tb--sm">' + Object.keys(R.revM).map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="r">' + eur(R.revM[k]) + '</td></tr>'; }).join('') + '<tr class="tot"><td>Total (RIG)</td><td class="r">' + eur(R.revTotalM) + '</td></tr></table></div><div><h4>Charges mensuelles</h4><table class="tb tb--sm">' + Object.keys(R.chM).map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="r">' + eur(R.chM[k]) + '</td></tr>'; }).join('') + '<tr><td>Train de vie</td><td class="r">' + eur(R.trainDeVie) + '</td></tr><tr class="tot"><td>Total</td><td class="r">' + eur(R.chTotalM + R.trainDeVie) + '</td></tr></table></div><div><h4>Vue d\'ensemble</h4>' + hbars(budgetItems, { fmt: eurM }) + '<p class="muted" style="font-size:.8em;margin-top:.6em">Capacité d\'épargne = revenus − charges − train de vie. L\'écart avec l\'épargne réelle mesure les flux non affectés.</p></div></div>');
 
-    // 10. Objectifs
+    // 10. Objectifs (frise seule) puis retraite / études sur une page dédiée
     H += divider(7, 'Vos objectifs et projets');
     var byE = { CT: [], MT: [], LT: [] };
     (S.obj.liste || []).forEach(function (o) { var e = (S.obj.echeances || {})[o] || 'MT'; byE[e].push(o); });
-    var tl = '<div class="tl"><div class="tl__line"></div><div class="tl__cols">' + [['CT', 'Court terme · < 2 ans'], ['MT', 'Moyen terme · 2 à 5 ans'], ['LT', 'Long terme · > 5 ans']].map(function (c) { return '<div class="tl__col"><div class="tl__dot">' + c[0] + '</div><div class="tl__h">' + c[1] + '</div>' + (byE[c[0]].map(function (o) { return '<div class="tl__item">' + esc(o) + '</div>'; }).join('') || '<div class="tl__item muted">—</div>') + '</div>'; }).join('') + '</div></div>';
-    var retraite = R.retraite.rente ? '<div class="g12" style="margin-top:1.4em"><div class="card card--green"><div class="card__t">Objectif retraite</div>' + kv([['Départ souhaité', R.retraite.age + ' ans' + (R.retraite.annees != null ? ' (dans ' + R.retraite.annees + ' ans)' : '')], ['Rente souhaitée', eurM(R.retraite.rente)], ['Pension estimée', R.retraite.pension ? eurM(R.retraite.pension) : 'non renseignée'], ['Complément à financer', eurM(R.retraite.besoinM)], ['Capital nécessaire (règle des 4 %)', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '—'], ['Capital études enfants', R.etudes.capital ? eur(R.etudes.capital) + (S.obj.horizonEtudes ? ' · ' + esc(S.obj.horizonEtudes) : '') : '—']]) + '</div><div><h4>Projection de l\'épargne actuelle et de la capacité d\'épargne (' + pc(PARAMS.rendementProjection, 0) + ' / an)</h4>' + projection(R) + '<p class="muted" style="font-size:.78em">Hypothèse théorique à rendement constant, sans fiscalité ni inflation — à titre indicatif.</p></div></div>' : (R.etudes.capital ? '<p style="margin-top:1.2em">Capital études des enfants envisagé : <b>' + eur(R.etudes.capital) + '</b>' + (S.obj.horizonEtudes ? ' (' + esc(S.obj.horizonEtudes) + ')' : '') + '.</p>' : '');
-    H += slide(head('Vos objectifs', 'Ce que vous souhaitez accomplir, et quand') + tl + retraite);
+    var maxCol = Math.max(byE.CT.length, byE.MT.length, byE.LT.length);
+    var tl = '<div class="tl' + (maxCol > 5 ? ' tl--dense' : '') + '"><div class="tl__line"></div><div class="tl__cols">' + [['CT', 'Court terme : moins de 2 ans'], ['MT', 'Moyen terme : 2 à 5 ans'], ['LT', 'Long terme : plus de 5 ans']].map(function (c) { return '<div class="tl__col"><div class="tl__dot">' + c[0] + '</div><div class="tl__h">' + c[1] + '</div>' + (byE[c[0]].map(function (o) { return '<div class="tl__item">' + esc(o) + '</div>'; }).join('') || '<div class="tl__item muted">-</div>') + '</div>'; }).join('') + '</div></div>';
+    var verbObj = S.dec.pourquoiRdv ? '<div class="vb" style="margin-top:1.6em"><div class="vb__q">Ce que vous cherchez à faire</div><div class="vb__a">« ' + esc(S.dec.pourquoiRdv) + ' »</div></div>' : '';
+    H += slide(head('Vos objectifs', 'Ce que vous souhaitez accomplir, et quand') + tl + (maxCol <= 5 ? verbObj : ''));
+    if (R.retraite.rente || R.etudes.capital) {
+      var retraiteCard = '<div class="card card--green"><div class="card__t">Objectif retraite</div>' + kv([['Départ souhaité', R.retraite.age + ' ans' + (R.retraite.annees != null ? ' (dans ' + R.retraite.annees + ' ans)' : '')], ['Revenu souhaité', R.retraite.rente ? eurM(R.retraite.rente) : '-'], ['Pension estimée', R.retraite.pension ? eurM(R.retraite.pension) : 'non renseignée'], ['Complément à financer', eurM(R.retraite.besoinM)], ['Capital nécessaire (règle des 4 %)', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-'], ['Capital études des enfants', R.etudes.capital ? eur(R.etudes.capital) : '-']]) + '</div>';
+      var proj = R.retraite.rente ? '<div><h4>Projection de l\'épargne actuelle et de la capacité d\'épargne (' + pc(PARAMS.rendementProjection, 0) + ' / an)</h4>' + projection(R) + '<p class="muted" style="font-size:.78em">Hypothèse théorique à rendement constant, sans fiscalité ni inflation, à titre indicatif.</p></div>' : '<div class="card card--sand"><div class="card__t">Études</div><p>Capital envisagé pour les études des enfants : <b>' + eur(R.etudes.capital) + '</b>.</p></div>';
+      H += slide(head('Retraite et études', 'Chiffrer les objectifs de long terme') + '<div class="g12">' + retraiteCard + proj + '</div>');
+    }
 
     // 11. Synthèse & points d'attention (fiche sales)
     H += divider(8, 'Synthèse et points d\'attention');
     var recap = '<table class="tb"><tr><th></th><th class="r">Situation actuelle</th><th class="r">Situation cible</th></tr>' + [['Montant d\'imposition', eur(R.fisc.impotRetenu)], ['Total actif', eur(R.actifBrut)], ['Total épargne financière', eur(R.finTotal)], ['Total passif', eur(R.crdTotal)], ['Total mensualités', eurM(R.mensCredits)], ['Taux d\'endettement', pc(R.endBrut, 0)], ['Effort d\'épargne', eurM(R.epargneActuelle)], ['Rendement moyen de l\'épargne', pc(R.rendMoyen)]].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="r">' + r[1] + '</td><td class="r muted">à construire</td></tr>'; }).join('') + '</table>';
-    H += slide(head('Votre audit en synthèse', 'Ancienne situation — la nouvelle se construit avec votre conseiller') + '<div class="g12"><div><div class="tab-head">Ancienne situation</div><div class="card" style="border-radius:0 .35em .35em .35em">' + recap + '</div></div><div><div class="tab-head">Ce que révèle votre bilan</div><div class="card card--sand" style="border-radius:0 .35em .35em .35em">' + (L.length ? '<ul style="margin:0;padding-left:1.2em">' + L.slice(0, 7).map(function (i) { return '<li style="margin-bottom:.45em"><b>' + esc(i.titre) + '.</b> ' + esc(i.constat) + '</li>'; }).join('') + '</ul>' : '<p class="muted">Aucun point saillant détecté — compléter les données.</p>') + '</div></div></div>');
+    H += slide(head('Votre audit en synthèse', 'Ancienne situation : la nouvelle se construit avec votre conseiller') + '<div class="g12"><div><div class="tab-head">Ancienne situation</div><div class="card" style="border-radius:0 .35em .35em .35em">' + recap + '</div></div><div><div class="tab-head">Ce que révèle votre bilan</div><div class="card card--sand" style="border-radius:0 .35em .35em .35em">' + (L.length ? '<ul style="margin:0;padding-left:1.2em">' + L.slice(0, 7).map(function (i) { return '<li style="margin-bottom:.45em"><b>' + esc(i.titre) + '.</b> ' + esc(i.constat) + '</li>'; }).join('') + '</ul>' : '<p class="muted">Aucun point saillant détecté : compléter les données.</p>') + '</div></div></div>');
     // Fiche sales détaillée (pistes à creuser, sans solution)
     var chunks = []; for (var i = 0; i < L.length; i += 6) chunks.push(L.slice(i, i + 6));
     if (!chunks.length) chunks.push([]);
@@ -848,11 +857,13 @@
     H += divider(9, 'Vos mots, nos commentaires');
     var verbs = [['Ce que vous cherchez à faire', S.dec.pourquoiRdv], ['Pourquoi c\'est important', S.dec.importance], ['Ce qui a déjà été tenté', S.dec.essaye], ['Donations réalisées', S.dec.dons]].filter(function (v) { return v[1]; });
     var notes = [['Commentaires', S.notes.situation]].filter(function (v) { return v[1]; });
-    H += slide(head('Vos mots', 'Ce que vous nous avez confié') + '<div class="g2"><div>' + (verbs.slice(0, Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') || '<p class="muted">—</p>') + '</div><div>' + verbs.slice(Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') + (notes.length ? '<div class="card card--soft" style="margin-top:.6em"><div class="card__t">Commentaires du conseiller</div>' + notes.map(function (n) { return '<p><b style="color:var(--gold-light)">' + esc(n[0]) + ' — </b>' + esc(n[1]) + '</p>'; }).join('') + '</div>' : '') + '</div></div>');
+    H += slide(head('Vos mots', 'Ce que vous nous avez confié') + '<div class="g2"><div>' + (verbs.slice(0, Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') || '<p class="muted">-</p>') + '</div><div>' + verbs.slice(Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') + (notes.length ? '<div class="card card--soft" style="margin-top:.6em"><div class="card__t">Commentaires du conseiller</div>' + notes.map(function (n) { return '<p><b style="color:var(--gold-light)">' + esc(n[0]) + ' : </b>' + esc(n[1]) + '</p>'; }).join('') + '</div>' : '') + '</div></div>');
 
     // 13. Informations importantes
-    H += slide(head('Informations importantes', '') + '<div class="disc"><p><b>Nature du document.</b> Ce bilan patrimonial est établi à partir des informations déclarées par le client lors de l\'entretien du ' + esc(date) + '. Il constitue un état des lieux et un support de réflexion ; il ne constitue ni une recommandation personnalisée, ni une offre de souscription, ni un conseil juridique ou fiscal.</p><p><b>Estimations.</b> L\'impôt sur le revenu, la taxation marginale, les capitaux restant dus, les rentabilités et les projections sont des estimations calculées à partir d\'hypothèses simplifiées (barème ' + PARAMS.annee + ', rendement constant de ' + pc(PARAMS.rendementProjection, 0) + ', règle de retrait de ' + pc(PARAMS.tauxRetraitRente, 0) + '). Elles ne tiennent pas compte de l\'ensemble des règles fiscales et sociales applicables, ni de l\'inflation, et ne sauraient engager La Financière de Rochechouart.</p><p><b>Risques liés aux investissements.</b> Tout investissement comporte des risques, notamment un risque de perte partielle ou totale du capital investi. Les performances passées ne préjugent pas des performances futures.</p><p><b>Confidentialité.</b> Ce document est strictement personnel et confidentiel. Les données qu\'il contient sont traitées dans le cadre de la relation de conseil et conformément à la réglementation applicable en matière de protection des données.</p><p><b>La Financière de Rochechouart</b> — 58 rue de Monceau, 75008 Paris · contact@lfd-rochechouart.com · www.lafinancierederochechouart.com</p></div>');
+    tocPages.push([tocPages.length + 1, 'Informations importantes', pageNo + 1]);
+    H += slide(head('Informations importantes', '') + '<div class="disc"><p><b>Nature du document.</b> Ce bilan patrimonial est établi à partir des informations déclarées par le client lors de l\'entretien du ' + esc(date) + '. Il constitue un état des lieux et un support de réflexion ; il ne constitue ni une recommandation personnalisée, ni une offre de souscription, ni un conseil juridique ou fiscal.</p><p><b>Estimations.</b> L\'impôt sur le revenu, la taxation marginale, les capitaux restant dus, les rentabilités et les projections sont des estimations calculées à partir d\'hypothèses simplifiées (barème ' + PARAMS.annee + ', rendement constant de ' + pc(PARAMS.rendementProjection, 0) + ', règle de retrait de ' + pc(PARAMS.tauxRetraitRente, 0) + '). Elles ne tiennent pas compte de l\'ensemble des règles fiscales et sociales applicables, ni de l\'inflation, et ne sauraient engager La Financière de Rochechouart.</p><p><b>Risques liés aux investissements.</b> Tout investissement comporte des risques, notamment un risque de perte partielle ou totale du capital investi. Les performances passées ne préjugent pas des performances futures.</p><p><b>Confidentialité.</b> Ce document est strictement personnel et confidentiel. Les données qu\'il contient sont traitées dans le cadre de la relation de conseil et conformément à la réglementation applicable en matière de protection des données.</p><p><b>La Financière de Rochechouart</b> : 58 rue de Monceau, 75008 Paris · contact@lfd-rochechouart.com · www.lafinancierederochechouart.com</p></div>');
 
+    var pnSave = pageNo; pageNo = 1; H = H.replace('%%TOC%%', tocSlide()); pageNo = pnSave;
     $('bp-deck').innerHTML = H;
     goto(elSynth);
   }
@@ -860,10 +871,10 @@
   /* ---- fiche sales en texte brut (CRM) ---- */
   function salesBrief(R) {
     var S = state, L = insights(R), t = [];
-    t.push('FICHE SALES — ' + clientLabel() + ' — bilan du ' + fmtDate(S.notes.date) + (S.notes.conseiller ? ' (' + S.notes.conseiller + ')' : ''));
+    t.push('FICHE SALES : ' + clientLabel() + ' : bilan du ' + fmtDate(S.notes.date) + (S.notes.conseiller ? ' (' + S.notes.conseiller + ')' : ''));
     t.push('');
     t.push('PROFIL : ' + S.foyer.situation + (S.foyer.regime ? ' · ' + S.foyer.regime : '') + ' · ' + num(S.foyer.enfants) + ' enfant(s)' + (S.foyer.ages ? ' (' + S.foyer.ages + ')' : ''));
-    R.persons.forEach(function (k) { var p = S[k]; t.push(' - ' + nomComplet(p) + (R.pers[k].age != null ? ', ' + R.pers[k].age + ' ans' : '') + ' · ' + (p.profession || '—') + (p.entreprise ? ' @ ' + p.entreprise : '') + ' · ' + (p.statut || '') + ' · net ' + eur(R.pers[k].net) + '/an' + (p.tel ? ' · ' + p.tel : '') + (p.email ? ' · ' + p.email : '')); });
+    R.persons.forEach(function (k) { var p = S[k]; t.push(' - ' + nomComplet(p) + (R.pers[k].age != null ? ', ' + R.pers[k].age + ' ans' : '') + ' · ' + (p.profession || '-') + (p.entreprise ? ' @ ' + p.entreprise : '') + ' · ' + (p.statut || '') + ' · net ' + eur(R.pers[k].net) + '/an' + (p.tel ? ' · ' + p.tel : '') + (p.email ? ' · ' + p.email : '')); });
     t.push('');
     t.push('CHIFFRES CLÉS');
     t.push(' - Revenu imposable ' + eur(R.fisc.rni) + ' · TMI ' + pc(R.fisc.tmi, 0) + ' · impôt ' + eur(R.fisc.impotRetenu) + '/an');
@@ -871,18 +882,134 @@
     t.push(' - Épargne financière ' + eur(R.finTotal) + ' (liquidités ' + eur(R.cats.liquid) + ', rendement moyen ' + pc(R.rendMoyen) + ')');
     t.push(' - Revenus ' + eurM(R.revTotalM) + ' · charges ' + eurM(R.chTotalM) + ' · endettement brut ' + pc(R.endBrut, 0) + ' · capacité d\'épargne ' + eurM(R.capaciteEpargne) + ' (réelle ' + eurM(R.epargneActuelle) + ')');
     if (R.retraite.rente) t.push(' - Retraite : rente ' + eurM(R.retraite.rente) + ' à ' + R.retraite.age + ' ans → capital ' + eur(R.retraite.capital));
-    t.push(' - Profil de risque déclaré : ' + (S.obj.profil || '—'));
+    t.push(' - Profil de risque déclaré : ' + (S.obj.profil || '-'));
     t.push('');
-    t.push('OBJECTIFS : ' + ((S.obj.liste || []).map(function (o) { return o + ' (' + ((S.obj.echeances || {})[o] || '?') + ')'; }).join(' · ') || '—'));
+    t.push('OBJECTIFS : ' + ((S.obj.liste || []).map(function (o) { return o + ' (' + ((S.obj.echeances || {})[o] || '?') + ')'; }).join(' · ') || '-'));
     if (S.projet.echeance && S.projet.echeance !== 'Non') t.push('PROJET IMMO : ' + S.projet.echeance + ' · budget ' + eur(S.projet.budget) + ' · apport ' + eur(S.projet.apport));
     t.push('');
     t.push('VERBATIMS');
     [['Ce qu\'il cherche', S.dec.pourquoiRdv], ['Importance', S.dec.importance], ['Déjà tenté', S.dec.essaye]].forEach(function (v) { if (v[1]) t.push(' - ' + v[0] + ' : « ' + v[1] + ' »'); });
     t.push('');
     t.push('POINTS D\'ATTENTION (constats, pas de solution)');
-    L.forEach(function (i) { t.push(' [' + i.prio.toUpperCase() + '] ' + i.titre + ' — ' + i.constat + ' → À creuser : ' + i.question); });
+    L.forEach(function (i) { t.push(' [' + i.prio.toUpperCase() + '] ' + i.titre + ' : ' + i.constat + ' → À creuser : ' + i.question); });
     if (S.notes.sales) { t.push(''); t.push('MESSAGE DU CONSEILLER : ' + S.notes.sales); }
     return t.join('\n');
+  }
+
+
+  /* ======================================================================
+     CRM (Supabase) : le prospect entre en R1 avec son bilan rattaché
+     Tables : clients (fiche + étape du pipeline) et bilans (données + synthèse)
+     ====================================================================== */
+  var CRM = {
+    url: (typeof SUPABASE_URL !== 'undefined') ? SUPABASE_URL : '',
+    key: (typeof SUPABASE_ANON_KEY !== 'undefined') ? SUPABASE_ANON_KEY : '',
+    stageR1: 'R1 : Bilan',
+    token: function () { try { return sessionStorage.getItem('sb_access_token'); } catch (e) { return null; } },
+    headers: function (extra) { return Object.assign({ apikey: CRM.key, Authorization: 'Bearer ' + (CRM.token() || CRM.key), 'Content-Type': 'application/json' }, extra || {}); },
+    rest: function (path, opts) {
+      opts = opts || {}; opts.headers = CRM.headers(opts.headers);
+      return fetch(CRM.url + '/rest/v1/' + path, opts).then(function (r) {
+        if (r.status === 401) { try { sessionStorage.removeItem('sb_access_token'); } catch (e) {} throw new Error('auth'); }
+        if (!r.ok) return r.text().then(function (t) { throw new Error(r.status + ' ' + t); });
+        return r.status === 204 ? null : r.json();
+      });
+    }
+  };
+  function toast(msg, ms) { var t = $('bp-toast'); t.textContent = msg; t.classList.add('is-on'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('is-on'); }, ms || 3200); }
+  function ensureLogin() {
+    if (CRM.token()) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var m = $('bp-login'), f = $('bp-login-form'), err = $('bp-login-err');
+      m.classList.add('is-open'); err.textContent = ''; setTimeout(function () { $('bp-login-email').focus(); }, 100);
+      function close() { m.classList.remove('is-open'); f.onsubmit = null; $('bp-login-cancel').onclick = null; }
+      $('bp-login-cancel').onclick = function () { close(); reject(new Error('cancel')); };
+      f.onsubmit = function (e) {
+        e.preventDefault(); err.textContent = 'Connexion…';
+        fetch(CRM.url + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: CRM.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('bp-login-email').value.trim(), password: $('bp-login-pass').value }) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) { if (d.access_token) { sessionStorage.setItem('sb_access_token', d.access_token); sessionStorage.setItem('sb_user_email', $('bp-login-email').value.trim()); close(); resolve(); } else err.textContent = 'Identifiants incorrects.'; })
+          .catch(function () { err.textContent = 'Erreur de connexion.'; });
+      };
+    });
+  }
+  // Fiche client (colonnes de la table clients) déduite du bilan
+  function clientRecord(R) {
+    var S = state, p = S.lui.nom ? S.lui : S.elle, immo = R.cats.immojou + R.cats.immorap;
+    return {
+      type: 'prospect', personne: 'physique',
+      civilite: p.civilite || null, nom: p.nom || '', prenom: p.prenom || '', email: p.email || '', telephone: p.tel || null,
+      date_naissance: p.naissance || null,
+      situation_matrimoniale: S.foyer.situation || null, regime_matrimonial: S.foyer.regime || null,
+      nb_enfants: num(S.foyer.enfants), ages_enfants: S.foyer.ages || null, testament_donation: S.dec.dons || null,
+      profession: p.profession || null, employeur: p.entreprise || null,
+      revenus: eur(R.persons.reduce(function (a, k) { return a + R.pers[k].net; }, 0)) + ' nets / an', capacite_epargne: eurM(R.capaciteEpargne),
+      patrimoine_financier: eur(R.finTotal), patrimoine_immobilier: eur(immo), credits: R.crdTotal ? eur(R.crdTotal) + ' restant dû' : null,
+      placements_existants: S.plac.map(function (x) { return (PLAC_TYPES.filter(function (t) { return t[0] === x.type; })[0] || [0, x.type])[1]; }),
+      objectifs: S.obj.liste || [], horizon: null, projets_specifiques: S.projet.echeance && S.projet.echeance !== 'Non' ? 'Acquisition immobilière : ' + S.projet.echeance + (S.projet.budget ? ', budget ' + eur(S.projet.budget) : '') : null,
+      couple_rendement_risque: S.obj.profil ? S.obj.profil.split(' : ')[0] : null,
+      commentaires: S.notes.situation || null, notes_internes: S.notes.sales || null, comment_connu: 'Bilan patrimonial'
+    };
+  }
+  function crmSave() {
+    var R = compute();
+    if (!state.lui.nom && !state.elle.nom) { toast('Renseignez au moins un nom avant d\'enregistrer.'); return; }
+    if (!CRM.url) { toast('Supabase non configuré (assets/js/supabase-config.js).'); return; }
+    state.crm = state.crm || {};
+    var rec = clientRecord(R), btns = [$('bp-crm-save'), $('bp-crm-save-2')];
+    btns.forEach(function (b) { b.disabled = true; b.textContent = 'Enregistrement…'; });
+    ensureLogin().then(function () {
+      // 1. fiche client : mise à jour si déjà rattachée, sinon recherche par email / nom, sinon création
+      var find = state.crm.clientId ? Promise.resolve([{ id: state.crm.clientId }]) :
+        CRM.rest('clients?select=id,stage,type&or=(' + (rec.email ? 'email.eq.' + encodeURIComponent(rec.email) + ',' : '') + 'and(nom.ilike.' + encodeURIComponent(rec.nom) + ',prenom.ilike.' + encodeURIComponent(rec.prenom || '') + '))&limit=1');
+      return find.then(function (rows) {
+        if (rows && rows.length) {
+          var existing = rows[0], patch = Object.assign({}, rec);
+          delete patch.type; // un client reste client
+          if (existing.stage && existing.stage !== 'Nouveau') delete patch.stage; else patch.stage = CRM.stageR1;
+          if (existing.type === 'client') delete patch.notes_internes;
+          return CRM.rest('clients?id=eq.' + existing.id, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(patch) }).then(function () { return existing.id; });
+        }
+        rec.stage = CRM.stageR1;
+        return CRM.rest('clients', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(rec) }).then(function (rows2) { return rows2[0].id; });
+      });
+    }).then(function (clientId) {
+      state.crm.clientId = clientId;
+      // 2. le bilan lui-même : données brutes + synthèse chiffrée + points d'attention + fiche sales
+      var L = insights(R);
+      var row = {
+        client_id: clientId, conseiller: state.notes.conseiller || (sessionStorage.getItem('sb_user_email') || null), date_entretien: state.notes.date || today(),
+        client_label: clientLabel(), etape: 'R1',
+        data: JSON.parse(JSON.stringify(state)),
+        resume: { rni: R.fisc.rni, tmi: R.fisc.tmi, impot: R.fisc.impotRetenu, actif_brut: R.actifBrut, passif: R.crdTotal, actif_net: R.actifNet, epargne_financiere: R.finTotal, liquidites: R.cats.liquid, rendement_moyen: R.rendMoyen, revenus_mensuels: R.revTotalM, charges_mensuelles: R.chTotalM, endettement_brut: R.endBrut, endettement_diff: R.endDiff, capacite_epargne: R.capaciteEpargne, epargne_reelle: R.epargneActuelle, capital_retraite: R.retraite.capital, profil: state.obj.profil || null, objectifs: state.obj.liste || [] },
+        points: L, fiche: salesBrief(R), updated_at: new Date().toISOString()
+      };
+      var req = state.crm.bilanId ? CRM.rest('bilans?id=eq.' + state.crm.bilanId, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) }) : CRM.rest('bilans', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) });
+      return req.then(function (rows) { if (rows && rows[0]) state.crm.bilanId = rows[0].id; });
+    }).then(function () { save(); toast('Enregistré dans le CRM : prospect en R1 avec son bilan.'); })
+      .catch(function (e) { if (e.message !== 'cancel') { console.error(e); toast(e.message === 'auth' ? 'Session expirée : reconnectez-vous.' : 'Erreur d\'enregistrement : ' + e.message, 6000); } })
+      .then(function () { btns.forEach(function (b) { b.disabled = false; b.textContent = 'Enregistrer au CRM'; }); });
+  }
+  $('bp-crm-save').addEventListener('click', crmSave);
+  $('bp-crm-save-2').addEventListener('click', crmSave);
+  // Ouverture depuis le CRM : ?bilan=<id> (reprendre un bilan) ou ?client=<id> (nouveau bilan pré-rempli)
+  function crmOpenFromUrl() {
+    var q = new URLSearchParams(location.search), bid = q.get('bilan'), cid = q.get('client');
+    if (!bid && !cid) return false;
+    ensureLogin().then(function () {
+      if (bid) return CRM.rest('bilans?id=eq.' + bid + '&select=id,client_id,data').then(function (rows) {
+        if (!rows.length) throw new Error('Bilan introuvable');
+        state = Object.assign(blank(), rows[0].data); state.crm = { clientId: rows[0].client_id, bilanId: rows[0].id }; current = 0; goto(elWiz); renderScreen();
+      });
+      return CRM.rest('clients?id=eq.' + cid + '&select=id,civilite,nom,prenom,email,telephone,date_naissance,situation_matrimoniale,regime_matrimonial,nb_enfants,ages_enfants,profession,employeur').then(function (rows) {
+        if (!rows.length) throw new Error('Fiche introuvable');
+        var c = rows[0]; state = blank(); state.crm = { clientId: c.id };
+        state.lui = { civilite: c.civilite || '', nom: c.nom || '', prenom: c.prenom || '', email: c.email || '', tel: c.telephone || '', naissance: c.date_naissance || '', profession: c.profession || '', entreprise: c.employeur || '' };
+        state.foyer.situation = c.situation_matrimoniale || ''; state.foyer.regime = c.regime_matrimonial || ''; state.foyer.enfants = c.nb_enfants || 0; state.foyer.ages = c.ages_enfants || '';
+        current = 0; goto(elWiz); renderScreen();
+      });
+    }).catch(function (e) { if (e.message !== 'cancel') toast('CRM : ' + e.message, 6000); });
+    return true;
   }
 
   window.LFDRBilan = { getState: function () { return state; }, compute: compute, insights: function () { return insights(compute()); }, brief: function () { return salesBrief(compute()); } };
@@ -890,5 +1017,6 @@
   /* ---- démarrage ---- */
   state = blank();
   $('bp-resume').hidden = !load();
-  var j = load(); if (j && j.state) { /* pré-charge pour afficher le nom sur « Reprendre » */ var tmp = Object.assign(blank(), j.state); var sv = state; state = tmp; var lab = clientLabel(); state = sv; if (lab !== 'Client') $('bp-resume').textContent = 'Reprendre (' + lab + ')'; }
+  crmOpenFromUrl();
+  var j = load(); if (j && j.state) { /* pré-charge pour afficher le nom sur « Reprendre » */ var tmp = Object.assign(blank(), j.state); var sv = state; state = tmp; var lab = maskedLabel(); state = sv; if (lab) $('bp-resume').textContent = 'Reprendre (' + lab + ')'; }
 })();

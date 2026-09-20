@@ -173,38 +173,47 @@
 .sl .muted{ color:var(--bp-grey); }
 .sl-rule{ width:5.2em; height:2px; background:var(--gold); margin:.8em 0 1.4em; }
 
-/* couverture — géométrie exacte de la diapositive 1 (13,33 × 7,5 in) */
+/* couverture : géométrie exacte de la diapositive 1 (13,33 × 7,5 in). Ordre des calques : vagues, cadre vert, filet, plaque, photo, textes */
 .sl--cover{ background:#fff; color:#fff; padding:0; }
 .sl--cover::before{ display:none; }
-.sl--cover .cov__green{ position:absolute; left:3.83%; top:5.07%; width:92.33%; height:89.47%; background:var(--green); }
-.sl--cover .cov__wave{ position:absolute; background:url(../img/vague-or.webp) center/cover no-repeat; opacity:.2; filter:saturate(.66); pointer-events:none; }
-.sl--cover .cov__wave--l{ left:-.2%; top:10.5%; width:5.5%; height:81.8%; }
-.sl--cover .cov__wave--r{ left:95.1%; top:2.3%; width:4.9%; height:97.7%; }
-.sl--cover .cov__plate{ position:absolute; left:11.2%; top:25.9%; width:23.4%; height:39.2%; background:#FCF7EC; }
-.sl--cover .cov__photo{ position:absolute; left:15.2%; top:32.5%; width:27.7%; height:42.3%; object-fit:cover; object-position:100% 100%; }
-.sl--cover .cov__vline{ position:absolute; left:30.9%; top:13.5%; width:1px; height:73.2%; background:var(--gold); }
-.sl--cover .cov__logo{ position:absolute; left:54.3%; top:28.7%; width:28%; height:auto; }
-.sl--cover .cov__bar{ position:absolute; left:56%; top:49.1%; width:5%; height:1px; background:var(--gold); }
-.sl--cover .cov__title{ position:absolute; left:55.7%; top:55.3%; width:32%; font-family:var(--sans); font-weight:500; font-size:2em; line-height:1.2; color:#FBFBFB; white-space:nowrap; }
-.sl--cover .cov__sub{ position:absolute; left:55.7%; top:66.1%; width:23.5%; font-family:var(--sans); font-weight:500; font-size:1.05em; line-height:1.35; color:#FCF9EF; }
-.sl--cover .cov__hline{ position:absolute; left:89%; top:82.8%; width:4.4%; height:1px; background:var(--gold); }
-.sl--cover .cov__client{ position:absolute; right:5.8%; top:85.7%; width:35%; text-align:right; font-family:var(--sans); font-weight:500; font-size:1.05em; color:#FDFDFD; }
+.wave{ position:absolute; background-image:url(../img/vague-or.webp); background-repeat:no-repeat; opacity:.2; filter:saturate(.66); pointer-events:none; z-index:0; }
+.sl--cover .cov__wave--l{ left:-.2%; top:10.5%; width:6%; height:89.5%; background-size:1282% 67%; background-position:28.4% 32.4%; }
+.sl--cover .cov__wave--r{ left:95.1%; top:2.3%; width:5.1%; height:106.8%; background-size:1520% 67%; background-position:79.2% 43.6%; }
+.sl--cover .cov__green{ position:absolute; left:3.83%; top:5.07%; width:92.33%; height:89.47%; background:var(--green); z-index:1; }
+.sl--cover .cov__vline{ position:absolute; left:30.9%; top:13.5%; width:1px; height:73.2%; background:var(--gold); z-index:2; }
+.sl--cover .cov__plate{ position:absolute; left:11.2%; top:25.9%; width:23.4%; height:39.2%; background:#FCF7EC; z-index:3; }
+.sl--cover .cov__photo{ position:absolute; left:15.2%; top:32.5%; width:27.7%; height:42.3%; overflow:hidden; z-index:4; }
+.sl--cover .cov__photo img{ position:absolute; left:-5.5%; top:-19.2%; width:105.5%; height:119.2%; display:block; }
+.sl--cover .cov__logo{ position:absolute; left:54.3%; top:28.7%; width:28%; height:auto; z-index:5; }
+.sl--cover .cov__bar{ position:absolute; left:56%; top:49.1%; width:5%; height:1px; background:var(--gold); z-index:5; }
+.sl--cover .cov__title{ position:absolute; left:55.7%; top:55.3%; width:32%; font-family:var(--sans); font-weight:500; font-size:2em; line-height:1.2; color:#FBFBFB; white-space:nowrap; z-index:5; }
+.sl--cover .cov__sub{ position:absolute; left:55.7%; top:66.1%; width:23.5%; font-family:var(--sans); font-weight:500; font-size:1.05em; line-height:1.35; color:#FCF9EF; z-index:5; }
+.sl--cover .cov__hline{ position:absolute; left:89%; top:82.8%; width:4.4%; height:1px; background:var(--gold); z-index:5; }
+.sl--cover .cov__client{ position:absolute; right:5.8%; top:85.7%; width:35%; text-align:right; font-family:var(--sans); font-weight:500; font-size:1.05em; color:#FDFDFD; z-index:5; }
+.cov__actions, .cov__note{ z-index:6; }
 
-/* intercalaire de section */
-.sl--divider{ background:var(--green); color:#fff; }
+/* intercalaire : diapositive 3 du deck (cadre vert, titre Jost SemiBold sable, filet or, vague à droite, logo) */
+.sl--divider{ background:#fff; color:#fff; padding:0; }
 .sl--divider::before{ display:none; }
-.sl--divider .dv__panel{ position:absolute; left:4%; top:6%; bottom:6%; width:74%; background:var(--bp-cream); }
-.sl--divider .dv__num{ position:absolute; left:11%; top:34%; font-family:var(--sans); font-weight:500; font-size:.85em; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); }
-.sl--divider .dv__title{ position:absolute; left:11%; top:40%; width:60%; font-family:var(--serif); font-weight:500; font-size:3.2em; line-height:1.05; color:var(--green); }
-.sl--divider .dv__rule{ position:absolute; left:11%; top:70%; width:17%; height:2px; background:var(--gold); }
-.sl--divider .dv__photo{ position:absolute; right:0; top:0; width:21%; height:100%; object-fit:cover; }
-.sl--divider .dv__logo{ position:absolute; top:9.5%; right:26%; height:5.2%; width:auto; }
+.sl--divider .dv__green{ position:absolute; left:3.81%; top:5.13%; width:76.3%; height:89.5%; background:var(--green); }
+.sl--divider .dv__title{ position:absolute; left:10.75%; top:50%; width:40%; font-family:var(--sans); font-weight:600; font-size:3.5em; line-height:1.1; color:var(--sand); }
+.sl--divider .dv__rule{ position:absolute; left:11.25%; top:73.1%; width:16.5%; height:2px; background:var(--gold); }
+.sl--divider .dv__wave{ left:80.1%; top:2.3%; width:20%; height:106.8%; background-size:386% 67%; background-position:73.7% 43.6%; }
+.sl--divider .dv__logo, .sl--toc .toc__logo{ position:absolute; left:90.3%; top:5.5%; width:6.5%; height:auto; }
 
-/* sommaire */
-.toc{ display:grid; grid-template-columns:1fr 1fr; gap:0 5%; margin-top:1em; }
-.toc__row{ display:flex; align-items:baseline; gap:.6em; padding:.55em 0; border-bottom:1px dotted rgba(0,27,0,.25); font-size:1.05em; }
-.toc__row .n{ color:var(--gold); font-weight:500; min-width:1.6em; }
-.toc__row .p{ margin-left:auto; color:var(--bp-grey); font-size:.85em; }
+/* sommaire : diapositive 2 du deck */
+.sl--toc{ background:#fff; padding:0; }
+.sl--toc::before{ display:none; }
+.sl--toc .toc__wave--l{ left:-.2%; top:10.6%; width:22.8%; height:89.5%; background-size:338% 67%; background-position:37.2% 32.4%; }
+.sl--toc .toc__wave--r{ left:80.1%; top:2.4%; width:20%; height:106.8%; background-size:386% 67%; background-position:73.7% 43.6%; }
+.sl--toc .toc__panel{ position:absolute; left:21.65%; top:7.56%; width:58.5%; height:85%; background:#FEFBF5; }
+.sl--toc .toc__title{ position:absolute; left:27.1%; top:19.2%; width:45.8%; text-align:center; font-family:var(--sans); font-weight:700; letter-spacing:.06em; font-size:1.6em; color:#073527; }
+.sl--toc .toc__rule{ position:absolute; left:47.5%; top:26.9%; width:5%; height:1px; background:var(--gold); }
+.sl--toc .toc__list{ position:absolute; left:26.6%; top:30.6%; width:46.3%; }
+.sl--toc .toc__row{ display:flex; align-items:baseline; gap:.5em; height:2.5em; font-family:var(--sans); font-weight:500; font-size:1.19em; color:var(--ink); }
+.sl--toc .toc__row .n{ white-space:nowrap; }
+.sl--toc .toc__row .d{ flex:1; border-bottom:2px dotted rgba(30,33,28,.55); transform:translateY(-.35em); }
+.sl--toc .toc__row .p{ white-space:nowrap; }
 
 /* grilles et cartes */
 .g2{ display:grid; grid-template-columns:1fr 1fr; gap:2.2%; }
@@ -278,7 +287,7 @@
 .ob--haute .ob__p{ background:var(--green); color:#fff; }
 .ob__c{ font-size:.9em; margin:0 0 .35em; }
 .ob__q{ font-size:.85em; color:var(--bp-grey); font-style:italic; font-family:var(--serif); font-size:1em; }
-.ob__q::before{ content:"À creuser — "; font-family:var(--sans); font-style:normal; font-size:.72em; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); }
+.ob__q::before{ content:"À creuser : "; font-family:var(--sans); font-style:normal; font-size:.72em; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); }
 
 /* verbatims */
 .vb{ border-left:2px solid var(--gold); padding:.3em 1em; margin-bottom:.9em; }
@@ -294,6 +303,7 @@
 .tl__col:nth-child(2) .tl__dot{ background:#C9A86A; } .tl__col:nth-child(3) .tl__dot{ background:var(--green); }
 .tl__h{ text-align:center; font-weight:500; color:var(--green); letter-spacing:.14em; text-transform:uppercase; font-size:.78em; margin-bottom:.6em; }
 .tl__item{ background:#fff; border:1px solid rgba(0,27,0,.1); border-radius:.3em; padding:.5em .8em; margin-bottom:.45em; font-size:.92em; }
+.tl--dense .tl__item{ font-size:.8em; padding:.35em .7em; margin-bottom:.3em; }
 
 .disc{ font-size:.82em; line-height:1.55; columns:2; column-gap:4%; }
 .disc h4{ column-span:all; }
@@ -309,3 +319,13 @@
   .sl--cover, .sl--divider{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
+
+/* --------- connexion CRM (Supabase) --------- */
+.bp-modal{ position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; background:rgba(0,27,0,.75); padding:20px; }
+.bp-modal.is-open{ display:flex; }
+.bp-modal__card{ background:var(--green); border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:28px; width:100%; max-width:380px; color:#fff; }
+.bp-modal__card h3{ font-family:var(--serif); font-weight:500; font-size:1.5rem; margin:0 0 6px; }
+.bp-modal__card p{ font-size:.85rem; color:rgba(255,255,255,.65); margin:0 0 16px; }
+.bp-modal__err{ color:#f0b4a8; font-size:.82rem; margin-top:10px; min-height:1em; }
+.bp-toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:60; background:var(--gold); color:#06210f; font-family:var(--sans); font-weight:500; font-size:.9rem; padding:10px 20px; border-radius:999px; box-shadow:0 6px 24px rgba(0,0,0,.3); opacity:0; pointer-events:none; transition:opacity .3s; }
+.bp-toast.is-on{ opacity:1; }

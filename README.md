@@ -27,6 +27,12 @@ animations modernes (révélations au défilement, transitions de page, effets d
   la fiche sales ». Fichiers : `assets/js/bilan.js` (questions, calculs, rendu) et
   `assets/css/bilan.css`. Le barème de l'impôt et les hypothèses sont dans l'objet `PARAMS`
   en tête de `bilan.js` (à actualiser chaque année).
+  **Lien CRM** : le bouton « Enregistrer au CRM » crée ou met à jour la fiche prospect dans
+  Supabase (table `clients`, étape « R1 : Bilan ») et archive le bilan complet dans la table
+  `bilans` (script `supabase-bilans.sql` à exécuter une fois). Depuis le CRM (`admin.html`),
+  la fiche contact a un onglet « Bilans » pour rouvrir un bilan (`?bilan=<id>`) ou en démarrer
+  un nouveau pré-rempli (`?client=<id>`). Pipeline : Nouveau → R1 : Bilan → R2 : Objectifs →
+  R3 : Offre → Prospect chaud → Gagné (la fiche bascule en client) ou Perdu.
 
 Les sujets demandés sont traités en détail : **assurance-vie de droit luxembourgeois**
 (triangle de sécurité, FID/FAS, neutralité fiscale), **produits structurés sur-mesure**,

@@ -73,15 +73,16 @@
 
 /* ---------- KANBAN ---------- */
 .kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;align-items:flex-start}
-.kanban-col{flex:0 0 268px;background:#EBE8DF;border-radius:12px;padding:0;min-height:140px;transition:background .2s}
+.kanban-col{flex:0 0 232px;background:#EBE8DF;border-radius:12px;padding:0;min-height:140px;transition:background .2s}
 .kanban-col.is-dragover{background:rgba(169,133,63,.16);outline:2px dashed var(--gold)}
 .kanban-col__head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:2px solid transparent}
 .kanban-col:nth-child(1) .kanban-col__head{border-color:#9aa0a6}
 .kanban-col:nth-child(2) .kanban-col__head{border-color:#1565c0}
 .kanban-col:nth-child(3) .kanban-col__head{border-color:#e08a00}
 .kanban-col:nth-child(4) .kanban-col__head{border-color:#6a1b9a}
-.kanban-col:nth-child(5) .kanban-col__head{border-color:#2e7d32}
-.kanban-col:nth-child(6) .kanban-col__head{border-color:#c0392b}
+.kanban-col:nth-child(5) .kanban-col__head{border-color:#A9853F}
+.kanban-col:nth-child(6) .kanban-col__head{border-color:#2e7d32}
+.kanban-col:nth-child(7) .kanban-col__head{border-color:#c0392b}
 .kanban-col__title{font-family:var(--sans);font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--green)}
 .kanban-col__count{font-size:.72rem;color:var(--muted);background:#fff;padding:1px 9px;border-radius:10px;font-weight:600}
 .kanban-col__body{padding:12px;min-height:40px}
