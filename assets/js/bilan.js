@@ -1025,7 +1025,12 @@
     return true;
   }
 
-  window.LFDRBilan = { getState: function () { return state; }, compute: compute, insights: function () { return insights(compute()); }, brief: function () { return salesBrief(compute()); } };
+  window.LFDRBilan = {
+    getState: function () { return state; }, compute: compute, insights: function () { return insights(compute()); }, brief: function () { return salesBrief(compute()); },
+    clientLabel: clientLabel, nomComplet: nomComplet, fmtDate: fmtDate, eur: eur, eurM: eurM, pc: pc,
+    TRESO_TYPES: TRESO_TYPES, PLAC_TYPES: PLAC_TYPES,
+    renderSynthIfNeeded: function () { if (!$('bp-deck').children.length) showSynth(); }
+  };
 
   /* ---- démarrage ---- */
   state = blank();

@@ -50,6 +50,7 @@
     <div class="bp-top__client" id="bp-top-client"></div>
     <div class="bp-top__tools">
       <button type="button" class="bp-tool" id="bp-crm-save" title="Enregistrer le prospect et le bilan dans le CRM (Supabase)">Enregistrer au CRM</button>
+      <button type="button" class="bp-tool" id="bp-drive-save" title="Créer le dossier client dans Google Drive avec le bilan et un dossier pour les pièces justificatives">Enregistrer dans le Drive</button>
       <button type="button" class="bp-tool" id="bp-save-json" title="Exporter le dossier (.json)">Exporter</button>
       <button type="button" class="bp-tool" id="bp-go-synth" title="Voir la synthèse">Synthèse</button>
       <button type="button" class="bp-tool" id="bp-quit" title="Retour à l'accueil">Quitter</button>
@@ -79,6 +80,7 @@
     <button type="button" class="bp-tool" id="bp-back-wizard">← Modifier les réponses</button>
     <div class="bp-synth__bar-right">
       <button type="button" class="bp-tool" id="bp-crm-save-2">Enregistrer au CRM</button>
+      <button type="button" class="bp-tool" id="bp-drive-save-2">Enregistrer dans le Drive</button>
       <button type="button" class="bp-tool" id="bp-copy-brief">Copier la fiche sales</button>
       <button type="button" class="bp-tool" id="bp-save-json-2">Exporter .json</button>
       <button type="button" class="bp-btn bp-btn--gold" id="bp-print">Imprimer / PDF</button>
@@ -102,5 +104,12 @@
 
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/bilan.js"></script>
+
+<!-- Enregistrement dans Google Drive (dossier client + Excel + PDF) -->
+<script src="assets/vendor/xlsx.full.min.js" defer></script>
+<script src="assets/vendor/jspdf.umd.min.js" defer></script>
+<script src="assets/vendor/html2canvas.min.js" defer></script>
+<script src="assets/js/drive-config.js"></script>
+<script src="assets/js/drive.js" defer></script>
 </body>
 </html>

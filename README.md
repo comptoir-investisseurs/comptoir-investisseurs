@@ -33,6 +33,41 @@ animations modernes (révélations au défilement, transitions de page, effets d
   la fiche contact a un onglet « Bilans » pour rouvrir un bilan (`?bilan=<id>`) ou en démarrer
   un nouveau pré-rempli (`?client=<id>`). Pipeline : Nouveau → R1 : Bilan → R2 : Objectifs →
   R3 : Offre → Prospect chaud → Gagné (la fiche bascule en client) ou Perdu.
+  **Outil réservé au réseau interne** : `bilan-patrimonial.html` et ses fichiers propres
+  (`assets/js/bilan.js`, `assets/js/drive.js`, `assets/js/drive-config.js`,
+  `assets/css/bilan.css`, `assets/css/fonts.css`, `assets/fonts/`, `assets/vendor/`,
+  `supabase-bilans.sql`) sont explicitement exclus du déploiement GitHub Pages
+  (`.github/workflows/pages.yml`) : ils ne sont jamais publiés sur le site public, même si
+  cette branche est fusionnée. Ouvrez le fichier en local (double-clic, ou
+  `python3 -m http.server` puis `http://localhost:8000/bilan-patrimonial.html`) ou servez-le
+  uniquement sur votre réseau interne.
+  **Enregistrement dans Google Drive** : le bouton « Enregistrer dans le Drive » (en haut de
+  l'entretien et sur la synthèse) crée un dossier `<Nom> <Prénom>` dans un dossier Drive que
+  vous choisissez, avec deux sous-dossiers : « Pièces justificatives » (vide, à remplir plus
+  tard par le client) et « Bilan patrimonial », qui reçoit un extrait Excel de toutes les
+  informations saisies et un PDF de la synthèse générée. Un dossier client déjà existant est
+  réutilisé (pas de doublon) si vous ré-enregistrez le même nom. Configuration à faire une
+  seule fois, dans `assets/js/drive-config.js` :
+  1. Dans [Google Cloud Console](https://console.cloud.google.com/), créez un projet (ou
+     réutilisez celui de votre Workspace), puis **APIs & Services → Bibliothèque** : activez
+     « Google Drive API ».
+  2. **APIs & Services → Écran de consentement OAuth** : type d'utilisateur **Interne** (si
+     vous avez un Google Workspace) — évite toute procédure de vérification Google, l'outil
+     n'étant utilisé que par vos conseillers.
+  3. **APIs & Services → Identifiants → Créer des identifiants → ID client OAuth**, type
+     « Application Web ». Dans « Origines JavaScript autorisées », ajoutez l'URL exacte
+     depuis laquelle vous ouvrirez l'outil (ex. `http://localhost:8000` si vous le lancez
+     avec `python3 -m http.server`, ou l'adresse de votre serveur interne — pas de `file://`,
+     Google OAuth exige une origine http(s)). Copiez l'ID client obtenu
+     (`....apps.googleusercontent.com`) dans `GOOGLE_CLIENT_ID`.
+  4. Dans Google Drive, créez (ou choisissez) le dossier racine qui contiendra tous les
+     dossiers clients, ouvrez-le et copiez l'identifiant présent dans l'URL
+     (`drive.google.com/drive/folders/<CET_IDENTIFIANT>`) dans `DRIVE_PARENT_FOLDER_ID`.
+  5. Au premier clic sur « Enregistrer dans le Drive », une fenêtre Google demande
+     l'autorisation d'accéder à votre Drive (droits complets, nécessaires pour écrire dans un
+     dossier existant que l'outil n'a pas créé lui-même) ; elle n'apparaît qu'une fois par
+     session de navigateur.
+  Sans cette configuration, le bouton affiche un message et n'envoie rien.
 
 Les sujets demandés sont traités en détail : **assurance-vie de droit luxembourgeois**
 (triangle de sécurité, FID/FAS, neutralité fiscale), **produits structurés sur-mesure**,
