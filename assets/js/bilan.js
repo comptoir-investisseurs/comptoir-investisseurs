@@ -31,7 +31,9 @@
     tauxNetSurBrut: 0.78,        // estimation salarié (net imposable ≈ 78 % du brut)
     fonciersPonderation: 0.80,   // (1) 80 % des revenus fonciers retenus pour l'endettement
     tauxRetraitRente: 0.04,      // règle des 4 % : capital = rente annuelle / 4 %
-    rendementProjection: 0.04,   // hypothèse de projection de l'épargne
+    rendementProjection: 0.04,   // hypothèse de projection si aucun profil de risque n'est déclaré
+    // Rendements empiriques par profil (diapositive « Allocation d'actifs » de la présentation commerciale)
+    profils: [['Conservateur', 0.053, 'SRRI 1 à 3'], ['Équilibré', 0.067, 'SRRI 3 à 4'], ['Opportuniste', 0.084, 'SRRI 4 à 6'], ['Dynamique', 0.101, 'SRRI 5 à 7']],
     seuilEndettement: 0.35
   };
 
@@ -125,6 +127,14 @@
     p += Math.min(n, 2) * 0.5 + Math.max(n - 2, 0);
     return p;
   }
+
+  /* ---- profil de risque déclaré → rendement de projection ---- */
+  function profilInfo() {
+    var nom = (state.obj.profil || '').split(' : ')[0];
+    var p = PARAMS.profils.filter(function (x) { return x[0] === nom; })[0];
+    return p ? { nom: p[0], taux: p[1], srri: p[2], declare: true } : { nom: 'Non renseigné', taux: PARAMS.rendementProjection, srri: '', declare: false };
+  }
+  function capitalProjete(r, n, epargne, mensuel) { return epargne * Math.pow(1 + r, n) + Math.max(0, mensuel) * 12 * (r ? (Math.pow(1 + r, n) - 1) / r : n); }
 
   /* ---- crédits : mensualité théorique, capital restant dû ---- */
   function mensualite(capital, tauxAnnuel, dureeMois) {
@@ -298,11 +308,13 @@
     R.retraite.besoinM = Math.max(0, R.retraite.rente - R.retraite.pension);
     R.retraite.capital = R.retraite.besoinM * 12 / PARAMS.tauxRetraitRente;
     R.retraite.annees = ageRef ? Math.max(0, R.retraite.age - ageRef) : null;
+    R.profil = profilInfo();
     if (R.retraite.annees) {
-      var r = PARAMS.rendementProjection, n = R.retraite.annees;
-      R.retraite.epargneProjetee = R.epargne * Math.pow(1 + r, n) + Math.max(0, R.capaciteEpargne) * 12 * ((Math.pow(1 + r, n) - 1) / r);
+      var r = R.profil.taux, n = R.retraite.annees;
+      R.retraite.epargneProjetee = capitalProjete(r, n, R.epargne, R.capaciteEpargne);
       var gap = Math.max(0, R.retraite.capital - R.epargne * Math.pow(1 + r, n));
       R.retraite.effortMensuel = gap ? gap * r / (Math.pow(1 + r, n) - 1) / 12 : 0;
+      R.retraite.parProfil = PARAMS.profils.map(function (p) { return { nom: p[0], taux: p[1], capital: capitalProjete(p[1], n, R.epargne, R.capaciteEpargne) }; });
     }
     R.etudes = { capital: num(O.capitalEtudes) };
     R.persons = persons; R.couple = couple;
@@ -360,7 +372,7 @@
       add('moyenne', 'Patrimoine soumis à l\'IFI potentiel', 'Immobilier net estimé : ' + eur(R.cats.immojou + R.cats.immorap - R.crdTotal) + ' (seuil IFI 1,3 M€ sur l\'immobilier net, RP abattue de 30 %).', 'Le client déclare-t-il l\'IFI ? La structure de détention a-t-elle été pensée ?');
     if (R.retraite.rente && R.retraite.capital) {
       var manque = R.retraite.epargneProjetee != null ? Math.max(0, R.retraite.capital - R.retraite.epargneProjetee) : null;
-      add(manque > 0 ? 'haute' : 'moyenne', 'Objectif retraite chiffré', 'Rente souhaitée ' + eurM(R.retraite.rente) + (R.retraite.pension ? ', pension estimée ' + eurM(R.retraite.pension) : '') + ' → capital nécessaire ' + eur(R.retraite.capital) + ' à ' + R.retraite.age + ' ans' + (R.retraite.annees ? ' (dans ' + R.retraite.annees + ' ans). Effort d\'épargne requis : ' + eurM(R.retraite.effortMensuel) : '') + '.', 'Le client a-t-il déjà fait une simulation de ses droits ? Quelle part de la rente doit être garantie ?');
+      add(manque > 0 ? 'haute' : 'moyenne', 'Objectif retraite chiffré', 'Rente souhaitée ' + eurM(R.retraite.rente) + (R.retraite.pension ? ', pension estimée ' + eurM(R.retraite.pension) : '') + ' → capital nécessaire ' + eur(R.retraite.capital) + ' à ' + R.retraite.age + ' ans' + (R.retraite.annees ? ' (dans ' + R.retraite.annees + ' ans). Avec un profil ' + R.profil.nom.toLowerCase() + ' à ' + pc(R.profil.taux) + ', capital projeté ' + eur(R.retraite.epargneProjetee) + ', effort d\'épargne requis ' + eurM(R.retraite.effortMensuel) : '') + '.', 'Le client a-t-il déjà fait une simulation de ses droits ? Quelle part de la rente doit être garantie ?');
     }
     R.persons.forEach(function (k) {
       var p = S[k]; if (!p) return;
@@ -457,11 +469,11 @@
     { ch: 5, type: 'fields', title: 'Ce qui compte pour vous', hint: 'Les mots du client, repris tels quels dans la synthèse.', path: 'dec', fields: [
       { k: 'pourquoiRdv', l: 'Ce que vous cherchez à faire', t: 'textarea', w: true }, { k: 'importance', l: 'Pourquoi c\'est important pour vous', t: 'textarea', w: true, opt: true }, { k: 'essaye', l: 'Ce que vous avez déjà essayé', t: 'textarea', w: true, opt: true }
     ] },
-    { ch: 5, type: 'fields', title: 'Retraite et études', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-']]; }, fields: [
+    { ch: 5, type: 'choice', title: 'Quelle attitude face au risque ?', path: 'obj.profil', options: ['Conservateur : je refuse toute perte', 'Équilibré : j\'accepte des fluctuations modérées', 'Opportuniste : je vise la performance avec des à-coups', 'Dynamique : j\'accepte des baisses fortes pour un rendement élevé'] },
+    { ch: 5, type: 'fields', title: 'Retraite et études', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Rendement retenu (profil ' + R.profil.nom.toLowerCase() + ')', pc(R.profil.taux)], ['Capital projeté à la retraite', R.retraite.epargneProjetee ? eur(R.retraite.epargneProjetee) : '-'], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-']]; }, fields: [
       { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)', opt: true }, { k: 'renteRetraite', l: 'Revenu souhaité à la retraite', t: 'number', u: '€ / mois nets', opt: true }, { k: 'pensionEstimee', l: 'Pension estimée', t: 'number', u: '€ / mois', opt: true },
       { k: 'capitalEtudes', l: 'Capital études des enfants', t: 'number', u: '€', opt: true }
     ] },
-    { ch: 5, type: 'choice', title: 'Quelle attitude face au risque ?', path: 'obj.profil', options: ['Conservateur : je refuse toute perte', 'Équilibré : j\'accepte des fluctuations modérées', 'Opportuniste : je vise la performance avec des à-coups', 'Dynamique : j\'accepte des baisses fortes pour un rendement élevé'] },
 
     { ch: 6, type: 'fields', title: 'Notes du conseiller', hint: 'Facultatif. Repris dans la synthèse et la fiche sales.', path: 'notes', fields: [
       { k: 'situation', l: 'Commentaires', t: 'textarea', w: true, opt: true }, { k: 'sales', l: 'Message pour l\'équipe commerciale', t: 'textarea', w: true, opt: true },
@@ -732,7 +744,7 @@
   }
   function projection(R) {
     // courbe : épargne actuelle + capacité d'épargne capitalisées, vs capital retraite cible
-    var n = R.retraite.annees || 20, r = PARAMS.rendementProjection, pts = [], maxV = R.retraite.capital || 1;
+    var n = R.retraite.annees || 20, r = R.profil.taux, pts = [], maxV = R.retraite.capital || 1;
     for (var y = 0; y <= n; y++) { var v = R.epargne * Math.pow(1 + r, y) + Math.max(0, R.capaciteEpargne) * 12 * (r ? (Math.pow(1 + r, y) - 1) / r : y); pts.push(v); maxV = Math.max(maxV, v); }
     var W = 320, H = 130, L = 46, B = 18, T = 10, plotW = W - L - 10, plotH = H - B - T;
     var X = function (i) { return L + plotW * i / n; }, Y = function (v) { return T + plotH * (1 - v / maxV); };
@@ -838,7 +850,8 @@
     H += slide(head('Vos objectifs', 'Ce que vous souhaitez accomplir, et quand') + tl + (maxCol <= 5 ? verbObj : ''));
     if (R.retraite.rente || R.etudes.capital) {
       var retraiteCard = '<div class="card card--green"><div class="card__t">Objectif retraite</div>' + kv([['Départ souhaité', R.retraite.age + ' ans' + (R.retraite.annees != null ? ' (dans ' + R.retraite.annees + ' ans)' : '')], ['Revenu souhaité', R.retraite.rente ? eurM(R.retraite.rente) : '-'], ['Pension estimée', R.retraite.pension ? eurM(R.retraite.pension) : 'non renseignée'], ['Complément à financer', eurM(R.retraite.besoinM)], ['Capital nécessaire (règle des 4 %)', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-'], ['Capital études des enfants', R.etudes.capital ? eur(R.etudes.capital) : '-']]) + '</div>';
-      var proj = R.retraite.rente ? '<div><h4>Projection de l\'épargne actuelle et de la capacité d\'épargne (' + pc(PARAMS.rendementProjection, 0) + ' / an)</h4>' + projection(R) + '<p class="muted" style="font-size:.78em">Hypothèse théorique à rendement constant, sans fiscalité ni inflation, à titre indicatif.</p></div>' : '<div class="card card--sand"><div class="card__t">Études</div><p>Capital envisagé pour les études des enfants : <b>' + eur(R.etudes.capital) + '</b>.</p></div>';
+      var parProfil = R.retraite.parProfil ? '<div class="kpis" style="margin-top:1em">' + R.retraite.parProfil.map(function (p) { var ok = p.capital >= R.retraite.capital; return '<div class="kpi' + (p.nom === R.profil.nom ? ' kpi--g' : '') + '"><div class="kpi__l">' + esc(p.nom) + ' · ' + pc(p.taux) + '</div><div class="kpi__v" style="font-size:1.3em">' + eur(p.capital) + '</div><div style="font-size:.72em;opacity:.8">' + (ok ? 'Objectif atteint' : 'Manque ' + eur(R.retraite.capital - p.capital)) + '</div></div>'; }).join('') + '</div>' : '';
+      var proj = R.retraite.rente ? '<div><h4>Projection selon votre profil ' + esc(R.profil.nom.toLowerCase()) + ' : ' + pc(R.profil.taux) + ' par an' + (R.profil.srri ? ' (' + esc(R.profil.srri) + ')' : '') + '</h4>' + projection(R) + parProfil + '<p class="muted" style="font-size:.78em">Rendements empiriques par profil issus de notre allocation d\'actifs. Hypothèse théorique à rendement constant, sans fiscalité ni inflation, à titre indicatif.</p></div>' : '<div class="card card--sand"><div class="card__t">Études</div><p>Capital envisagé pour les études des enfants : <b>' + eur(R.etudes.capital) + '</b>.</p></div>';
       H += slide(head('Retraite et études', 'Chiffrer les objectifs de long terme') + '<div class="g12">' + retraiteCard + proj + '</div>');
     }
 
@@ -861,7 +874,7 @@
 
     // 13. Informations importantes
     tocPages.push([tocPages.length + 1, 'Informations importantes', pageNo + 1]);
-    H += slide(head('Informations importantes', '') + '<div class="disc"><p><b>Nature du document.</b> Ce bilan patrimonial est établi à partir des informations déclarées par le client lors de l\'entretien du ' + esc(date) + '. Il constitue un état des lieux et un support de réflexion ; il ne constitue ni une recommandation personnalisée, ni une offre de souscription, ni un conseil juridique ou fiscal.</p><p><b>Estimations.</b> L\'impôt sur le revenu, la taxation marginale, les capitaux restant dus, les rentabilités et les projections sont des estimations calculées à partir d\'hypothèses simplifiées (barème ' + PARAMS.annee + ', rendement constant de ' + pc(PARAMS.rendementProjection, 0) + ', règle de retrait de ' + pc(PARAMS.tauxRetraitRente, 0) + '). Elles ne tiennent pas compte de l\'ensemble des règles fiscales et sociales applicables, ni de l\'inflation, et ne sauraient engager La Financière de Rochechouart.</p><p><b>Risques liés aux investissements.</b> Tout investissement comporte des risques, notamment un risque de perte partielle ou totale du capital investi. Les performances passées ne préjugent pas des performances futures.</p><p><b>Confidentialité.</b> Ce document est strictement personnel et confidentiel. Les données qu\'il contient sont traitées dans le cadre de la relation de conseil et conformément à la réglementation applicable en matière de protection des données.</p><p><b>La Financière de Rochechouart</b> : 58 rue de Monceau, 75008 Paris · contact@lfd-rochechouart.com · www.lafinancierederochechouart.com</p></div>');
+    H += slide(head('Informations importantes', '') + '<div class="disc"><p><b>Nature du document.</b> Ce bilan patrimonial est établi à partir des informations déclarées par le client lors de l\'entretien du ' + esc(date) + '. Il constitue un état des lieux et un support de réflexion ; il ne constitue ni une recommandation personnalisée, ni une offre de souscription, ni un conseil juridique ou fiscal.</p><p><b>Estimations.</b> L\'impôt sur le revenu, la taxation marginale, les capitaux restant dus, les rentabilités et les projections sont des estimations calculées à partir d\'hypothèses simplifiées (barème ' + PARAMS.annee + ', rendement constant selon le profil de risque déclaré (' + pc(R.profil.taux) + '), règle de retrait de ' + pc(PARAMS.tauxRetraitRente, 0) + '). Elles ne tiennent pas compte de l\'ensemble des règles fiscales et sociales applicables, ni de l\'inflation, et ne sauraient engager La Financière de Rochechouart.</p><p><b>Risques liés aux investissements.</b> Tout investissement comporte des risques, notamment un risque de perte partielle ou totale du capital investi. Les performances passées ne préjugent pas des performances futures.</p><p><b>Confidentialité.</b> Ce document est strictement personnel et confidentiel. Les données qu\'il contient sont traitées dans le cadre de la relation de conseil et conformément à la réglementation applicable en matière de protection des données.</p><p><b>La Financière de Rochechouart</b> : 58 rue de Monceau, 75008 Paris · contact@lfd-rochechouart.com · www.lafinancierederochechouart.com</p></div>');
 
     var pnSave = pageNo; pageNo = 1; H = H.replace('%%TOC%%', tocSlide()); pageNo = pnSave;
     $('bp-deck').innerHTML = H;
@@ -981,7 +994,7 @@
         client_id: clientId, conseiller: state.notes.conseiller || (sessionStorage.getItem('sb_user_email') || null), date_entretien: state.notes.date || today(),
         client_label: clientLabel(), etape: 'R1',
         data: JSON.parse(JSON.stringify(state)),
-        resume: { rni: R.fisc.rni, tmi: R.fisc.tmi, impot: R.fisc.impotRetenu, actif_brut: R.actifBrut, passif: R.crdTotal, actif_net: R.actifNet, epargne_financiere: R.finTotal, liquidites: R.cats.liquid, rendement_moyen: R.rendMoyen, revenus_mensuels: R.revTotalM, charges_mensuelles: R.chTotalM, endettement_brut: R.endBrut, endettement_diff: R.endDiff, capacite_epargne: R.capaciteEpargne, epargne_reelle: R.epargneActuelle, capital_retraite: R.retraite.capital, profil: state.obj.profil || null, objectifs: state.obj.liste || [] },
+        resume: { rni: R.fisc.rni, tmi: R.fisc.tmi, impot: R.fisc.impotRetenu, actif_brut: R.actifBrut, passif: R.crdTotal, actif_net: R.actifNet, epargne_financiere: R.finTotal, liquidites: R.cats.liquid, rendement_moyen: R.rendMoyen, revenus_mensuels: R.revTotalM, charges_mensuelles: R.chTotalM, endettement_brut: R.endBrut, endettement_diff: R.endDiff, capacite_epargne: R.capaciteEpargne, epargne_reelle: R.epargneActuelle, capital_retraite: R.retraite.capital, capital_projete: R.retraite.epargneProjetee || null, taux_projection: R.profil.taux, profil: state.obj.profil || null, objectifs: state.obj.liste || [] },
         points: L, fiche: salesBrief(R), updated_at: new Date().toISOString()
       };
       var req = state.crm.bilanId ? CRM.rest('bilans?id=eq.' + state.crm.bilanId, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) }) : CRM.rest('bilans', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) });
