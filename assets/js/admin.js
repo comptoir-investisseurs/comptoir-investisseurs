@@ -668,22 +668,60 @@
   const eurFmt = v => (v==null||isNaN(v)) ? '-' : Math.round(v).toLocaleString('fr-FR') + ' €';
   const pctFmt = v => (v==null||isNaN(v)) ? '-' : (v*100).toFixed(0) + ' %';
   let currentBilanResume = null;
+  function sendDocumentFlow(c, docLabel, filename, buildBlob){
+    if(!confirm('Envoyer « ' + docLabel + ' » à ' + (c.email || 'ce contact') + ' ?\n\nLe fichier va être téléchargé puis un brouillon d\'email va s\'ouvrir : joignez-y le fichier téléchargé (un lien mailto ne peut pas joindre de pièce automatiquement).')) return;
+    Promise.resolve(buildBlob()).then(blob => {
+      LFDRDocs.downloadBlob(blob, filename);
+      const subject = docLabel + ' — La Financière de Rochechouart';
+      const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint : ' + docLabel + '.\n\nBien cordialement,\nLa Financière de Rochechouart';
+      setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
+    }).catch(err => { console.error(err); alert('Erreur lors de la génération du document : ' + err.message); });
+  }
+
+  function r1PresentationSectionHTML(c){
+    return `<div class="detail-section">
+      <div class="detail-section__head"><h4>Présentation commerciale (R1)</h4></div>
+      <p style="font-size:.85rem;color:var(--muted);margin:0 0 12px">Couverture personnalisée automatiquement au nom de <strong>${esc(fullName(c))}</strong>, datée du ${esc(fmtDate(new Date()))}.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="button" class="btn" id="doc-r1-download">Télécharger</button>
+        <button type="button" class="btn btn--solid" id="doc-r1-send">Envoyer</button>
+      </div>
+      <p class="dash-empty" id="doc-r1-status" style="text-align:left;padding:8px 0 0;display:none"></p>
+    </div>`;
+  }
+  function bindR1PresentationSection(c){
+    const dlBtn = document.getElementById('doc-r1-download'), sendBtn = document.getElementById('doc-r1-send'), status = document.getElementById('doc-r1-status');
+    if(!dlBtn) return;
+    function buildBlob(){ return LFDRDocs.buildR1PresentationBlob(fullName(c), fmtDate(new Date())); }
+    function filename(){ return 'Presentation R1 - ' + fullName(c) + '.pptx'; }
+    dlBtn.addEventListener('click', () => {
+      status.style.display = 'block'; status.textContent = 'Génération…';
+      buildBlob().then(blob => { LFDRDocs.downloadBlob(blob, filename()); status.textContent = 'Téléchargé.'; })
+        .catch(err => { console.error(err); status.textContent = 'Erreur : ' + err.message; });
+    });
+    sendBtn.addEventListener('click', () => sendDocumentFlow(c, 'Présentation commerciale (R1)', filename(), buildBlob));
+  }
+
   function loadBilans(id){
     const pane = document.getElementById('pane-bilans'); if(!pane) return;
+    const c = contacts.find(x => x.id === id) || {};
     const newBtn = `<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><a class="btn btn--solid" href="bilan-patrimonial.html?client=${encodeURIComponent(id)}" style="text-decoration:none">＋ Nouveau bilan patrimonial</a></div>`;
+    const r1Section = r1PresentationSectionHTML(c);
     fetch(API + '/bilans?client_id=eq.' + id + '&select=id,created_at,updated_at,date_entretien,conseiller,etape,resume,points&order=created_at.desc', {headers: headers()})
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(rows => {
         currentBilanResume = rows.length ? (rows[0].resume || null) : null;
         if(id === currentId){ const pf = document.getElementById('pane-portefeuille'); if(pf){ pf.innerHTML = portfolioPaneHTML(); bindPortfolioEvents(); drawPortfolioCharts(); } }
-        if(!rows.length){ pane.innerHTML = newBtn + '<p class="dash-empty">Aucun bilan patrimonial enregistré pour cette fiche.</p>'; return; }
-        pane.innerHTML = newBtn + rows.map(b => {
+        const bilansHTML = !rows.length ? '<p class="dash-empty">Aucun bilan patrimonial enregistré pour cette fiche.</p>' : rows.map(b => {
           const r = b.resume || {}, pts = Array.isArray(b.points) ? b.points : [];
           const kpis = [['Revenu imposable', eurFmt(r.rni)], ['TMI', pctFmt(r.tmi)], ['Impôt', eurFmt(r.impot)], ['Actif net', eurFmt(r.actif_net)], ['Épargne financière', eurFmt(r.epargne_financiere)], ['Endettement', pctFmt(r.endettement_brut)], ['Capacité d\'épargne', eurFmt(r.capacite_epargne) + ' / mois']];
           return `<div class="detail-section">
             <div class="detail-section__head">
               <h4>Bilan du ${fmtDate(b.date_entretien || b.created_at)}${b.conseiller ? ' · ' + esc(b.conseiller) : ''}</h4>
-              <a class="btn" style="padding:5px 12px;font-size:.74rem;text-decoration:none;flex-shrink:0" href="bilan-patrimonial.html?bilan=${b.id}">Ouvrir / modifier</a>
+              <div style="display:flex;gap:8px;flex-shrink:0">
+                <a class="btn" style="padding:5px 12px;font-size:.74rem;text-decoration:none" href="bilan-patrimonial.html?bilan=${b.id}">Ouvrir / modifier</a>
+                <button type="button" class="btn btn--solid bilan-send-btn" data-bilan-id="${b.id}" style="padding:5px 12px;font-size:.74rem">Envoyer</button>
+              </div>
             </div>
             <div class="edit-grid">${kpis.map(k => `<div class="edit-field"><label>${k[0]}</label><div style="font-weight:500">${k[1]}</div></div>`).join('')}</div>
             ${r.objectifs && r.objectifs.length ? `<p style="font-size:.85rem;margin:10px 0 4px"><strong>Objectifs :</strong> ${esc(r.objectifs.join(', '))}</p>` : ''}
@@ -691,8 +729,17 @@
             ${pts.length ? `<div style="font-size:.85rem"><strong>Points d'attention :</strong><ul style="margin:6px 0 0;padding-left:18px">${pts.slice(0,8).map(p => `<li style="margin-bottom:4px"><b>${esc(p.titre)}</b> (${esc(p.prio)}) : ${esc(p.constat)}</li>`).join('')}</ul></div>` : ''}
           </div>`;
         }).join('');
+        pane.innerHTML = newBtn + bilansHTML + r1Section;
+        bindR1PresentationSection(c);
+        pane.querySelectorAll('.bilan-send-btn').forEach(btn => btn.addEventListener('click', () => {
+          if(!confirm('Envoyer le bilan patrimonial à ' + (c.email || 'ce contact') + ' ?\n\nOuvrez d\'abord « Ouvrir / modifier » pour exporter le PDF (bouton « Imprimer / PDF » ou « Enregistrer dans le Drive »), puis joignez-le au brouillon qui va s\'ouvrir.')) return;
+          window.open('bilan-patrimonial.html?bilan=' + btn.dataset.bilanId, '_blank', 'noopener');
+          const subject = 'Votre bilan patrimonial — La Financière de Rochechouart';
+          const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint votre bilan patrimonial.\n\nBien cordialement,\nLa Financière de Rochechouart';
+          setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
+        }));
       })
-      .catch(err => { console.error(err); pane.innerHTML = newBtn + '<p class="dash-empty">Bilans indisponibles (exécutez supabase-bilans.sql dans Supabase).</p>'; });
+      .catch(err => { console.error(err); pane.innerHTML = newBtn + '<p class="dash-empty">Bilans indisponibles (exécutez supabase-bilans.sql dans Supabase).</p>' + r1Section; bindR1PresentationSection(c); });
   }
 
   function activitiesPaneHTML(id){

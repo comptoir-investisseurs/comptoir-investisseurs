@@ -51,6 +51,14 @@ animations modernes (révélations au défilement, transitions de page, effets d
   rétracte) peut être renvoyé au pipeline (étape R3) via « ↩ Remettre en prospect » dans sa
   fiche ; le **Cockpit client** (portefeuille 360°) s'ouvre depuis cette même fiche plutôt que
   depuis la navigation générale.
+  **Onglet Documentation** (fiche contact) : archive et permet d'envoyer les bilans patrimoniaux
+  (« Ouvrir / modifier », « Envoyer ») ainsi que la présentation commerciale R1
+  (`assets/docs/lfdr-presentation-r1.pptx`), dont la couverture est personnalisée à la volée
+  (nom + date) via `assets/js/documents.js` (JSZip, 100 % navigateur, aucun serveur). « Envoyer »
+  télécharge le document puis ouvre un brouillon d'email pré-rempli après confirmation — un lien
+  mailto ne pouvant pas joindre de fichier automatiquement, il faut l'attacher à la main dans la
+  fenêtre qui s'ouvre (rappel inclus dans le message). La présentation R2 et « Les Bulletins de
+  Rochechouart » n'y figurent pas encore, faute de fichiers sources.
   **Onglet « À rappeler »** : les prospects créés manuellement (avant tout bilan patrimonial,
   ex. leads entrants) via « + Ajouter un prospect » y apparaissent, avec leur provenance
   (Rappel, Recommandation, Réseau personnel, Lead site, ou une valeur libre — utile pour de

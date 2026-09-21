@@ -39,6 +39,8 @@ jobs:
             --exclude 'assets/js/bilan.js' \
             --exclude 'assets/js/drive.js' \
             --exclude 'assets/js/drive-config.js' \
+            --exclude 'assets/js/documents.js' \
+            --exclude 'assets/docs' \
             --exclude 'assets/css/bilan.css' \
             --exclude 'assets/css/fonts.css' \
             --exclude 'assets/fonts' \
