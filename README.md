@@ -31,16 +31,26 @@ animations modernes (révélations au défilement, transitions de page, effets d
   Supabase (table `clients`, étape « R0 ») et archive le bilan complet dans la table
   `bilans` (scripts `supabase-bilans.sql` puis `supabase-pipeline-r0-r3.sql`, à exécuter une
   fois chacun). Depuis le CRM (`admin.html`), la fiche contact a un onglet « Bilans » pour
-  rouvrir un bilan (`?bilan=<id>`) ou en démarrer un nouveau pré-rempli (`?client=<id>`).
+  rouvrir un bilan (`?bilan=<id>`) ou en démarrer un nouveau pré-rempli (`?client=<id>`). Les
+  indicateurs chiffrés (patrimoine financier, immobilier, revenus, capacité d'épargne…) sont
+  transmis en nombres bruts, sans mise en forme, pour rester exploitables (tri, export,
+  calculs) ; le CRM les formate lui-même à l'affichage.
   **Pipeline (réservé aux prospects déjà engagés)** : R0 (bilan patrimonial réalisé) → R1
   (objectifs et difficultés du patrimoine, présentés en rouvrant le bilan) → R2 (solutions
   proposées) → R3 (rendez-vous de décision). On change d'étape en glissant la carte dans une
-  autre colonne. Depuis la fiche contact, deux boutons « Gagné » / « Perdu » sortent le
-  prospect du pipeline à tout moment : Gagné bascule automatiquement la fiche en client (avec
-  une petite animation façon bowling) et elle apparaît dans l'onglet Clients (triable par
-  patrimoine) ; Perdu la retire du tableau. Un client remis en prospect par erreur (ou qui se
+  autre colonne. Chaque carte affiche une pastille d'activité en haut à droite (cliquer dessus
+  ouvre directement l'onglet Activités de la fiche pour en programmer une) : grise si rien
+  n'est programmé, verte si une prochaine activité est prévue à temps, rouge si elle est en
+  retard ou si aucune activité n'a été faite depuis 2 semaines (cette dernière règle est
+  prioritaire, même si quelque chose est programmé plus tard). Depuis la fiche contact, deux
+  boutons « Gagné » / « Perdu » sortent le prospect du pipeline à tout moment : Gagné bascule
+  automatiquement la fiche en client (avec une petite animation façon bowling) et elle apparaît
+  dans l'onglet Clients (triable par patrimoine) ; Perdu la retire du tableau mais reste
+  consultable via le bouton « Prospects perdus » de la barre d'outils du Pipeline, avec un
+  bouton pour la remettre au pipeline. Un client remis en prospect par erreur (ou qui se
   rétracte) peut être renvoyé au pipeline (étape R3) via « ↩ Remettre en prospect » dans sa
-  fiche.
+  fiche ; le **Cockpit client** (portefeuille 360°) s'ouvre depuis cette même fiche plutôt que
+  depuis la navigation générale.
   **Onglet « À rappeler »** : les prospects créés manuellement (avant tout bilan patrimonial,
   ex. leads entrants) via « + Ajouter un prospect » y apparaissent, avec leur provenance
   (Rappel, Recommandation, Réseau personnel, Lead site, ou une valeur libre — utile pour de

@@ -203,6 +203,27 @@
   function fmtDateTime(d){ return d ? new Date(d).toLocaleString('fr-FR',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
   function fmtMoney(n){ return (n||0).toLocaleString('fr-FR',{maximumFractionDigits:0})+' €'; }
   function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function numFromStr(s){ if(s==null || s==='') return -Infinity; if(typeof s==='number') return s; const m = String(s).replace(/[^\d]/g,''); return m ? parseInt(m,10) : -Infinity; }
+  function moneyDisplay(v){ const n = numFromStr(v); return n > -Infinity ? fmtMoney(n) : null; }
+
+  // Statut de la pastille d'activité d'un prospect : gris = rien de programmé, vert = un
+  // prochain contact est prévu, rouge = en retard OU aucun contact fait depuis 2 semaines
+  // (l'emporte sur le reste, même si quelque chose est programmé plus tard).
+  const DAY_MS = 86400000;
+  function activityStatus(c){
+    const acts = activities.filter(a => a.client_id === c.id);
+    const done = acts.filter(a => a.done && a.date_activite);
+    const pending = acts.filter(a => !a.done && a.date_activite);
+    const now = Date.now();
+    const refMs = done.length ? Math.max.apply(null, done.map(a => new Date(a.date_activite).getTime())) : (c.created_at ? new Date(c.created_at).getTime() : now);
+    if((now - refMs) / DAY_MS > 14) return 'red';
+    if(pending.length){
+      const nextMs = Math.min.apply(null, pending.map(a => new Date(a.date_activite).getTime()));
+      return nextMs < now ? 'red' : 'green';
+    }
+    return 'grey';
+  }
+  const ACTIVITY_STATUS_LABEL = { grey:'Aucune activité programmée', green:'Prochaine activité planifiée', red:'En retard ou sans contact depuis 2 semaines' };
 
   function updateStats(){
     const clients = contacts.filter(c => (c.type||'client') === 'client');
@@ -262,6 +283,9 @@
         if(btn.dataset.outcome==='won') markWon(id); else markLost(id);
       });
     });
+    board.querySelectorAll('.kanban-card__activity-dot').forEach(dot => {
+      dot.addEventListener('click', e => { e.stopPropagation(); openContact(dot.dataset.id, 'activites'); });
+    });
     board.querySelectorAll('.kanban-col').forEach(col => {
       col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('is-dragover'); });
       col.addEventListener('dragleave', () => col.classList.remove('is-dragover'));
@@ -270,17 +294,34 @@
         if(draggingId) updateStage(draggingId, col.dataset.stage);
       });
     });
+    const lostCount = contacts.filter(c => (c.type||'client')==='prospect' && stageOf(c)==='Perdu').length;
+    const lostCountEl = document.getElementById('tab-count-lost'); if(lostCountEl) lostCountEl.textContent = lostCount;
   }
+  function renderLostModal(){
+    const list = contacts.filter(c => (c.type||'client')==='prospect' && stageOf(c)==='Perdu');
+    const tbody = document.getElementById('list-lost');
+    if(!list.length){ tbody.innerHTML = '<tr><td colspan="4" class="dash-empty"><p>Aucun prospect perdu.</p></td></tr>'; return; }
+    tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
+      <td><strong>${esc(fullName(c))}</strong></td><td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td><td>${esc(c.comment_connu||'—')}</td></tr>`).join('');
+    tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => { document.getElementById('lost-modal').classList.remove('is-open'); openContact(tr.dataset.id); }));
+  }
+  const lostModal = document.getElementById('lost-modal');
+  document.getElementById('btn-show-lost').addEventListener('click', () => { renderLostModal(); lostModal.classList.add('is-open'); });
+  document.getElementById('lost-close').addEventListener('click', () => lostModal.classList.remove('is-open'));
+  lostModal.addEventListener('click', e => { if(e.target===lostModal) lostModal.classList.remove('is-open'); });
   function cardHTML(c){
     const action = c.next_action ? `<div class="kanban-card__action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(c.next_action)}${c.next_action_date ? ' · '+fmtDate(c.next_action_date) : ''}</div>` : '';
     const provenance = c.comment_connu ? `<span class="kanban-card__badge badge-provenance">${esc(c.comment_connu)}</span>` : '';
+    const fin = moneyDisplay(c.patrimoine_financier);
     const outcome = stageOf(c)==='R3' ? `<div class="kanban-card__outcomes">
         <button type="button" class="kanban-card__outcome-btn" data-outcome="won" title="Marquer gagné">✓ Gagné</button>
         <button type="button" class="kanban-card__outcome-btn kanban-card__outcome-btn--lose" data-outcome="lost" title="Marquer perdu">✗ Perdu</button>
       </div>` : '';
+    const status = activityStatus(c);
     return `<div class="kanban-card" draggable="true" data-id="${c.id}">
+      <button type="button" class="kanban-card__activity-dot kanban-card__activity-dot--${status}" data-id="${c.id}" title="${esc(ACTIVITY_STATUS_LABEL[status])} — cliquer pour programmer une activité"></button>
       <div class="kanban-card__name">${esc(fullName(c))}</div>
-      <div class="kanban-card__meta">${esc(c.email||'')}${c.patrimoine_financier ? ' · '+esc(c.patrimoine_financier) : ''}</div>
+      <div class="kanban-card__meta">${esc(c.email||'')}${fin ? ' · '+fin : ''}</div>
       ${provenance}${action}${outcome}
     </div>`;
   }
@@ -346,7 +387,6 @@
   }
 
   // ---------- CLIENTS TABLE ----------
-  function numFromStr(s){ if(!s) return -Infinity; const m = String(s).replace(/[^\d]/g,''); return m ? parseInt(m,10) : -Infinity; }
   let clientSort = {key:null, dir:1};
   let lastClientsFilter = '';
   function renderClients(filter){
@@ -360,7 +400,7 @@
     tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
       <td><strong>${esc(fullName(c))}</strong>${isMorale(c)?' <span class="kanban-card__badge badge-prospect">Morale</span>':''}</td>
       <td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td>
-      <td>${esc(c.patrimoine_financier||'—')}</td><td>${esc(c.stage||'—')}</td>
+      <td>${esc(moneyDisplay(c.patrimoine_financier)||'—')}</td><td>${esc(c.stage||'—')}</td>
       <td>${esc(c.next_action||'—')}</td></tr>`).join('');
     tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openContact(tr.dataset.id)));
   }
@@ -482,6 +522,13 @@
       <div class="contact-outcome-bar">
         <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-mark-lost">✗ Perdu</button>
       </div>`;
+    } else if(isProspect && stageOf(c)==='Perdu'){
+      stageBar = `<div class="contact-stage-info">
+        <div class="contact-stage-info__txt">Ce prospect a été marqué comme <strong>perdu</strong>.</div>
+      </div>
+      <div class="contact-outcome-bar">
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--win" id="btn-to-pipeline">↺ Remettre dans le pipeline (R0)</button>
+      </div>`;
     } else if(isProspect){
       stageBar = `<div class="contact-stage-info">
         <div class="contact-stage-info__txt">Étape actuelle : <strong>${esc(stageOf(c))}</strong> — ${esc(STAGE_META[stageOf(c)]||'')}<br><span class="contact-stage-info__hint">Pour changer d'étape, glissez la carte dans une autre colonne du Pipeline.</span></div>
@@ -493,6 +540,7 @@
     } else {
       stageBar = `<div class="contact-outcome-bar">
         <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-to-prospect">↩ Remettre en prospect</button>
+        <a href="cockpit.html?client=${encodeURIComponent(id)}" target="_blank" rel="noopener" class="btn contact-outcome-btn" style="border-color:var(--gold);background:#fdf6e8;color:#96732f;text-decoration:none;text-align:center">Ouvrir le Cockpit client ↗</a>
       </div>`;
     }
     const personneSwitch = `<div class="detail-section"><h4>Type de personne</h4><div class="edit-grid">
@@ -548,22 +596,23 @@
     bindSourceToggle(modalBody);
   }
 
-  function openContact(id){
+  function openContact(id, pane){
     const c = contacts.find(x => x.id === id); if(!c) return;
     currentId = id;
     currentBilanResume = null;
+    pane = pane || 'infos';
     document.getElementById('modal-title').textContent = fullName(c);
     modalBody.innerHTML = `
       <div class="modal-tabs">
-        <button class="modal-tab is-active" data-pane="infos">Informations</button>
-        <button class="modal-tab" data-pane="portefeuille">Actifs</button>
-        <button class="modal-tab" data-pane="activites">Activités</button>
-        <button class="modal-tab" data-pane="bilans">Bilans</button>
+        <button class="modal-tab${pane==='infos'?' is-active':''}" data-pane="infos">Informations</button>
+        <button class="modal-tab${pane==='portefeuille'?' is-active':''}" data-pane="portefeuille">Actifs</button>
+        <button class="modal-tab${pane==='activites'?' is-active':''}" data-pane="activites">Activités</button>
+        <button class="modal-tab${pane==='bilans'?' is-active':''}" data-pane="bilans">Bilans</button>
       </div>
-      <div class="modal-pane is-active" id="pane-infos">${contactInfoInner(c, id)}</div>
-      <div class="modal-pane" id="pane-portefeuille">${portfolioPaneHTML()}</div>
-      <div class="modal-pane" id="pane-activites">${activitiesPaneHTML(id)}</div>
-      <div class="modal-pane" id="pane-bilans"><p class="dash-empty">Chargement…</p></div>`;
+      <div class="modal-pane${pane==='infos'?' is-active':''}" id="pane-infos">${contactInfoInner(c, id)}</div>
+      <div class="modal-pane${pane==='portefeuille'?' is-active':''}" id="pane-portefeuille">${portfolioPaneHTML()}</div>
+      <div class="modal-pane${pane==='activites'?' is-active':''}" id="pane-activites">${activitiesPaneHTML(id)}</div>
+      <div class="modal-pane${pane==='bilans'?' is-active':''}" id="pane-bilans"><p class="dash-empty">Chargement…</p></div>`;
     loadBilans(id);
     modalBody.querySelectorAll('.modal-tab').forEach(t => t.addEventListener('click', () => {
       modalBody.querySelectorAll('.modal-tab').forEach(x => x.classList.toggle('is-active', x===t));
@@ -574,8 +623,10 @@
     bindContactInfo(c, id);
     bindActivityForm(id);
     bindPortfolioEvents();
+    if(pane==='portefeuille') setTimeout(drawPortfolioCharts,30);
     modal.classList.add('is-open');
     modalBody.scrollTop = 0;
+    if(pane==='activites'){ const t = document.getElementById('act-titre'); if(t) setTimeout(() => t.focus(), 60); }
   }
 
   function saveContact(id){
@@ -723,8 +774,8 @@
   function declaredAssetsHTML(){
     const c = contacts.find(x => x.id === currentId) || {};
     const tiles = [];
-    if(numFromStr(c.patrimoine_financier) > -Infinity) tiles.push(['Financier', c.patrimoine_financier]);
-    if(numFromStr(c.patrimoine_immobilier) > -Infinity) tiles.push(['Immobilier', c.patrimoine_immobilier]);
+    if(moneyDisplay(c.patrimoine_financier)) tiles.push(['Financier', moneyDisplay(c.patrimoine_financier)]);
+    if(moneyDisplay(c.patrimoine_immobilier)) tiles.push(['Immobilier', moneyDisplay(c.patrimoine_immobilier)]);
     if(currentBilanResume && currentBilanResume.liquidites != null) tiles.push(['Disponible (liquidités)', fmtMoney(currentBilanResume.liquidites)]);
     if(!tiles.length) return '<div class="dash-empty" style="padding:34px"><p>Aucun actif renseigné. Complétez un bilan patrimonial, ou ajoutez ses enveloppes depuis le <strong>Cockpit client</strong> pour les voir apparaître ici.</p></div>';
     return `<div class="pf-declared">

@@ -49,7 +49,6 @@
     <div class="dash-header__right">
       <a href="bilan-patrimonial.html" class="btn--logout" style="text-decoration:none">Bilan patrimonial</a>
       <a href="structures.html" class="btn--logout" style="text-decoration:none">Produits structurés</a>
-      <a href="cockpit.html" class="btn--logout" style="text-decoration:none">Cockpit client</a>
       <span class="dash-header__user" id="dash-user-email"></span>
       <button class="btn--logout" id="btn-logout">Déconnexion</button>
     </div>
@@ -82,6 +81,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M4 4h16v16H4zM4 7l8 5 8-5"/></svg>
           Inviter un prospect
         </button>
+        <button class="dash-btn-export" id="btn-show-lost" style="margin-left:auto">Prospects perdus (<span id="tab-count-lost">0</span>)</button>
       </div>
       <div class="kanban" id="kanban"></div>
     </div>
@@ -178,6 +178,24 @@
           <span id="prospect-status" style="font-size:.85rem"></span>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PROSPECTS PERDUS ========== -->
+<div class="dash-modal" id="lost-modal">
+  <div class="dash-modal__card" style="max-width:640px">
+    <div class="dash-modal__head">
+      <h3>Prospects perdus</h3>
+      <button class="dash-modal__close" id="lost-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dash-modal__body">
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 16px">Cliquez sur une fiche pour la consulter ou la remettre dans le pipeline.</p>
+      <div class="dash-table-wrap">
+        <table class="dash-table"><thead><tr>
+          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Provenance</th>
+        </tr></thead><tbody id="list-lost"></tbody></table>
+      </div>
     </div>
   </div>
 </div>

@@ -86,11 +86,16 @@
 .kanban-col__count{font-size:.72rem;color:var(--muted);background:#fff;padding:1px 9px;border-radius:10px;font-weight:600;flex-shrink:0}
 .kanban-col__body{padding:12px;min-height:40px}
 .kanban-col__empty{font-size:.78rem;color:var(--muted);text-align:center;padding:14px 6px;margin:0}
-.kanban-card{background:#fff;border-radius:10px;padding:13px 15px;margin-bottom:10px;cursor:grab;box-shadow:0 1px 3px rgba(0,27,0,.08);transition:box-shadow .2s,transform .1s;border:1px solid transparent}
+.kanban-card{position:relative;background:#fff;border-radius:10px;padding:13px 15px;margin-bottom:10px;cursor:grab;box-shadow:0 1px 3px rgba(0,27,0,.08);transition:box-shadow .2s,transform .1s;border:1px solid transparent}
+.kanban-card__activity-dot{position:absolute;top:10px;right:10px;width:14px;height:14px;border-radius:50%;padding:0;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,27,0,.15);cursor:pointer;transition:transform .15s}
+.kanban-card__activity-dot:hover{transform:scale(1.25)}
+.kanban-card__activity-dot--grey{background:#b9b6ab}
+.kanban-card__activity-dot--green{background:#2e7d32}
+.kanban-card__activity-dot--red{background:#c0392b}
 .kanban-card:hover{box-shadow:0 4px 14px rgba(0,27,0,.14);border-color:var(--gold-soft)}
 .kanban-card:active{cursor:grabbing}
 .kanban-card.is-dragging{opacity:.4}
-.kanban-card__name{font-weight:600;color:var(--green);font-size:.92rem;margin-bottom:4px}
+.kanban-card__name{font-weight:600;color:var(--green);font-size:.92rem;margin-bottom:4px;padding-right:20px}
 .kanban-card__meta{font-size:.78rem;color:var(--muted);line-height:1.45;word-break:break-word}
 .kanban-card__badge{display:inline-block;margin-top:8px;margin-right:4px;font-size:.66rem;padding:2px 9px;border-radius:4px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
 .badge-prospect{background:#fff3e0;color:#e65100}
