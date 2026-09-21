@@ -11,8 +11,9 @@
 
   // Pipeline commercial, réservé aux prospects : R0 (bilan patrimonial réalisé) → R1 (objectifs et
   // difficultés) → R2 (solutions proposées) → R3 (décision finale). Gagné bascule la fiche en client
-  // (avec une petite animation) et sort du pipeline ; Perdu sort aussi du pipeline mais reste consultable
-  // dans l'onglet Prospects.
+  // (avec une petite animation) et sort du pipeline ; Perdu sort aussi du pipeline. Un prospect créé
+  // manuellement (lead, pas encore de bilan) n'a pas d'étape : il vit dans l'onglet « À rappeler »
+  // jusqu'à ce qu'on le fasse entrer au pipeline (R0).
   const STAGES = ['R0', 'R1', 'R2', 'R3'];
   const STAGE_META = {
     R0: 'Bilan patrimonial réalisé', R1: 'Objectifs & difficultés', R2: 'Solutions proposées', R3: 'Décision finale'
@@ -22,7 +23,8 @@
     'R1 : Bilan':'R1', 'R2 : Objectifs':'R2',
     'R3 : Offre':'R3', 'Proposition':'R3', 'Prospect chaud':'R3'
   };
-  function stageOf(c){ const s = c.stage || 'R0'; return LEGACY_STAGES[s] || s; }
+  function stageOf(c){ const s = c.stage; if(!s) return null; return LEGACY_STAGES[s] || s; }
+  function isLead(c){ return (c.type||'client')==='prospect' && !stageOf(c); }
   const PROVENANCE_OPTIONS = ['Rappel', 'Recommandation', 'Réseau personnel', 'Lead site', 'Bilan patrimonial', 'Autre'];
 
   // Sections communes aux deux types de personne
@@ -205,6 +207,7 @@
   function updateStats(){
     const clients = contacts.filter(c => (c.type||'client') === 'client');
     const prospects = contacts.filter(c => (c.type||'client') === 'prospect');
+    const leads = contacts.filter(isLead);
     document.getElementById('stat-clients').textContent = clients.length;
     document.getElementById('stat-prospects').textContent = prospects.length;
     const pending = activities.filter(a => !a.done);
@@ -212,7 +215,7 @@
     document.getElementById('stat-todo').textContent = pending.length;
     document.getElementById('stat-overdue').textContent = overdue.length;
     document.getElementById('tab-count-clients').textContent = clients.length;
-    document.getElementById('tab-count-prospects').textContent = prospects.length;
+    document.getElementById('tab-count-rappeler').textContent = leads.length;
     document.getElementById('tab-count-activites').textContent = pending.length;
   }
 
@@ -230,7 +233,7 @@
   function renderActiveTab(){
     if(activeTab==='pipeline') renderPipeline();
     else if(activeTab==='clients') renderClients();
-    else if(activeTab==='prospects') renderProspects();
+    else if(activeTab==='rappeler') renderRappeler();
     else if(activeTab==='activites') renderActivities();
   }
 
@@ -306,6 +309,24 @@
     modal.classList.remove('is-open');
     updateStats(); renderActiveTab();
   }
+  function addToPipeline(id){
+    const c = contacts.find(x => x.id === id); if(!c) return;
+    Object.assign(c, {stage:'R0'});
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'R0'})})
+      .catch(err => console.error(err));
+    modal.classList.remove('is-open');
+    updateStats(); renderActiveTab();
+  }
+  function backToProspect(id){
+    const c = contacts.find(x => x.id === id); if(!c) return;
+    if(!confirm('Remettre ' + fullName(c) + ' en prospect (étape R3) ?')) return;
+    const patch = {type:'prospect', stage:'R3'};
+    Object.assign(c, patch);
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+      .catch(err => console.error(err));
+    modal.classList.remove('is-open');
+    updateStats(); renderActiveTab();
+  }
 
   // ---------- CÉLÉBRATION (nouveau client) ----------
   function celebrate(name){
@@ -353,17 +374,24 @@
       renderClients();
     });
   });
-  function renderProspects(filter){
+  function renderRappeler(filter){
     const q = (filter||'').toLowerCase();
-    const list = contacts.filter(c => (c.type||'client')==='prospect').filter(c => matchSearch(c,q));
-    const tbody = document.getElementById('list-prospects');
-    if(!list.length){ tbody.innerHTML = '<tr><td colspan="6" class="dash-empty"><p>Aucun prospect. Cliquez sur « Ajouter un prospect ».</p></td></tr>'; return; }
+    const list = contacts.filter(isLead).filter(c => matchSearch(c,q));
+    const tbody = document.getElementById('list-rappeler');
+    if(!list.length){ tbody.innerHTML = '<tr><td colspan="6" class="dash-empty"><p>Aucun lead à rappeler. Cliquez sur « Ajouter un prospect ».</p></td></tr>'; return; }
     tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
       <td><strong>${esc(fullName(c))}</strong>${isMorale(c)?' <span class="kanban-card__badge badge-prospect">Morale</span>':''}</td>
       <td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td>
-      <td>${esc(stageOf(c))}</td><td>${esc(c.next_action||'—')}</td>
-      <td>${fmtDate(c.next_action_date)}</td></tr>`).join('');
-    tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openContact(tr.dataset.id)));
+      <td>${esc(c.comment_connu||'—')}</td><td>${esc(c.next_action||'—')}</td>
+      <td><button type="button" class="btn btn--solid rappeler-to-pipeline" data-id="${c.id}" style="padding:6px 14px;font-size:.76rem">Ajouter au pipeline (R0)</button></td></tr>`).join('');
+    tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', (e) => { if(e.target.closest('.rappeler-to-pipeline')) return; openContact(tr.dataset.id); }));
+    tbody.querySelectorAll('.rappeler-to-pipeline').forEach(btn => btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const c = contacts.find(x => x.id === btn.dataset.id); if(!c) return;
+      Object.assign(c, {stage:'R0'});
+      fetch(API + '/clients?id=eq.' + c.id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'R0'})}).catch(err => console.error(err));
+      updateStats(); renderActiveTab();
+    }));
   }
   function matchSearch(c,q){
     if(!q) return true;
@@ -371,7 +399,7 @@
            (c.email||'').toLowerCase().includes(q) || (c.telephone||'').includes(q);
   }
   document.getElementById('search-clients').addEventListener('input', function(){ renderClients(this.value); });
-  document.getElementById('search-prospects').addEventListener('input', function(){ renderProspects(this.value); });
+  document.getElementById('search-rappeler').addEventListener('input', function(){ renderRappeler(this.value); });
 
   // ---------- ACTIVITIES FEED ----------
   const ACT_ICONS = {
@@ -445,12 +473,28 @@
 
   function contactInfoInner(c, id){
     const isProspect = (c.type||'client')==='prospect';
-    const stageBar = isProspect ? `<div class="contact-pipeline">${STAGES.map(s =>
-      `<div class="contact-stage ${stageOf(c)===s?'is-active':''}" data-stage="${esc(s)}" title="${esc(STAGE_META[s]||'')}">${esc(s)}</div>`).join('')}</div>
+    let stageBar = '';
+    if(isProspect && isLead(c)){
+      stageBar = `<div class="contact-stage-info">
+        <div class="contact-stage-info__txt">Ce prospect n'est pas encore entré dans le pipeline (pas de bilan patrimonial réalisé).</div>
+        <button type="button" class="btn btn--solid" id="btn-to-pipeline">Ajouter au pipeline (R0)</button>
+      </div>
+      <div class="contact-outcome-bar">
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-mark-lost">✗ Perdu</button>
+      </div>`;
+    } else if(isProspect){
+      stageBar = `<div class="contact-stage-info">
+        <div class="contact-stage-info__txt">Étape actuelle : <strong>${esc(stageOf(c))}</strong> — ${esc(STAGE_META[stageOf(c)]||'')}<br><span class="contact-stage-info__hint">Pour changer d'étape, glissez la carte dans une autre colonne du Pipeline.</span></div>
+      </div>
       <div class="contact-outcome-bar">
         <button type="button" class="btn contact-outcome-btn contact-outcome-btn--win" id="btn-mark-won">✓ Gagné (devient client)</button>
         <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-mark-lost">✗ Perdu</button>
-      </div>` : '';
+      </div>`;
+    } else {
+      stageBar = `<div class="contact-outcome-bar">
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-to-prospect">↩ Remettre en prospect</button>
+      </div>`;
+    }
     const personneSwitch = `<div class="detail-section"><h4>Type de personne</h4><div class="edit-grid">
       <div class="edit-field"><label>Personne</label><select id="f_personne">
         <option value="physique" ${!isMorale(c)?'selected':''}>Personne physique</option>
@@ -488,10 +532,6 @@
     });
   }
   function bindContactInfo(c, id){
-    modalBody.querySelectorAll('.contact-stage').forEach(el => el.addEventListener('click', () => {
-      modalBody.querySelectorAll('.contact-stage').forEach(s => s.classList.remove('is-active'));
-      el.classList.add('is-active');
-    }));
     const pe = document.getElementById('f_personne');
     if(pe) pe.addEventListener('change', () => {
       const cur = collectForm(); Object.assign(c, cur); c.personne = pe.value;
@@ -500,19 +540,23 @@
     document.getElementById('save-contact').addEventListener('click', () => saveContact(id));
     document.getElementById('delete-contact').addEventListener('click', () => deleteContact(id));
     const wonBtn = document.getElementById('btn-mark-won'), lostBtn = document.getElementById('btn-mark-lost');
+    const toPipelineBtn = document.getElementById('btn-to-pipeline'), toProspectBtn = document.getElementById('btn-to-prospect');
     if(wonBtn) wonBtn.addEventListener('click', () => markWon(id));
     if(lostBtn) lostBtn.addEventListener('click', () => markLost(id));
+    if(toPipelineBtn) toPipelineBtn.addEventListener('click', () => addToPipeline(id));
+    if(toProspectBtn) toProspectBtn.addEventListener('click', () => backToProspect(id));
     bindSourceToggle(modalBody);
   }
 
   function openContact(id){
     const c = contacts.find(x => x.id === id); if(!c) return;
     currentId = id;
+    currentBilanResume = null;
     document.getElementById('modal-title').textContent = fullName(c);
     modalBody.innerHTML = `
       <div class="modal-tabs">
         <button class="modal-tab is-active" data-pane="infos">Informations</button>
-        <button class="modal-tab" data-pane="portefeuille">Portefeuille</button>
+        <button class="modal-tab" data-pane="portefeuille">Actifs</button>
         <button class="modal-tab" data-pane="activites">Activités</button>
         <button class="modal-tab" data-pane="bilans">Bilans</button>
       </div>
@@ -537,8 +581,6 @@
   function saveContact(id){
     const patch = collectForm();
     const pe = document.getElementById('f_personne'); if(pe) patch.personne = pe.value;
-    const activeStage = modalBody.querySelector('.contact-stage.is-active');
-    if(activeStage) patch.stage = activeStage.dataset.stage;
     // Personne morale : garantir les colonnes NOT NULL nom/prenom (recherche + intégrité)
     if(patch.personne==='morale'){ if(patch.raison_sociale) patch.nom = patch.raison_sociale; if(patch.prenom==null) patch.prenom = ''; }
 
@@ -574,18 +616,24 @@
   // ---------- BILANS PATRIMONIAUX (table bilans, alimentée par bilan-patrimonial.html) ----------
   const eurFmt = v => (v==null||isNaN(v)) ? '-' : Math.round(v).toLocaleString('fr-FR') + ' €';
   const pctFmt = v => (v==null||isNaN(v)) ? '-' : (v*100).toFixed(0) + ' %';
+  let currentBilanResume = null;
   function loadBilans(id){
     const pane = document.getElementById('pane-bilans'); if(!pane) return;
     const newBtn = `<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><a class="btn btn--solid" href="bilan-patrimonial.html?client=${encodeURIComponent(id)}" style="text-decoration:none">＋ Nouveau bilan patrimonial</a></div>`;
     fetch(API + '/bilans?client_id=eq.' + id + '&select=id,created_at,updated_at,date_entretien,conseiller,etape,resume,points&order=created_at.desc', {headers: headers()})
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(rows => {
+        currentBilanResume = rows.length ? (rows[0].resume || null) : null;
+        if(id === currentId){ const pf = document.getElementById('pane-portefeuille'); if(pf){ pf.innerHTML = portfolioPaneHTML(); bindPortfolioEvents(); drawPortfolioCharts(); } }
         if(!rows.length){ pane.innerHTML = newBtn + '<p class="dash-empty">Aucun bilan patrimonial enregistré pour cette fiche.</p>'; return; }
         pane.innerHTML = newBtn + rows.map(b => {
           const r = b.resume || {}, pts = Array.isArray(b.points) ? b.points : [];
           const kpis = [['Revenu imposable', eurFmt(r.rni)], ['TMI', pctFmt(r.tmi)], ['Impôt', eurFmt(r.impot)], ['Actif net', eurFmt(r.actif_net)], ['Épargne financière', eurFmt(r.epargne_financiere)], ['Endettement', pctFmt(r.endettement_brut)], ['Capacité d\'épargne', eurFmt(r.capacite_epargne) + ' / mois']];
           return `<div class="detail-section">
-            <h4>Bilan du ${fmtDate(b.date_entretien || b.created_at)}${b.conseiller ? ' · ' + esc(b.conseiller) : ''} <a class="btn" style="float:right;padding:5px 12px;font-size:.74rem;text-decoration:none" href="bilan-patrimonial.html?bilan=${b.id}">Ouvrir / modifier</a></h4>
+            <div class="detail-section__head">
+              <h4>Bilan du ${fmtDate(b.date_entretien || b.created_at)}${b.conseiller ? ' · ' + esc(b.conseiller) : ''}</h4>
+              <a class="btn" style="padding:5px 12px;font-size:.74rem;text-decoration:none;flex-shrink:0" href="bilan-patrimonial.html?bilan=${b.id}">Ouvrir / modifier</a>
+            </div>
             <div class="edit-grid">${kpis.map(k => `<div class="edit-field"><label>${k[0]}</label><div style="font-weight:500">${k[1]}</div></div>`).join('')}</div>
             ${r.objectifs && r.objectifs.length ? `<p style="font-size:.85rem;margin:10px 0 4px"><strong>Objectifs :</strong> ${esc(r.objectifs.join(', '))}</p>` : ''}
             ${r.profil ? `<p style="font-size:.85rem;margin:0 0 8px"><strong>Profil déclaré :</strong> ${esc(r.profil)}</p>` : ''}
@@ -671,10 +719,23 @@
     pane.innerHTML = activitiesPaneHTML(id); bindActivityForm(id);
   }
 
+  // ---------- ACTIFS (enveloppes réelles, ou à défaut ce qui a été déclaré au bilan patrimonial) ----------
+  function declaredAssetsHTML(){
+    const c = contacts.find(x => x.id === currentId) || {};
+    const tiles = [];
+    if(numFromStr(c.patrimoine_financier) > -Infinity) tiles.push(['Financier', c.patrimoine_financier]);
+    if(numFromStr(c.patrimoine_immobilier) > -Infinity) tiles.push(['Immobilier', c.patrimoine_immobilier]);
+    if(currentBilanResume && currentBilanResume.liquidites != null) tiles.push(['Disponible (liquidités)', fmtMoney(currentBilanResume.liquidites)]);
+    if(!tiles.length) return '<div class="dash-empty" style="padding:34px"><p>Aucun actif renseigné. Complétez un bilan patrimonial, ou ajoutez ses enveloppes depuis le <strong>Cockpit client</strong> pour les voir apparaître ici.</p></div>';
+    return `<div class="pf-declared">
+      <p class="pf-declared__note">Répartition déclarée lors du dernier bilan patrimonial (par grande enveloppe, hors évolution de performance).</p>
+      <div class="pf-declared-grid">${tiles.map(t => `<div class="pf-declared-tile"><div class="pf-declared-tile__l">${esc(t[0])}</div><div class="pf-declared-tile__v">${esc(t[1])}</div></div>`).join('')}</div>
+    </div>`;
+  }
   // ---------- PORTFOLIO (données réelles : enveloppes + supports + structurés) ----------
   function portfolioPaneHTML(){
     const contracts = clientPortfolio(currentId);
-    if(!contracts.length) return '<div class="dash-empty" style="padding:34px"><p>Aucune enveloppe pour ce client. Ajoutez ses enveloppes et supports depuis le <strong>Cockpit client</strong> (ou importez un relevé PDF) — ils apparaîtront ici.</p></div>';
+    if(!contracts.length) return declaredAssetsHTML();
     const totalInvested = contracts.reduce((s,c) => s+c.invested, 0);
     const totalValue = contracts.reduce((s,c) => s+c.value, 0);
     const gain = totalValue - totalInvested;
@@ -1027,7 +1088,7 @@ ${contractsHTML}
     document.getElementById('prospect-modal-title').textContent = addMode==='client' ? 'Ajouter un client' : 'Ajouter un prospect';
     document.getElementById('prospect-modal-desc').textContent = addMode==='client'
       ? 'Créez une fiche client manuellement (client existant intégré au CRM, sans passer par le pipeline).'
-      : 'Créez une fiche prospect manuellement. Vous pourrez la compléter, ajouter des activités, ou l\'inviter à remplir le questionnaire plus tard.';
+      : 'Créez une fiche prospect manuellement. Elle apparaît dans l\'onglet « À rappeler » ; vous la ferez entrer au pipeline (R0) une fois son bilan patrimonial réalisé.';
     document.getElementById('prospect-submit').textContent = addMode==='client' ? 'Créer le client' : 'Créer le prospect';
     prospectModal.classList.add('is-open');
   }
@@ -1062,7 +1123,6 @@ ${contractsHTML}
       telephone: document.getElementById('pro-tel').value.trim() || null,
       comment_connu: provenance || null
     };
-    if(addMode==='prospect') payload.stage = 'R0';
     const btn = document.getElementById('prospect-submit');
     btn.disabled=true; prospectStatus.style.color='var(--muted)'; prospectStatus.textContent='Création…';
     fetch(API + '/clients', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify(payload)})

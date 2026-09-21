@@ -32,16 +32,23 @@ animations modernes (révélations au défilement, transitions de page, effets d
   `bilans` (scripts `supabase-bilans.sql` puis `supabase-pipeline-r0-r3.sql`, à exécuter une
   fois chacun). Depuis le CRM (`admin.html`), la fiche contact a un onglet « Bilans » pour
   rouvrir un bilan (`?bilan=<id>`) ou en démarrer un nouveau pré-rempli (`?client=<id>`).
-  **Pipeline (réservé aux prospects)** : R0 (bilan patrimonial réalisé) → R1 (objectifs et
-  difficultés du patrimoine, présentés en rouvrant le bilan) → R2 (solutions proposées) → R3
-  (rendez-vous de décision). Depuis R3, deux boutons « Gagné » / « Perdu » sortent la fiche du
-  pipeline : Gagné bascule automatiquement la fiche en client (avec une petite animation) et
-  elle apparaît dans l'onglet Clients (triable par patrimoine) ; Perdu la retire du tableau
-  tout en la gardant consultable dans l'onglet Prospects. Un prospect peut aussi être créé
-  directement (sans passer par le bilan) via « + Ajouter un prospect », avec sa provenance
+  **Pipeline (réservé aux prospects déjà engagés)** : R0 (bilan patrimonial réalisé) → R1
+  (objectifs et difficultés du patrimoine, présentés en rouvrant le bilan) → R2 (solutions
+  proposées) → R3 (rendez-vous de décision). On change d'étape en glissant la carte dans une
+  autre colonne. Depuis la fiche contact, deux boutons « Gagné » / « Perdu » sortent le
+  prospect du pipeline à tout moment : Gagné bascule automatiquement la fiche en client (avec
+  une petite animation façon bowling) et elle apparaît dans l'onglet Clients (triable par
+  patrimoine) ; Perdu la retire du tableau. Un client remis en prospect par erreur (ou qui se
+  rétracte) peut être renvoyé au pipeline (étape R3) via « ↩ Remettre en prospect » dans sa
+  fiche.
+  **Onglet « À rappeler »** : les prospects créés manuellement (avant tout bilan patrimonial,
+  ex. leads entrants) via « + Ajouter un prospect » y apparaissent, avec leur provenance
   (Rappel, Recommandation, Réseau personnel, Lead site, ou une valeur libre — utile pour de
-  futurs apporteurs d'affaires). Les clients peuvent également être ajoutés directement via
-  « + Ajouter un client » dans l'onglet Clients.
+  futurs apporteurs d'affaires). Un bouton « Ajouter au pipeline (R0) » les fait basculer dans
+  le Pipeline une fois leur bilan patrimonial réalisé. Les clients peuvent être ajoutés
+  directement via « + Ajouter un client » dans l'onglet Clients, et l'onglet Actifs d'une fiche
+  affiche la répartition Financier / Immobilier / Disponible déclarée au dernier bilan tant
+  qu'aucune enveloppe réelle n'a été saisie côté Cockpit.
   **Outil réservé au réseau interne** : `bilan-patrimonial.html` et ses fichiers propres
   (`assets/js/bilan.js`, `assets/js/drive.js`, `assets/js/drive-config.js`,
   `assets/css/bilan.css`, `assets/css/fonts.css`, `assets/fonts/`, `assets/vendor/`,

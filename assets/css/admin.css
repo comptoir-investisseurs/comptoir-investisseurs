@@ -148,7 +148,12 @@
 .contact-stage:hover{background:var(--parchment)}
 .contact-stage.is-active{background:var(--gold);color:#fff;font-weight:600}
 
-.contact-outcome-bar{display:flex;gap:10px;margin:-14px 0 24px}
+.contact-stage-info{background:var(--parchment);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.contact-stage-info__txt{font-size:.85rem;color:var(--ink);line-height:1.5}
+.contact-stage-info__hint{font-size:.78rem;color:var(--muted)}
+.contact-stage-info .btn{margin-top:10px}
+
+.contact-outcome-bar{display:flex;gap:10px;margin:0 0 24px}
 .contact-outcome-btn{flex:1;padding:10px 14px;border-radius:8px;font-family:var(--sans);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s}
 .contact-outcome-btn--win{border:1px solid #2e7d32;background:#e8f5e9;color:#2e7d32}
 .contact-outcome-btn--win:hover{background:#2e7d32;color:#fff}
@@ -172,6 +177,8 @@
 
 .detail-section{margin-bottom:24px}
 .detail-section h4{font-family:var(--sans);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.detail-section__head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:8px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.detail-section__head h4{margin:0;padding:0;border:0;flex:1;min-width:0}
 .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
 @media(max-width:600px){.edit-grid{grid-template-columns:1fr}}
 .edit-field label{display:block;font-size:.75rem;font-weight:500;color:var(--muted);margin-bottom:5px}
@@ -287,3 +294,11 @@
 .pf-line-val{font-weight:500}
 .pf-lines-table .positive{color:#2e7d32}
 .pf-lines-table .negative{color:#c0392b}
+
+/* ---------- ACTIFS DÉCLARÉS (fallback quand il n'y a pas d'enveloppe réelle) ---------- */
+.pf-declared{padding:6px 0}
+.pf-declared__note{color:var(--muted);font-size:.85rem;margin:0 0 18px}
+.pf-declared-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.pf-declared-tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.pf-declared-tile__l{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+.pf-declared-tile__v{font-family:var(--serif);font-size:1.5rem;color:var(--green);font-weight:500}

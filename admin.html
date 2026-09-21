@@ -70,7 +70,7 @@
     <div class="dash-tabs">
       <button class="dash-tab is-active" data-tab="pipeline">Pipeline</button>
       <button class="dash-tab" data-tab="clients">Clients <span class="count" id="tab-count-clients">0</span></button>
-      <button class="dash-tab" data-tab="prospects">Prospects <span class="count" id="tab-count-prospects">0</span></button>
+      <button class="dash-tab" data-tab="rappeler">À rappeler <span class="count" id="tab-count-rappeler">0</span></button>
       <button class="dash-tab" data-tab="activites">Activités <span class="count" id="tab-count-activites">0</span></button>
     </div>
 
@@ -80,7 +80,7 @@
         <button class="dash-btn-add" id="btn-add-prospect-2">+ Ajouter un prospect</button>
         <button class="dash-btn-invite" id="btn-invite">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M4 4h16v16H4zM4 7l8 5 8-5"/></svg>
-          Inviter un client
+          Inviter un prospect
         </button>
       </div>
       <div class="kanban" id="kanban"></div>
@@ -103,16 +103,16 @@
       </div>
     </div>
 
-    <!-- ===== VIEW: PROSPECTS ===== -->
-    <div class="dash-view" id="view-prospects">
+    <!-- ===== VIEW: À RAPPELER (leads pas encore entrés au pipeline) ===== -->
+    <div class="dash-view" id="view-rappeler">
       <div class="dash-toolbar">
-        <input type="search" class="dash-search" id="search-prospects" placeholder="Rechercher un prospect…">
+        <input type="search" class="dash-search" id="search-rappeler" placeholder="Rechercher un lead…">
         <button class="dash-btn-add" id="btn-add-prospect">+ Ajouter un prospect</button>
       </div>
       <div class="dash-table-wrap">
         <table class="dash-table"><thead><tr>
-          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Étape</th><th>Prochaine action</th><th>Échéance</th>
-        </tr></thead><tbody id="list-prospects"></tbody></table>
+          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Provenance</th><th>Prochaine action</th><th></th>
+        </tr></thead><tbody id="list-rappeler"></tbody></table>
       </div>
     </div>
 
@@ -128,11 +128,11 @@
 <div class="dash-modal" id="invite-modal">
   <div class="dash-modal__card" style="max-width:480px">
     <div class="dash-modal__head">
-      <h3>Inviter un client</h3>
+      <h3>Inviter un prospect</h3>
       <button class="dash-modal__close" id="invite-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="dash-modal__body">
-      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Le client recevra un email brandé avec un lien personnalisé pour compléter son questionnaire.</p>
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Le prospect recevra un email brandé avec un lien personnalisé pour compléter son questionnaire.</p>
       <form id="invite-form">
         <div class="q-row">
           <div class="q-field"><label for="inv-prenom">Prénom</label><input type="text" id="inv-prenom"></div>
