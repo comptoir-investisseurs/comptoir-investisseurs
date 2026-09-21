@@ -9,11 +9,21 @@
     'Content-Type': 'application/json'
   }, extra || {});
 
-  // Pipeline commercial : le prospect entre en R1 avec son bilan patrimonial, R2 répond à ses objectifs,
-  // R3 porte l'offre, puis prospect chaud, puis gagné (bascule en client) ou perdu.
-  const STAGES = ['Nouveau', 'R1 : Bilan', 'R2 : Objectifs', 'R3 : Offre', 'Prospect chaud', 'Gagné', 'Perdu'];
-  const LEGACY_STAGES = {'Contacté':'R1 : Bilan','RDV planifié':'R1 : Bilan','Proposition':'R3 : Offre'};
-  function stageOf(c){ const s = c.stage || 'Nouveau'; return LEGACY_STAGES[s] || s; }
+  // Pipeline commercial, réservé aux prospects : R0 (bilan patrimonial réalisé) → R1 (objectifs et
+  // difficultés) → R2 (solutions proposées) → R3 (décision finale). Gagné bascule la fiche en client
+  // (avec une petite animation) et sort du pipeline ; Perdu sort aussi du pipeline mais reste consultable
+  // dans l'onglet Prospects.
+  const STAGES = ['R0', 'R1', 'R2', 'R3'];
+  const STAGE_META = {
+    R0: 'Bilan patrimonial réalisé', R1: 'Objectifs & difficultés', R2: 'Solutions proposées', R3: 'Décision finale'
+  };
+  const LEGACY_STAGES = {
+    'Nouveau':'R0', 'Contacté':'R0', 'RDV planifié':'R0',
+    'R1 : Bilan':'R1', 'R2 : Objectifs':'R2',
+    'R3 : Offre':'R3', 'Proposition':'R3', 'Prospect chaud':'R3'
+  };
+  function stageOf(c){ const s = c.stage || 'R0'; return LEGACY_STAGES[s] || s; }
+  const PROVENANCE_OPTIONS = ['Rappel', 'Recommandation', 'Réseau personnel', 'Lead site', 'Bilan patrimonial', 'Autre'];
 
   // Sections communes aux deux types de personne
   const SEC_PATRIMOINE = {title:'Patrimoine', fields:[
@@ -39,7 +49,7 @@
     ['type','Type','select',['prospect','client']],
     ['next_action','Prochaine action','text'],
     ['next_action_date','Échéance','date'],
-    ['comment_connu','Source','text'],
+    ['comment_connu','Provenance','source',PROVENANCE_OPTIONS],
     ['notes_internes','Notes internes','textarea'],
     ['commentaires','Commentaires','textarea'],
   ]};
@@ -224,15 +234,16 @@
     else if(activeTab==='activites') renderActivities();
   }
 
-  // ---------- PIPELINE (KANBAN) ----------
+  // ---------- PIPELINE (KANBAN) — réservé aux prospects ----------
   let draggingId = null;
   function renderPipeline(){
     const board = document.getElementById('kanban');
+    const prospects = contacts.filter(c => (c.type||'client')==='prospect');
     board.innerHTML = STAGES.map(stage => {
-      const cards = contacts.filter(c => stageOf(c) === stage);
+      const cards = prospects.filter(c => stageOf(c) === stage);
       return `<div class="kanban-col" data-stage="${esc(stage)}">
-        <div class="kanban-col__head"><span class="kanban-col__title">${esc(stage)}</span><span class="kanban-col__count">${cards.length}</span></div>
-        <div class="kanban-col__body">${cards.map(cardHTML).join('')}</div>
+        <div class="kanban-col__head"><span class="kanban-col__title">${esc(stage)}<span class="kanban-col__sub">${esc(STAGE_META[stage]||'')}</span></span><span class="kanban-col__count">${cards.length}</span></div>
+        <div class="kanban-col__body">${cards.map(cardHTML).join('') || '<p class="kanban-col__empty">Aucun prospect</p>'}</div>
       </div>`;
     }).join('');
 
@@ -240,6 +251,13 @@
       card.addEventListener('dragstart', e => { draggingId = card.dataset.id; card.classList.add('is-dragging'); });
       card.addEventListener('dragend', () => { card.classList.remove('is-dragging'); draggingId = null; });
       card.addEventListener('click', () => openContact(card.dataset.id));
+    });
+    board.querySelectorAll('.kanban-card__outcome-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.closest('.kanban-card').dataset.id;
+        if(btn.dataset.outcome==='won') markWon(id); else markLost(id);
+      });
     });
     board.querySelectorAll('.kanban-col').forEach(col => {
       col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('is-dragover'); });
@@ -251,37 +269,90 @@
     });
   }
   function cardHTML(c){
-    const badge = (c.type||'client')==='prospect' ? '<span class="kanban-card__badge badge-prospect">Prospect</span>' : '<span class="kanban-card__badge badge-client">Client</span>';
     const action = c.next_action ? `<div class="kanban-card__action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(c.next_action)}${c.next_action_date ? ' · '+fmtDate(c.next_action_date) : ''}</div>` : '';
+    const provenance = c.comment_connu ? `<span class="kanban-card__badge badge-provenance">${esc(c.comment_connu)}</span>` : '';
+    const outcome = stageOf(c)==='R3' ? `<div class="kanban-card__outcomes">
+        <button type="button" class="kanban-card__outcome-btn" data-outcome="won" title="Marquer gagné">✓ Gagné</button>
+        <button type="button" class="kanban-card__outcome-btn kanban-card__outcome-btn--lose" data-outcome="lost" title="Marquer perdu">✗ Perdu</button>
+      </div>` : '';
     return `<div class="kanban-card" draggable="true" data-id="${c.id}">
       <div class="kanban-card__name">${esc(fullName(c))}</div>
       <div class="kanban-card__meta">${esc(c.email||'')}${c.patrimoine_financier ? ' · '+esc(c.patrimoine_financier) : ''}</div>
-      ${badge}${action}
+      ${provenance}${action}${outcome}
     </div>`;
   }
   function updateStage(id, stage){
     const c = contacts.find(x => x.id === id); if(!c) return;
-    const patch = {stage};
-    if(stage === 'Gagné' && (c.type||'client') === 'prospect') patch.type = 'client';   // gagné = devient client
-    Object.assign(c, patch);
-    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+    Object.assign(c, {stage});
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage})})
       .catch(err => console.error(err));
     updateStats(); renderPipeline();
   }
+  function markWon(id){
+    const c = contacts.find(x => x.id === id); if(!c) return;
+    const patch = {stage:'Gagné', type:'client'};
+    Object.assign(c, patch);
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+      .catch(err => console.error(err));
+    celebrate(fullName(c));
+    modal.classList.remove('is-open');
+    updateStats(); renderActiveTab();
+  }
+  function markLost(id){
+    const c = contacts.find(x => x.id === id); if(!c) return;
+    Object.assign(c, {stage:'Perdu'});
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'Perdu'})})
+      .catch(err => console.error(err));
+    modal.classList.remove('is-open');
+    updateStats(); renderActiveTab();
+  }
+
+  // ---------- CÉLÉBRATION (nouveau client) ----------
+  function celebrate(name){
+    const wrap = document.createElement('div');
+    wrap.className = 'celebrate-overlay';
+    const colors = ['#A9853F', '#001B00', '#E6C989', '#15462A', '#FCF7EC'];
+    let pieces = '';
+    for(let i=0;i<60;i++){
+      const left = Math.random()*100, delay = Math.random()*0.4, dur = 1.6+Math.random()*1.1;
+      const size = 6+Math.random()*7, rot = Math.random()*360, color = colors[i%colors.length];
+      pieces += `<span class="confetti-piece" style="left:${left}%;width:${size}px;height:${size*0.4}px;background:${color};animation-delay:${delay}s;animation-duration:${dur}s;transform:rotate(${rot}deg)"></span>`;
+    }
+    wrap.innerHTML = `<div class="confetti-field">${pieces}</div><div class="celebrate-msg"><span class="celebrate-emoji">🎳</span><div class="celebrate-title">Strike !</div><div class="celebrate-sub">${esc(name)} devient client</div></div>`;
+    document.body.appendChild(wrap);
+    requestAnimationFrame(() => wrap.classList.add('is-on'));
+    setTimeout(() => { wrap.classList.remove('is-on'); setTimeout(() => wrap.remove(), 400); }, 2600);
+  }
 
   // ---------- CLIENTS TABLE ----------
+  function numFromStr(s){ if(!s) return -Infinity; const m = String(s).replace(/[^\d]/g,''); return m ? parseInt(m,10) : -Infinity; }
+  let clientSort = {key:null, dir:1};
+  let lastClientsFilter = '';
   function renderClients(filter){
-    const q = (filter||'').toLowerCase();
-    const list = contacts.filter(c => (c.type||'client')==='client').filter(c => matchSearch(c,q));
+    if(filter!==undefined) lastClientsFilter = filter;
+    const q = (lastClientsFilter||'').toLowerCase();
+    let list = contacts.filter(c => (c.type||'client')==='client').filter(c => matchSearch(c,q));
+    if(clientSort.key==='nom') list = list.slice().sort((a,b) => fullName(a).localeCompare(fullName(b)) * clientSort.dir);
+    else if(clientSort.key==='patrimoine') list = list.slice().sort((a,b) => (numFromStr(a.patrimoine_financier) - numFromStr(b.patrimoine_financier)) * clientSort.dir);
     const tbody = document.getElementById('list-clients');
     if(!list.length){ tbody.innerHTML = '<tr><td colspan="6" class="dash-empty"><p>Aucun client.</p></td></tr>'; return; }
     tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
       <td><strong>${esc(fullName(c))}</strong>${isMorale(c)?' <span class="kanban-card__badge badge-prospect">Morale</span>':''}</td>
       <td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td>
-      <td>${esc(c.patrimoine_financier||'—')}</td><td>${esc(c.stage||'Nouveau')}</td>
+      <td>${esc(c.patrimoine_financier||'—')}</td><td>${esc(c.stage||'—')}</td>
       <td>${esc(c.next_action||'—')}</td></tr>`).join('');
     tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openContact(tr.dataset.id)));
   }
+  document.querySelectorAll('#view-clients .dash-th-sort').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      clientSort.dir = (clientSort.key===key) ? -clientSort.dir : -1;
+      clientSort.key = key;
+      document.querySelectorAll('#view-clients .dash-th-sort').forEach(x => x.classList.remove('is-asc','is-desc'));
+      th.classList.add(clientSort.dir>0 ? 'is-asc' : 'is-desc');
+      renderClients();
+    });
+  });
   function renderProspects(filter){
     const q = (filter||'').toLowerCase();
     const list = contacts.filter(c => (c.type||'client')==='prospect').filter(c => matchSearch(c,q));
@@ -290,7 +361,7 @@
     tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
       <td><strong>${esc(fullName(c))}</strong>${isMorale(c)?' <span class="kanban-card__badge badge-prospect">Morale</span>':''}</td>
       <td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td>
-      <td>${esc(c.stage||'Nouveau')}</td><td>${esc(c.next_action||'—')}</td>
+      <td>${esc(stageOf(c))}</td><td>${esc(c.next_action||'—')}</td>
       <td>${fmtDate(c.next_action_date)}</td></tr>`).join('');
     tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openContact(tr.dataset.id)));
   }
@@ -355,7 +426,12 @@
   function editField(key,label,type,options,value){
     const v = value===null||value===undefined ? '' : value;
     let input;
-    if(type==='select'){
+    if(type==='source'){
+      const isCustom = v && !options.includes(v);
+      const sel = `<select id="f_${key}">${options.map(o => `<option value="${esc(o)}" ${(o==='Autre'?isCustom:o===v)?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+      const autre = `<input type="text" id="f_${key}__autre" placeholder="Précisez la provenance" value="${esc(isCustom?v:'')}" style="margin-top:6px${isCustom?'':';display:none'}">`;
+      input = sel + autre;
+    } else if(type==='select'){
       input = `<select id="f_${key}">${(options||[]).map(o => `<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
     } else if(type==='textarea'){
       input = `<textarea id="f_${key}" rows="2">${esc(v)}</textarea>`;
@@ -368,8 +444,13 @@
   }
 
   function contactInfoInner(c, id){
-    const stageBar = `<div class="contact-pipeline">${STAGES.map(s =>
-      `<div class="contact-stage ${stageOf(c)===s?'is-active':''}" data-stage="${esc(s)}">${esc(s)}</div>`).join('')}</div>`;
+    const isProspect = (c.type||'client')==='prospect';
+    const stageBar = isProspect ? `<div class="contact-pipeline">${STAGES.map(s =>
+      `<div class="contact-stage ${stageOf(c)===s?'is-active':''}" data-stage="${esc(s)}" title="${esc(STAGE_META[s]||'')}">${esc(s)}</div>`).join('')}</div>
+      <div class="contact-outcome-bar">
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--win" id="btn-mark-won">✓ Gagné (devient client)</button>
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-mark-lost">✗ Perdu</button>
+      </div>` : '';
     const personneSwitch = `<div class="detail-section"><h4>Type de personne</h4><div class="edit-grid">
       <div class="edit-field"><label>Personne</label><select id="f_personne">
         <option value="physique" ${!isMorale(c)?'selected':''}>Personne physique</option>
@@ -393,11 +474,18 @@
     const o = {};
     EDITABLE_KEYS.forEach(key => { const el = document.getElementById('f_' + key); if(!el) return;
       let v = el.value;
+      if(v==='Autre'){ const autreEl = document.getElementById('f_' + key + '__autre'); if(autreEl) v = autreEl.value.trim(); }
       if(ARRAY_KEYS.includes(key)) v = v.split(',').map(s => s.trim()).filter(Boolean);
       else if(key==='nb_enfants') v = parseInt(v,10) || 0;
       else if(v==='') v = null;
       o[key] = v; });
     return o;
+  }
+  function bindSourceToggle(root){
+    root.querySelectorAll('select[id^="f_"]').forEach(sel => {
+      const autre = document.getElementById(sel.id + '__autre'); if(!autre) return;
+      sel.addEventListener('change', () => { autre.style.display = sel.value==='Autre' ? '' : 'none'; });
+    });
   }
   function bindContactInfo(c, id){
     modalBody.querySelectorAll('.contact-stage').forEach(el => el.addEventListener('click', () => {
@@ -411,6 +499,10 @@
     });
     document.getElementById('save-contact').addEventListener('click', () => saveContact(id));
     document.getElementById('delete-contact').addEventListener('click', () => deleteContact(id));
+    const wonBtn = document.getElementById('btn-mark-won'), lostBtn = document.getElementById('btn-mark-lost');
+    if(wonBtn) wonBtn.addEventListener('click', () => markWon(id));
+    if(lostBtn) lostBtn.addEventListener('click', () => markLost(id));
+    bindSourceToggle(modalBody);
   }
 
   function openContact(id){
@@ -446,7 +538,7 @@
     const patch = collectForm();
     const pe = document.getElementById('f_personne'); if(pe) patch.personne = pe.value;
     const activeStage = modalBody.querySelector('.contact-stage.is-active');
-    if(activeStage){ patch.stage = activeStage.dataset.stage; if(patch.stage === 'Gagné' && patch.type === 'prospect') patch.type = 'client'; }
+    if(activeStage) patch.stage = activeStage.dataset.stage;
     // Personne morale : garantir les colonnes NOT NULL nom/prenom (recherche + intégrité)
     if(patch.personne==='morale'){ if(patch.raison_sociale) patch.nom = patch.raison_sociale; if(patch.prenom==null) patch.prenom = ''; }
 
@@ -923,19 +1015,34 @@ ${contractsHTML}
       .catch(err => { console.error(err); inviteStatus.style.color='#c0392b'; inviteStatus.textContent='Erreur lors de l\'envoi.'; btn.disabled=false; });
   });
 
-  // ---------- ADD PROSPECT ----------
+  // ---------- ADD PROSPECT / CLIENT ----------
   const prospectModal = document.getElementById('prospect-modal');
   const prospectForm = document.getElementById('prospect-form');
   const prospectStatus = document.getElementById('prospect-status');
-  function openProspect(){ prospectForm.reset(); prospectStatus.textContent=''; togglePersonneFields(); prospectModal.classList.add('is-open'); }
+  let addMode = 'prospect';
+  function openProspect(mode){
+    addMode = mode || 'prospect';
+    prospectForm.reset(); prospectStatus.textContent=''; togglePersonneFields();
+    document.getElementById('pro-source-autre').style.display = 'none';
+    document.getElementById('prospect-modal-title').textContent = addMode==='client' ? 'Ajouter un client' : 'Ajouter un prospect';
+    document.getElementById('prospect-modal-desc').textContent = addMode==='client'
+      ? 'Créez une fiche client manuellement (client existant intégré au CRM, sans passer par le pipeline).'
+      : 'Créez une fiche prospect manuellement. Vous pourrez la compléter, ajouter des activités, ou l\'inviter à remplir le questionnaire plus tard.';
+    document.getElementById('prospect-submit').textContent = addMode==='client' ? 'Créer le client' : 'Créer le prospect';
+    prospectModal.classList.add('is-open');
+  }
   function togglePersonneFields(){
     const morale = document.getElementById('pro-personne').value==='morale';
     document.getElementById('pro-phys-row').style.display = morale?'none':'';
     document.getElementById('pro-morale-row').style.display = morale?'':'none';
   }
   document.getElementById('pro-personne').addEventListener('change', togglePersonneFields);
-  document.getElementById('btn-add-prospect').addEventListener('click', openProspect);
-  document.getElementById('btn-add-prospect-2').addEventListener('click', openProspect);
+  document.getElementById('pro-source').addEventListener('change', function(){
+    document.getElementById('pro-source-autre').style.display = this.value==='Autre' ? '' : 'none';
+  });
+  document.getElementById('btn-add-prospect').addEventListener('click', () => openProspect('prospect'));
+  document.getElementById('btn-add-prospect-2').addEventListener('click', () => openProspect('prospect'));
+  document.getElementById('btn-add-client').addEventListener('click', () => openProspect('client'));
   document.getElementById('prospect-close').addEventListener('click', () => prospectModal.classList.remove('is-open'));
   prospectModal.addEventListener('click', e => { if(e.target===prospectModal) prospectModal.classList.remove('is-open'); });
   prospectForm.addEventListener('submit', function(e){
@@ -944,22 +1051,25 @@ ${contractsHTML}
     const raison = document.getElementById('pro-raison').value.trim();
     const nom = document.getElementById('pro-nom').value.trim();
     if(personne==='morale' ? !raison : !nom){ prospectStatus.style.color='#c0392b'; prospectStatus.textContent = personne==='morale'?'Raison sociale requise.':'Nom requis.'; return; }
+    const sourceSel = document.getElementById('pro-source').value;
+    const provenance = sourceSel==='Autre' ? document.getElementById('pro-source-autre').value.trim() : sourceSel;
     const payload = {
-      type:'prospect', stage:'Nouveau', personne,
+      type: addMode, personne,
       nom: personne==='morale' ? raison : nom,
       prenom: personne==='morale' ? '' : (document.getElementById('pro-prenom').value.trim() || null),
       raison_sociale: personne==='morale' ? raison : null,
       email: document.getElementById('pro-email').value.trim() || null,
       telephone: document.getElementById('pro-tel').value.trim() || null,
-      comment_connu: document.getElementById('pro-source').value.trim() || null
+      comment_connu: provenance || null
     };
+    if(addMode==='prospect') payload.stage = 'R0';
     const btn = document.getElementById('prospect-submit');
     btn.disabled=true; prospectStatus.style.color='var(--muted)'; prospectStatus.textContent='Création…';
     fetch(API + '/clients', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify(payload)})
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(rows => {
         if(rows && rows[0]) contacts.unshift(rows[0]);
-        prospectStatus.style.color='#2e7d32'; prospectStatus.textContent='✓ Prospect créé'; btn.disabled=false;
+        prospectStatus.style.color='#2e7d32'; prospectStatus.textContent = addMode==='client' ? '✓ Client créé' : '✓ Prospect créé'; btn.disabled=false;
         updateStats(); renderActiveTab();
         setTimeout(() => prospectModal.classList.remove('is-open'), 700);
       })

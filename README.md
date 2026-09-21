@@ -28,11 +28,20 @@ animations modernes (révélations au défilement, transitions de page, effets d
   `assets/css/bilan.css`. Le barème de l'impôt et les hypothèses sont dans l'objet `PARAMS`
   en tête de `bilan.js` (à actualiser chaque année).
   **Lien CRM** : le bouton « Enregistrer au CRM » crée ou met à jour la fiche prospect dans
-  Supabase (table `clients`, étape « R1 : Bilan ») et archive le bilan complet dans la table
-  `bilans` (script `supabase-bilans.sql` à exécuter une fois). Depuis le CRM (`admin.html`),
-  la fiche contact a un onglet « Bilans » pour rouvrir un bilan (`?bilan=<id>`) ou en démarrer
-  un nouveau pré-rempli (`?client=<id>`). Pipeline : Nouveau → R1 : Bilan → R2 : Objectifs →
-  R3 : Offre → Prospect chaud → Gagné (la fiche bascule en client) ou Perdu.
+  Supabase (table `clients`, étape « R0 ») et archive le bilan complet dans la table
+  `bilans` (scripts `supabase-bilans.sql` puis `supabase-pipeline-r0-r3.sql`, à exécuter une
+  fois chacun). Depuis le CRM (`admin.html`), la fiche contact a un onglet « Bilans » pour
+  rouvrir un bilan (`?bilan=<id>`) ou en démarrer un nouveau pré-rempli (`?client=<id>`).
+  **Pipeline (réservé aux prospects)** : R0 (bilan patrimonial réalisé) → R1 (objectifs et
+  difficultés du patrimoine, présentés en rouvrant le bilan) → R2 (solutions proposées) → R3
+  (rendez-vous de décision). Depuis R3, deux boutons « Gagné » / « Perdu » sortent la fiche du
+  pipeline : Gagné bascule automatiquement la fiche en client (avec une petite animation) et
+  elle apparaît dans l'onglet Clients (triable par patrimoine) ; Perdu la retire du tableau
+  tout en la gardant consultable dans l'onglet Prospects. Un prospect peut aussi être créé
+  directement (sans passer par le bilan) via « + Ajouter un prospect », avec sa provenance
+  (Rappel, Recommandation, Réseau personnel, Lead site, ou une valeur libre — utile pour de
+  futurs apporteurs d'affaires). Les clients peuvent également être ajoutés directement via
+  « + Ajouter un client » dans l'onglet Clients.
   **Outil réservé au réseau interne** : `bilan-patrimonial.html` et ses fichiers propres
   (`assets/js/bilan.js`, `assets/js/drive.js`, `assets/js/drive-config.js`,
   `assets/css/bilan.css`, `assets/css/fonts.css`, `assets/fonts/`, `assets/vendor/`,

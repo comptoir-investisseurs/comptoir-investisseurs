@@ -90,6 +90,7 @@
     <div class="dash-view" id="view-clients">
       <div class="dash-toolbar">
         <input type="search" class="dash-search" id="search-clients" placeholder="Rechercher un client…">
+        <button class="dash-btn-add" id="btn-add-client">+ Ajouter un client</button>
         <button class="dash-btn-export" id="btn-export">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           Exporter CSV
@@ -97,7 +98,7 @@
       </div>
       <div class="dash-table-wrap">
         <table class="dash-table"><thead><tr>
-          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Patrimoine</th><th>Étape</th><th>Prochaine action</th>
+          <th data-sort="nom" class="dash-th-sort">Nom</th><th>Email</th><th>Téléphone</th><th data-sort="patrimoine" class="dash-th-sort">Patrimoine</th><th>Étape</th><th>Prochaine action</th>
         </tr></thead><tbody id="list-clients"></tbody></table>
       </div>
     </div>
@@ -151,11 +152,11 @@
 <div class="dash-modal" id="prospect-modal">
   <div class="dash-modal__card" style="max-width:480px">
     <div class="dash-modal__head">
-      <h3>Ajouter un prospect</h3>
+      <h3 id="prospect-modal-title">Ajouter un prospect</h3>
       <button class="dash-modal__close" id="prospect-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="dash-modal__body">
-      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Créez une fiche prospect manuellement. Vous pourrez la compléter, ajouter des activités, ou l'inviter à remplir le questionnaire plus tard.</p>
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px" id="prospect-modal-desc">Créez une fiche prospect manuellement. Vous pourrez la compléter, ajouter des activités, ou l'inviter à remplir le questionnaire plus tard.</p>
       <form id="prospect-form">
         <div class="q-field"><label for="pro-personne">Type de personne</label>
           <select id="pro-personne"><option value="physique">Personne physique</option><option value="morale">Personne morale</option></select></div>
@@ -168,7 +169,10 @@
           <div class="q-field"><label for="pro-email">Email</label><input type="email" id="pro-email"></div>
           <div class="q-field"><label for="pro-tel">Téléphone</label><input type="tel" id="pro-tel"></div>
         </div>
-        <div class="q-field"><label for="pro-source">Source / Origine</label><input type="text" id="pro-source" placeholder="ex : recommandation, salon, LinkedIn…"></div>
+        <div class="q-field"><label for="pro-source">Provenance</label>
+          <select id="pro-source"><option>Rappel</option><option>Recommandation</option><option>Réseau personnel</option><option>Lead site</option><option>Bilan patrimonial</option><option>Autre</option></select>
+          <input type="text" id="pro-source-autre" placeholder="Précisez la provenance" style="margin-top:6px;display:none">
+        </div>
         <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
           <button type="submit" class="btn btn--solid" id="prospect-submit">Créer le prospect</button>
           <span id="prospect-status" style="font-size:.85rem"></span>

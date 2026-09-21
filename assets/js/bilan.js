@@ -917,13 +917,13 @@
 
 
   /* ======================================================================
-     CRM (Supabase) : le prospect entre en R1 avec son bilan rattaché
+     CRM (Supabase) : le prospect entre en R0 avec son bilan rattaché
      Tables : clients (fiche + étape du pipeline) et bilans (données + synthèse)
      ====================================================================== */
   var CRM = {
     url: (typeof SUPABASE_URL !== 'undefined') ? SUPABASE_URL : '',
     key: (typeof SUPABASE_ANON_KEY !== 'undefined') ? SUPABASE_ANON_KEY : '',
-    stageR1: 'R1 : Bilan',
+    stageR0: 'R0',
     token: function () { try { return sessionStorage.getItem('sb_access_token'); } catch (e) { return null; } },
     headers: function (extra) { return Object.assign({ apikey: CRM.key, Authorization: 'Bearer ' + (CRM.token() || CRM.key), 'Content-Type': 'application/json' }, extra || {}); },
     rest: function (path, opts) {
@@ -986,11 +986,11 @@
         if (rows && rows.length) {
           var existing = rows[0], patch = Object.assign({}, rec);
           delete patch.type; // un client reste client
-          if (existing.stage && existing.stage !== 'Nouveau') delete patch.stage; else patch.stage = CRM.stageR1;
+          if (existing.stage) delete patch.stage; else patch.stage = CRM.stageR0;
           if (existing.type === 'client') delete patch.notes_internes;
           return CRM.rest('clients?id=eq.' + existing.id, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(patch) }).then(function () { return existing.id; });
         }
-        rec.stage = CRM.stageR1;
+        rec.stage = CRM.stageR0;
         return CRM.rest('clients', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(rec) }).then(function (rows2) { return rows2[0].id; });
       });
     }).then(function (clientId) {
@@ -999,14 +999,14 @@
       var L = insights(R);
       var row = {
         client_id: clientId, conseiller: state.notes.conseiller || (sessionStorage.getItem('sb_user_email') || null), date_entretien: state.notes.date || today(),
-        client_label: clientLabel(), etape: 'R1',
+        client_label: clientLabel(), etape: 'R0',
         data: JSON.parse(JSON.stringify(state)),
         resume: { rni: R.fisc.rni, tmi: R.fisc.tmi, impot: R.fisc.impotRetenu, actif_brut: R.actifBrut, passif: R.crdTotal, actif_net: R.actifNet, epargne_financiere: R.finTotal, liquidites: R.cats.liquid, rendement_moyen: R.rendMoyen, revenus_mensuels: R.revTotalM, charges_mensuelles: R.chTotalM, endettement_brut: R.endBrut, endettement_diff: R.endDiff, capacite_epargne: R.capaciteEpargne, epargne_reelle: R.epargneActuelle, capital_retraite: R.retraite.capital, capital_projete: R.retraite.epargneProjetee || null, taux_projection: R.profil.taux, profil: state.obj.profil || null, objectifs: state.obj.liste || [] },
         points: L, fiche: salesBrief(R), updated_at: new Date().toISOString()
       };
       var req = state.crm.bilanId ? CRM.rest('bilans?id=eq.' + state.crm.bilanId, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) }) : CRM.rest('bilans', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) });
       return req.then(function (rows) { if (rows && rows[0]) state.crm.bilanId = rows[0].id; });
-    }).then(function () { save(); toast('Enregistré dans le CRM : prospect en R1 avec son bilan.'); })
+    }).then(function () { save(); toast('Enregistré dans le CRM : prospect en R0 avec son bilan.'); })
       .catch(function (e) { if (e.message !== 'cancel') { console.error(e); toast(e.message === 'auth' ? 'Session expirée : reconnectez-vous.' : 'Erreur d\'enregistrement : ' + e.message, 6000); } })
       .then(function () { btns.forEach(function (b) { b.disabled = false; b.textContent = 'Enregistrer au CRM'; }); });
   }
