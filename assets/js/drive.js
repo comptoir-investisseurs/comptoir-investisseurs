@@ -88,11 +88,12 @@
   function esc(v) { return String(v).replace(/'/g, "\\'"); }
   function driveFindFolder(token, name, parentId) {
     var q = "name = '" + esc(name) + "' and mimeType = 'application/vnd.google-apps.folder' and '" + parentId + "' in parents and trashed = false";
-    return driveFetch(token, 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name,webViewLink)&spaces=drive')
+    return driveFetch(token, 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) +
+        '&fields=files(id,name,webViewLink)&spaces=drive&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives')
       .then(function (r) { return (r.files && r.files[0]) || null; });
   }
   function driveCreateFolder(token, name, parentId) {
-    return driveFetch(token, 'https://www.googleapis.com/drive/v3/files?fields=id,name,webViewLink', {
+    return driveFetch(token, 'https://www.googleapis.com/drive/v3/files?fields=id,name,webViewLink&supportsAllDrives=true', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] })
     });
@@ -108,7 +109,7 @@
         '\r\n--' + boundary + '\r\nContent-Type: ' + mimeType + '\r\n\r\n';
       var tail = '\r\n--' + boundary + '--';
       var body = new Blob([head, buf, tail]);
-      return driveFetch(token, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
+      return driveFetch(token, 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink&supportsAllDrives=true', {
         method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + boundary }, body: body
       });
     });
