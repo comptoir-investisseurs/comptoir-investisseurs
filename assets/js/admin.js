@@ -32,7 +32,7 @@
     ['patrimoine_financier','Patrimoine financier','text'],
     ['patrimoine_immobilier','Patrimoine immobilier','text'],
     ['placements_existants','Placements existants','array'],
-    ['credits','Crédits','text'],['montant_investir','Montant à investir','text'],
+    ['credits','Crédits (restant dû)','text'],['montant_investir','Montant à investir','text'],
     ['origine_fonds','Origine des fonds','text'],
   ]};
   const SEC_OBJECTIFS = {title:'Objectifs', fields:[
@@ -75,7 +75,7 @@
     ]},
     {title:'Situation professionnelle', fields:[
       ['csp','CSP','text'],['profession','Profession','text'],['employeur','Employeur','text'],
-      ['revenus','Revenus annuels','text'],['capacite_epargne','Capacité d\'épargne','text'],
+      ['revenus','Revenus (par an)','text'],['capacite_epargne','Capacité d\'épargne (par mois)','text'],
     ]},
     SEC_PATRIMOINE, SEC_OBJECTIFS, SEC_RISQUE, SEC_SUIVI,
   ];
@@ -607,7 +607,7 @@
         <button class="modal-tab${pane==='infos'?' is-active':''}" data-pane="infos">Informations</button>
         <button class="modal-tab${pane==='portefeuille'?' is-active':''}" data-pane="portefeuille">Actifs</button>
         <button class="modal-tab${pane==='activites'?' is-active':''}" data-pane="activites">Activités</button>
-        <button class="modal-tab${pane==='bilans'?' is-active':''}" data-pane="bilans">Bilans</button>
+        <button class="modal-tab${pane==='bilans'?' is-active':''}" data-pane="bilans">Documentation</button>
       </div>
       <div class="modal-pane${pane==='infos'?' is-active':''}" id="pane-infos">${contactInfoInner(c, id)}</div>
       <div class="modal-pane${pane==='portefeuille'?' is-active':''}" id="pane-portefeuille">${portfolioPaneHTML()}</div>
@@ -751,18 +751,18 @@
       .then(r => r.json()).then(rows => {
         if(rows && rows[0]) activities.unshift(rows[0]);
         refreshActivitiesPane(id); updateStats();
-        if(activeTab==='activites') renderActivities();
+        if(activeTab==='activites') renderActivities(); else if(activeTab==='pipeline') renderPipeline();
       }).catch(err => console.error(err));
   }
   function toggleActivity(actId, done){
     const a = activities.find(x => x.id === actId); if(a) a.done = done;
     fetch(API + '/activities?id=eq.' + actId, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({done})})
-      .then(() => { updateStats(); if(activeTab==='activites') renderActivities(); }).catch(err => console.error(err));
+      .then(() => { updateStats(); if(activeTab==='activites') renderActivities(); else if(activeTab==='pipeline') renderPipeline(); }).catch(err => console.error(err));
   }
   function deleteActivity(actId){
     activities = activities.filter(x => x.id !== actId);
     fetch(API + '/activities?id=eq.' + actId, {method:'DELETE', headers: headers({'Prefer':'return=minimal'})})
-      .then(() => { refreshActivitiesPane(currentId); updateStats(); if(activeTab==='activites') renderActivities(); })
+      .then(() => { refreshActivitiesPane(currentId); updateStats(); if(activeTab==='activites') renderActivities(); else if(activeTab==='pipeline') renderPipeline(); })
       .catch(err => console.error(err));
   }
   function refreshActivitiesPane(id){
