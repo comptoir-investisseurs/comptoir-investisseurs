@@ -4,12 +4,13 @@
    Au clic sur « Enregistrer dans le Drive » (écran de synthèse) :
      1. Crée (ou retrouve) un dossier "<Nom> <Prénom>" sous le dossier Drive
         configuré (DRIVE_PARENT_FOLDER_ID, dans drive-config.js).
-     2. Crée dedans un sous-dossier « Pièces justificatives » (vide, à
-        remplir plus tard par le client) et un sous-dossier « Bilan
-        patrimonial ».
-     3. Dans « Bilan patrimonial », dépose un extrait Excel de toutes les
-        informations saisies pendant l'entretien et un PDF de la synthèse
-        générée (les mêmes pages que « Imprimer / PDF »).
+     2. Crée dedans « Documents personnels » (vide, à remplir plus tard par
+        le client) et « Financier », lui-même segmenté en « 1. Convention
+        et conformité », « 2. Présentations commerciales » et « 3. Rapports
+        de mission ».
+     3. Dans « 2. Présentations commerciales », dépose un extrait Excel de
+        toutes les informations saisies pendant l'entretien et un PDF de la
+        synthèse générée (les mêmes pages que « Imprimer / PDF »).
    Nécessite un identifiant client OAuth Google (GOOGLE_CLIENT_ID) et l'ID
    du dossier Drive racine (DRIVE_PARENT_FOLDER_ID) — voir le README.
    Rien n'est envoyé à Google tant que ce bouton n'est pas utilisé.
@@ -125,7 +126,7 @@
     sheet('Identité', [
       ['BILAN PATRIMONIAL — EXTRAIT DES DONNÉES SAISIES'], ['Client', B.clientLabel()], ['Date de l\'entretien', fmtDate(S.notes.date)], ['Conseiller', S.notes.conseiller || ''], [],
       ['FOYER'], ['Situation familiale', S.foyer.situation || ''], ['Régime matrimonial', S.foyer.regime || ''], ['Enfants à charge', S.foyer.enfants || 0], ['Âges des enfants', S.foyer.ages || ''], ['Parts fiscales', R.fisc.parts], [],
-      ['MONSIEUR / MADAME', 'Monsieur', (R.couple ? 'Madame' : '')],
+      ['CONJOINT(E) 1 / CONJOINT(E) 2', 'Conjoint(e) 1', (R.couple ? 'Conjoint(e) 2' : '')],
       ['Civilité', S.lui.civilite || '', S.elle.civilite || ''], ['Nom', S.lui.nom || '', S.elle.nom || ''], ['Prénom', S.lui.prenom || '', S.elle.prenom || ''],
       ['Date de naissance', fmtDate(S.lui.naissance), R.couple ? fmtDate(S.elle.naissance) : ''], ['Téléphone', S.lui.tel || '', S.elle.tel || ''], ['Email', S.lui.email || '', S.elle.email || ''],
       ['Profession', S.lui.profession || '', S.elle.profession || ''], ['Entreprise', S.lui.entreprise || '', S.elle.entreprise || ''], ['Statut', S.lui.statut || '', S.elle.statut || ''],
@@ -154,7 +155,7 @@
     var finRows = [['TRÉSORERIE ET PLACEMENTS'], ['Type', 'Établissement', 'Montant', 'Taux', 'Autres']];
     (S.treso || []).forEach(function (t) { var d = B.TRESO_TYPES.filter(function (x) { return x[0] === t.type; })[0]; finRows.push([d ? d[1] : t.type, t.etab || '', num(t.montant), t.taux ? t.taux + '%' : '', '']); });
     (S.plac || []).forEach(function (p) { var d = B.PLAC_TYPES.filter(function (x) { return x[0] === p.type; })[0]; finRows.push([d ? d[1] : p.type, p.etab || '', num(p.montant), p.taux ? p.taux + '%' : '', 'Risque ' + (p.risque || '') + '/4 · ' + (p.dispo || '')]); });
-    finRows.push([], ['Épargne financière totale', R.finTotal], ['Rendement moyen', pc(R.rendMoyen)], ['Donations réalisées', S.dec.dons || '']);
+    finRows.push([], ['Épargne financière totale', R.finTotal], ['Rendement moyen brut', pc(R.rendMoyen)], ['Donations réalisées', S.dec.dons || '']);
     sheet('Financier', finRows);
 
     sheet('Budget', [['BUDGET MENSUEL'], ['Poste', 'Montant / mois'],
@@ -168,8 +169,7 @@
     (S.obj.liste || []).forEach(function (o) { objRows.push([o, (S.obj.echeances || {})[o] || '']); });
     objRows.push([], ['Profil de risque déclaré', S.obj.profil || ''], [],
       ['Âge de départ à la retraite souhaité', S.obj.ageRetraite || ''], ['Revenu souhaité à la retraite / mois', S.obj.renteRetraite || ''], ['Pension estimée / mois', S.obj.pensionEstimee || ''],
-      ['Capital retraite nécessaire (règle des 4 %)', R.retraite.capital], ['Capital projeté (profil ' + R.profil.nom + ')', R.retraite.epargneProjetee || ''], ['Effort d\'épargne requis / mois', R.retraite.effortMensuel || ''],
-      ['Capital études des enfants', S.obj.capitalEtudes || '']);
+      ['Capital retraite nécessaire (règle des 4 %)', R.retraite.capital], ['Capital projeté (profil ' + R.profil.nom + ')', R.retraite.epargneProjetee || ''], ['Effort d\'épargne requis / mois', R.retraite.effortMensuel || '']);
     sheet('Objectifs', objRows);
 
     sheet('Résumé chiffré', [['RÉSUMÉ'], ['Indicateur', 'Valeur'],
@@ -194,14 +194,14 @@
     var slides = Array.prototype.slice.call(document.querySelectorAll('#bp-deck .sl'));
     if (!slides.length) return Promise.reject(new Error('Synthèse vide : complétez au moins une réponse.'));
     var jsPDF = window.jspdf.jsPDF;
-    var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    var pageW = 297, pageH = 167;
+    var pageW = 297, pageH = pageW * 9 / 16;
+    var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [pageW, pageH] });
     var chain = Promise.resolve();
     slides.forEach(function (sl, i) {
       chain = chain.then(function () {
         return window.html2canvas(sl, { scale: 1.6, useCORS: true, backgroundColor: '#ffffff', logging: false }).then(function (canvas) {
           var img = canvas.toDataURL('image/jpeg', 0.86);
-          if (i > 0) doc.addPage('a4', 'landscape');
+          if (i > 0) doc.addPage([pageW, pageH], 'landscape');
           doc.addImage(img, 'JPEG', 0, 0, pageW, pageH, undefined, 'FAST');
         });
       });
@@ -222,23 +222,31 @@
     btns.forEach(function (b) { b.disabled = true; b.textContent = 'Enregistrement…'; });
 
     var R = window.LFDRBilan.compute();
-    var token, clientFolder;
+    var token, clientFolder, financierFolder;
     getDriveToken()
       .then(function (t) { token = t; return driveFindOrCreateFolder(token, folderName, DRIVE_PARENT_FOLDER_ID); })
       .then(function (folder) {
         clientFolder = folder;
         return Promise.all([
-          driveFindOrCreateFolder(token, 'Pièces justificatives', folder.id),
-          driveFindOrCreateFolder(token, 'Bilan patrimonial', folder.id)
+          driveFindOrCreateFolder(token, 'Documents personnels', folder.id),
+          driveFindOrCreateFolder(token, 'Financier', folder.id)
         ]);
       })
       .then(function (res) {
-        var bilanFolder = res[1];
+        financierFolder = res[1];
+        return Promise.all([
+          driveFindOrCreateFolder(token, '1. Convention et conformité', financierFolder.id),
+          driveFindOrCreateFolder(token, '2. Présentations commerciales', financierFolder.id),
+          driveFindOrCreateFolder(token, '3. Rapports de mission', financierFolder.id)
+        ]);
+      })
+      .then(function (res) {
+        var presentationsFolder = res[1];
         var excelBlob = buildExcelBlob(state, R);
         return buildSynthesisPdfBlob().then(function (pdfBlob) {
           return Promise.all([
-            driveUploadFile(token, 'Extrait données - ' + folderName + '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', excelBlob, bilanFolder.id),
-            driveUploadFile(token, 'Bilan patrimonial - ' + folderName + '.pdf', 'application/pdf', pdfBlob, bilanFolder.id)
+            driveUploadFile(token, 'Extrait données - ' + folderName + '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', excelBlob, presentationsFolder.id),
+            driveUploadFile(token, 'Bilan patrimonial - ' + folderName + '.pdf', 'application/pdf', pdfBlob, presentationsFolder.id)
           ]);
         });
       })

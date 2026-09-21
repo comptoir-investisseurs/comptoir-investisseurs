@@ -43,7 +43,7 @@
     ['livret', 'Livret bancaire', 0.02], ['pel', 'PEL', 0.0175], ['cel', 'CEL', 0.0125], ['cat', 'Compte à terme', 0.03]
   ];
   var PLAC_TYPES = [
-    ['av', 'Assurance-vie', 'prodfi'], ['capi', 'Contrat de capitalisation', 'prodfi'], ['per', 'PER / PERP / Madelin', 'prodfi'],
+    ['av', 'Assurance-vie', 'prodfi'], ['avlux', 'Assurance-vie luxembourgeoise', 'prodfi'], ['capi', 'Contrat de capitalisation', 'prodfi'], ['per', 'PER / PERP / Madelin', 'prodfi'],
     ['pee', 'PEE / PERCO', 'prodfi'], ['pea', 'PEA', 'vm'], ['peapme', 'PEA-PME', 'vm'], ['ct', 'Compte-titres', 'vm'],
     ['scpi', 'SCPI / OPCI', 'immorap'], ['pe', 'Private equity / parts de société', 'vm'], ['crypto', 'Crypto-actifs', 'vm'],
     ['or', 'Or / métaux', 'vm'], ['autre', 'Autre placement', 'prodfi']
@@ -57,7 +57,7 @@
   var REND_COLORS = ['#E7DCC7', '#C9A86A', '#15462A', '#001B00'];
 
   var OBJECTIFS = [
-    'Achat de la résidence principale', 'Achat d\'une résidence secondaire', 'Financer les études des enfants', 'Préparer la retraite',
+    'Achat de la résidence principale', 'Achat d\'une résidence secondaire', 'Préparer la retraite',
     'Assurer l\'avenir / protéger la famille', 'Épargner intelligemment', 'Rechercher de la rentabilité', 'Valoriser des liquidités',
     'Créer du patrimoine / des rentes', 'Diminuer les impôts', 'Transmettre', 'Dynamiser les placements financiers',
     'Placer la trésorerie d\'entreprise', 'Projet professionnel', 'Mobilité / expatriation'
@@ -118,7 +118,13 @@
   function maskedLabel() { var a = maskName(state.lui), b = maskName(state.elle); return [a, b].filter(Boolean).join(' & '); }
   function clientLabel() {
     var a = nomComplet(state.lui), b = nomComplet(state.elle);
-    if (a && b) return (civ(state.elle) === 'Madame' ? 'Madame & Monsieur ' : '') + (state.lui.nom === state.elle.nom ? state.lui.nom : a + ' & ' + b);
+    if (a && b) {
+      if (state.lui.nom === state.elle.nom) {
+        var civs = [civ(state.lui), civ(state.elle)].filter(Boolean);
+        return (civs.length ? civs.join(' & ') + ' ' : '') + state.lui.nom;
+      }
+      return a + ' & ' + b;
+    }
     return a || b || 'Client';
   }
   function suggestedParts() {
@@ -301,7 +307,7 @@
     R.capaciteEpargne = R.resteAVivre - R.trainDeVie;
     R.epargneActuelle = num(B.epargneMensuelle);
 
-    // --- objectifs chiffrés (retraite, études)
+    // --- objectifs chiffrés (retraite)
     var O = S.obj || {};
     var ageRef = R.pers.lui.age || (R.pers.elle && R.pers.elle.age) || null;
     R.retraite = { age: num(O.ageRetraite) || 64, rente: num(O.renteRetraite), pension: num(O.pensionEstimee) };
@@ -316,7 +322,6 @@
       R.retraite.effortMensuel = gap ? gap * r / (Math.pow(1 + r, n) - 1) / 12 : 0;
       R.retraite.parProfil = PARAMS.profils.map(function (p) { return { nom: p[0], taux: p[1], capital: capitalProjete(p[1], n, R.epargne, R.capaciteEpargne) }; });
     }
-    R.etudes = { capital: num(O.capitalEtudes) };
     R.persons = persons; R.couple = couple;
     return R;
   }
@@ -329,17 +334,19 @@
     function add(prio, titre, constat, question) { L.push({ prio: prio, titre: titre, constat: constat, question: question }); }
     var fin = R.finTotal;
 
+    add('moyenne', 'Valoriser les liquidités', 'Liquidités actuelles : ' + eur(R.cats.liquid) + (R.cats.liquid ? ', rémunérées en moyenne à ' + pc(R.treso.reduce(function (a, t) { return a + t.montant * t.taux; }, 0) / R.cats.liquid) + ' brut' : '') + '.', 'Quelle part de ces liquidités le client est-il prêt à valoriser au-delà de son épargne de précaution ?');
+
     if (R.fisc.tmi >= 0.30 && num(S.fisc.reductions) === 0)
       add('haute', 'Pression fiscale non travaillée', 'TMI de ' + pc(R.fisc.tmi, 0) + ' pour un revenu imposable de ' + eur(R.fisc.rni) + ' ; aucun dispositif de réduction ou de déduction déclaré. Impôt estimé : ' + eur(R.fisc.impotRetenu) + ' / an.', 'Quel montant d\'impôt le client juge-t-il acceptable ? Est-il prêt à immobiliser une partie de son épargne pour agir dessus ?');
     if (R.cats.liquid > 0 && R.chTotalM && R.cats.liquid > 6 * (R.chTotalM + R.trainDeVie))
       add('haute', 'Liquidités excédentaires', eur(R.cats.liquid) + ' de liquidités, soit ' + Math.round(R.cats.liquid / Math.max(1, R.chTotalM + R.trainDeVie)) + ' mois de dépenses, alors que 3 à 6 mois suffisent en épargne de précaution. Rendement moyen des liquidités : ' + pc(R.treso.length ? R.treso.reduce(function (a, t) { return a + t.montant * t.taux; }, 0) / R.cats.liquid : 0) + '.', 'Quel montant le client considère-t-il réellement comme sa réserve de sécurité ? Quel horizon pour le surplus ?');
     if (fin && R.rend[0] / fin > 0.5)
-      add('haute', 'Épargne faiblement rémunérée', pc(R.rend[0] / fin, 0) + ' du patrimoine financier (' + eur(R.rend[0]) + ') rapporte moins de 2 % par an, sous l\'inflation. Rendement moyen global : ' + pc(R.rendMoyen) + '.', 'Le client a-t-il conscience de l\'érosion réelle ? Quel niveau de fluctuation accepterait-il en échange d\'un meilleur rendement ?');
+      add('haute', 'Épargne faiblement rémunérée', pc(R.rend[0] / fin, 0) + ' du patrimoine financier (' + eur(R.rend[0]) + ') rapporte moins de 2 % par an, sous l\'inflation. Rendement moyen brut global : ' + pc(R.rendMoyen) + '.', 'Le client a-t-il conscience de l\'érosion réelle ? Quel niveau de fluctuation accepterait-il en échange d\'un meilleur rendement ?');
     if (fin && (R.risque[1] / fin > 0.8))
       add('moyenne', 'Allocation très prudente', pc(R.risque[1] / fin, 0) + ' des avoirs financiers sont classés risque faible (1/4). Profil déclaré : ' + (S.obj.profil || 'non renseigné') + '.', 'Cette prudence est-elle un choix ou une absence de conseil ? Quel horizon de placement réel ?');
     if (fin && (R.risque[4] / fin > 0.5))
       add('moyenne', 'Concentration sur des actifs risqués', pc(R.risque[4] / fin, 0) + ' du patrimoine financier en risque fort (4/4).', 'Le client mesure-t-il l\'ampleur d\'une baisse de 30 % sur cette poche ? Dispose-t-il d\'une poche sécurisée en face ?');
-    if (S.plac.length && !S.plac.some(function (p) { return p.type === 'av' || p.type === 'capi'; }))
+    if (S.plac.length && !S.plac.some(function (p) { return p.type === 'av' || p.type === 'avlux' || p.type === 'capi'; }))
       add('moyenne', 'Aucune enveloppe long terme identifiée', 'Placements détenus : ' + S.plac.map(function (p) { return (PLAC_TYPES.filter(function (x) { return x[0] === p.type; })[0] || [0, p.type])[1]; }).join(', ') + '. Pas d\'enveloppe de capitalisation ni de clause bénéficiaire en place.', 'Comment le client envisage-t-il la transmission de son épargne financière ? Qui sont ses bénéficiaires désignés aujourd\'hui ?');
     if (!S.plac.length && !S.treso.length)
       add('moyenne', 'Patrimoine financier non renseigné', 'Aucun compte ni placement saisi.', 'Reprendre le sujet : où est logée l\'épargne du foyer ?');
@@ -422,7 +429,7 @@
   var SCREENS = [
     { ch: 0, type: 'choice', title: 'Situation familiale', path: 'foyer.situation', options: SIT, grid: true },
     { ch: 0, when: function () { return ['Marié(e)', 'Pacsé(e)'].indexOf(state.foyer.situation) >= 0; }, type: 'choice', title: 'Régime matrimonial', path: 'foyer.regime', options: REGIMES, grid: true },
-    personScreen('lui', 'Monsieur'), personScreen('elle', 'Madame'),
+    personScreen('lui', 'Conjoint(e) 1'), personScreen('elle', 'Conjoint(e) 2'),
     { ch: 0, type: 'fields', title: 'Enfants et foyer', hint: 'Le nombre de parts est proposé automatiquement.', path: 'foyer', calc: function () { return [['Parts suggérées', String(suggestedParts()).replace('.', ',')]]; }, fields: [
       { k: 'enfants', l: 'Nombre d\'enfants à charge', t: 'number' }, { k: 'ages', l: 'Âges des enfants', u: 'ex. 4, 7 et 12 ans', opt: true }, { k: 'parts', l: 'Nombre de parts fiscales', t: 'number', u: 'vide = valeur suggérée', opt: true }
     ] },
@@ -470,9 +477,8 @@
       { k: 'pourquoiRdv', l: 'Ce que vous cherchez à faire', t: 'textarea', w: true }, { k: 'importance', l: 'Pourquoi c\'est important pour vous', t: 'textarea', w: true, opt: true }, { k: 'essaye', l: 'Ce que vous avez déjà essayé', t: 'textarea', w: true, opt: true }
     ] },
     { ch: 5, type: 'choice', title: 'Quelle attitude face au risque ?', path: 'obj.profil', options: ['Conservateur : je refuse toute perte', 'Équilibré : j\'accepte des fluctuations modérées', 'Opportuniste : je vise la performance avec des à-coups', 'Dynamique : j\'accepte des baisses fortes pour un rendement élevé'] },
-    { ch: 5, type: 'fields', title: 'Retraite et études', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Rendement retenu (profil ' + R.profil.nom.toLowerCase() + ')', pc(R.profil.taux)], ['Capital projeté à la retraite', R.retraite.epargneProjetee ? eur(R.retraite.epargneProjetee) : '-'], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-']]; }, fields: [
-      { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)', opt: true }, { k: 'renteRetraite', l: 'Revenu souhaité à la retraite', t: 'number', u: '€ / mois nets', opt: true }, { k: 'pensionEstimee', l: 'Pension estimée', t: 'number', u: '€ / mois', opt: true },
-      { k: 'capitalEtudes', l: 'Capital études des enfants', t: 'number', u: '€', opt: true }
+    { ch: 5, type: 'fields', title: 'Retraite', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Rendement retenu (profil ' + R.profil.nom.toLowerCase() + ')', pc(R.profil.taux)], ['Capital projeté à la retraite', R.retraite.epargneProjetee ? eur(R.retraite.epargneProjetee) : '-'], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-']]; }, fields: [
+      { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)', opt: true }, { k: 'renteRetraite', l: 'Revenu souhaité à la retraite', t: 'number', u: '€ / mois nets', opt: true }, { k: 'pensionEstimee', l: 'Pension estimée', t: 'number', u: '€ / mois', opt: true }
     ] },
 
     { ch: 6, type: 'fields', title: 'Notes du conseiller', hint: 'Facultatif. Repris dans la synthèse et la fiche sales.', path: 'notes', fields: [
@@ -776,7 +782,7 @@
     var date = fmtDate(S.notes.date);
 
     // 1. Couverture : reprise à l'identique de la diapositive 1 de la présentation commerciale
-    var clientLine = (clientLabel() === 'Client' ? 'Madame & Monsieur XXX' : clientLabel()) + ' - ' + (S.notes.date ? date : 'Date');
+    var clientLine = (clientLabel() === 'Client' ? 'Nom du client' : clientLabel()) + ' - ' + (S.notes.date ? date : 'Date');
     H += slide('<div class="wave cov__wave--l"></div><div class="wave cov__wave--r"></div><div class="cov__green"></div><div class="cov__vline"></div><div class="cov__plate"></div><div class="cov__photo"><img src="assets/img/escalier.jpg" alt=""></div><img class="cov__logo" src="assets/img/logo-light.png" alt="La Financière de Rochechouart"><div class="cov__bar"></div><div class="cov__title">Gestion privée &amp;<br>placement de trésorerie</div><div class="cov__sub">Conseil sur mesure pour entrepreneurs, familles et dirigeants.</div><div class="cov__hline"></div><div class="cov__client">' + esc(clientLine) + '</div>', 'sl--cover');
 
     // 2. Sommaire : construit en fin de rendu (numéros de page), même mise en page que la diapositive 2 du deck
@@ -791,7 +797,7 @@
         ['Profession', dash(p.profession) + (p.entreprise ? ' · ' + esc(p.entreprise) : '')], ['Statut', dash(p.statut)], ['Changement professionnel', dash(p.depart)], ['Téléphone / email', dash(p.tel) + (p.email ? ' · ' + esc(p.email) : '')]
       ]) + '</div>';
     }
-    H += slide(head('Situation familiale et professionnelle', 'Qui vous êtes, ce que vous faites') + '<div class="g2">' + personCard('lui', 'Monsieur') + (R.couple ? personCard('elle', 'Madame') : '<div class="card card--sand"><div class="card__t">Foyer</div>' + kv([['Situation', dash(S.foyer.situation)], ['Régime', dash(S.foyer.regime)], ['Enfants à charge', num(S.foyer.enfants) + (S.foyer.ages ? ' (' + esc(S.foyer.ages) + ')' : '')], ['Parts fiscales', String(R.fisc.parts).replace('.', ',')], ['Adresse', dash(S.foyer.adresse)]]) + '</div>') + '</div>' + (R.couple ? '<div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--g"><div class="kpi__l">Situation</div><div class="kpi__v" style="font-size:1.3em">' + esc(S.foyer.situation) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Régime</div><div class="kpi__v" style="font-size:1.1em">' + dash(S.foyer.regime) + '</div></div><div class="kpi"><div class="kpi__l">Enfants à charge</div><div class="kpi__v">' + num(S.foyer.enfants) + ' <small>' + esc(S.foyer.ages || '') + '</small></div></div><div class="kpi"><div class="kpi__l">Parts fiscales</div><div class="kpi__v">' + String(R.fisc.parts).replace('.', ',') + '</div></div></div>' : ''));
+    H += slide(head('Situation familiale et professionnelle', 'Qui vous êtes, ce que vous faites') + '<div class="g2">' + personCard('lui', 'Conjoint(e) 1') + (R.couple ? personCard('elle', 'Conjoint(e) 2') : '<div class="card card--sand"><div class="card__t">Foyer</div>' + kv([['Situation', dash(S.foyer.situation)], ['Régime', dash(S.foyer.regime)], ['Enfants à charge', num(S.foyer.enfants) + (S.foyer.ages ? ' (' + esc(S.foyer.ages) + ')' : '')], ['Parts fiscales', String(R.fisc.parts).replace('.', ',')], ['Adresse', dash(S.foyer.adresse)]]) + '</div>') + '</div>' + (R.couple ? '<div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--g"><div class="kpi__l">Situation</div><div class="kpi__v" style="font-size:1.3em">' + esc(S.foyer.situation) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Régime</div><div class="kpi__v" style="font-size:1.1em">' + dash(S.foyer.regime) + '</div></div><div class="kpi"><div class="kpi__l">Enfants à charge</div><div class="kpi__v">' + num(S.foyer.enfants) + ' <small>' + esc(S.foyer.ages || '') + '</small></div></div><div class="kpi"><div class="kpi__l">Parts fiscales</div><div class="kpi__v">' + String(R.fisc.parts).replace('.', ',') + '</div></div></div>' : ''));
 
     // 4. Revenus & fiscalité
     H += divider(2, 'Vos revenus et votre fiscalité');
@@ -823,7 +829,7 @@
 
     // 7. Analyse financière (Feuille Calcul)
     H += divider(4, 'Analyse du patrimoine financier');
-    H += slide(head('Lecture de votre épargne', 'Risque, rendement et disponibilité de ' + eur(R.finTotal) + ' d\'avoirs financiers') + '<div class="g3"><div class="card"><div class="card__t">Par niveau de risque</div>' + donut([1, 2, 3, 4].map(function (r) { return { l: RISK_LABELS[r], v: R.risque[r], c: RISK_COLORS[r], dark: r === 4 }; }), { label: 'Financier' }) + '</div><div class="card"><div class="card__t">Par rendement annuel</div>' + donut(REND_BUCKETS.map(function (b, i) { return { l: b[0], v: R.rend[i], c: REND_COLORS[i], dark: i >= 2 }; }), { label: 'Rendement moyen', center: pc(R.rendMoyen) }) + '</div><div class="card"><div class="card__t">Par disponibilité</div>' + donut([{ l: 'Disponible', v: R.dispo.dispo, c: '#A9853F' }, { l: 'Bloqué / long terme', v: R.dispo.bloque, c: '#001B00', dark: true }], { label: 'Financier' }) + '</div></div><div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--s"><div class="kpi__l">Revenus financiers annuels</div><div class="kpi__v">' + eur(R.revFinAnnuel) + '</div></div><div class="kpi"><div class="kpi__l">Liquidités immédiates</div><div class="kpi__v">' + eur(R.liquidites) + '</div></div><div class="kpi"><div class="kpi__l">Mois de dépenses couverts</div><div class="kpi__v">' + ((R.chTotalM + R.trainDeVie) ? Math.round(R.cats.liquid / (R.chTotalM + R.trainDeVie)) : '-') + '</div></div><div class="kpi kpi--gl"><div class="kpi__l">Profil déclaré</div><div class="kpi__v" style="font-size:1.1em">' + esc((S.obj.profil || '-').split(' : ')[0]) + '</div></div></div>');
+    H += slide(head('Lecture de votre épargne', 'Vos avoirs financiers') + '<div class="g3"><div class="card"><div class="card__t">Par niveau de risque</div>' + donut([1, 2, 3, 4].map(function (r) { return { l: RISK_LABELS[r], v: R.risque[r], c: RISK_COLORS[r], dark: r === 4 }; }), { label: 'Financier' }) + '</div><div class="card"><div class="card__t">Par rendement annuel brut</div>' + donut(REND_BUCKETS.map(function (b, i) { return { l: b[0], v: R.rend[i], c: REND_COLORS[i], dark: i >= 2 }; }), { label: 'Rendement moyen brut', center: pc(R.rendMoyen) }) + '</div><div class="card"><div class="card__t">Par disponibilité</div>' + donut([{ l: 'Disponible', v: R.dispo.dispo, c: '#A9853F' }, { l: 'Bloqué / long terme', v: R.dispo.bloque, c: '#001B00', dark: true }], { label: 'Financier' }) + '</div></div><div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--s"><div class="kpi__l">Revenus financiers annuels</div><div class="kpi__v">' + eur(R.revFinAnnuel) + '</div></div><div class="kpi"><div class="kpi__l">Liquidités immédiates</div><div class="kpi__v">' + eur(R.liquidites) + '</div></div><div class="kpi"><div class="kpi__l">Mois de dépenses couverts</div><div class="kpi__v">' + ((R.chTotalM + R.trainDeVie) ? Math.round(R.cats.liquid / (R.chTotalM + R.trainDeVie)) : '-') + '</div></div><div class="kpi kpi--gl"><div class="kpi__l">Profil déclaré</div><div class="kpi__v" style="font-size:1.1em">' + esc((S.obj.profil || '-').split(' : ')[0]) + '</div></div></div>');
 
     // 8. Immobilier
     H += divider(5, 'Votre immobilier');
@@ -848,16 +854,16 @@
     var tl = '<div class="tl' + (maxCol > 5 ? ' tl--dense' : '') + '"><div class="tl__line"></div><div class="tl__cols">' + [['CT', 'Court terme : moins de 2 ans'], ['MT', 'Moyen terme : 2 à 5 ans'], ['LT', 'Long terme : plus de 5 ans']].map(function (c) { return '<div class="tl__col"><div class="tl__dot">' + c[0] + '</div><div class="tl__h">' + c[1] + '</div>' + (byE[c[0]].map(function (o) { return '<div class="tl__item">' + esc(o) + '</div>'; }).join('') || '<div class="tl__item muted">-</div>') + '</div>'; }).join('') + '</div></div>';
     var verbObj = S.dec.pourquoiRdv ? '<div class="vb" style="margin-top:1.6em"><div class="vb__q">Ce que vous cherchez à faire</div><div class="vb__a">« ' + esc(S.dec.pourquoiRdv) + ' »</div></div>' : '';
     H += slide(head('Vos objectifs', 'Ce que vous souhaitez accomplir, et quand') + tl + (maxCol <= 5 ? verbObj : ''));
-    if (R.retraite.rente || R.etudes.capital) {
-      var retraiteCard = '<div class="card card--green"><div class="card__t">Objectif retraite</div>' + kv([['Départ souhaité', R.retraite.age + ' ans' + (R.retraite.annees != null ? ' (dans ' + R.retraite.annees + ' ans)' : '')], ['Revenu souhaité', R.retraite.rente ? eurM(R.retraite.rente) : '-'], ['Pension estimée', R.retraite.pension ? eurM(R.retraite.pension) : 'non renseignée'], ['Complément à financer', eurM(R.retraite.besoinM)], ['Capital nécessaire (règle des 4 %)', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-'], ['Capital études des enfants', R.etudes.capital ? eur(R.etudes.capital) : '-']]) + '</div>';
+    if (R.retraite.rente) {
+      var retraiteCard = '<div class="card card--green"><div class="card__t">Objectif retraite</div>' + kv([['Départ souhaité', R.retraite.age + ' ans' + (R.retraite.annees != null ? ' (dans ' + R.retraite.annees + ' ans)' : '')], ['Revenu souhaité', R.retraite.rente ? eurM(R.retraite.rente) : '-'], ['Pension estimée', R.retraite.pension ? eurM(R.retraite.pension) : 'non renseignée'], ['Complément à financer', eurM(R.retraite.besoinM)], ['Capital nécessaire (règle des 4 %)', eur(R.retraite.capital)], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-']]) + '</div>';
       var parProfil = R.retraite.parProfil ? '<div class="kpis" style="margin-top:1em">' + R.retraite.parProfil.map(function (p) { var ok = p.capital >= R.retraite.capital; return '<div class="kpi' + (p.nom === R.profil.nom ? ' kpi--g' : '') + '"><div class="kpi__l">' + esc(p.nom) + ' · ' + pc(p.taux) + '</div><div class="kpi__v" style="font-size:1.3em">' + eur(p.capital) + '</div><div style="font-size:.72em;opacity:.8">' + (ok ? 'Objectif atteint' : 'Manque ' + eur(R.retraite.capital - p.capital)) + '</div></div>'; }).join('') + '</div>' : '';
-      var proj = R.retraite.rente ? '<div><h4>Projection selon votre profil ' + esc(R.profil.nom.toLowerCase()) + ' : ' + pc(R.profil.taux) + ' par an' + (R.profil.srri ? ' (' + esc(R.profil.srri) + ')' : '') + '</h4>' + projection(R) + parProfil + '<p class="muted" style="font-size:.78em">Rendements empiriques par profil issus de notre allocation d\'actifs. Hypothèse théorique à rendement constant, sans fiscalité ni inflation, à titre indicatif.</p></div>' : '<div class="card card--sand"><div class="card__t">Études</div><p>Capital envisagé pour les études des enfants : <b>' + eur(R.etudes.capital) + '</b>.</p></div>';
-      H += slide(head('Retraite et études', 'Chiffrer les objectifs de long terme') + '<div class="g12">' + retraiteCard + proj + '</div>');
+      var proj = '<div><h4>Projection selon votre profil ' + esc(R.profil.nom.toLowerCase()) + ' : ' + pc(R.profil.taux) + ' par an' + (R.profil.srri ? ' (' + esc(R.profil.srri) + ')' : '') + '</h4>' + projection(R) + parProfil + '<p class="muted" style="font-size:.78em">Rendements empiriques par profil issus de notre allocation d\'actifs. Hypothèse théorique à rendement constant, sans fiscalité ni inflation, à titre indicatif.</p></div>';
+      H += slide(head('Retraite', 'Chiffrer l\'objectif de long terme') + '<div class="g12">' + retraiteCard + proj + '</div>');
     }
 
     // 11. Synthèse & points d'attention (fiche sales)
     H += divider(8, 'Synthèse et points d\'attention');
-    var recap = '<table class="tb"><tr><th></th><th class="r">Situation actuelle</th><th class="r">Situation cible</th></tr>' + [['Montant d\'imposition', eur(R.fisc.impotRetenu)], ['Total actif', eur(R.actifBrut)], ['Total épargne financière', eur(R.finTotal)], ['Total passif', eur(R.crdTotal)], ['Total mensualités', eurM(R.mensCredits)], ['Taux d\'endettement', pc(R.endBrut, 0)], ['Effort d\'épargne', eurM(R.epargneActuelle)], ['Rendement moyen de l\'épargne', pc(R.rendMoyen)]].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="r">' + r[1] + '</td><td class="r muted">à construire</td></tr>'; }).join('') + '</table>';
+    var recap = '<table class="tb"><tr><th></th><th class="r">Situation actuelle</th><th class="r">Situation cible</th></tr>' + [['Montant d\'imposition', eur(R.fisc.impotRetenu)], ['Total actif', eur(R.actifBrut)], ['Total épargne financière', eur(R.finTotal)], ['Total passif', eur(R.crdTotal)], ['Total mensualités', eurM(R.mensCredits)], ['Taux d\'endettement', pc(R.endBrut, 0)], ['Effort d\'épargne', eurM(R.epargneActuelle)], ['Rendement moyen brut de l\'épargne', pc(R.rendMoyen)]].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="r">' + r[1] + '</td><td class="r muted">à construire</td></tr>'; }).join('') + '</table>';
     H += slide(head('Votre audit en synthèse', 'Ancienne situation : la nouvelle se construit avec votre conseiller') + '<div class="g12"><div><div class="tab-head">Ancienne situation</div><div class="card" style="border-radius:0 .35em .35em .35em">' + recap + '</div></div><div><div class="tab-head">Ce que révèle votre bilan</div><div class="card card--sand" style="border-radius:0 .35em .35em .35em">' + (L.length ? '<ul style="margin:0;padding-left:1.2em">' + L.slice(0, 7).map(function (i) { return '<li style="margin-bottom:.45em"><b>' + esc(i.titre) + '.</b> ' + esc(i.constat) + '</li>'; }).join('') + '</ul>' : '<p class="muted">Aucun point saillant détecté : compléter les données.</p>') + '</div></div></div>');
     // Fiche sales détaillée (pistes à creuser, sans solution)
     var chunks = []; for (var i = 0; i < L.length; i += 6) chunks.push(L.slice(i, i + 6));
@@ -892,7 +898,7 @@
     t.push('CHIFFRES CLÉS');
     t.push(' - Revenu imposable ' + eur(R.fisc.rni) + ' · TMI ' + pc(R.fisc.tmi, 0) + ' · impôt ' + eur(R.fisc.impotRetenu) + '/an');
     t.push(' - Actif brut ' + eur(R.actifBrut) + ' · passif ' + eur(R.crdTotal) + ' · actif net ' + eur(R.actifNet));
-    t.push(' - Épargne financière ' + eur(R.finTotal) + ' (liquidités ' + eur(R.cats.liquid) + ', rendement moyen ' + pc(R.rendMoyen) + ')');
+    t.push(' - Épargne financière ' + eur(R.finTotal) + ' (liquidités ' + eur(R.cats.liquid) + ', rendement moyen brut ' + pc(R.rendMoyen) + ')');
     t.push(' - Revenus ' + eurM(R.revTotalM) + ' · charges ' + eurM(R.chTotalM) + ' · endettement brut ' + pc(R.endBrut, 0) + ' · capacité d\'épargne ' + eurM(R.capaciteEpargne) + ' (réelle ' + eurM(R.epargneActuelle) + ')');
     if (R.retraite.rente) t.push(' - Retraite : rente ' + eurM(R.retraite.rente) + ' à ' + R.retraite.age + ' ans → capital ' + eur(R.retraite.capital));
     t.push(' - Profil de risque déclaré : ' + (S.obj.profil || '-'));
