@@ -17,6 +17,97 @@ animations modernes (révélations au défilement, transitions de page, effets d
   Placements immobiliers · Structuration juridique et fiscale · Accès à notre Family Office.
 - **Nous contacter** — `contact.html` : formulaire fonctionnel (mailto), coordonnées et plan.
 - `mentions-legales.html`.
+- **Bilan patrimonial (outil conseiller)** — `bilan-patrimonial.html` : entretien de découverte
+  guidé (une question par écran, scripts conseiller, listes de biens / crédits / placements),
+  calculs automatiques (impôt & TMI, mensualités et capital restant dû, endettement brut et
+  différentiel, rentabilités, capacité d'épargne, capital retraite) et **synthèse type
+  présentation** imprimable en PDF (charte LFDR) avec graphiques, verbatims et fiche
+  « points d'attention » pour l'équipe commerciale (constats chiffrés, sans préconisation de
+  produit). Données conservées dans le navigateur, export / import `.json`, bouton « Copier
+  la fiche sales ». Fichiers : `assets/js/bilan.js` (questions, calculs, rendu) et
+  `assets/css/bilan.css`. Le barème de l'impôt et les hypothèses sont dans l'objet `PARAMS`
+  en tête de `bilan.js` (à actualiser chaque année).
+  **Lien CRM** : le bouton « Enregistrer au CRM » crée ou met à jour la fiche prospect dans
+  Supabase (table `clients`, étape « R0 ») et archive le bilan complet dans la table
+  `bilans` (scripts `supabase-bilans.sql` puis `supabase-pipeline-r0-r3.sql`, à exécuter une
+  fois chacun). Depuis le CRM (`admin.html`), la fiche contact a un onglet « Bilans » pour
+  rouvrir un bilan (`?bilan=<id>`) ou en démarrer un nouveau pré-rempli (`?client=<id>`). Les
+  indicateurs chiffrés (patrimoine financier, immobilier, revenus, capacité d'épargne…) sont
+  transmis en nombres bruts, sans mise en forme, pour rester exploitables (tri, export,
+  calculs) ; le CRM les formate lui-même à l'affichage.
+  **Pipeline (réservé aux prospects déjà engagés)** : R0 (bilan patrimonial réalisé) → R1
+  (objectifs et difficultés du patrimoine, présentés en rouvrant le bilan) → R2 (solutions
+  proposées) → R3 (rendez-vous de décision). On change d'étape en glissant la carte dans une
+  autre colonne. Chaque carte affiche une pastille d'activité en haut à droite (cliquer dessus
+  ouvre directement l'onglet Activités de la fiche pour en programmer une) : grise si rien
+  n'est programmé, verte si une prochaine activité est prévue à temps, rouge si elle est en
+  retard ou si aucune activité n'a été faite depuis 2 semaines (cette dernière règle est
+  prioritaire, même si quelque chose est programmé plus tard). Depuis la fiche contact, deux
+  boutons « Gagné » / « Perdu » sortent le prospect du pipeline à tout moment : Gagné bascule
+  automatiquement la fiche en client (avec une petite animation façon bowling) et elle apparaît
+  dans l'onglet Clients (triable par patrimoine) ; Perdu la retire du tableau mais reste
+  consultable via le bouton « Prospects perdus » de la barre d'outils du Pipeline, avec un
+  bouton pour la remettre au pipeline. Un client remis en prospect par erreur (ou qui se
+  rétracte) peut être renvoyé au pipeline (étape R3) via « ↩ Remettre en prospect » dans sa
+  fiche ; le **Cockpit client** (portefeuille 360°) s'ouvre depuis cette même fiche plutôt que
+  depuis la navigation générale.
+  **Onglet Documentation** (fiche contact) : archive et permet d'envoyer les bilans patrimoniaux
+  (« Ouvrir / modifier », « Envoyer ») ainsi que la présentation commerciale R1
+  (`assets/docs/lfdr-presentation-r1.pptx`), dont la couverture est personnalisée à la volée
+  (nom + date) via `assets/js/documents.js` (JSZip, 100 % navigateur, aucun serveur). « Envoyer »
+  télécharge le document puis ouvre un brouillon d'email pré-rempli après confirmation — un lien
+  mailto ne pouvant pas joindre de fichier automatiquement, il faut l'attacher à la main dans la
+  fenêtre qui s'ouvre (rappel inclus dans le message). La présentation R2 et « Les Bulletins de
+  Rochechouart » n'y figurent pas encore, faute de fichiers sources.
+  **Onglet « À rappeler »** : les prospects créés manuellement (avant tout bilan patrimonial,
+  ex. leads entrants) via « + Ajouter un prospect » y apparaissent, avec leur provenance
+  (Rappel, Recommandation, Réseau personnel, Lead site, ou une valeur libre — utile pour de
+  futurs apporteurs d'affaires). Un bouton « Ajouter au pipeline (R0) » les fait basculer dans
+  le Pipeline une fois leur bilan patrimonial réalisé. Les clients peuvent être ajoutés
+  directement via « + Ajouter un client » dans l'onglet Clients, et l'onglet Actifs d'une fiche
+  affiche la répartition Financier / Immobilier / Disponible déclarée au dernier bilan tant
+  qu'aucune enveloppe réelle n'a été saisie côté Cockpit.
+- **Suivi des produits structurés** — `structures.html` : book, fiches produit, calendrier de
+  coupons/autocalls et cours réels des sous-jacents (Yahoo Finance). Les cours passent par
+  `server/` (petit relais Node/Express, à déployer séparément sur Render en tant que **Web
+  Service**, pas Static Site — build command `npm install`, start command `npm start`, racine
+  `server`), plus fiable que les proxys CORS publics utilisés en secours. Une fois déployé,
+  renseignez son adresse dans `assets/js/quotes-config.js` (`QUOTES_PROXY_URL`).
+  **Outil réservé au réseau interne** : `bilan-patrimonial.html` et ses fichiers propres
+  (`assets/js/bilan.js`, `assets/js/drive.js`, `assets/js/drive-config.js`,
+  `assets/css/bilan.css`, `assets/css/fonts.css`, `assets/fonts/`, `assets/vendor/`,
+  `supabase-bilans.sql`) sont explicitement exclus du déploiement GitHub Pages
+  (`.github/workflows/pages.yml`) : ils ne sont jamais publiés sur le site public, même si
+  cette branche est fusionnée. Ouvrez le fichier en local (double-clic, ou
+  `python3 -m http.server` puis `http://localhost:8000/bilan-patrimonial.html`) ou servez-le
+  uniquement sur votre réseau interne.
+  **Enregistrement dans Google Drive** : le bouton « Enregistrer dans le Drive » (en haut de
+  l'entretien et sur la synthèse) crée un dossier `<Nom> <Prénom>` dans un dossier Drive que
+  vous choisissez, avec deux sous-dossiers : « Pièces justificatives » (vide, à remplir plus
+  tard par le client) et « Bilan patrimonial », qui reçoit un extrait Excel de toutes les
+  informations saisies et un PDF de la synthèse générée. Un dossier client déjà existant est
+  réutilisé (pas de doublon) si vous ré-enregistrez le même nom. Configuration à faire une
+  seule fois, dans `assets/js/drive-config.js` :
+  1. Dans [Google Cloud Console](https://console.cloud.google.com/), créez un projet (ou
+     réutilisez celui de votre Workspace), puis **APIs & Services → Bibliothèque** : activez
+     « Google Drive API ».
+  2. **APIs & Services → Écran de consentement OAuth** : type d'utilisateur **Interne** (si
+     vous avez un Google Workspace) — évite toute procédure de vérification Google, l'outil
+     n'étant utilisé que par vos conseillers.
+  3. **APIs & Services → Identifiants → Créer des identifiants → ID client OAuth**, type
+     « Application Web ». Dans « Origines JavaScript autorisées », ajoutez l'URL exacte
+     depuis laquelle vous ouvrirez l'outil (ex. `http://localhost:8000` si vous le lancez
+     avec `python3 -m http.server`, ou l'adresse de votre serveur interne — pas de `file://`,
+     Google OAuth exige une origine http(s)). Copiez l'ID client obtenu
+     (`....apps.googleusercontent.com`) dans `GOOGLE_CLIENT_ID`.
+  4. Dans Google Drive, créez (ou choisissez) le dossier racine qui contiendra tous les
+     dossiers clients, ouvrez-le et copiez l'identifiant présent dans l'URL
+     (`drive.google.com/drive/folders/<CET_IDENTIFIANT>`) dans `DRIVE_PARENT_FOLDER_ID`.
+  5. Au premier clic sur « Enregistrer dans le Drive », une fenêtre Google demande
+     l'autorisation d'accéder à votre Drive (droits complets, nécessaires pour écrire dans un
+     dossier existant que l'outil n'a pas créé lui-même) ; elle n'apparaît qu'une fois par
+     session de navigateur.
+  Sans cette configuration, le bouton affiche un message et n'envoie rien.
 
 Les sujets demandés sont traités en détail : **assurance-vie de droit luxembourgeois**
 (triangle de sécurité, FID/FAS, neutralité fiscale), **produits structurés sur-mesure**,

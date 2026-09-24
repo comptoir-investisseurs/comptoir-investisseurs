@@ -1,0 +1,16 @@
+{
+  "name": "lfdr-quotes-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Relais serveur pour les cours Yahoo Finance (onglet Produits structurés).",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

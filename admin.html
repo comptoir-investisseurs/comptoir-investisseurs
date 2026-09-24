@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css">
 <link rel="stylesheet" href="assets/css/questionnaire.css">
-<link rel="stylesheet" href="assets/css/admin.css?v=6">
+<link rel="stylesheet" href="assets/css/admin.css?v=8">
 </head>
 <body class="admin-body">
 
@@ -47,8 +47,8 @@
   <div class="dash-header"><div class="container">
     <img src="assets/img/logo-light.png" alt="LFDR">
     <div class="dash-header__right">
+      <a href="bilan-patrimonial.html" class="btn--logout" style="text-decoration:none">Bilan patrimonial</a>
       <a href="structures.html" class="btn--logout" style="text-decoration:none">Produits structurés</a>
-      <a href="cockpit.html" class="btn--logout" style="text-decoration:none">Cockpit client</a>
       <span class="dash-header__user" id="dash-user-email"></span>
       <button class="btn--logout" id="btn-logout">Déconnexion</button>
     </div>
@@ -69,7 +69,7 @@
     <div class="dash-tabs">
       <button class="dash-tab is-active" data-tab="pipeline">Pipeline</button>
       <button class="dash-tab" data-tab="clients">Clients <span class="count" id="tab-count-clients">0</span></button>
-      <button class="dash-tab" data-tab="prospects">Prospects <span class="count" id="tab-count-prospects">0</span></button>
+      <button class="dash-tab" data-tab="rappeler">À rappeler <span class="count" id="tab-count-rappeler">0</span></button>
       <button class="dash-tab" data-tab="activites">Activités <span class="count" id="tab-count-activites">0</span></button>
     </div>
 
@@ -79,8 +79,9 @@
         <button class="dash-btn-add" id="btn-add-prospect-2">+ Ajouter un prospect</button>
         <button class="dash-btn-invite" id="btn-invite">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M4 4h16v16H4zM4 7l8 5 8-5"/></svg>
-          Inviter un client
+          Inviter un prospect
         </button>
+        <button class="dash-btn-export" id="btn-show-lost" style="margin-left:auto">Prospects perdus (<span id="tab-count-lost">0</span>)</button>
       </div>
       <div class="kanban" id="kanban"></div>
     </div>
@@ -89,6 +90,7 @@
     <div class="dash-view" id="view-clients">
       <div class="dash-toolbar">
         <input type="search" class="dash-search" id="search-clients" placeholder="Rechercher un client…">
+        <button class="dash-btn-add" id="btn-add-client">+ Ajouter un client</button>
         <button class="dash-btn-export" id="btn-export">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           Exporter CSV
@@ -96,21 +98,21 @@
       </div>
       <div class="dash-table-wrap">
         <table class="dash-table"><thead><tr>
-          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Patrimoine</th><th>Étape</th><th>Prochaine action</th>
+          <th data-sort="nom" class="dash-th-sort">Nom</th><th>Email</th><th>Téléphone</th><th data-sort="patrimoine" class="dash-th-sort">Patrimoine</th><th>Étape</th><th>Prochaine action</th>
         </tr></thead><tbody id="list-clients"></tbody></table>
       </div>
     </div>
 
-    <!-- ===== VIEW: PROSPECTS ===== -->
-    <div class="dash-view" id="view-prospects">
+    <!-- ===== VIEW: À RAPPELER (leads pas encore entrés au pipeline) ===== -->
+    <div class="dash-view" id="view-rappeler">
       <div class="dash-toolbar">
-        <input type="search" class="dash-search" id="search-prospects" placeholder="Rechercher un prospect…">
+        <input type="search" class="dash-search" id="search-rappeler" placeholder="Rechercher un lead…">
         <button class="dash-btn-add" id="btn-add-prospect">+ Ajouter un prospect</button>
       </div>
       <div class="dash-table-wrap">
         <table class="dash-table"><thead><tr>
-          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Étape</th><th>Prochaine action</th><th>Échéance</th>
-        </tr></thead><tbody id="list-prospects"></tbody></table>
+          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Provenance</th><th>Prochaine action</th><th></th>
+        </tr></thead><tbody id="list-rappeler"></tbody></table>
       </div>
     </div>
 
@@ -126,11 +128,11 @@
 <div class="dash-modal" id="invite-modal">
   <div class="dash-modal__card" style="max-width:480px">
     <div class="dash-modal__head">
-      <h3>Inviter un client</h3>
+      <h3>Inviter un prospect</h3>
       <button class="dash-modal__close" id="invite-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="dash-modal__body">
-      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Le client recevra un email brandé avec un lien personnalisé pour compléter son questionnaire.</p>
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Le prospect recevra un email brandé avec un lien personnalisé pour compléter son questionnaire.</p>
       <form id="invite-form">
         <div class="q-row">
           <div class="q-field"><label for="inv-prenom">Prénom</label><input type="text" id="inv-prenom"></div>
@@ -150,11 +152,11 @@
 <div class="dash-modal" id="prospect-modal">
   <div class="dash-modal__card" style="max-width:480px">
     <div class="dash-modal__head">
-      <h3>Ajouter un prospect</h3>
+      <h3 id="prospect-modal-title">Ajouter un prospect</h3>
       <button class="dash-modal__close" id="prospect-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="dash-modal__body">
-      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px">Créez une fiche prospect manuellement. Vous pourrez la compléter, ajouter des activités, ou l'inviter à remplir le questionnaire plus tard.</p>
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 20px" id="prospect-modal-desc">Créez une fiche prospect manuellement. Vous pourrez la compléter, ajouter des activités, ou l'inviter à remplir le questionnaire plus tard.</p>
       <form id="prospect-form">
         <div class="q-field"><label for="pro-personne">Type de personne</label>
           <select id="pro-personne"><option value="physique">Personne physique</option><option value="morale">Personne morale</option></select></div>
@@ -167,12 +169,33 @@
           <div class="q-field"><label for="pro-email">Email</label><input type="email" id="pro-email"></div>
           <div class="q-field"><label for="pro-tel">Téléphone</label><input type="tel" id="pro-tel"></div>
         </div>
-        <div class="q-field"><label for="pro-source">Source / Origine</label><input type="text" id="pro-source" placeholder="ex : recommandation, salon, LinkedIn…"></div>
+        <div class="q-field"><label for="pro-source">Provenance</label>
+          <select id="pro-source"><option>Rappel</option><option>Recommandation</option><option>Réseau personnel</option><option>Lead site</option><option>Bilan patrimonial</option><option>Autre</option></select>
+          <input type="text" id="pro-source-autre" placeholder="Précisez la provenance" style="margin-top:6px;display:none">
+        </div>
         <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
           <button type="submit" class="btn btn--solid" id="prospect-submit">Créer le prospect</button>
           <span id="prospect-status" style="font-size:.85rem"></span>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PROSPECTS PERDUS ========== -->
+<div class="dash-modal" id="lost-modal">
+  <div class="dash-modal__card" style="max-width:640px">
+    <div class="dash-modal__head">
+      <h3>Prospects perdus</h3>
+      <button class="dash-modal__close" id="lost-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="dash-modal__body">
+      <p style="color:var(--muted);font-size:.9rem;margin:0 0 16px">Cliquez sur une fiche pour la consulter ou la remettre dans le pipeline.</p>
+      <div class="dash-table-wrap">
+        <table class="dash-table"><thead><tr>
+          <th>Nom</th><th>Email</th><th>Téléphone</th><th>Provenance</th>
+        </tr></thead><tbody id="list-lost"></tbody></table>
+      </div>
     </div>
   </div>
 </div>
@@ -190,6 +213,7 @@
 
 <script src="assets/js/supabase-config.js"></script>
 <script src="assets/js/auth-callback.js?v=2"></script>
-<script src="assets/js/admin.js?v=9"></script>
+<script src="assets/js/documents.js"></script>
+<script src="assets/js/admin.js?v=11"></script>
 </body>
 </html>

@@ -119,7 +119,10 @@
       if(!poles.length) poles=D.poles||[]; if(!enveloppes.length) enveloppes=D.enveloppes||[];
       if(!supports.length) supports=D.supports||[]; if(!documents.length) documents=D.documents||[];
       if(D.positions){ D.positions.forEach(p=>positions.push(Object.assign({_db:true},p))); } }
-    buildClientSelect(); renderStats(); renderCockpit();
+    buildClientSelect();
+    const wantedClient = new URLSearchParams(location.search).get('client');
+    if(wantedClient && ckSel && ckSel.querySelector('option[value="client:' + wantedClient + '"]')) ckSel.value = 'client:' + wantedClient;
+    renderStats(); renderCockpit();
   }
 
   /* ---------------- HELPERS ---------------- */

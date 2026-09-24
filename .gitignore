@@ -3,3 +3,6 @@ supabase-invitations.sql
 *.secret
 .env
 .env.*
+
+# Dépendances installées localement (Render les réinstalle lui-même)
+server/node_modules

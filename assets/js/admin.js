@@ -9,14 +9,30 @@
     'Content-Type': 'application/json'
   }, extra || {});
 
-  const STAGES = ['Nouveau', 'Contacté', 'RDV planifié', 'Proposition', 'Gagné', 'Perdu'];
+  // Pipeline commercial, réservé aux prospects : R0 (bilan patrimonial réalisé) → R1 (objectifs et
+  // difficultés) → R2 (solutions proposées) → R3 (décision finale). Gagné bascule la fiche en client
+  // (avec une petite animation) et sort du pipeline ; Perdu sort aussi du pipeline. Un prospect créé
+  // manuellement (lead, pas encore de bilan) n'a pas d'étape : il vit dans l'onglet « À rappeler »
+  // jusqu'à ce qu'on le fasse entrer au pipeline (R0).
+  const STAGES = ['R0', 'R1', 'R2', 'R3'];
+  const STAGE_META = {
+    R0: 'Bilan patrimonial réalisé', R1: 'Objectifs & difficultés', R2: 'Solutions proposées', R3: 'Décision finale'
+  };
+  const LEGACY_STAGES = {
+    'Nouveau':'R0', 'Contacté':'R0', 'RDV planifié':'R0',
+    'R1 : Bilan':'R1', 'R2 : Objectifs':'R2',
+    'R3 : Offre':'R3', 'Proposition':'R3', 'Prospect chaud':'R3'
+  };
+  function stageOf(c){ const s = c.stage; if(!s) return null; return LEGACY_STAGES[s] || s; }
+  function isLead(c){ return (c.type||'client')==='prospect' && !stageOf(c); }
+  const PROVENANCE_OPTIONS = ['Rappel', 'Recommandation', 'Réseau personnel', 'Lead site', 'Bilan patrimonial', 'Autre'];
 
   // Sections communes aux deux types de personne
   const SEC_PATRIMOINE = {title:'Patrimoine', fields:[
     ['patrimoine_financier','Patrimoine financier','text'],
     ['patrimoine_immobilier','Patrimoine immobilier','text'],
     ['placements_existants','Placements existants','array'],
-    ['credits','Crédits','text'],['montant_investir','Montant à investir','text'],
+    ['credits','Crédits (restant dû)','text'],['montant_investir','Montant à investir','text'],
     ['origine_fonds','Origine des fonds','text'],
   ]};
   const SEC_OBJECTIFS = {title:'Objectifs', fields:[
@@ -35,7 +51,7 @@
     ['type','Type','select',['prospect','client']],
     ['next_action','Prochaine action','text'],
     ['next_action_date','Échéance','date'],
-    ['comment_connu','Source','text'],
+    ['comment_connu','Provenance','source',PROVENANCE_OPTIONS],
     ['notes_internes','Notes internes','textarea'],
     ['commentaires','Commentaires','textarea'],
   ]};
@@ -59,7 +75,7 @@
     ]},
     {title:'Situation professionnelle', fields:[
       ['csp','CSP','text'],['profession','Profession','text'],['employeur','Employeur','text'],
-      ['revenus','Revenus annuels','text'],['capacite_epargne','Capacité d\'épargne','text'],
+      ['revenus','Revenus (par an)','text'],['capacite_epargne','Capacité d\'épargne (par mois)','text'],
     ]},
     SEC_PATRIMOINE, SEC_OBJECTIFS, SEC_RISQUE, SEC_SUIVI,
   ];
@@ -187,10 +203,32 @@
   function fmtDateTime(d){ return d ? new Date(d).toLocaleString('fr-FR',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
   function fmtMoney(n){ return (n||0).toLocaleString('fr-FR',{maximumFractionDigits:0})+' €'; }
   function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function numFromStr(s){ if(s==null || s==='') return -Infinity; if(typeof s==='number') return s; const m = String(s).replace(/[^\d]/g,''); return m ? parseInt(m,10) : -Infinity; }
+  function moneyDisplay(v){ const n = numFromStr(v); return n > -Infinity ? fmtMoney(n) : null; }
+
+  // Statut de la pastille d'activité d'un prospect : gris = rien de programmé, vert = un
+  // prochain contact est prévu, rouge = en retard OU aucun contact fait depuis 2 semaines
+  // (l'emporte sur le reste, même si quelque chose est programmé plus tard).
+  const DAY_MS = 86400000;
+  function activityStatus(c){
+    const acts = activities.filter(a => a.client_id === c.id);
+    const done = acts.filter(a => a.done && a.date_activite);
+    const pending = acts.filter(a => !a.done && a.date_activite);
+    const now = Date.now();
+    const refMs = done.length ? Math.max.apply(null, done.map(a => new Date(a.date_activite).getTime())) : (c.created_at ? new Date(c.created_at).getTime() : now);
+    if((now - refMs) / DAY_MS > 14) return 'red';
+    if(pending.length){
+      const nextMs = Math.min.apply(null, pending.map(a => new Date(a.date_activite).getTime()));
+      return nextMs < now ? 'red' : 'green';
+    }
+    return 'grey';
+  }
+  const ACTIVITY_STATUS_LABEL = { grey:'Aucune activité programmée', green:'Prochaine activité planifiée', red:'En retard ou sans contact depuis 2 semaines' };
 
   function updateStats(){
     const clients = contacts.filter(c => (c.type||'client') === 'client');
     const prospects = contacts.filter(c => (c.type||'client') === 'prospect');
+    const leads = contacts.filter(isLead);
     document.getElementById('stat-clients').textContent = clients.length;
     document.getElementById('stat-prospects').textContent = prospects.length;
     const pending = activities.filter(a => !a.done);
@@ -198,7 +236,7 @@
     document.getElementById('stat-todo').textContent = pending.length;
     document.getElementById('stat-overdue').textContent = overdue.length;
     document.getElementById('tab-count-clients').textContent = clients.length;
-    document.getElementById('tab-count-prospects').textContent = prospects.length;
+    document.getElementById('tab-count-rappeler').textContent = leads.length;
     document.getElementById('tab-count-activites').textContent = pending.length;
   }
 
@@ -216,19 +254,20 @@
   function renderActiveTab(){
     if(activeTab==='pipeline') renderPipeline();
     else if(activeTab==='clients') renderClients();
-    else if(activeTab==='prospects') renderProspects();
+    else if(activeTab==='rappeler') renderRappeler();
     else if(activeTab==='activites') renderActivities();
   }
 
-  // ---------- PIPELINE (KANBAN) ----------
+  // ---------- PIPELINE (KANBAN) — réservé aux prospects ----------
   let draggingId = null;
   function renderPipeline(){
     const board = document.getElementById('kanban');
+    const prospects = contacts.filter(c => (c.type||'client')==='prospect');
     board.innerHTML = STAGES.map(stage => {
-      const cards = contacts.filter(c => (c.stage||'Nouveau') === stage);
+      const cards = prospects.filter(c => stageOf(c) === stage);
       return `<div class="kanban-col" data-stage="${esc(stage)}">
-        <div class="kanban-col__head"><span class="kanban-col__title">${esc(stage)}</span><span class="kanban-col__count">${cards.length}</span></div>
-        <div class="kanban-col__body">${cards.map(cardHTML).join('')}</div>
+        <div class="kanban-col__head"><span class="kanban-col__title">${esc(stage)}<span class="kanban-col__sub">${esc(STAGE_META[stage]||'')}</span></span><span class="kanban-col__count">${cards.length}</span></div>
+        <div class="kanban-col__body">${cards.map(cardHTML).join('') || '<p class="kanban-col__empty">Aucun prospect</p>'}</div>
       </div>`;
     }).join('');
 
@@ -236,6 +275,16 @@
       card.addEventListener('dragstart', e => { draggingId = card.dataset.id; card.classList.add('is-dragging'); });
       card.addEventListener('dragend', () => { card.classList.remove('is-dragging'); draggingId = null; });
       card.addEventListener('click', () => openContact(card.dataset.id));
+    });
+    board.querySelectorAll('.kanban-card__outcome-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.closest('.kanban-card').dataset.id;
+        if(btn.dataset.outcome==='won') markWon(id); else markLost(id);
+      });
+    });
+    board.querySelectorAll('.kanban-card__activity-dot').forEach(dot => {
+      dot.addEventListener('click', e => { e.stopPropagation(); openContact(dot.dataset.id, 'activites'); });
     });
     board.querySelectorAll('.kanban-col').forEach(col => {
       col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('is-dragover'); });
@@ -245,48 +294,144 @@
         if(draggingId) updateStage(draggingId, col.dataset.stage);
       });
     });
+    const lostCount = contacts.filter(c => (c.type||'client')==='prospect' && stageOf(c)==='Perdu').length;
+    const lostCountEl = document.getElementById('tab-count-lost'); if(lostCountEl) lostCountEl.textContent = lostCount;
   }
+  function renderLostModal(){
+    const list = contacts.filter(c => (c.type||'client')==='prospect' && stageOf(c)==='Perdu');
+    const tbody = document.getElementById('list-lost');
+    if(!list.length){ tbody.innerHTML = '<tr><td colspan="4" class="dash-empty"><p>Aucun prospect perdu.</p></td></tr>'; return; }
+    tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
+      <td><strong>${esc(fullName(c))}</strong></td><td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td><td>${esc(c.comment_connu||'—')}</td></tr>`).join('');
+    tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => { document.getElementById('lost-modal').classList.remove('is-open'); openContact(tr.dataset.id); }));
+  }
+  const lostModal = document.getElementById('lost-modal');
+  document.getElementById('btn-show-lost').addEventListener('click', () => { renderLostModal(); lostModal.classList.add('is-open'); });
+  document.getElementById('lost-close').addEventListener('click', () => lostModal.classList.remove('is-open'));
+  lostModal.addEventListener('click', e => { if(e.target===lostModal) lostModal.classList.remove('is-open'); });
   function cardHTML(c){
-    const badge = (c.type||'client')==='prospect' ? '<span class="kanban-card__badge badge-prospect">Prospect</span>' : '<span class="kanban-card__badge badge-client">Client</span>';
     const action = c.next_action ? `<div class="kanban-card__action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(c.next_action)}${c.next_action_date ? ' · '+fmtDate(c.next_action_date) : ''}</div>` : '';
+    const provenance = c.comment_connu ? `<span class="kanban-card__badge badge-provenance">${esc(c.comment_connu)}</span>` : '';
+    const fin = moneyDisplay(c.patrimoine_financier);
+    const outcome = stageOf(c)==='R3' ? `<div class="kanban-card__outcomes">
+        <button type="button" class="kanban-card__outcome-btn" data-outcome="won" title="Marquer gagné">✓ Gagné</button>
+        <button type="button" class="kanban-card__outcome-btn kanban-card__outcome-btn--lose" data-outcome="lost" title="Marquer perdu">✗ Perdu</button>
+      </div>` : '';
+    const status = activityStatus(c);
     return `<div class="kanban-card" draggable="true" data-id="${c.id}">
+      <button type="button" class="kanban-card__activity-dot kanban-card__activity-dot--${status}" data-id="${c.id}" title="${esc(ACTIVITY_STATUS_LABEL[status])} — cliquer pour programmer une activité"></button>
       <div class="kanban-card__name">${esc(fullName(c))}</div>
-      <div class="kanban-card__meta">${esc(c.email||'')}${c.patrimoine_financier ? ' · '+esc(c.patrimoine_financier) : ''}</div>
-      ${badge}${action}
+      <div class="kanban-card__meta">${esc(c.email||'')}${fin ? ' · '+fin : ''}</div>
+      ${provenance}${action}${outcome}
     </div>`;
   }
   function updateStage(id, stage){
     const c = contacts.find(x => x.id === id); if(!c) return;
-    c.stage = stage;
+    Object.assign(c, {stage});
     fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage})})
       .catch(err => console.error(err));
-    renderPipeline();
+    updateStats(); renderPipeline();
+  }
+  function markWon(id){
+    const c = contacts.find(x => x.id === id); if(!c) return;
+    const patch = {stage:'Gagné', type:'client'};
+    Object.assign(c, patch);
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+      .catch(err => console.error(err));
+    celebrate(fullName(c));
+    modal.classList.remove('is-open');
+    updateStats(); renderActiveTab();
+  }
+  function markLost(id){
+    const c = contacts.find(x => x.id === id); if(!c) return;
+    Object.assign(c, {stage:'Perdu'});
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'Perdu'})})
+      .catch(err => console.error(err));
+    modal.classList.remove('is-open');
+    updateStats(); renderActiveTab();
+  }
+  function addToPipeline(id){
+    const c = contacts.find(x => x.id === id); if(!c) return;
+    Object.assign(c, {stage:'R0'});
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'R0'})})
+      .catch(err => console.error(err));
+    modal.classList.remove('is-open');
+    updateStats(); renderActiveTab();
+  }
+  function backToProspect(id){
+    const c = contacts.find(x => x.id === id); if(!c) return;
+    if(!confirm('Remettre ' + fullName(c) + ' en prospect (étape R3) ?')) return;
+    const patch = {type:'prospect', stage:'R3'};
+    Object.assign(c, patch);
+    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+      .catch(err => console.error(err));
+    modal.classList.remove('is-open');
+    updateStats(); renderActiveTab();
+  }
+
+  // ---------- CÉLÉBRATION (nouveau client) ----------
+  function celebrate(name){
+    const wrap = document.createElement('div');
+    wrap.className = 'celebrate-overlay';
+    const colors = ['#A9853F', '#001B00', '#E6C989', '#15462A', '#FCF7EC'];
+    let pieces = '';
+    for(let i=0;i<60;i++){
+      const left = Math.random()*100, delay = Math.random()*0.4, dur = 1.6+Math.random()*1.1;
+      const size = 6+Math.random()*7, rot = Math.random()*360, color = colors[i%colors.length];
+      pieces += `<span class="confetti-piece" style="left:${left}%;width:${size}px;height:${size*0.4}px;background:${color};animation-delay:${delay}s;animation-duration:${dur}s;transform:rotate(${rot}deg)"></span>`;
+    }
+    wrap.innerHTML = `<div class="confetti-field">${pieces}</div><div class="celebrate-msg"><span class="celebrate-emoji">🎳</span><div class="celebrate-title">Strike !</div><div class="celebrate-sub">${esc(name)} devient client</div></div>`;
+    document.body.appendChild(wrap);
+    requestAnimationFrame(() => wrap.classList.add('is-on'));
+    setTimeout(() => { wrap.classList.remove('is-on'); setTimeout(() => wrap.remove(), 400); }, 2600);
   }
 
   // ---------- CLIENTS TABLE ----------
+  let clientSort = {key:null, dir:1};
+  let lastClientsFilter = '';
   function renderClients(filter){
-    const q = (filter||'').toLowerCase();
-    const list = contacts.filter(c => (c.type||'client')==='client').filter(c => matchSearch(c,q));
+    if(filter!==undefined) lastClientsFilter = filter;
+    const q = (lastClientsFilter||'').toLowerCase();
+    let list = contacts.filter(c => (c.type||'client')==='client').filter(c => matchSearch(c,q));
+    if(clientSort.key==='nom') list = list.slice().sort((a,b) => fullName(a).localeCompare(fullName(b)) * clientSort.dir);
+    else if(clientSort.key==='patrimoine') list = list.slice().sort((a,b) => (numFromStr(a.patrimoine_financier) - numFromStr(b.patrimoine_financier)) * clientSort.dir);
     const tbody = document.getElementById('list-clients');
     if(!list.length){ tbody.innerHTML = '<tr><td colspan="6" class="dash-empty"><p>Aucun client.</p></td></tr>'; return; }
     tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
       <td><strong>${esc(fullName(c))}</strong>${isMorale(c)?' <span class="kanban-card__badge badge-prospect">Morale</span>':''}</td>
       <td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td>
-      <td>${esc(c.patrimoine_financier||'—')}</td><td>${esc(c.stage||'Nouveau')}</td>
+      <td>${esc(moneyDisplay(c.patrimoine_financier)||'—')}</td><td>${esc(c.stage||'—')}</td>
       <td>${esc(c.next_action||'—')}</td></tr>`).join('');
     tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openContact(tr.dataset.id)));
   }
-  function renderProspects(filter){
+  document.querySelectorAll('#view-clients .dash-th-sort').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      clientSort.dir = (clientSort.key===key) ? -clientSort.dir : -1;
+      clientSort.key = key;
+      document.querySelectorAll('#view-clients .dash-th-sort').forEach(x => x.classList.remove('is-asc','is-desc'));
+      th.classList.add(clientSort.dir>0 ? 'is-asc' : 'is-desc');
+      renderClients();
+    });
+  });
+  function renderRappeler(filter){
     const q = (filter||'').toLowerCase();
-    const list = contacts.filter(c => (c.type||'client')==='prospect').filter(c => matchSearch(c,q));
-    const tbody = document.getElementById('list-prospects');
-    if(!list.length){ tbody.innerHTML = '<tr><td colspan="6" class="dash-empty"><p>Aucun prospect. Cliquez sur « Ajouter un prospect ».</p></td></tr>'; return; }
+    const list = contacts.filter(isLead).filter(c => matchSearch(c,q));
+    const tbody = document.getElementById('list-rappeler');
+    if(!list.length){ tbody.innerHTML = '<tr><td colspan="6" class="dash-empty"><p>Aucun lead à rappeler. Cliquez sur « Ajouter un prospect ».</p></td></tr>'; return; }
     tbody.innerHTML = list.map(c => `<tr data-id="${c.id}">
       <td><strong>${esc(fullName(c))}</strong>${isMorale(c)?' <span class="kanban-card__badge badge-prospect">Morale</span>':''}</td>
       <td>${esc(c.email||'—')}</td><td>${esc(c.telephone||'—')}</td>
-      <td>${esc(c.stage||'Nouveau')}</td><td>${esc(c.next_action||'—')}</td>
-      <td>${fmtDate(c.next_action_date)}</td></tr>`).join('');
-    tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openContact(tr.dataset.id)));
+      <td>${esc(c.comment_connu||'—')}</td><td>${esc(c.next_action||'—')}</td>
+      <td><button type="button" class="btn btn--solid rappeler-to-pipeline" data-id="${c.id}" style="padding:6px 14px;font-size:.76rem">Ajouter au pipeline (R0)</button></td></tr>`).join('');
+    tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', (e) => { if(e.target.closest('.rappeler-to-pipeline')) return; openContact(tr.dataset.id); }));
+    tbody.querySelectorAll('.rappeler-to-pipeline').forEach(btn => btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const c = contacts.find(x => x.id === btn.dataset.id); if(!c) return;
+      Object.assign(c, {stage:'R0'});
+      fetch(API + '/clients?id=eq.' + c.id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'R0'})}).catch(err => console.error(err));
+      updateStats(); renderActiveTab();
+    }));
   }
   function matchSearch(c,q){
     if(!q) return true;
@@ -294,7 +439,7 @@
            (c.email||'').toLowerCase().includes(q) || (c.telephone||'').includes(q);
   }
   document.getElementById('search-clients').addEventListener('input', function(){ renderClients(this.value); });
-  document.getElementById('search-prospects').addEventListener('input', function(){ renderProspects(this.value); });
+  document.getElementById('search-rappeler').addEventListener('input', function(){ renderRappeler(this.value); });
 
   // ---------- ACTIVITIES FEED ----------
   const ACT_ICONS = {
@@ -349,7 +494,12 @@
   function editField(key,label,type,options,value){
     const v = value===null||value===undefined ? '' : value;
     let input;
-    if(type==='select'){
+    if(type==='source'){
+      const isCustom = v && !options.includes(v);
+      const sel = `<select id="f_${key}">${options.map(o => `<option value="${esc(o)}" ${(o==='Autre'?isCustom:o===v)?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+      const autre = `<input type="text" id="f_${key}__autre" placeholder="Précisez la provenance" value="${esc(isCustom?v:'')}" style="margin-top:6px${isCustom?'':';display:none'}">`;
+      input = sel + autre;
+    } else if(type==='select'){
       input = `<select id="f_${key}">${(options||[]).map(o => `<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
     } else if(type==='textarea'){
       input = `<textarea id="f_${key}" rows="2">${esc(v)}</textarea>`;
@@ -362,8 +512,37 @@
   }
 
   function contactInfoInner(c, id){
-    const stageBar = `<div class="contact-pipeline">${STAGES.map(s =>
-      `<div class="contact-stage ${(c.stage||'Nouveau')===s?'is-active':''}" data-stage="${esc(s)}">${esc(s)}</div>`).join('')}</div>`;
+    const isProspect = (c.type||'client')==='prospect';
+    let stageBar = '';
+    if(isProspect && isLead(c)){
+      stageBar = `<div class="contact-stage-info">
+        <div class="contact-stage-info__txt">Ce prospect n'est pas encore entré dans le pipeline (pas de bilan patrimonial réalisé).</div>
+        <button type="button" class="btn btn--solid" id="btn-to-pipeline">Ajouter au pipeline (R0)</button>
+      </div>
+      <div class="contact-outcome-bar">
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-mark-lost">✗ Perdu</button>
+      </div>`;
+    } else if(isProspect && stageOf(c)==='Perdu'){
+      stageBar = `<div class="contact-stage-info">
+        <div class="contact-stage-info__txt">Ce prospect a été marqué comme <strong>perdu</strong>.</div>
+      </div>
+      <div class="contact-outcome-bar">
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--win" id="btn-to-pipeline">↺ Remettre dans le pipeline (R0)</button>
+      </div>`;
+    } else if(isProspect){
+      stageBar = `<div class="contact-stage-info">
+        <div class="contact-stage-info__txt">Étape actuelle : <strong>${esc(stageOf(c))}</strong> — ${esc(STAGE_META[stageOf(c)]||'')}<br><span class="contact-stage-info__hint">Pour changer d'étape, glissez la carte dans une autre colonne du Pipeline.</span></div>
+      </div>
+      <div class="contact-outcome-bar">
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--win" id="btn-mark-won">✓ Gagné (devient client)</button>
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-mark-lost">✗ Perdu</button>
+      </div>`;
+    } else {
+      stageBar = `<div class="contact-outcome-bar">
+        <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-to-prospect">↩ Remettre en prospect</button>
+        <a href="cockpit.html?client=${encodeURIComponent(id)}" target="_blank" rel="noopener" class="btn contact-outcome-btn" style="border-color:var(--gold);background:#fdf6e8;color:#96732f;text-decoration:none;text-align:center">Ouvrir le Cockpit client ↗</a>
+      </div>`;
+    }
     const personneSwitch = `<div class="detail-section"><h4>Type de personne</h4><div class="edit-grid">
       <div class="edit-field"><label>Personne</label><select id="f_personne">
         <option value="physique" ${!isMorale(c)?'selected':''}>Personne physique</option>
@@ -387,17 +566,20 @@
     const o = {};
     EDITABLE_KEYS.forEach(key => { const el = document.getElementById('f_' + key); if(!el) return;
       let v = el.value;
+      if(v==='Autre'){ const autreEl = document.getElementById('f_' + key + '__autre'); if(autreEl) v = autreEl.value.trim(); }
       if(ARRAY_KEYS.includes(key)) v = v.split(',').map(s => s.trim()).filter(Boolean);
       else if(key==='nb_enfants') v = parseInt(v,10) || 0;
       else if(v==='') v = null;
       o[key] = v; });
     return o;
   }
+  function bindSourceToggle(root){
+    root.querySelectorAll('select[id^="f_"]').forEach(sel => {
+      const autre = document.getElementById(sel.id + '__autre'); if(!autre) return;
+      sel.addEventListener('change', () => { autre.style.display = sel.value==='Autre' ? '' : 'none'; });
+    });
+  }
   function bindContactInfo(c, id){
-    modalBody.querySelectorAll('.contact-stage').forEach(el => el.addEventListener('click', () => {
-      modalBody.querySelectorAll('.contact-stage').forEach(s => s.classList.remove('is-active'));
-      el.classList.add('is-active');
-    }));
     const pe = document.getElementById('f_personne');
     if(pe) pe.addEventListener('change', () => {
       const cur = collectForm(); Object.assign(c, cur); c.personne = pe.value;
@@ -405,21 +587,33 @@
     });
     document.getElementById('save-contact').addEventListener('click', () => saveContact(id));
     document.getElementById('delete-contact').addEventListener('click', () => deleteContact(id));
+    const wonBtn = document.getElementById('btn-mark-won'), lostBtn = document.getElementById('btn-mark-lost');
+    const toPipelineBtn = document.getElementById('btn-to-pipeline'), toProspectBtn = document.getElementById('btn-to-prospect');
+    if(wonBtn) wonBtn.addEventListener('click', () => markWon(id));
+    if(lostBtn) lostBtn.addEventListener('click', () => markLost(id));
+    if(toPipelineBtn) toPipelineBtn.addEventListener('click', () => addToPipeline(id));
+    if(toProspectBtn) toProspectBtn.addEventListener('click', () => backToProspect(id));
+    bindSourceToggle(modalBody);
   }
 
-  function openContact(id){
+  function openContact(id, pane){
     const c = contacts.find(x => x.id === id); if(!c) return;
     currentId = id;
+    currentBilanResume = null;
+    pane = pane || 'infos';
     document.getElementById('modal-title').textContent = fullName(c);
     modalBody.innerHTML = `
       <div class="modal-tabs">
-        <button class="modal-tab is-active" data-pane="infos">Informations</button>
-        <button class="modal-tab" data-pane="portefeuille">Portefeuille</button>
-        <button class="modal-tab" data-pane="activites">Activités</button>
+        <button class="modal-tab${pane==='infos'?' is-active':''}" data-pane="infos">Informations</button>
+        <button class="modal-tab${pane==='portefeuille'?' is-active':''}" data-pane="portefeuille">Actifs</button>
+        <button class="modal-tab${pane==='activites'?' is-active':''}" data-pane="activites">Activités</button>
+        <button class="modal-tab${pane==='bilans'?' is-active':''}" data-pane="bilans">Documentation</button>
       </div>
-      <div class="modal-pane is-active" id="pane-infos">${contactInfoInner(c, id)}</div>
-      <div class="modal-pane" id="pane-portefeuille">${portfolioPaneHTML()}</div>
-      <div class="modal-pane" id="pane-activites">${activitiesPaneHTML(id)}</div>`;
+      <div class="modal-pane${pane==='infos'?' is-active':''}" id="pane-infos">${contactInfoInner(c, id)}</div>
+      <div class="modal-pane${pane==='portefeuille'?' is-active':''}" id="pane-portefeuille">${portfolioPaneHTML()}</div>
+      <div class="modal-pane${pane==='activites'?' is-active':''}" id="pane-activites">${activitiesPaneHTML(id)}</div>
+      <div class="modal-pane${pane==='bilans'?' is-active':''}" id="pane-bilans"><p class="dash-empty">Chargement…</p></div>`;
+    loadBilans(id);
     modalBody.querySelectorAll('.modal-tab').forEach(t => t.addEventListener('click', () => {
       modalBody.querySelectorAll('.modal-tab').forEach(x => x.classList.toggle('is-active', x===t));
       modalBody.querySelectorAll('.modal-pane').forEach(p => p.classList.remove('is-active'));
@@ -429,15 +623,15 @@
     bindContactInfo(c, id);
     bindActivityForm(id);
     bindPortfolioEvents();
+    if(pane==='portefeuille') setTimeout(drawPortfolioCharts,30);
     modal.classList.add('is-open');
     modalBody.scrollTop = 0;
+    if(pane==='activites'){ const t = document.getElementById('act-titre'); if(t) setTimeout(() => t.focus(), 60); }
   }
 
   function saveContact(id){
     const patch = collectForm();
     const pe = document.getElementById('f_personne'); if(pe) patch.personne = pe.value;
-    const activeStage = modalBody.querySelector('.contact-stage.is-active');
-    if(activeStage) patch.stage = activeStage.dataset.stage;
     // Personne morale : garantir les colonnes NOT NULL nom/prenom (recherche + intégrité)
     if(patch.personne==='morale'){ if(patch.raison_sociale) patch.nom = patch.raison_sociale; if(patch.prenom==null) patch.prenom = ''; }
 
@@ -470,6 +664,84 @@
 
   // ---------- ACTIVITIES (within contact) ----------
   let selectedActType = 'appel';
+  // ---------- BILANS PATRIMONIAUX (table bilans, alimentée par bilan-patrimonial.html) ----------
+  const eurFmt = v => (v==null||isNaN(v)) ? '-' : Math.round(v).toLocaleString('fr-FR') + ' €';
+  const pctFmt = v => (v==null||isNaN(v)) ? '-' : (v*100).toFixed(0) + ' %';
+  let currentBilanResume = null;
+  function sendDocumentFlow(c, docLabel, filename, buildBlob){
+    if(!confirm('Envoyer « ' + docLabel + ' » à ' + (c.email || 'ce contact') + ' ?\n\nLe fichier va être téléchargé puis un brouillon d\'email va s\'ouvrir : joignez-y le fichier téléchargé (un lien mailto ne peut pas joindre de pièce automatiquement).')) return;
+    Promise.resolve(buildBlob()).then(blob => {
+      LFDRDocs.downloadBlob(blob, filename);
+      const subject = docLabel + ' — La Financière de Rochechouart';
+      const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint : ' + docLabel + '.\n\nBien cordialement,\nLa Financière de Rochechouart';
+      setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
+    }).catch(err => { console.error(err); alert('Erreur lors de la génération du document : ' + err.message); });
+  }
+
+  function r1PresentationSectionHTML(c){
+    return `<div class="detail-section">
+      <div class="detail-section__head"><h4>Présentation commerciale (R1)</h4></div>
+      <p style="font-size:.85rem;color:var(--muted);margin:0 0 12px">Couverture personnalisée automatiquement au nom de <strong>${esc(fullName(c))}</strong>, datée du ${esc(fmtDate(new Date()))}.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="button" class="btn" id="doc-r1-download">Télécharger</button>
+        <button type="button" class="btn btn--solid" id="doc-r1-send">Envoyer</button>
+      </div>
+      <p class="dash-empty" id="doc-r1-status" style="text-align:left;padding:8px 0 0;display:none"></p>
+    </div>`;
+  }
+  function bindR1PresentationSection(c){
+    const dlBtn = document.getElementById('doc-r1-download'), sendBtn = document.getElementById('doc-r1-send'), status = document.getElementById('doc-r1-status');
+    if(!dlBtn) return;
+    function buildBlob(){ return LFDRDocs.buildR1PresentationBlob(fullName(c), fmtDate(new Date())); }
+    function filename(){ return 'Presentation R1 - ' + fullName(c) + '.pptx'; }
+    dlBtn.addEventListener('click', () => {
+      status.style.display = 'block'; status.textContent = 'Génération…';
+      buildBlob().then(blob => { LFDRDocs.downloadBlob(blob, filename()); status.textContent = 'Téléchargé.'; })
+        .catch(err => { console.error(err); status.textContent = 'Erreur : ' + err.message; });
+    });
+    sendBtn.addEventListener('click', () => sendDocumentFlow(c, 'Présentation commerciale (R1)', filename(), buildBlob));
+  }
+
+  function loadBilans(id){
+    const pane = document.getElementById('pane-bilans'); if(!pane) return;
+    const c = contacts.find(x => x.id === id) || {};
+    const newBtn = `<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><a class="btn btn--solid" href="bilan-patrimonial.html?client=${encodeURIComponent(id)}" style="text-decoration:none">＋ Nouveau bilan patrimonial</a></div>`;
+    const r1Section = r1PresentationSectionHTML(c);
+    fetch(API + '/bilans?client_id=eq.' + id + '&select=id,created_at,updated_at,date_entretien,conseiller,etape,resume,points&order=created_at.desc', {headers: headers()})
+      .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(rows => {
+        currentBilanResume = rows.length ? (rows[0].resume || null) : null;
+        if(id === currentId){ const pf = document.getElementById('pane-portefeuille'); if(pf){ pf.innerHTML = portfolioPaneHTML(); bindPortfolioEvents(); drawPortfolioCharts(); } }
+        const bilansHTML = !rows.length ? '<p class="dash-empty">Aucun bilan patrimonial enregistré pour cette fiche.</p>' : rows.map(b => {
+          const r = b.resume || {}, pts = Array.isArray(b.points) ? b.points : [];
+          const kpis = [['Revenu imposable', eurFmt(r.rni)], ['TMI', pctFmt(r.tmi)], ['Impôt', eurFmt(r.impot)], ['Actif net', eurFmt(r.actif_net)], ['Épargne financière', eurFmt(r.epargne_financiere)], ['Endettement', pctFmt(r.endettement_brut)], ['Capacité d\'épargne', eurFmt(r.capacite_epargne) + ' / mois']];
+          return `<div class="detail-section">
+            <div class="detail-section__head">
+              <h4>Bilan du ${fmtDate(b.date_entretien || b.created_at)}${b.conseiller ? ' · ' + esc(b.conseiller) : ''}</h4>
+              <div style="display:flex;gap:8px;flex-shrink:0">
+                <a class="btn" style="padding:5px 12px;font-size:.74rem;text-decoration:none" href="bilan-patrimonial.html?bilan=${b.id}">Ouvrir / modifier</a>
+                <button type="button" class="btn btn--solid bilan-send-btn" data-bilan-id="${b.id}" style="padding:5px 12px;font-size:.74rem">Envoyer</button>
+              </div>
+            </div>
+            <div class="edit-grid">${kpis.map(k => `<div class="edit-field"><label>${k[0]}</label><div style="font-weight:500">${k[1]}</div></div>`).join('')}</div>
+            ${r.objectifs && r.objectifs.length ? `<p style="font-size:.85rem;margin:10px 0 4px"><strong>Objectifs :</strong> ${esc(r.objectifs.join(', '))}</p>` : ''}
+            ${r.profil ? `<p style="font-size:.85rem;margin:0 0 8px"><strong>Profil déclaré :</strong> ${esc(r.profil)}</p>` : ''}
+            ${pts.length ? `<div style="font-size:.85rem"><strong>Points d'attention :</strong><ul style="margin:6px 0 0;padding-left:18px">${pts.slice(0,8).map(p => `<li style="margin-bottom:4px"><b>${esc(p.titre)}</b> (${esc(p.prio)}) : ${esc(p.constat)}</li>`).join('')}</ul></div>` : ''}
+          </div>`;
+        }).join('');
+        pane.innerHTML = newBtn + bilansHTML + r1Section;
+        bindR1PresentationSection(c);
+        pane.querySelectorAll('.bilan-send-btn').forEach(btn => btn.addEventListener('click', () => {
+          if(!confirm('Envoyer le bilan patrimonial à ' + (c.email || 'ce contact') + ' ?\n\nOuvrez d\'abord « Ouvrir / modifier » pour exporter le PDF (bouton « Imprimer / PDF » ou « Enregistrer dans le Drive »), puis joignez-le au brouillon qui va s\'ouvrir.')) return;
+          window.open('bilan-patrimonial.html?bilan=' + btn.dataset.bilanId, '_blank', 'noopener');
+          const subject = 'Votre bilan patrimonial — La Financière de Rochechouart';
+          const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint votre bilan patrimonial.\n\nBien cordialement,\nLa Financière de Rochechouart';
+          setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
+        }));
+      })
+      .catch(err => { console.error(err); pane.innerHTML = newBtn + '<p class="dash-empty">Bilans indisponibles (exécutez supabase-bilans.sql dans Supabase).</p>' + r1Section; bindR1PresentationSection(c); });
+  }
+
   function activitiesPaneHTML(id){
     const list = activities.filter(a => a.client_id === id);
     const types = [['appel','Appel'],['email','Email'],['rdv','RDV'],['tache','Tâche'],['note','Note']];
@@ -526,18 +798,18 @@
       .then(r => r.json()).then(rows => {
         if(rows && rows[0]) activities.unshift(rows[0]);
         refreshActivitiesPane(id); updateStats();
-        if(activeTab==='activites') renderActivities();
+        if(activeTab==='activites') renderActivities(); else if(activeTab==='pipeline') renderPipeline();
       }).catch(err => console.error(err));
   }
   function toggleActivity(actId, done){
     const a = activities.find(x => x.id === actId); if(a) a.done = done;
     fetch(API + '/activities?id=eq.' + actId, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({done})})
-      .then(() => { updateStats(); if(activeTab==='activites') renderActivities(); }).catch(err => console.error(err));
+      .then(() => { updateStats(); if(activeTab==='activites') renderActivities(); else if(activeTab==='pipeline') renderPipeline(); }).catch(err => console.error(err));
   }
   function deleteActivity(actId){
     activities = activities.filter(x => x.id !== actId);
     fetch(API + '/activities?id=eq.' + actId, {method:'DELETE', headers: headers({'Prefer':'return=minimal'})})
-      .then(() => { refreshActivitiesPane(currentId); updateStats(); if(activeTab==='activites') renderActivities(); })
+      .then(() => { refreshActivitiesPane(currentId); updateStats(); if(activeTab==='activites') renderActivities(); else if(activeTab==='pipeline') renderPipeline(); })
       .catch(err => console.error(err));
   }
   function refreshActivitiesPane(id){
@@ -545,10 +817,23 @@
     pane.innerHTML = activitiesPaneHTML(id); bindActivityForm(id);
   }
 
+  // ---------- ACTIFS (enveloppes réelles, ou à défaut ce qui a été déclaré au bilan patrimonial) ----------
+  function declaredAssetsHTML(){
+    const c = contacts.find(x => x.id === currentId) || {};
+    const tiles = [];
+    if(moneyDisplay(c.patrimoine_financier)) tiles.push(['Financier', moneyDisplay(c.patrimoine_financier)]);
+    if(moneyDisplay(c.patrimoine_immobilier)) tiles.push(['Immobilier', moneyDisplay(c.patrimoine_immobilier)]);
+    if(currentBilanResume && currentBilanResume.liquidites != null) tiles.push(['Disponible (liquidités)', fmtMoney(currentBilanResume.liquidites)]);
+    if(!tiles.length) return '<div class="dash-empty" style="padding:34px"><p>Aucun actif renseigné. Complétez un bilan patrimonial, ou ajoutez ses enveloppes depuis le <strong>Cockpit client</strong> pour les voir apparaître ici.</p></div>';
+    return `<div class="pf-declared">
+      <p class="pf-declared__note">Répartition déclarée lors du dernier bilan patrimonial (par grande enveloppe, hors évolution de performance).</p>
+      <div class="pf-declared-grid">${tiles.map(t => `<div class="pf-declared-tile"><div class="pf-declared-tile__l">${esc(t[0])}</div><div class="pf-declared-tile__v">${esc(t[1])}</div></div>`).join('')}</div>
+    </div>`;
+  }
   // ---------- PORTFOLIO (données réelles : enveloppes + supports + structurés) ----------
   function portfolioPaneHTML(){
     const contracts = clientPortfolio(currentId);
-    if(!contracts.length) return '<div class="dash-empty" style="padding:34px"><p>Aucune enveloppe pour ce client. Ajoutez ses enveloppes et supports depuis le <strong>Cockpit client</strong> (ou importez un relevé PDF) — ils apparaîtront ici.</p></div>';
+    if(!contracts.length) return declaredAssetsHTML();
     const totalInvested = contracts.reduce((s,c) => s+c.invested, 0);
     const totalValue = contracts.reduce((s,c) => s+c.value, 0);
     const gain = totalValue - totalInvested;
@@ -889,19 +1174,34 @@ ${contractsHTML}
       .catch(err => { console.error(err); inviteStatus.style.color='#c0392b'; inviteStatus.textContent='Erreur lors de l\'envoi.'; btn.disabled=false; });
   });
 
-  // ---------- ADD PROSPECT ----------
+  // ---------- ADD PROSPECT / CLIENT ----------
   const prospectModal = document.getElementById('prospect-modal');
   const prospectForm = document.getElementById('prospect-form');
   const prospectStatus = document.getElementById('prospect-status');
-  function openProspect(){ prospectForm.reset(); prospectStatus.textContent=''; togglePersonneFields(); prospectModal.classList.add('is-open'); }
+  let addMode = 'prospect';
+  function openProspect(mode){
+    addMode = mode || 'prospect';
+    prospectForm.reset(); prospectStatus.textContent=''; togglePersonneFields();
+    document.getElementById('pro-source-autre').style.display = 'none';
+    document.getElementById('prospect-modal-title').textContent = addMode==='client' ? 'Ajouter un client' : 'Ajouter un prospect';
+    document.getElementById('prospect-modal-desc').textContent = addMode==='client'
+      ? 'Créez une fiche client manuellement (client existant intégré au CRM, sans passer par le pipeline).'
+      : 'Créez une fiche prospect manuellement. Elle apparaît dans l\'onglet « À rappeler » ; vous la ferez entrer au pipeline (R0) une fois son bilan patrimonial réalisé.';
+    document.getElementById('prospect-submit').textContent = addMode==='client' ? 'Créer le client' : 'Créer le prospect';
+    prospectModal.classList.add('is-open');
+  }
   function togglePersonneFields(){
     const morale = document.getElementById('pro-personne').value==='morale';
     document.getElementById('pro-phys-row').style.display = morale?'none':'';
     document.getElementById('pro-morale-row').style.display = morale?'':'none';
   }
   document.getElementById('pro-personne').addEventListener('change', togglePersonneFields);
-  document.getElementById('btn-add-prospect').addEventListener('click', openProspect);
-  document.getElementById('btn-add-prospect-2').addEventListener('click', openProspect);
+  document.getElementById('pro-source').addEventListener('change', function(){
+    document.getElementById('pro-source-autre').style.display = this.value==='Autre' ? '' : 'none';
+  });
+  document.getElementById('btn-add-prospect').addEventListener('click', () => openProspect('prospect'));
+  document.getElementById('btn-add-prospect-2').addEventListener('click', () => openProspect('prospect'));
+  document.getElementById('btn-add-client').addEventListener('click', () => openProspect('client'));
   document.getElementById('prospect-close').addEventListener('click', () => prospectModal.classList.remove('is-open'));
   prospectModal.addEventListener('click', e => { if(e.target===prospectModal) prospectModal.classList.remove('is-open'); });
   prospectForm.addEventListener('submit', function(e){
@@ -910,14 +1210,16 @@ ${contractsHTML}
     const raison = document.getElementById('pro-raison').value.trim();
     const nom = document.getElementById('pro-nom').value.trim();
     if(personne==='morale' ? !raison : !nom){ prospectStatus.style.color='#c0392b'; prospectStatus.textContent = personne==='morale'?'Raison sociale requise.':'Nom requis.'; return; }
+    const sourceSel = document.getElementById('pro-source').value;
+    const provenance = sourceSel==='Autre' ? document.getElementById('pro-source-autre').value.trim() : sourceSel;
     const payload = {
-      type:'prospect', stage:'Nouveau', personne,
+      type: addMode, personne,
       nom: personne==='morale' ? raison : nom,
       prenom: personne==='morale' ? '' : (document.getElementById('pro-prenom').value.trim() || null),
       raison_sociale: personne==='morale' ? raison : null,
       email: document.getElementById('pro-email').value.trim() || null,
       telephone: document.getElementById('pro-tel').value.trim() || null,
-      comment_connu: document.getElementById('pro-source').value.trim() || null
+      comment_connu: provenance || null
     };
     const btn = document.getElementById('prospect-submit');
     btn.disabled=true; prospectStatus.style.color='var(--muted)'; prospectStatus.textContent='Création…';
@@ -925,7 +1227,7 @@ ${contractsHTML}
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(rows => {
         if(rows && rows[0]) contacts.unshift(rows[0]);
-        prospectStatus.style.color='#2e7d32'; prospectStatus.textContent='✓ Prospect créé'; btn.disabled=false;
+        prospectStatus.style.color='#2e7d32'; prospectStatus.textContent = addMode==='client' ? '✓ Client créé' : '✓ Prospect créé'; btn.disabled=false;
         updateStats(); renderActiveTab();
         setTimeout(() => prospectModal.classList.remove('is-open'), 700);
       })
