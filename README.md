@@ -67,6 +67,12 @@ animations modernes (révélations au défilement, transitions de page, effets d
   directement via « + Ajouter un client » dans l'onglet Clients, et l'onglet Actifs d'une fiche
   affiche la répartition Financier / Immobilier / Disponible déclarée au dernier bilan tant
   qu'aucune enveloppe réelle n'a été saisie côté Cockpit.
+- **Suivi des produits structurés** — `structures.html` : book, fiches produit, calendrier de
+  coupons/autocalls et cours réels des sous-jacents (Yahoo Finance). Les cours passent par
+  `server/` (petit relais Node/Express, à déployer séparément sur Render en tant que **Web
+  Service**, pas Static Site — build command `npm install`, start command `npm start`, racine
+  `server`), plus fiable que les proxys CORS publics utilisés en secours. Une fois déployé,
+  renseignez son adresse dans `assets/js/quotes-config.js` (`QUOTES_PROXY_URL`).
   **Outil réservé au réseau interne** : `bilan-patrimonial.html` et ses fichiers propres
   (`assets/js/bilan.js`, `assets/js/drive.js`, `assets/js/drive-config.js`,
   `assets/css/bilan.css`, `assets/css/fonts.css`, `assets/fonts/`, `assets/vendor/`,

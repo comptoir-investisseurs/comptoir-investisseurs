@@ -235,14 +235,19 @@
     if(cached && cached.day===day && cached.pts && cached.pts.length) return Promise.resolve(cached.pts);
     const p1=Math.floor((Math.min(fromTs,Date.now())-31*86400000)/1000), p2=Math.floor(Date.now()/1000);
     const qs='?period1='+p1+'&period2='+p2+'&interval=1wk';
-    // Plusieurs hôtes Yahoo + plusieurs proxys CORS : on enchaîne jusqu'à une réponse valide.
+    // 1) Notre propre relais (server/, sur Render) si configuré : fiable, pas de CORS.
+    // 2) À défaut, plusieurs hôtes Yahoo + plusieurs proxys CORS publics en secours.
     const hosts=['https://query1.finance.yahoo.com/v8/finance/chart/',
                  'https://query2.finance.yahoo.com/v8/finance/chart/'];
     const wraps=[ u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
                   u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
                   u=>'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u),
                   u=>'https://thingproxy.freeboard.io/fetch/'+u ];
-    const urls=[]; hosts.forEach(h=>wraps.forEach(w=>urls.push(w(h+encodeURIComponent(ticker)+qs))));
+    const urls=[];
+    if(typeof QUOTES_PROXY_URL !== 'undefined' && QUOTES_PROXY_URL){
+      urls.push(QUOTES_PROXY_URL.replace(/\/$/,'')+'/chart/'+encodeURIComponent(ticker)+qs);
+    }
+    hosts.forEach(h=>wraps.forEach(w=>urls.push(w(h+encodeURIComponent(ticker)+qs))));
     let chain=Promise.reject(0);
     urls.forEach(u=>{ chain=chain.catch(()=>fetch(u).then(r=>{ if(!r.ok) throw 0; return r.json(); }).then(j=>{
       const res=j&&j.chart&&j.chart.result&&j.chart.result[0]; if(!res||!res.timestamp) throw 0;
