@@ -145,58 +145,36 @@
   var y = document.getElementById('year');
   if (y) y.textContent = new Date().getFullYear();
 
-  /* ---------- Contact form → FormSubmit ---------- */
-  var form = document.getElementById(‘contact-form’);
+  /* ---------- Contact form → FormSubmit (standard POST) ---------- */
+  var form = document.getElementById('contact-form');
   if (form) {
-    var status = form.querySelector(‘.form__status’);
-    form.addEventListener(‘submit’, function (e) {
-      e.preventDefault();
-      var nameEl    = form.querySelector(‘[name=name]’);
-      var emailEl   = form.querySelector(‘[name=email]’);
-      var phoneEl   = form.querySelector(‘[name=phone]’);
-      var subjectEl = form.querySelector(‘[name=subject]’);
-      var msgEl     = form.querySelector(‘[name=message]’);
-      var btn       = form.querySelector(‘[type=submit]’);
-      status.className = ‘form__status’;
-      var emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((emailEl.value || ‘’).trim());
+    var status = form.querySelector('.form__status');
+    if (location.search.indexOf('sent=1') !== -1) {
+      status.classList.add('is-ok');
+      status.textContent = 'Merci ! Votre message a bien été envoyé. Nous vous répondons sous 48 heures ouvrées.';
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, '', location.pathname);
+      }
+    }
+    form.addEventListener('submit', function (e) {
+      var nameEl    = form.querySelector('[name=name]');
+      var emailEl   = form.querySelector('[name=email]');
+      var subjectEl = form.querySelector('[name=subject]');
+      var msgEl     = form.querySelector('[name=message]');
+      status.className = 'form__status';
+      var emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((emailEl.value || '').trim());
       if (!nameEl.value.trim() || !emailOk || !msgEl.value.trim()) {
-        status.classList.add(‘is-err’);
-        status.textContent = ‘Merci de renseigner votre nom, un email valide et votre message.’;
+        e.preventDefault();
+        status.classList.add('is-err');
+        status.textContent = 'Merci de renseigner votre nom, un email valide et votre message.';
         return;
       }
-      btn.disabled = true;
-      var payload = {
-        name:      nameEl.value.trim(),
-        email:     emailEl.value.trim(),
-        _replyto:  emailEl.value.trim(),
-        _subject:  ‘Demande de contact – ‘ + (subjectEl ? subjectEl.value : nameEl.value.trim()),
-        _captcha:  ‘false’,
-        Téléphone: phoneEl ? phoneEl.value.trim() : ‘’,
-        Objet:     subjectEl ? subjectEl.value : ‘’,
-        Message:   msgEl.value.trim()
-      };
-      fetch(‘https://formsubmit.co/ajax/contact@lfd-rochechouart.com’, {
-        method: ‘POST’,
-        headers: { ‘Content-Type’: ‘application/json’, ‘Accept’: ‘application/json’ },
-        body: JSON.stringify(payload)
-      })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        btn.disabled = false;
-        if (data.success === ‘true’ || data.success === true) {
-          status.classList.add(‘is-ok’);
-          status.textContent = ‘Merci ! Votre message a bien été envoyé. Nous vous répondons sous 48 heures ouvrées.’;
-          form.reset();
-        } else {
-          status.classList.add(‘is-err’);
-          status.textContent = ‘Une erreur est survenue. Écrivez-nous directement à contact@lfd-rochechouart.com.’;
-        }
-      })
-      .catch(function () {
-        btn.disabled = false;
-        status.classList.add(‘is-err’);
-        status.textContent = ‘Une erreur est survenue. Écrivez-nous directement à contact@lfd-rochechouart.com.’;
-      });
+      var replyto = form.querySelector('[name=_replyto]');
+      if (replyto) replyto.value = emailEl.value.trim();
+      var subj = form.querySelector('[name=_subject]');
+      if (subj) subj.value = 'Demande de contact – ' + (subjectEl ? subjectEl.value : nameEl.value.trim());
+      var next = form.querySelector('[name=_next]');
+      if (next) next.value = location.href.split('?')[0] + '?sent=1';
     });
   }
 })();
