@@ -267,13 +267,28 @@
       if(!t) return Promise.resolve({name:u.n, color:ulColor(i), ticker:null, ok:false});
       return fetchYahoo(t,s0).then(pts=>{
         if(!pts||!pts.length) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
-        // base = clôture du strike (dernière ≤ date de strike, à défaut la 1re disponible)
-        let base=null, bi=0;
-        for(let k=0;k<pts.length;k++){ if(pts[k].t<=s0){ base=pts[k].p; bi=k; } else break; }
-        if(base==null||base<=0){ base=pts[0].p; bi=0; }
-        const reb=[]; for(let k=bi;k<pts.length;k++) reb.push({t:pts[k].t, v:pts[k].p/base*100});
+        /* Base du rebasage = STRIKE OFFICIEL du produit (u.k), celui fixé par l'émetteur
+           et sur lequel portent réellement les barrières (u.b / u.c / u.a en sont les
+           multiples exacts). On ne déduit plus la base d'une clôture Yahoo proche de la
+           date de strike : sur un cours volatil, la clôture hebdomadaire retenue pouvait
+           s'écarter de près de 20 % du strike réel (Stellantis 13,74 € au lieu de 16,96 €),
+           ce qui faussait d'autant tous les niveaux et les distances aux barrières.
+           Repli sur l'ancienne heuristique uniquement si le strike n'est pas renseigné. */
+        const kOff=(u.k>0)?u.k:null;
+        let reb;
+        if(kOff!=null){
+          // la courbe part du strike à 100 %, puis suit les clôtures postérieures au strike
+          reb=[{t:s0, v:100}];
+          for(let k=0;k<pts.length;k++) if(pts[k].t>s0) reb.push({t:pts[k].t, v:pts[k].p/kOff*100});
+        }else{
+          let base=null, bi=0;
+          for(let k=0;k<pts.length;k++){ if(pts[k].t<=s0){ base=pts[k].p; bi=k; } else break; }
+          if(base==null||base<=0){ base=pts[0].p; bi=0; }
+          if(!(base>0)) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
+          reb=[]; for(let k=bi;k<pts.length;k++) reb.push({t:pts[k].t, v:pts[k].p/base*100});
+          if(reb.length) reb[0]={t:s0, v:100};   // le graphe démarre exactement au strike, à 100 %
+        }
         if(reb.length<2) return {name:u.n,color:ulColor(i),ticker:t,ok:false};
-        reb[0]={t:s0, v:100};   // le graphe démarre exactement au strike, à 100 %
         return {name:u.n,color:ulColor(i),ticker:t,ok:true,pts:reb};
       });
     })).then(series=>({ok:series.length>0 && series.every(s=>s.ok), series}));
