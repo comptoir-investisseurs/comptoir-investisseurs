@@ -237,7 +237,7 @@ main p{ text-align:justify; text-justify:inter-word; }
   border:1px solid rgba(201,168,106,.28); color:var(--cream);
   padding:clamp(26px,3vw,42px);
 }
-.hero__panel h1{ color:#fff; font-size:clamp(2rem,3.6vw,3.1rem); font-weight:500; }
+.hero__panel h1{ color:#fff; font-size:clamp(1.5rem,2.2vw,2.4rem); font-weight:500; }
 .hero__panel .rule{ background:var(--gold-light); margin:16px 0; }
 .hero__panel p{ color:rgba(246,242,233,.86); font-weight:300; font-size:.98rem; }
 .hero__actions{ display:flex; flex-wrap:wrap; gap:14px; margin-top:24px; }
@@ -540,7 +540,7 @@ body{ animation:pageIn .7s var(--ease) both; }
   .hero{ min-height:90svh; }
   .hero__panel{ width:100%; padding:24px 22px; background:rgba(0,27,0,.66); }
   .hero__panel .eyebrow{ letter-spacing:.16em; font-size:.66rem; }
-  .hero__panel h1{ font-size:1.95rem; }
+  .hero__panel h1{ font-size:1.6rem; }
   .hero__panel p{ font-size:.95rem; }
   .hero__actions{ margin-top:20px; gap:12px; }
   /* Headings a touch tighter */
