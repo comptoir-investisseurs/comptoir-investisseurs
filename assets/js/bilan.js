@@ -1016,10 +1016,18 @@
   function crmOpenFromUrl() {
     var q = new URLSearchParams(location.search), bid = q.get('bilan'), cid = q.get('client');
     if (!bid && !cid) return false;
+    // ?vue=synthese ouvre directement la présentation du bilan (au lieu du questionnaire),
+    // ?print=1 enchaîne sur la boîte d'impression : les deux servent les boutons
+    // « Aperçu » et « PDF » de l'onglet Documentation du CRM.
+    var vue = q.get('vue'), wantPrint = q.get('print') === '1';
+    function openLoaded() {
+      if (vue === 'synthese') showSynth(); else { goto(elWiz); renderScreen(); }
+      if (wantPrint) setTimeout(function () { window.print(); }, 900);
+    }
     ensureLogin().then(function () {
       if (bid) return CRM.rest('bilans?id=eq.' + bid + '&select=id,client_id,data').then(function (rows) {
         if (!rows.length) throw new Error('Bilan introuvable');
-        state = Object.assign(blank(), rows[0].data); state.crm = { clientId: rows[0].client_id, bilanId: rows[0].id }; current = 0; goto(elWiz); renderScreen();
+        state = Object.assign(blank(), rows[0].data); state.crm = { clientId: rows[0].client_id, bilanId: rows[0].id }; current = 0; openLoaded();
       });
       return CRM.rest('clients?id=eq.' + cid + '&select=id,civilite,nom,prenom,email,telephone,date_naissance,situation_matrimoniale,regime_matrimonial,nb_enfants,ages_enfants,profession,employeur').then(function (rows) {
         if (!rows.length) throw new Error('Fiche introuvable');

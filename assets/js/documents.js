@@ -33,10 +33,40 @@
 
   function fmtDateFR(d) { d = d || new Date(); return d.toLocaleDateString('fr-FR'); }
 
-  // Remplace le nom et la date sur la couverture de assets/docs/lfdr-presentation-r1.pptx
-  function buildR1PresentationBlob(clientName, dateStr) {
+  /* Présentations commerciales par étape du pipeline. Pour chaque étape :
+       pptx = modèle éditable, dont la couverture est personnalisée à la volée ;
+       pdf  = version PDF, à exporter une fois depuis PowerPoint et à déposer
+              à côté du .pptx (aucun navigateur ne sait convertir un .pptx). */
+  var PRESENTATIONS = {
+    R1: { pptx: 'assets/docs/lfdr-presentation-r1.pptx', pdf: 'assets/docs/lfdr-presentation-r1.pdf', label: 'Présentation commerciale (R1)' },
+    R2: { pptx: 'assets/docs/lfdr-presentation-r2.pptx', pdf: 'assets/docs/lfdr-presentation-r2.pdf', label: 'Présentation commerciale (R2)' }
+  };
+
+  function presentation(stage) {
+    var p = PRESENTATIONS[stage];
+    if (!p) throw new Error('Étape inconnue : ' + stage);
+    return p;
+  }
+
+  // Le fichier est-il présent dans assets/docs/ ? Sert à griser les boutons
+  // dont le document n'a pas encore été fourni, plutôt que d'échouer au clic.
+  function fileExists(url) {
+    return fetch(url, { method: 'HEAD' }).then(function (r) { return r.ok; }).catch(function () { return false; });
+  }
+
+  // Modèle brut, non personnalisé : c'est lui qu'on modifie puis qu'on redépose.
+  function fetchFileBlob(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error('Fichier introuvable (' + url + ').');
+      return r.blob();
+    });
+  }
+
+  // Remplace le nom et la date sur la couverture du modèle de l'étape donnée.
+  function buildPresentationBlob(stage, clientName, dateStr) {
+    var src = presentation(stage).pptx;
     return loadJSZip().then(function () {
-      return fetch('assets/docs/lfdr-presentation-r1.pptx').then(function (r) {
+      return fetch(src).then(function (r) {
         if (!r.ok) throw new Error('Modèle de présentation introuvable.');
         return r.arrayBuffer();
       });
@@ -75,7 +105,12 @@
   }
 
   window.LFDRDocs = {
-    buildR1PresentationBlob: buildR1PresentationBlob,
+    presentation: presentation,
+    buildPresentationBlob: buildPresentationBlob,
+    // conservé : ancien point d'entrée, spécifique à R1
+    buildR1PresentationBlob: function (clientName, dateStr) { return buildPresentationBlob('R1', clientName, dateStr); },
+    fetchFileBlob: fetchFileBlob,
+    fileExists: fileExists,
     downloadBlob: downloadBlob,
     mailtoDraft: mailtoDraft,
     fmtDateFR: fmtDateFR

@@ -307,3 +307,24 @@
 .pf-declared-tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
 .pf-declared-tile__l{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
 .pf-declared-tile__v{font-family:var(--serif);font-size:1.5rem;color:var(--green);font-weight:500}
+
+/* ---------- Onglet Documentation : R0 / R1 / R2 ---------- */
+.doc-section{margin-bottom:22px}
+.doc-stage{display:inline-block;min-width:26px;margin-right:10px;padding:2px 7px;border-radius:5px;background:var(--green);color:#f4efe3;font-size:.66rem;letter-spacing:.08em;text-align:center}
+.doc-new{padding:5px 12px;font-size:.74rem;text-decoration:none;flex-shrink:0}
+.doc-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:8px}
+.doc-row:last-child{margin-bottom:0}
+.doc-row__id{display:flex;flex-direction:column;gap:3px;min-width:0}
+.doc-row__id b{font-family:var(--serif);font-size:1.02rem;font-weight:500;color:var(--green)}
+.doc-row__id span{font-size:.76rem;color:var(--muted)}
+.doc-row__acts{display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.doc-row__acts .btn{padding:5px 12px;font-size:.74rem;min-width:112px;text-align:center}
+.doc-row__acts .btn:disabled{opacity:.4;cursor:not-allowed}
+.doc-row__status{flex-basis:100%;margin:-4px 0 0;font-size:.76rem;color:var(--muted)}
+.doc-row__status:empty{display:none}
+.doc-row__status.is-error{color:#b04a32}
+@media(max-width:640px){
+  .doc-row{align-items:flex-start}
+  .doc-row__acts{width:100%}
+}
