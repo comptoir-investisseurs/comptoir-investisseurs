@@ -665,8 +665,6 @@
   // ---------- ACTIVITIES (within contact) ----------
   let selectedActType = 'appel';
   // ---------- BILANS PATRIMONIAUX (table bilans, alimentée par bilan-patrimonial.html) ----------
-  const eurFmt = v => (v==null||isNaN(v)) ? '-' : Math.round(v).toLocaleString('fr-FR') + ' €';
-  const pctFmt = v => (v==null||isNaN(v)) ? '-' : (v*100).toFixed(0) + ' %';
   let currentBilanResume = null;
   function sendDocumentFlow(c, docLabel, filename, buildBlob){
     if(!confirm('Envoyer « ' + docLabel + ' » à ' + (c.email || 'ce contact') + ' ?\n\nLe fichier va être téléchargé puis un brouillon d\'email va s\'ouvrir : joignez-y le fichier téléchargé (un lien mailto ne peut pas joindre de pièce automatiquement).')) return;
@@ -678,68 +676,154 @@
     }).catch(err => { console.error(err); alert('Erreur lors de la génération du document : ' + err.message); });
   }
 
-  function r1PresentationSectionHTML(c){
-    return `<div class="detail-section">
-      <div class="detail-section__head"><h4>Présentation commerciale (R1)</h4></div>
-      <p style="font-size:.85rem;color:var(--muted);margin:0 0 12px">Couverture personnalisée automatiquement au nom de <strong>${esc(fullName(c))}</strong>, datée du ${esc(fmtDate(new Date()))}.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button type="button" class="btn" id="doc-r1-download">Télécharger</button>
-        <button type="button" class="btn btn--solid" id="doc-r1-send">Envoyer</button>
+  /* ---------- DOCUMENTATION : une section par étape, mêmes actions partout ----------
+     R0 — la présentation issue du bilan patrimonial, une ligne par bilan enregistré ;
+     R1 — la présentation commerciale « objectifs & difficultés » ;
+     R2 — la présentation commerciale « solutions proposées ».
+     Aperçu       : consulter le document sans le modifier
+     Modifier     : récupérer la source éditable (le bilan, ou le modèle .pptx)
+     Télécharger  : la copie personnalisée au nom du client
+     PDF          : le document final en PDF                                        */
+  const DOC_ACTS = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger'], ['pdf', 'PDF']];
+
+  function docRowHTML(key, title, sub, pending){
+    const off = pending ? ' disabled title="Vérification de la disponibilité…"' : '';
+    const acts = DOC_ACTS.map(([act, label]) =>
+      `<button type="button" class="btn doc-act" data-doc="${key}" data-act="${act}"${off}>${label}</button>`).join('');
+    return `<div class="doc-row" data-row="${key}">
+      <div class="doc-row__id"><b>${title}</b>${sub ? `<span>${sub}</span>` : ''}</div>
+      <div class="doc-row__acts">${acts}
+        <button type="button" class="btn btn--solid doc-act" data-doc="${key}" data-act="envoyer"${off}>Envoyer</button>
       </div>
-      <p class="dash-empty" id="doc-r1-status" style="text-align:left;padding:8px 0 0;display:none"></p>
+      <p class="doc-row__status" data-status="${key}"></p>
     </div>`;
   }
-  function bindR1PresentationSection(c){
-    const dlBtn = document.getElementById('doc-r1-download'), sendBtn = document.getElementById('doc-r1-send'), status = document.getElementById('doc-r1-status');
-    if(!dlBtn) return;
-    function buildBlob(){ return LFDRDocs.buildR1PresentationBlob(fullName(c), fmtDate(new Date())); }
-    function filename(){ return 'Presentation R1 - ' + fullName(c) + '.pptx'; }
-    dlBtn.addEventListener('click', () => {
-      status.style.display = 'block'; status.textContent = 'Génération…';
-      buildBlob().then(blob => { LFDRDocs.downloadBlob(blob, filename()); status.textContent = 'Téléchargé.'; })
-        .catch(err => { console.error(err); status.textContent = 'Erreur : ' + err.message; });
+  function docSectionHTML(stage, label, inner, head){
+    return `<div class="detail-section doc-section">
+      <div class="detail-section__head"><h4><span class="doc-stage">${stage}</span>${esc(label)}</h4>${head || ''}</div>
+      ${inner}
+    </div>`;
+  }
+  function docStatus(key, msg, isErr){
+    const el = document.querySelector('[data-status="' + key + '"]');
+    if(!el) return;
+    el.textContent = msg || '';
+    el.classList.toggle('is-error', !!isErr);
+  }
+  function docSetDisabled(key, act, reason){
+    const btn = document.querySelector('[data-doc="' + key + '"][data-act="' + act + '"]');
+    if(!btn) return;
+    btn.disabled = !!reason;
+    if(reason) btn.title = reason; else btn.removeAttribute('title');
+  }
+  // Grise ce qui n'est pas disponible : un .pptx pas encore fourni (R2), ou un PDF
+  // pas encore exporté — aucun navigateur ne sait convertir un .pptx en PDF.
+  function refreshDocAvailability(){
+    ['R1', 'R2'].forEach(stage => {
+      const p = LFDRDocs.presentation(stage);
+      Promise.all([LFDRDocs.fileExists(p.pptx), LFDRDocs.fileExists(p.pdf)]).then(([hasPptx, hasPdf]) => {
+        const noPptx = hasPptx ? null : 'Présentation non fournie : déposez le fichier dans assets/docs/.';
+        const noPdf = hasPdf ? null : 'PDF non disponible : exportez-le une fois depuis PowerPoint vers assets/docs/.';
+        docStatus(stage, '');
+        docSetDisabled(stage, 'modifier', noPptx);
+        docSetDisabled(stage, 'telecharger', noPptx);
+        docSetDisabled(stage, 'envoyer', noPptx);
+        docSetDisabled(stage, 'apercu', noPdf);
+        docSetDisabled(stage, 'pdf', noPdf);
+        if(noPptx) docStatus(stage, 'Présentation à fournir.');
+        else if(noPdf) docStatus(stage, 'PDF à exporter une fois depuis PowerPoint.');
+      });
     });
-    sendBtn.addEventListener('click', () => sendDocumentFlow(c, 'Présentation commerciale (R1)', filename(), buildBlob));
+  }
+
+  function bindDocActions(c){
+    const pane = document.getElementById('pane-bilans'); if(!pane) return;
+    const dateStr = () => fmtDate(new Date());
+    const slug = s => String(s || 'client').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
+
+    function presentationActions(stage, act){
+      const p = LFDRDocs.presentation(stage);
+      const personalised = () => LFDRDocs.buildPresentationBlob(stage, fullName(c), dateStr());
+      const name = 'Presentation ' + stage + ' - ' + fullName(c) + '.pptx';
+      if(act === 'apercu' || act === 'pdf'){ window.open(p.pdf, '_blank', 'noopener'); return; }
+      if(act === 'modifier'){
+        docStatus(stage, 'Téléchargement du modèle…');
+        LFDRDocs.fetchFileBlob(p.pptx)
+          .then(blob => { LFDRDocs.downloadBlob(blob, 'Modele - Presentation ' + stage + '.pptx'); docStatus(stage, 'Modèle téléchargé : modifiez-le puis redéposez-le dans assets/docs/.'); })
+          .catch(err => docStatus(stage, 'Erreur : ' + err.message, true));
+        return;
+      }
+      if(act === 'telecharger'){
+        docStatus(stage, 'Génération…');
+        personalised()
+          .then(blob => { LFDRDocs.downloadBlob(blob, name); docStatus(stage, 'Téléchargé.'); })
+          .catch(err => docStatus(stage, 'Erreur : ' + err.message, true));
+        return;
+      }
+      if(act === 'envoyer') sendDocumentFlow(c, p.label, name, personalised);
+    }
+
+    function bilanActions(bid, act){
+      const key = 'bilan:' + bid, url = 'bilan-patrimonial.html?bilan=' + encodeURIComponent(bid);
+      if(act === 'apercu'){ window.open(url + '&vue=synthese', '_blank', 'noopener'); return; }
+      if(act === 'modifier'){ window.open(url, '_blank', 'noopener'); return; }
+      if(act === 'pdf'){ window.open(url + '&vue=synthese&print=1', '_blank', 'noopener'); return; }
+      if(act === 'telecharger'){
+        docStatus(key, 'Export…');
+        fetch(API + '/bilans?id=eq.' + encodeURIComponent(bid) + '&select=data,date_entretien,created_at', {headers: headers()})
+          .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+          .then(rows => {
+            if(!rows.length) throw new Error('Bilan introuvable');
+            const row = rows[0];
+            const blob = new Blob([JSON.stringify({app: 'lfdr-bilan', version: 1, exportedAt: new Date().toISOString(), state: row.data}, null, 2)], {type: 'application/json'});
+            LFDRDocs.downloadBlob(blob, 'bilan-' + slug(fullName(c)) + '-' + (row.date_entretien || String(row.created_at || '').slice(0, 10)) + '.json');
+            docStatus(key, 'Fichier du bilan téléchargé (réimportable dans l\'outil).');
+          })
+          .catch(err => docStatus(key, 'Erreur : ' + err.message, true));
+        return;
+      }
+      if(act === 'envoyer'){
+        if(!confirm('Envoyer le bilan patrimonial à ' + (c.email || 'ce contact') + ' ?\n\nL\'aperçu va s\'ouvrir : exportez-y le PDF, puis joignez-le au brouillon d\'email.')) return;
+        window.open(url + '&vue=synthese&print=1', '_blank', 'noopener');
+        const subject = 'Votre bilan patrimonial — La Financière de Rochechouart';
+        const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint votre bilan patrimonial.\n\nBien cordialement,\nLa Financière de Rochechouart';
+        setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
+      }
+    }
+
+    pane.querySelectorAll('.doc-act').forEach(btn => btn.addEventListener('click', () => {
+      const doc = btn.dataset.doc, act = btn.dataset.act;
+      if(doc.indexOf('bilan:') === 0) bilanActions(doc.slice(6), act);
+      else presentationActions(doc, act);
+    }));
   }
 
   function loadBilans(id){
     const pane = document.getElementById('pane-bilans'); if(!pane) return;
     const c = contacts.find(x => x.id === id) || {};
-    const newBtn = `<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><a class="btn btn--solid" href="bilan-patrimonial.html?client=${encodeURIComponent(id)}" style="text-decoration:none">＋ Nouveau bilan patrimonial</a></div>`;
-    const r1Section = r1PresentationSectionHTML(c);
-    fetch(API + '/bilans?client_id=eq.' + id + '&select=id,created_at,updated_at,date_entretien,conseiller,etape,resume,points&order=created_at.desc', {headers: headers()})
+    const newBtn = `<a class="btn doc-new" href="bilan-patrimonial.html?client=${encodeURIComponent(id)}">＋ Nouveau bilan</a>`;
+    const presRow = stage => docRowHTML(stage, 'Présentation commerciale', 'Couverture au nom de ' + esc(fullName(c)), true);
+
+    function render(r0Inner){
+      pane.innerHTML = docSectionHTML('R0', 'Bilan patrimonial', r0Inner, newBtn)
+        + docSectionHTML('R1', STAGE_LABELS.R1, presRow('R1'))
+        + docSectionHTML('R2', STAGE_LABELS.R2, presRow('R2'));
+      bindDocActions(c);
+      refreshDocAvailability();
+    }
+
+    fetch(API + '/bilans?client_id=eq.' + id + '&select=id,created_at,updated_at,date_entretien,conseiller,etape,resume&order=created_at.desc', {headers: headers()})
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(rows => {
         currentBilanResume = rows.length ? (rows[0].resume || null) : null;
         if(id === currentId){ const pf = document.getElementById('pane-portefeuille'); if(pf){ pf.innerHTML = portfolioPaneHTML(); bindPortfolioEvents(); drawPortfolioCharts(); } }
-        const bilansHTML = !rows.length ? '<p class="dash-empty">Aucun bilan patrimonial enregistré pour cette fiche.</p>' : rows.map(b => {
-          const r = b.resume || {}, pts = Array.isArray(b.points) ? b.points : [];
-          const kpis = [['Revenu imposable', eurFmt(r.rni)], ['TMI', pctFmt(r.tmi)], ['Impôt', eurFmt(r.impot)], ['Actif net', eurFmt(r.actif_net)], ['Épargne financière', eurFmt(r.epargne_financiere)], ['Endettement', pctFmt(r.endettement_brut)], ['Capacité d\'épargne', eurFmt(r.capacite_epargne) + ' / mois']];
-          return `<div class="detail-section">
-            <div class="detail-section__head">
-              <h4>Bilan du ${fmtDate(b.date_entretien || b.created_at)}${b.conseiller ? ' · ' + esc(b.conseiller) : ''}</h4>
-              <div style="display:flex;gap:8px;flex-shrink:0">
-                <a class="btn" style="padding:5px 12px;font-size:.74rem;text-decoration:none" href="bilan-patrimonial.html?bilan=${b.id}">Ouvrir / modifier</a>
-                <button type="button" class="btn btn--solid bilan-send-btn" data-bilan-id="${b.id}" style="padding:5px 12px;font-size:.74rem">Envoyer</button>
-              </div>
-            </div>
-            <div class="edit-grid">${kpis.map(k => `<div class="edit-field"><label>${k[0]}</label><div style="font-weight:500">${k[1]}</div></div>`).join('')}</div>
-            ${r.objectifs && r.objectifs.length ? `<p style="font-size:.85rem;margin:10px 0 4px"><strong>Objectifs :</strong> ${esc(r.objectifs.join(', '))}</p>` : ''}
-            ${r.profil ? `<p style="font-size:.85rem;margin:0 0 8px"><strong>Profil déclaré :</strong> ${esc(r.profil)}</p>` : ''}
-            ${pts.length ? `<div style="font-size:.85rem"><strong>Points d'attention :</strong><ul style="margin:6px 0 0;padding-left:18px">${pts.slice(0,8).map(p => `<li style="margin-bottom:4px"><b>${esc(p.titre)}</b> (${esc(p.prio)}) : ${esc(p.constat)}</li>`).join('')}</ul></div>` : ''}
-          </div>`;
-        }).join('');
-        pane.innerHTML = newBtn + bilansHTML + r1Section;
-        bindR1PresentationSection(c);
-        pane.querySelectorAll('.bilan-send-btn').forEach(btn => btn.addEventListener('click', () => {
-          if(!confirm('Envoyer le bilan patrimonial à ' + (c.email || 'ce contact') + ' ?\n\nOuvrez d\'abord « Ouvrir / modifier » pour exporter le PDF (bouton « Imprimer / PDF » ou « Enregistrer dans le Drive »), puis joignez-le au brouillon qui va s\'ouvrir.')) return;
-          window.open('bilan-patrimonial.html?bilan=' + btn.dataset.bilanId, '_blank', 'noopener');
-          const subject = 'Votre bilan patrimonial — La Financière de Rochechouart';
-          const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint votre bilan patrimonial.\n\nBien cordialement,\nLa Financière de Rochechouart';
-          setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
-        }));
+        render(!rows.length
+          ? '<p class="dash-empty">Aucun bilan patrimonial enregistré.</p>'
+          : rows.map(b => docRowHTML('bilan:' + b.id,
+              'Bilan du ' + fmtDate(b.date_entretien || b.created_at),
+              b.conseiller ? esc(b.conseiller) : '')).join(''));
       })
-      .catch(err => { console.error(err); pane.innerHTML = newBtn + '<p class="dash-empty">Bilans indisponibles (exécutez supabase-bilans.sql dans Supabase).</p>' + r1Section; bindR1PresentationSection(c); });
+      .catch(err => { console.error(err); render('<p class="dash-empty">Bilans indisponibles (exécutez supabase-bilans.sql dans Supabase).</p>'); });
   }
 
   function activitiesPaneHTML(id){
