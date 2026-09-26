@@ -806,8 +806,8 @@
 
     function render(r0Inner){
       pane.innerHTML = docSectionHTML('R0', 'Bilan patrimonial', r0Inner, newBtn)
-        + docSectionHTML('R1', STAGE_LABELS.R1, presRow('R1'))
-        + docSectionHTML('R2', STAGE_LABELS.R2, presRow('R2'));
+        + docSectionHTML('R1', STAGE_META.R1, presRow('R1'))
+        + docSectionHTML('R2', STAGE_META.R2, presRow('R2'));
       bindDocActions(c);
       refreshDocAvailability();
     }
