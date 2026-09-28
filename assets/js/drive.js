@@ -188,6 +188,23 @@
     function num(v) { var n = parseFloat(v); return isNaN(n) ? (v || '') : n; }
   }
 
+  // Les polices (Cormorant Garamond, Jost) sont auto-hébergées avec `font-display: swap` :
+  // le navigateur affiche d'abord une police de repli puis bascule une fois le fichier
+  // chargé. html2canvas capture l'état du DOM à l'instant où il est appelé — s'il tombe
+  // pendant ce court repli, il fige le texte dans la police de secours, dont les métriques
+  // (hauteur de ligne, position de la ligne de base) diffèrent : c'est ce qui fait
+  // apparaître le texte des pastilles/pavés décalé vers le bas dans le PDF exporté, alors
+  // que l'écran affiche déjà la bonne police au moment du clic. Un double rAF laisse le
+  // temps au navigateur de peindre une première fois (et donc de lancer le chargement des
+  // polices utilisées par le deck), puis document.fonts.ready attend qu'elles arrivent.
+  function whenFontsReady() {
+    return new Promise(function (resolve) {
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(resolve, resolve);
+      }); });
+    });
+  }
+
   /* ---------- PDF de la synthèse déjà générée à l'écran ---------- */
   function buildSynthesisPdfBlob() {
     window.LFDRBilan.renderSynthIfNeeded();
@@ -196,7 +213,7 @@
     var jsPDF = window.jspdf.jsPDF;
     var pageW = 297, pageH = pageW * 9 / 16;
     var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [pageW, pageH] });
-    var chain = Promise.resolve();
+    var chain = whenFontsReady();
     slides.forEach(function (sl, i) {
       chain = chain.then(function () {
         return window.html2canvas(sl, { scale: 1.6, useCORS: true, backgroundColor: '#ffffff', logging: false }).then(function (canvas) {

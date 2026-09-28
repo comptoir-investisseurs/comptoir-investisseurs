@@ -83,7 +83,12 @@
         xml = xml.replace('<a:t>XXX</a:t>', '<a:t>' + esc(clientName) + '</a:t>');
         xml = xml.replace('<a:t>Date</a:t>', '<a:t>' + esc(dateStr) + '</a:t>');
         zip.file(path, xml);
-        return zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
+        return zip.generateAsync({
+          type: 'blob',
+          mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          compression: 'DEFLATE',
+          compressionOptions: { level: 6 }
+        });
       });
     });
   }
