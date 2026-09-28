@@ -687,7 +687,12 @@
           n'a été générée pour ce client (voir r2Generated).
      Aperçu       : consulter le document sans le modifier (PDF)
      Modifier     : récupérer la version éditable, personnalisée (.pptx)
-     Télécharger  : la version finale à transmettre (PDF) */
+     Télécharger  : la même version personnalisée (.pptx), pas de PDF — aucun
+                    convertisseur .pptx→PDF n'existe sans service serveur dédié,
+                    et un .pptx propre à chaque client est de toute façon le
+                    format à transmettre.
+     Drive        : dépose ce même fichier dans <Nom Prénom>/Financier/
+                    2. Présentations commerciales/ du client, dans Google Drive. */
   const DOC_ACTS_PRES  = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger'], ['pdf', 'PDF']];
   const DOC_ACTS_BILAN = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger']];
 
@@ -698,6 +703,7 @@
     return `<div class="doc-row" data-row="${key}">
       <div class="doc-row__id"><b>${title}</b>${sub ? `<span>${sub}</span>` : ''}</div>
       <div class="doc-row__acts">${acts}
+        <button type="button" class="btn doc-act" data-doc="${key}" data-act="drive"${off} title="Enregistrer dans le Drive du client">Drive</button>
         <button type="button" class="btn btn--solid doc-act" data-doc="${key}" data-act="envoyer"${off}>Envoyer</button>
       </div>
       <p class="doc-row__status" data-status="${key}"></p>
@@ -723,8 +729,8 @@
   }
   // Grise ce qui n'est pas disponible : un .pptx pas encore fourni, ou un PDF
   // pas encore exporté — aucun navigateur ne sait convertir un .pptx en PDF.
-  // Modifier a besoin du .pptx (il livre une copie éditable), Aperçu/Télécharger/
-  // Envoyer ont besoin du PDF (aperçu à l'écran, version finale à transmettre).
+  // Modifier/Télécharger/Drive/Envoyer livrent tous le .pptx personnalisé (donc
+  // ont besoin du modèle) ; Aperçu ouvre le PDF générique pré-exporté.
   function refreshDocAvailability(){
     const p1 = LFDRDocs.presentation('R1');
     Promise.all([LFDRDocs.fileExists(p1.pptx), LFDRDocs.fileExists(p1.pdf)]).then(([hasPptx, hasPdf]) => {
@@ -732,8 +738,9 @@
       const noPdf = hasPdf ? null : 'PDF non disponible : exportez-le une fois depuis PowerPoint vers assets/docs/.';
       docStatus('R1', '');
       docSetDisabled('R1', 'modifier', noPptx);
-      docSetDisabled('R1', 'telecharger', noPdf);
-      docSetDisabled('R1', 'envoyer', noPdf);
+      docSetDisabled('R1', 'telecharger', noPptx);
+      docSetDisabled('R1', 'drive', noPptx);
+      docSetDisabled('R1', 'envoyer', noPptx);
       docSetDisabled('R1', 'apercu', noPdf);
       if(noPptx) docStatus('R1', 'Présentation à fournir.');
       else if(noPdf) docStatus('R1', 'PDF à exporter une fois depuis PowerPoint.');
@@ -820,13 +827,15 @@
       <div class="doc-row__acts">
         <button type="button" class="btn btn--solid" id="r2-configure" disabled title="Vérification de la disponibilité…">Configurer</button>
         ${acts}
+        <button type="button" class="btn doc-act" data-doc="R2" data-act="drive"${off} title="Enregistrer dans le Drive du client">Drive</button>
         <button type="button" class="btn btn--solid doc-act" data-doc="R2" data-act="envoyer"${off}>Envoyer</button>
       </div>
       <p class="doc-row__status" data-status="R2"></p>
     </div>`;
   }
-  // Réactive/grise les 4 actions R2 selon qu'une présentation a déjà été générée
-  // pour ce client (r2Generated), et met à jour le statut affiché.
+  // Réactive/grise les actions R2 (Aperçu/Modifier/Télécharger/Drive/Envoyer)
+  // selon qu'une présentation a déjà été générée pour ce client (r2Generated),
+  // et met à jour le statut affiché.
   function refreshR2RowState(id){
     const pane = document.getElementById('pane-bilans'); if(!pane) return;
     const row = pane.querySelector('[data-row="R2"]'); if(!row) return;
@@ -854,6 +863,23 @@
     }
     if(act === 'modifier' || act === 'telecharger'){ LFDRDocs.downloadBlob(g.blob, name); docStatus('R2', 'Téléchargé.'); return; }
     if(act === 'envoyer') sendDocumentFlow(c, 'Présentation commerciale (R2)', name, () => g.blob);
+    if(act === 'drive') driveAction(c, 'R2', () => Promise.resolve({ blob: g.blob, filename: name, mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' }));
+  }
+
+  // Dépose un fichier déjà généré (buildFile renvoie {blob, filename, mimeType})
+  // dans <Nom Prénom>/Financier/2. Présentations commerciales/ du client, sur
+  // Google Drive (assets/js/drive.js — même mécanisme que le bilan patrimonial).
+  function driveAction(c, key, buildFile){
+    if(!window.LFDRDrive || !LFDRDrive.configured()){ docStatus(key, 'Google Drive non configuré.', true); return; }
+    const folderName = isMorale(c) ? (c.raison_sociale || c.nom || '') : ((c.nom || '') + (c.prenom ? ' ' + c.prenom : ''));
+    docStatus(key, 'Enregistrement dans le Drive…');
+    Promise.resolve().then(buildFile)
+      .then(({ blob, filename, mimeType }) => LFDRDrive.saveClientFile(folderName, filename, mimeType, blob))
+      .then(({ clientFolder }) => {
+        docStatus(key, 'Enregistré dans le Drive.');
+        if(clientFolder && clientFolder.webViewLink) window.open(clientFolder.webViewLink, '_blank', 'noopener');
+      })
+      .catch(err => docStatus(key, 'Erreur Drive : ' + err.message, true));
   }
 
   function r2FormHTML(){
@@ -1058,23 +1084,20 @@
       const p = LFDRDocs.presentation(stage);
       const personalised = () => LFDRDocs.buildPresentationBlob(stage, fullName(c), dateStr());
       const pptxName = 'Presentation ' + stage + ' - ' + fullName(c) + '.pptx';
-      const pdfName = 'Presentation ' + stage + ' - ' + fullName(c) + '.pdf';
+      // Pas de conversion PDF (aucun convertisseur .pptx→PDF disponible sans
+      // service serveur dédié) : Modifier et Télécharger livrent tous deux le
+      // même .pptx personnalisé, seul format disponible — Aperçu reste la
+      // version générique pré-exportée, pour un simple coup d'œil au contenu.
       if(act === 'apercu'){ window.open(p.pdf, '_blank', 'noopener'); return; }
-      if(act === 'modifier'){
-        docStatus(stage, 'Génération du PowerPoint…');
+      if(act === 'modifier' || act === 'telecharger'){
+        docStatus(stage, 'Génération…');
         personalised()
-          .then(blob => { LFDRDocs.downloadBlob(blob, pptxName); docStatus(stage, 'PowerPoint téléchargé.'); })
+          .then(blob => { LFDRDocs.downloadBlob(blob, pptxName); docStatus(stage, 'Téléchargé.'); })
           .catch(err => docStatus(stage, 'Erreur : ' + err.message, true));
         return;
       }
-      if(act === 'telecharger'){
-        docStatus(stage, 'Téléchargement du PDF…');
-        LFDRDocs.fetchFileBlob(p.pdf)
-          .then(blob => { LFDRDocs.downloadBlob(blob, pdfName); docStatus(stage, 'PDF téléchargé.'); })
-          .catch(err => docStatus(stage, 'Erreur : ' + err.message, true));
-        return;
-      }
-      if(act === 'envoyer') sendDocumentFlow(c, p.label, pdfName, () => LFDRDocs.fetchFileBlob(p.pdf));
+      if(act === 'envoyer') sendDocumentFlow(c, p.label, pptxName, personalised);
+      if(act === 'drive') driveAction(c, stage, () => personalised().then(blob => ({ blob, filename: pptxName, mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' })));
     }
 
     function bilanActions(bid, act){
@@ -1098,7 +1121,9 @@
           const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint votre bilan patrimonial.\n\nBien cordialement,\nLa Financière de Rochechouart';
           setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
         }).catch(err => docStatus(key, 'Erreur : ' + err.message, true));
+        return;
       }
+      if(act === 'drive') driveAction(c, key, () => bilanPdfBlob(bid).then(blob => ({ blob, filename: 'Bilan patrimonial - ' + fullName(c) + '.pdf', mimeType: 'application/pdf' })));
     }
 
     pane.querySelectorAll('.doc-act').forEach(btn => btn.addEventListener('click', () => {
