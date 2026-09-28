@@ -869,12 +869,20 @@
   // Dépose un fichier déjà généré (buildFile renvoie {blob, filename, mimeType})
   // dans <Nom Prénom>/Financier/2. Présentations commerciales/ du client, sur
   // Google Drive (assets/js/drive.js — même mécanisme que le bilan patrimonial).
+  // Le jeton Google est demandé en tout premier, avant de construire le fichier :
+  // la fenêtre d'autorisation est un popup, que les navigateurs bloquent si elle
+  // s'ouvre trop longtemps après le clic (ex. R0 : quelques secondes de rendu
+  // du bilan avant même d'avoir le PDF à envoyer).
   function driveAction(c, key, buildFile){
     if(!window.LFDRDrive || !LFDRDrive.configured()){ docStatus(key, 'Google Drive non configuré.', true); return; }
     const folderName = isMorale(c) ? (c.raison_sociale || c.nom || '') : ((c.nom || '') + (c.prenom ? ' ' + c.prenom : ''));
-    docStatus(key, 'Enregistrement dans le Drive…');
-    Promise.resolve().then(buildFile)
-      .then(({ blob, filename, mimeType }) => LFDRDrive.saveClientFile(folderName, filename, mimeType, blob))
+    docStatus(key, 'Connexion à Google Drive…');
+    LFDRDrive.getDriveToken()
+      .then(token => {
+        docStatus(key, 'Enregistrement dans le Drive…');
+        return Promise.resolve().then(buildFile)
+          .then(({ blob, filename, mimeType }) => LFDRDrive.saveClientFileWithToken(token, folderName, filename, mimeType, blob));
+      })
       .then(({ clientFolder }) => {
         docStatus(key, 'Enregistré dans le Drive.');
         if(clientFolder && clientFolder.webViewLink) window.open(clientFolder.webViewLink, '_blank', 'noopener');
