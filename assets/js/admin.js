@@ -678,14 +678,14 @@
 
   /* ---------- DOCUMENTATION : une section par étape ----------
      R0 — la présentation issue du bilan patrimonial, une ligne par bilan enregistré ;
-     R1 — la présentation commerciale « objectifs & difficultés » ;
-     R2 — la présentation commerciale « solutions proposées ».
+     R1 — la présentation commerciale « objectifs & difficultés », modèle fixe ;
+     R2 — la présentation commerciale « solutions proposées », composée à la carte
+          (voir r2-composer.js) : pas de modèle fixe, donc pas de ligne Aperçu/PDF
+          générique — un unique bouton « Configurer » ouvre le formulaire de
+          sélection des diapositives.
      Aperçu       : consulter le document sans le modifier
      Modifier     : récupérer la source éditable (le bilan, ou le modèle .pptx)
-     Télécharger  : la copie personnalisée au nom du client
-     PDF          : le document final en PDF, seulement là où Aperçu ne montre pas
-                    déjà le vrai contenu final (R0 et R1 ouvrent directement le
-                    vrai deck / la vraie présentation — PDF y ferait doublon). */
+     Télécharger  : la copie personnalisée au nom du client */
   const DOC_ACTS_PRES  = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger'], ['pdf', 'PDF']];
   const DOC_ACTS_BILAN = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger']];
 
@@ -719,23 +719,27 @@
     btn.disabled = !!reason;
     if(reason) btn.title = reason; else btn.removeAttribute('title');
   }
-  // Grise ce qui n'est pas disponible : un .pptx pas encore fourni (R2), ou un PDF
+  // Grise ce qui n'est pas disponible : un .pptx pas encore fourni, ou un PDF
   // pas encore exporté — aucun navigateur ne sait convertir un .pptx en PDF.
   function refreshDocAvailability(){
-    ['R1', 'R2'].forEach(stage => {
-      const p = LFDRDocs.presentation(stage);
-      Promise.all([LFDRDocs.fileExists(p.pptx), LFDRDocs.fileExists(p.pdf)]).then(([hasPptx, hasPdf]) => {
-        const noPptx = hasPptx ? null : 'Présentation non fournie : déposez le fichier dans assets/docs/.';
-        const noPdf = hasPdf ? null : 'PDF non disponible : exportez-le une fois depuis PowerPoint vers assets/docs/.';
-        docStatus(stage, '');
-        docSetDisabled(stage, 'modifier', noPptx);
-        docSetDisabled(stage, 'telecharger', noPptx);
-        docSetDisabled(stage, 'envoyer', noPptx);
-        docSetDisabled(stage, 'apercu', noPdf);
-        docSetDisabled(stage, 'pdf', noPdf);
-        if(noPptx) docStatus(stage, 'Présentation à fournir.');
-        else if(noPdf) docStatus(stage, 'PDF à exporter une fois depuis PowerPoint.');
-      });
+    const p1 = LFDRDocs.presentation('R1');
+    Promise.all([LFDRDocs.fileExists(p1.pptx), LFDRDocs.fileExists(p1.pdf)]).then(([hasPptx, hasPdf]) => {
+      const noPptx = hasPptx ? null : 'Présentation non fournie : déposez le fichier dans assets/docs/.';
+      const noPdf = hasPdf ? null : 'PDF non disponible : exportez-le une fois depuis PowerPoint vers assets/docs/.';
+      docStatus('R1', '');
+      docSetDisabled('R1', 'modifier', noPptx);
+      docSetDisabled('R1', 'telecharger', noPptx);
+      docSetDisabled('R1', 'envoyer', noPptx);
+      docSetDisabled('R1', 'apercu', noPdf);
+      if(noPptx) docStatus('R1', 'Présentation à fournir.');
+      else if(noPdf) docStatus('R1', 'PDF à exporter une fois depuis PowerPoint.');
+    });
+    LFDRDocs2.fileExists('assets/docs/lfdr-presentation-r2.pptx').then(has => {
+      const btn = document.getElementById('r2-configure');
+      if(!btn) return;
+      btn.disabled = !has;
+      btn.title = has ? '' : 'Modèle source non fourni : déposez assets/docs/lfdr-presentation-r2.pptx.';
+      docStatus('R2', has ? '' : 'Modèle source à fournir.');
     });
   }
 
@@ -795,6 +799,191 @@
     document.addEventListener('keydown', onKey);
   }
 
+  /* ---------- R2 : composition à la carte de la présentation commerciale ----------
+     Pas de modèle fixe : le sales coche les produits/SCPI/objectifs à inclure,
+     choisit le profil de risque (et l'enveloppe si besoin), renseigne la grille
+     tarifaire, puis un vrai .pptx est composé à la volée (r2-composer.js). */
+  function parseFrNum(s){ const n = parseFloat(String(s == null ? '' : s).trim().replace(',', '.')); return isFinite(n) ? n : 0; }
+  function fmtFrNum(n){ return (Math.round(n * 100) / 100).toString().replace('.', ','); }
+
+  function r2RowHTML(){
+    return `<div class="doc-row" data-row="R2">
+      <div class="doc-row__id"><b>Présentation commerciale</b><span>À la carte : choisissez les diapositives à inclure.</span></div>
+      <div class="doc-row__acts"><button type="button" class="btn btn--solid" id="r2-configure" disabled title="Vérification de la disponibilité…">Configurer</button></div>
+      <p class="doc-row__status" data-status="R2"></p>
+    </div>`;
+  }
+
+  function r2FormHTML(){
+    const chk = (key, label) => `<label class="r2-check"><input type="checkbox" data-r2="${key}"> ${esc(label)}</label>`;
+    const prodChecks = LFDRDocs2.PRODUCTS.map(p => chk(p.key, p.label)).join('');
+    const peCheck = chk(LFDRDocs2.PRIVATE_EQUITY.key, LFDRDocs2.PRIVATE_EQUITY.label);
+    const scpiChecks = LFDRDocs2.SCPI_FUNDS.map(f => chk('scpi_' + f.key, f.label)).join('');
+    const profileRadios = LFDRDocs2.RISK_PROFILES.map(p =>
+      `<label><input type="radio" name="r2-profile" value="${p.key}"> ${esc(p.label)}</label>`).join('');
+    const situationRadios = ['<label><input type="radio" name="r2-situation" value="" checked> Aucune</label>']
+      .concat(LFDRDocs2.SITUATIONS.map(s => `<label><input type="radio" name="r2-situation" value="${s.key}"> ${esc(s.label)}</label>`))
+      .join('');
+    const objChecks = LFDRDocs2.OBJECTIVES.map(o => chk('obj_' + o.key, o.label)).join('');
+    const repriseCheck = chk('reprise_contrat', 'Reprise de la gestion d’un contrat existant');
+
+    const unit = { pct: '%', eur: '€', text: '' };
+    const feeRows = LFDRDocs2.FEE_FIELDS.filter(f => !f.computed).map(f => {
+      const disabled = f.key === 'profil' ? ' disabled' : '';
+      const u = unit[f.type] ? ' (' + unit[f.type] + ')' : '';
+      return `<label for="r2-fee-${f.key}">${esc(f.label)}${u}</label>
+        <input type="text" id="r2-fee-${f.key}" data-fee="${f.key}" placeholder="${f.optional ? 'Non applicable' : ''}"${disabled}>`;
+    }).join('');
+
+    return `<form class="r2-form" id="r2-form">
+      <p class="r2-err" id="r2-err"></p>
+      <fieldset>
+        <legend>Produits &amp; enveloppes<span>Un tronc commun (maison, recommandation) est toujours inclus.</span></legend>
+        <div class="r2-grid">${prodChecks}${peCheck}</div>
+      </fieldset>
+      <fieldset>
+        <legend>SCPI<span>Cocher au moins un fonds ajoute la présentation générale des SCPI.</span></legend>
+        <div class="r2-grid">${scpiChecks}</div>
+      </fieldset>
+      <fieldset>
+        <legend>Profil de risque *</legend>
+        <div class="r2-radio-row" id="r2-profile-row">${profileRadios}</div>
+        <div class="r2-envelope" id="r2-envelope" hidden>
+          <div class="r2-radio-row">
+            <label><input type="radio" name="r2-envelope" value="fr"> Construction — enveloppe française</label>
+            <label><input type="radio" name="r2-envelope" value="lux"> Construction — enveloppe luxembourgeoise</label>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Situation matrimoniale</legend>
+        <div class="r2-radio-row">${situationRadios}</div>
+      </fieldset>
+      <fieldset>
+        <legend>Réponse aux objectifs</legend>
+        <div class="r2-grid">${objChecks}${repriseCheck}</div>
+      </fieldset>
+      <fieldset>
+        <legend>Conditions tarifaires</legend>
+        <div class="r2-fees">${feeRows}</div>
+        <div class="r2-total">Total des frais supportés, par an <b id="r2-fee-total">0%</b></div>
+      </fieldset>
+    </form>`;
+  }
+
+  function computeR2Total(form){
+    const keys = ['frais_gestion', 'mandat_gestion', 'frais_enveloppe', 'frais_depositaire'];
+    let total = 0;
+    keys.forEach(k => { const el = form.querySelector('[data-fee="' + k + '"]'); if(el) total += parseFrNum(el.value); });
+    const out = form.querySelector('#r2-fee-total');
+    if(out) out.textContent = fmtFrNum(total) + '%';
+    return total;
+  }
+
+  function updateR2Envelope(form){
+    const checked = form.querySelector('input[name="r2-profile"]:checked');
+    const profile = checked && LFDRDocs2.RISK_PROFILES.filter(p => p.key === checked.value)[0];
+    const wrap = form.querySelector('#r2-envelope');
+    const frRadio = form.querySelector('input[name="r2-envelope"][value="fr"]');
+    const luxRadio = form.querySelector('input[name="r2-envelope"][value="lux"]');
+    const profilFee = form.querySelector('#r2-fee-profil');
+    if(profilFee) profilFee.value = profile ? profile.label : '';
+    if(!profile || !profile.construction){
+      wrap.hidden = true; frRadio.checked = false; luxRadio.checked = false;
+      return;
+    }
+    wrap.hidden = false;
+    frRadio.disabled = !profile.construction.fr;
+    luxRadio.disabled = !profile.construction.lux;
+    if(frRadio.checked && frRadio.disabled) frRadio.checked = false;
+    if(luxRadio.checked && luxRadio.disabled) luxRadio.checked = false;
+    if(!frRadio.checked && !luxRadio.checked){
+      if(profile.construction.fr && !profile.construction.lux) frRadio.checked = true;
+      else if(profile.construction.lux && !profile.construction.fr) luxRadio.checked = true;
+    }
+  }
+
+  function collectR2Selection(form){
+    const sel = {};
+    form.querySelectorAll('input[type="checkbox"][data-r2]').forEach(el => { if(el.checked) sel[el.dataset.r2] = true; });
+    const profileEl = form.querySelector('input[name="r2-profile"]:checked');
+    if(profileEl) sel.profile = profileEl.value;
+    const envEl = form.querySelector('input[name="r2-envelope"]:checked');
+    if(envEl) sel.envelope = envEl.value;
+    const sitEl = form.querySelector('input[name="r2-situation"]:checked');
+    if(sitEl && sitEl.value) sel.situation = sitEl.value;
+    return sel;
+  }
+
+  function collectR2Fees(form){
+    const fees = {};
+    LFDRDocs2.FEE_FIELDS.forEach(f => {
+      if(f.computed) return;
+      const el = form.querySelector('[data-fee="' + f.key + '"]');
+      fees[f.key] = el ? el.value.trim() : '';
+    });
+    fees.total = fmtFrNum(computeR2Total(form));
+    return fees;
+  }
+
+  function openR2Composer(c){
+    const box = document.createElement('div');
+    box.className = 'doc-lightbox';
+    box.innerHTML = `<div class="doc-lightbox__box">
+      <div class="doc-lightbox__head"><b>Composer la présentation R2 — ${esc(fullName(c))}</b><button type="button" class="doc-lightbox__close" aria-label="Fermer">&times;</button></div>
+      <div class="doc-lightbox__body doc-lightbox__body--form">${r2FormHTML()}</div>
+      <div class="r2-actions">
+        <span class="r2-status" id="r2-status"></span>
+        <button type="button" class="btn" id="r2-cancel">Annuler</button>
+        <button type="button" class="btn btn--solid" id="r2-send">Envoyer</button>
+        <button type="button" class="btn btn--solid" id="r2-download">Télécharger le .pptx</button>
+      </div>
+    </div>`;
+    document.body.appendChild(box);
+
+    const form = box.querySelector('#r2-form');
+    const statusEl = box.querySelector('#r2-status');
+    const errEl = box.querySelector('#r2-err');
+    function setStatus(msg, isErr){ statusEl.textContent = msg || ''; statusEl.classList.toggle('is-error', !!isErr); }
+
+    form.querySelectorAll('input[name="r2-profile"]').forEach(el => el.addEventListener('change', () => { updateR2Envelope(form); computeR2Total(form); }));
+    form.querySelectorAll('input[name="r2-envelope"]').forEach(el => el.addEventListener('change', () => computeR2Total(form)));
+    form.querySelectorAll('[data-fee]').forEach(el => el.addEventListener('input', () => computeR2Total(form)));
+    updateR2Envelope(form);
+    computeR2Total(form);
+
+    function buildBlob(){
+      const sel = collectR2Selection(form);
+      const errs = LFDRDocs2.validateSelection(sel);
+      if(errs.length){ errEl.textContent = errs.join(' '); throw new Error('Sélection incomplète.'); }
+      errEl.textContent = '';
+      const fees = collectR2Fees(form);
+      return LFDRDocs2.buildR2PresentationBlob(sel, fullName(c), fmtDate(new Date()), fees);
+    }
+
+    box.querySelector('#r2-download').addEventListener('click', () => {
+      setStatus('Génération…');
+      Promise.resolve().then(buildBlob).then(blob => {
+        LFDRDocs.downloadBlob(blob, 'Presentation R2 - ' + fullName(c) + '.pptx');
+        setStatus('Téléchargé.');
+      }).catch(err => setStatus('Erreur : ' + err.message, true));
+    });
+    box.querySelector('#r2-send').addEventListener('click', () => {
+      errEl.textContent = '';
+      const sel = collectR2Selection(form);
+      const errs = LFDRDocs2.validateSelection(sel);
+      if(errs.length){ errEl.textContent = errs.join(' '); return; }
+      sendDocumentFlow(c, 'Présentation commerciale (R2)', 'Presentation R2 - ' + fullName(c) + '.pptx', buildBlob);
+    });
+
+    function close(){ document.removeEventListener('keydown', onKey); box.remove(); }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    box.querySelector('.doc-lightbox__close').addEventListener('click', close);
+    box.querySelector('#r2-cancel').addEventListener('click', close);
+    box.addEventListener('click', e => { if(e.target === box) close(); });
+    document.addEventListener('keydown', onKey);
+  }
+
   function bindDocActions(c){
     const pane = document.getElementById('pane-bilans'); if(!pane) return;
     const dateStr = () => fmtDate(new Date());
@@ -850,6 +1039,9 @@
       if(doc.indexOf('bilan:') === 0) bilanActions(doc.slice(6), act);
       else presentationActions(doc, act);
     }));
+
+    const r2Btn = pane.querySelector('#r2-configure');
+    if(r2Btn) r2Btn.addEventListener('click', () => { if(!r2Btn.disabled) openR2Composer(c); });
   }
 
   function loadBilans(id){
@@ -861,7 +1053,7 @@
     function render(r0Inner){
       pane.innerHTML = docSectionHTML('R0', 'Bilan patrimonial', r0Inner, newBtn)
         + docSectionHTML('R1', STAGE_META.R1, presRow('R1', DOC_ACTS_BILAN))
-        + docSectionHTML('R2', STAGE_META.R2, presRow('R2'));
+        + docSectionHTML('R2', STAGE_META.R2, r2RowHTML());
       bindDocActions(c);
       refreshDocAvailability();
     }
