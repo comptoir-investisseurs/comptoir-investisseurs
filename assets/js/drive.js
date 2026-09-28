@@ -229,6 +229,22 @@
   /* ---------- Orchestration ---------- */
   function safeName(s) { return String(s || '').replace(/[\\/:*?"<>|]/g, '-').trim(); }
 
+  // Arborescence standard d'un dossier client : <Nom Prénom>/Financier/(1,2,3)
+  // + Documents personnels. Idempotent (find-or-create) : peut être rappelée
+  // à chaque enregistrement, depuis le bilan ou depuis le CRM, sans dupliquer.
+  function findClientPresentationsFolder(token, folderName) {
+    return driveFindOrCreateFolder(token, folderName, DRIVE_PARENT_FOLDER_ID).then(function (clientFolder) {
+      return driveFindOrCreateFolder(token, 'Financier', clientFolder.id).then(function (financierFolder) {
+        return Promise.all([
+          driveFindOrCreateFolder(token, 'Documents personnels', clientFolder.id),
+          driveFindOrCreateFolder(token, '1. Convention et conformité', financierFolder.id),
+          driveFindOrCreateFolder(token, '2. Présentations commerciales', financierFolder.id),
+          driveFindOrCreateFolder(token, '3. Rapports de mission', financierFolder.id)
+        ]).then(function (res) { return { clientFolder: clientFolder, presFolder: res[2] }; });
+      });
+    });
+  }
+
   function driveSaveInterview() {
     if (!configured()) { toast('Google Drive non configuré (assets/js/drive-config.js). Voir le README.', 6000); return; }
     var state = window.LFDRBilan.getState();
@@ -239,31 +255,16 @@
     btns.forEach(function (b) { b.disabled = true; b.textContent = 'Enregistrement…'; });
 
     var R = window.LFDRBilan.compute();
-    var token, clientFolder, financierFolder;
+    var token, clientFolder, presFolder;
     getDriveToken()
-      .then(function (t) { token = t; return driveFindOrCreateFolder(token, folderName, DRIVE_PARENT_FOLDER_ID); })
-      .then(function (folder) {
-        clientFolder = folder;
-        return Promise.all([
-          driveFindOrCreateFolder(token, 'Documents personnels', folder.id),
-          driveFindOrCreateFolder(token, 'Financier', folder.id)
-        ]);
-      })
-      .then(function (res) {
-        financierFolder = res[1];
-        return Promise.all([
-          driveFindOrCreateFolder(token, '1. Convention et conformité', financierFolder.id),
-          driveFindOrCreateFolder(token, '2. Présentations commerciales', financierFolder.id),
-          driveFindOrCreateFolder(token, '3. Rapports de mission', financierFolder.id)
-        ]);
-      })
-      .then(function (res) {
-        var presentationsFolder = res[1];
+      .then(function (t) { token = t; return findClientPresentationsFolder(token, folderName); })
+      .then(function (folders) {
+        clientFolder = folders.clientFolder; presFolder = folders.presFolder;
         var excelBlob = buildExcelBlob(state, R);
         return buildSynthesisPdfBlob().then(function (pdfBlob) {
           return Promise.all([
-            driveUploadFile(token, 'Extrait données - ' + folderName + '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', excelBlob, presentationsFolder.id),
-            driveUploadFile(token, 'Bilan patrimonial - ' + folderName + '.pdf', 'application/pdf', pdfBlob, presentationsFolder.id)
+            driveUploadFile(token, 'Extrait données - ' + folderName + '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', excelBlob, presFolder.id),
+            driveUploadFile(token, 'Bilan patrimonial - ' + folderName + '.pdf', 'application/pdf', pdfBlob, presFolder.id)
           ]);
         });
       })
@@ -275,10 +276,29 @@
       .then(function () { btns.forEach(function (b) { b.disabled = false; b.textContent = 'Enregistrer dans le Drive'; }); });
   }
 
+  // Point d'entrée générique, utilisé par le CRM (admin.js) : dépose un fichier
+  // déjà généré (PDF du bilan R0, .pptx personnalisé R1/R2...) directement dans
+  // <Nom Prénom>/Financier/2. Présentations commerciales/ du client concerné.
+  function saveClientFile(clientFolderName, filename, mimeType, blob) {
+    if (!configured()) return Promise.reject(new Error('Google Drive non configuré (assets/js/drive-config.js).'));
+    var folderName = safeName(clientFolderName);
+    if (!folderName) return Promise.reject(new Error('Nom de client manquant.'));
+    var token;
+    return getDriveToken()
+      .then(function (t) { token = t; return findClientPresentationsFolder(token, folderName); })
+      .then(function (folders) {
+        return driveUploadFile(token, filename, mimeType, blob, folders.presFolder.id)
+          .then(function (file) { return { file: file, clientFolder: folders.clientFolder }; });
+      });
+  }
+
   function bindWhenReady() {
     ['bp-drive-save', 'bp-drive-save-2'].forEach(function (id) { var b = $(id); if (b) b.addEventListener('click', driveSaveInterview); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindWhenReady); else bindWhenReady();
 
-  window.LFDRDrive = { save: driveSaveInterview, buildExcelBlob: buildExcelBlob, buildSynthesisPdfBlob: buildSynthesisPdfBlob, configured: configured };
+  window.LFDRDrive = {
+    save: driveSaveInterview, buildExcelBlob: buildExcelBlob, buildSynthesisPdfBlob: buildSynthesisPdfBlob,
+    configured: configured, saveClientFile: saveClientFile, safeName: safeName
+  };
 })();
