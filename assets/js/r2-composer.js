@@ -35,9 +35,11 @@
     { key: 'holding', label: 'Holding patrimoniale', slides: [22] },
     { key: 'sci_is', label: 'SCI à l’IS', slides: [23] },
     { key: 'sci_ir', label: 'SCI à l’IR', slides: [24] },
-    { key: 'sci_comparaison', label: 'Comparaison SCI IS / IR', slides: [25] },
     { key: 'sarl_famille', label: 'SARL de famille', slides: [26] }
   ];
+  // La diapositive de comparaison SCI IS/IR n'est jamais cochée directement :
+  // elle s'ajoute automatiquement dès que l'une des deux SCI est sélectionnée.
+  var SCI_COMPARAISON_SLIDE = 25;
   var PRIVATE_EQUITY = { key: 'private_equity', label: 'Private Equity', slides: [27, 28, 29, 30] };
 
   var SCPI_INTRO = [31, 32, 33];
@@ -116,7 +118,10 @@
     sel = sel || {};
     var out = FIXED_PRE.slice();
 
-    PRODUCTS.forEach(function (p) { if (sel[p.key]) out = out.concat(p.slides); });
+    PRODUCTS.forEach(function (p) {
+      if (sel[p.key]) out = out.concat(p.slides);
+      if (p.key === 'sci_ir' && (sel.sci_is || sel.sci_ir)) out.push(SCI_COMPARAISON_SLIDE);
+    });
     if (sel.private_equity) out = out.concat(PRIVATE_EQUITY.slides);
 
     var funds = SCPI_FUNDS.filter(function (f) { return sel['scpi_' + f.key]; });

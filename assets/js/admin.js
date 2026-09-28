@@ -666,6 +666,8 @@
   let selectedActType = 'appel';
   // ---------- BILANS PATRIMONIAUX (table bilans, alimentée par bilan-patrimonial.html) ----------
   let currentBilanResume = null;
+  // Présentation R2 générée en mémoire (le temps de la session) : { blob, selection, at, slideCount } par client.
+  const r2Generated = {};
   function sendDocumentFlow(c, docLabel, filename, buildBlob){
     if(!confirm('Envoyer « ' + docLabel + ' » à ' + (c.email || 'ce contact') + ' ?\n\nLe fichier va être téléchargé puis un brouillon d\'email va s\'ouvrir : joignez-y le fichier téléchargé (un lien mailto ne peut pas joindre de pièce automatiquement).')) return;
     Promise.resolve(buildBlob()).then(blob => {
@@ -680,12 +682,12 @@
      R0 — la présentation issue du bilan patrimonial, une ligne par bilan enregistré ;
      R1 — la présentation commerciale « objectifs & difficultés », modèle fixe ;
      R2 — la présentation commerciale « solutions proposées », composée à la carte
-          (voir r2-composer.js) : pas de modèle fixe, donc pas de ligne Aperçu/PDF
-          générique — un unique bouton « Configurer » ouvre le formulaire de
-          sélection des diapositives.
-     Aperçu       : consulter le document sans le modifier
-     Modifier     : récupérer la source éditable (le bilan, ou le modèle .pptx)
-     Télécharger  : la copie personnalisée au nom du client */
+          (voir r2-composer.js) : un bouton « Configurer » en plus des 4 actions
+          habituelles, lesquelles restent grisées tant qu'aucune présentation
+          n'a été générée pour ce client (voir r2Generated).
+     Aperçu       : consulter le document sans le modifier (PDF)
+     Modifier     : récupérer la version éditable, personnalisée (.pptx)
+     Télécharger  : la version finale à transmettre (PDF) */
   const DOC_ACTS_PRES  = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger'], ['pdf', 'PDF']];
   const DOC_ACTS_BILAN = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger']];
 
@@ -721,6 +723,8 @@
   }
   // Grise ce qui n'est pas disponible : un .pptx pas encore fourni, ou un PDF
   // pas encore exporté — aucun navigateur ne sait convertir un .pptx en PDF.
+  // Modifier a besoin du .pptx (il livre une copie éditable), Aperçu/Télécharger/
+  // Envoyer ont besoin du PDF (aperçu à l'écran, version finale à transmettre).
   function refreshDocAvailability(){
     const p1 = LFDRDocs.presentation('R1');
     Promise.all([LFDRDocs.fileExists(p1.pptx), LFDRDocs.fileExists(p1.pdf)]).then(([hasPptx, hasPdf]) => {
@@ -728,8 +732,8 @@
       const noPdf = hasPdf ? null : 'PDF non disponible : exportez-le une fois depuis PowerPoint vers assets/docs/.';
       docStatus('R1', '');
       docSetDisabled('R1', 'modifier', noPptx);
-      docSetDisabled('R1', 'telecharger', noPptx);
-      docSetDisabled('R1', 'envoyer', noPptx);
+      docSetDisabled('R1', 'telecharger', noPdf);
+      docSetDisabled('R1', 'envoyer', noPdf);
       docSetDisabled('R1', 'apercu', noPdf);
       if(noPptx) docStatus('R1', 'Présentation à fournir.');
       else if(noPdf) docStatus('R1', 'PDF à exporter une fois depuis PowerPoint.');
@@ -739,7 +743,7 @@
       if(!btn) return;
       btn.disabled = !has;
       btn.title = has ? '' : 'Modèle source non fourni : déposez assets/docs/lfdr-presentation-r2.pptx.';
-      docStatus('R2', has ? '' : 'Modèle source à fournir.');
+      if(!has) docStatus('R2', 'Modèle source à fournir.');
     });
   }
 
@@ -806,17 +810,58 @@
   function parseFrNum(s){ const n = parseFloat(String(s == null ? '' : s).trim().replace(',', '.')); return isFinite(n) ? n : 0; }
   function fmtFrNum(n){ return (Math.round(n * 100) / 100).toString().replace('.', ','); }
 
-  function r2RowHTML(){
+  function r2RowHTML(id){
+    const g = r2Generated[id];
+    const off = g ? '' : ' disabled title="Configurez d’abord la présentation."';
+    const acts = DOC_ACTS_BILAN.map(([act, label]) =>
+      `<button type="button" class="btn doc-act" data-doc="R2" data-act="${act}"${off}>${label}</button>`).join('');
     return `<div class="doc-row" data-row="R2">
       <div class="doc-row__id"><b>Présentation commerciale</b><span>À la carte : choisissez les diapositives à inclure.</span></div>
-      <div class="doc-row__acts"><button type="button" class="btn btn--solid" id="r2-configure" disabled title="Vérification de la disponibilité…">Configurer</button></div>
+      <div class="doc-row__acts">
+        <button type="button" class="btn btn--solid" id="r2-configure" disabled title="Vérification de la disponibilité…">Configurer</button>
+        ${acts}
+        <button type="button" class="btn btn--solid doc-act" data-doc="R2" data-act="envoyer"${off}>Envoyer</button>
+      </div>
       <p class="doc-row__status" data-status="R2"></p>
     </div>`;
+  }
+  // Réactive/grise les 4 actions R2 selon qu'une présentation a déjà été générée
+  // pour ce client (r2Generated), et met à jour le statut affiché.
+  function refreshR2RowState(id){
+    const pane = document.getElementById('pane-bilans'); if(!pane) return;
+    const row = pane.querySelector('[data-row="R2"]'); if(!row) return;
+    const g = r2Generated[id];
+    row.querySelectorAll('.doc-act[data-doc="R2"]').forEach(btn => {
+      btn.disabled = !g;
+      if(g) btn.removeAttribute('title'); else btn.title = 'Configurez d’abord la présentation.';
+    });
+    if(g) docStatus('R2', 'Généré le ' + fmtDate(g.at) + ' (' + g.slideCount + ' diapositives).');
+  }
+  // Applique la présentation composée à une action de la ligne R2 (aperçu,
+  // modifier, télécharger, envoyer) : aucun convertisseur .pptx→PDF n'existe
+  // dans le navigateur, donc Aperçu ouvre aussi le .pptx (le navigateur le
+  // proposera au téléchargement, faute de visionneuse intégrée) — Modifier et
+  // Télécharger livrent le même fichier, la seule version disponible.
+  function r2Actions(c, act){
+    const g = r2Generated[c.id];
+    if(!g){ docStatus('R2', 'Configurez d’abord la présentation.', true); return; }
+    const name = 'Presentation R2 - ' + fullName(c) + '.pptx';
+    if(act === 'apercu'){
+      const url = URL.createObjectURL(g.blob);
+      window.open(url, '_blank', 'noopener');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      return;
+    }
+    if(act === 'modifier' || act === 'telecharger'){ LFDRDocs.downloadBlob(g.blob, name); docStatus('R2', 'Téléchargé.'); return; }
+    if(act === 'envoyer') sendDocumentFlow(c, 'Présentation commerciale (R2)', name, () => g.blob);
   }
 
   function r2FormHTML(){
     const chk = (key, label) => `<label class="r2-check"><input type="checkbox" data-r2="${key}"> ${esc(label)}</label>`;
-    const prodChecks = LFDRDocs2.PRODUCTS.map(p => chk(p.key, p.label)).join('');
+    // Les cases « Produits & enveloppes » portent en plus data-r2-env : c'est
+    // sur elles que se cale le champ « Enveloppe choisie » de la grille tarifaire.
+    const chkEnv = (key, label) => `<label class="r2-check"><input type="checkbox" data-r2="${key}" data-r2-env="${esc(label)}"> ${esc(label)}</label>`;
+    const prodChecks = LFDRDocs2.PRODUCTS.map(p => chkEnv(p.key, p.label)).join('');
     const peCheck = chk(LFDRDocs2.PRIVATE_EQUITY.key, LFDRDocs2.PRIVATE_EQUITY.label);
     const scpiChecks = LFDRDocs2.SCPI_FUNDS.map(f => chk('scpi_' + f.key, f.label)).join('');
     const profileRadios = LFDRDocs2.RISK_PROFILES.map(p =>
@@ -829,7 +874,7 @@
 
     const unit = { pct: '%', eur: '€', text: '' };
     const feeRows = LFDRDocs2.FEE_FIELDS.filter(f => !f.computed).map(f => {
-      const disabled = f.key === 'profil' ? ' disabled' : '';
+      const disabled = (f.key === 'profil' || f.key === 'enveloppe') ? ' disabled' : '';
       const u = unit[f.type] ? ' (' + unit[f.type] + ')' : '';
       return `<label for="r2-fee-${f.key}">${esc(f.label)}${u}</label>
         <input type="text" id="r2-fee-${f.key}" data-fee="${f.key}" placeholder="${f.optional ? 'Non applicable' : ''}"${disabled}>`;
@@ -878,6 +923,15 @@
     const out = form.querySelector('#r2-fee-total');
     if(out) out.textContent = fmtFrNum(total) + '%';
     return total;
+  }
+
+  // « Enveloppe choisie » n'est pas saisie à la main : elle reprend les cases
+  // cochées dans « Produits & enveloppes » (pas les SCPI, qui ne sont pas des
+  // enveloppes et ne sont pas toujours sélectionnées).
+  function updateR2EnvelopeFee(form){
+    const el = form.querySelector('#r2-fee-enveloppe'); if(!el) return;
+    const labels = Array.from(form.querySelectorAll('input[data-r2-env]:checked')).map(i => i.dataset.r2Env);
+    el.value = labels.join(' + ');
   }
 
   function updateR2Envelope(form){
@@ -936,7 +990,7 @@
         <span class="r2-status" id="r2-status"></span>
         <button type="button" class="btn" id="r2-cancel">Annuler</button>
         <button type="button" class="btn btn--solid" id="r2-send">Envoyer</button>
-        <button type="button" class="btn btn--solid" id="r2-download">Télécharger le .pptx</button>
+        <button type="button" class="btn btn--solid" id="r2-download">Générer &amp; télécharger</button>
       </div>
     </div>`;
     document.body.appendChild(box);
@@ -949,7 +1003,9 @@
     form.querySelectorAll('input[name="r2-profile"]').forEach(el => el.addEventListener('change', () => { updateR2Envelope(form); computeR2Total(form); }));
     form.querySelectorAll('input[name="r2-envelope"]').forEach(el => el.addEventListener('change', () => computeR2Total(form)));
     form.querySelectorAll('[data-fee]').forEach(el => el.addEventListener('input', () => computeR2Total(form)));
+    form.querySelectorAll('input[data-r2-env]').forEach(el => el.addEventListener('change', () => updateR2EnvelopeFee(form)));
     updateR2Envelope(form);
+    updateR2EnvelopeFee(form);
     computeR2Total(form);
 
     function buildBlob(){
@@ -960,20 +1016,30 @@
       const fees = collectR2Fees(form);
       return LFDRDocs2.buildR2PresentationBlob(sel, fullName(c), fmtDate(new Date()), fees);
     }
+    // Génère puis garde le résultat en mémoire (r2Generated) : c'est ce qui
+    // débloque Aperçu/Modifier/Télécharger/Envoyer sur la ligne R2 du dossier.
+    function buildAndCache(){
+      return Promise.resolve().then(buildBlob).then(blob => {
+        const sel = collectR2Selection(form);
+        r2Generated[c.id] = { blob, selection: sel, at: new Date(), slideCount: LFDRDocs2.computeFinalOrder(sel).length };
+        refreshR2RowState(c.id);
+        return blob;
+      });
+    }
 
     box.querySelector('#r2-download').addEventListener('click', () => {
       setStatus('Génération…');
-      Promise.resolve().then(buildBlob).then(blob => {
+      buildAndCache().then(blob => {
         LFDRDocs.downloadBlob(blob, 'Presentation R2 - ' + fullName(c) + '.pptx');
-        setStatus('Téléchargé.');
+        setStatus('Généré et téléchargé.');
       }).catch(err => setStatus('Erreur : ' + err.message, true));
     });
     box.querySelector('#r2-send').addEventListener('click', () => {
-      errEl.textContent = '';
       const sel = collectR2Selection(form);
       const errs = LFDRDocs2.validateSelection(sel);
       if(errs.length){ errEl.textContent = errs.join(' '); return; }
-      sendDocumentFlow(c, 'Présentation commerciale (R2)', 'Presentation R2 - ' + fullName(c) + '.pptx', buildBlob);
+      errEl.textContent = '';
+      sendDocumentFlow(c, 'Présentation commerciale (R2)', 'Presentation R2 - ' + fullName(c) + '.pptx', buildAndCache);
     });
 
     function close(){ document.removeEventListener('keydown', onKey); box.remove(); }
@@ -991,23 +1057,24 @@
     function presentationActions(stage, act){
       const p = LFDRDocs.presentation(stage);
       const personalised = () => LFDRDocs.buildPresentationBlob(stage, fullName(c), dateStr());
-      const name = 'Presentation ' + stage + ' - ' + fullName(c) + '.pptx';
-      if(act === 'apercu' || act === 'pdf'){ window.open(p.pdf, '_blank', 'noopener'); return; }
+      const pptxName = 'Presentation ' + stage + ' - ' + fullName(c) + '.pptx';
+      const pdfName = 'Presentation ' + stage + ' - ' + fullName(c) + '.pdf';
+      if(act === 'apercu'){ window.open(p.pdf, '_blank', 'noopener'); return; }
       if(act === 'modifier'){
-        docStatus(stage, 'Téléchargement du modèle…');
-        LFDRDocs.fetchFileBlob(p.pptx)
-          .then(blob => { LFDRDocs.downloadBlob(blob, 'Modele - Presentation ' + stage + '.pptx'); docStatus(stage, 'Modèle téléchargé : modifiez-le puis redéposez-le dans assets/docs/.'); })
+        docStatus(stage, 'Génération du PowerPoint…');
+        personalised()
+          .then(blob => { LFDRDocs.downloadBlob(blob, pptxName); docStatus(stage, 'PowerPoint téléchargé.'); })
           .catch(err => docStatus(stage, 'Erreur : ' + err.message, true));
         return;
       }
       if(act === 'telecharger'){
-        docStatus(stage, 'Génération…');
-        personalised()
-          .then(blob => { LFDRDocs.downloadBlob(blob, name); docStatus(stage, 'Téléchargé.'); })
+        docStatus(stage, 'Téléchargement du PDF…');
+        LFDRDocs.fetchFileBlob(p.pdf)
+          .then(blob => { LFDRDocs.downloadBlob(blob, pdfName); docStatus(stage, 'PDF téléchargé.'); })
           .catch(err => docStatus(stage, 'Erreur : ' + err.message, true));
         return;
       }
-      if(act === 'envoyer') sendDocumentFlow(c, p.label, name, personalised);
+      if(act === 'envoyer') sendDocumentFlow(c, p.label, pdfName, () => LFDRDocs.fetchFileBlob(p.pdf));
     }
 
     function bilanActions(bid, act){
@@ -1037,11 +1104,13 @@
     pane.querySelectorAll('.doc-act').forEach(btn => btn.addEventListener('click', () => {
       const doc = btn.dataset.doc, act = btn.dataset.act;
       if(doc.indexOf('bilan:') === 0) bilanActions(doc.slice(6), act);
+      else if(doc === 'R2') r2Actions(c, act);
       else presentationActions(doc, act);
     }));
 
     const r2Btn = pane.querySelector('#r2-configure');
     if(r2Btn) r2Btn.addEventListener('click', () => { if(!r2Btn.disabled) openR2Composer(c); });
+    refreshR2RowState(c.id);
   }
 
   function loadBilans(id){
@@ -1053,7 +1122,7 @@
     function render(r0Inner){
       pane.innerHTML = docSectionHTML('R0', 'Bilan patrimonial', r0Inner, newBtn)
         + docSectionHTML('R1', STAGE_META.R1, presRow('R1', DOC_ACTS_BILAN))
-        + docSectionHTML('R2', STAGE_META.R2, r2RowHTML());
+        + docSectionHTML('R2', STAGE_META.R2, r2RowHTML(id));
       bindDocActions(c);
       refreshDocAvailability();
     }
