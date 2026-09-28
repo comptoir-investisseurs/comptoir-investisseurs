@@ -783,7 +783,30 @@
   function divider(n, t) { tocPages.push([n, t, pageNo + 1]); return slide('<div class="dv__green"></div><div class="dv__title">' + n + '. ' + esc(t) + '</div><div class="dv__rule"></div><div class="wave dv__wave"></div><img class="dv__logo" src="assets/img/logo.png" alt="">', 'sl--divider'); }
   function tocSlide() { return slide('<div class="wave toc__wave--l"></div><div class="wave toc__wave--r"></div><div class="toc__panel"></div><div class="toc__title">SOMMAIRE</div><div class="toc__rule"></div><div class="toc__list">' + tocPages.map(function (t) { return '<div class="toc__row"><span class="n">' + t[0] + '. ' + esc(t[1]) + '</span><span class="d"></span><span class="p">p. ' + t[2] + '</span></div>'; }).join('') + '</div><img class="toc__logo" src="assets/img/logo.png" alt="">', 'sl--toc'); }
   function kv(rows) { return '<table class="tb tb--kv">' + rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + r[1] + '</td></tr>'; }).join('') + '</table>'; }
-  function riskPill(r) { return '<span class="pill pill--' + r + '">' + r + '/4</span>'; }
+  /* Pastilles « N/4 » et « PRIORITÉ … » en SVG plutôt qu'en <span>/<div> à fond
+     arrondi : sous html2canvas (export PDF), le texte de ces badges — pourtant
+     nickel à l'écran — se retrouvait décalé vers le bas, voire quasi hors cadre
+     pour le fond le plus sombre (3/4, PRIORITÉ HAUTE), quels que soient la
+     police, le line-height ou le mode de centrage essayés. Les libellés des
+     graphiques (donut, barres), eux, sont déjà en SVG et n'ont jamais ce
+     problème — d'où le choix de la même technique ici. Piège vérifié : un
+     <svg> avec margin-left:auto en style direct ne se dessine pas du tout sous
+     html2canvas (silencieusement) ; la marge doit être portée par un conteneur
+     autour du <svg>, jamais par le <svg> lui-même. */
+  var RISK_PILL_BG = { 1: '#E7DCC7', 2: '#E6C989', 3: '#C9A86A', 4: '#001B00' };
+  function riskPill(r) {
+    var bg = RISK_PILL_BG[r] || RISK_PILL_BG[1], fg = r >= 3 ? '#fff' : '#001B00';
+    return '<svg width="2.6em" height="1.5em" viewBox="0 0 52 30" style="display:inline-block;vertical-align:middle;overflow:visible">' +
+      '<rect width="52" height="30" rx="15" fill="' + bg + '"/>' +
+      '<text x="26" y="21" text-anchor="middle" font-family="Jost,sans-serif" font-size="16" font-weight="500" fill="' + fg + '">' + r + '/4</text></svg>';
+  }
+  function prioPill(prio) {
+    var bg = prio === 'haute' ? '#001B00' : '#E7DCC7', fg = prio === 'haute' ? '#fff' : '#001B00';
+    var label = 'PRIORITÉ ' + String(prio || '').toUpperCase();
+    return '<span style="margin-left:auto;flex-shrink:0"><svg width="8.58em" height="1.155em" viewBox="0 0 208 28" style="display:inline-block;vertical-align:middle;overflow:visible">' +
+      '<rect width="208" height="28" rx="14" fill="' + bg + '"/>' +
+      '<text x="104" y="19" text-anchor="middle" font-family="Jost,sans-serif" font-size="16" font-weight="500" letter-spacing="2.24" fill="' + fg + '">' + esc(label) + '</text></svg></span>';
+  }
   function dash(v) { return v ? esc(v) : '-'; }
 
   function showSynth() {
@@ -878,7 +901,7 @@
     var chunks = []; for (var i = 0; i < L.length; i += 6) chunks.push(L.slice(i, i + 6));
     if (!chunks.length) chunks.push([]);
     chunks.forEach(function (ch, ci) {
-      H += slide(head('Points d\'attention' + (chunks.length > 1 ? ' (' + (ci + 1) + '/' + chunks.length + ')' : ''), 'Constats chiffrés et questions à approfondir lors du prochain échange') + '<div class="obs">' + (ch.map(function (o) { return '<div class="ob ob--' + o.prio + '"><div class="ob__h"><div class="ob__t">' + esc(o.titre) + '</div><div class="ob__p">Priorité ' + o.prio + '</div></div><p class="ob__c">' + esc(o.constat) + '</p><div class="ob__q">' + esc(o.question) + '</div></div>'; }).join('') || '<p class="muted">Aucun constat.</p>') + '</div>');
+      H += slide(head('Points d\'attention' + (chunks.length > 1 ? ' (' + (ci + 1) + '/' + chunks.length + ')' : ''), 'Constats chiffrés et questions à approfondir lors du prochain échange') + '<div class="obs">' + (ch.map(function (o) { return '<div class="ob ob--' + o.prio + '"><div class="ob__h"><div class="ob__t">' + esc(o.titre) + '</div>' + prioPill(o.prio) + '</div><p class="ob__c">' + esc(o.constat) + '</p><div class="ob__q">' + esc(o.question) + '</div></div>'; }).join('') || '<p class="muted">Aucun constat.</p>') + '</div>');
     });
 
     // 12. Verbatims & commentaires
