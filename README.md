@@ -169,8 +169,11 @@ couleurs (`--green`, `--gold`, `--cream`…), typographies, rythme. Les polices
 
 ## Déploiement
 
-Site 100 % statique : déployable tel quel sur GitHub Pages, Netlify, Vercel, ou tout
-hébergeur classique. Pour GitHub Pages, servez la racine du dépôt.
+Site 100 % statique, publié en ligne sur **GitHub Pages** (`.github/workflows/pages.yml`,
+déclenché à chaque push sur la branche déployée) et sur **Render** (site statique).
+Le relais de cours (`server/`) est un service à part, également sur Render — voir
+`server/package.json`. Reste déployable tel quel sur tout hébergeur statique classique
+si besoin ; pour GitHub Pages, servez la racine du dépôt.
 
 ## Structure
 
