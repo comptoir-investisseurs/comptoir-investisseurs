@@ -327,6 +327,13 @@
   *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 
+/* --------- mode intégré (?embed=1, iframe du CRM) : même principe que l'impression,
+   mais deck en mise en page écran normale (défilante), pour l'aperçu et la
+   génération PDF (html2canvas capture chaque .sl tel qu'affiché ici) --------- */
+body.bp-embed{ background:var(--stone); }
+body.bp-embed .no-print, body.bp-embed .bp-home, body.bp-embed .bp-wizard{ display:none !important; }
+body.bp-embed .bp-synth{ display:block !important; }
+
 /* --------- connexion CRM (Supabase) --------- */
 .bp-modal{ position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; background:rgba(0,27,0,.75); padding:20px; }
 .bp-modal.is-open{ display:flex; }
