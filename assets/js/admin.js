@@ -683,9 +683,9 @@
      Aperçu       : consulter le document sans le modifier
      Modifier     : récupérer la source éditable (le bilan, ou le modèle .pptx)
      Télécharger  : la copie personnalisée au nom du client
-     PDF          : le document final en PDF (R1/R2 uniquement — pour R0, Aperçu et
-                    Télécharger portent déjà le vrai deck construit pendant le bilan,
-                    un bouton PDF séparé ferait doublon). */
+     PDF          : le document final en PDF, seulement là où Aperçu ne montre pas
+                    déjà le vrai contenu final (R0 et R1 ouvrent directement le
+                    vrai deck / la vraie présentation — PDF y ferait doublon). */
   const DOC_ACTS_PRES  = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger'], ['pdf', 'PDF']];
   const DOC_ACTS_BILAN = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger']];
 
@@ -856,11 +856,11 @@
     const pane = document.getElementById('pane-bilans'); if(!pane) return;
     const c = contacts.find(x => x.id === id) || {};
     const newBtn = `<a class="btn doc-new" href="bilan-patrimonial.html?client=${encodeURIComponent(id)}">＋ Nouveau bilan</a>`;
-    const presRow = stage => docRowHTML(stage, 'Présentation commerciale', 'Couverture au nom de ' + esc(fullName(c)), true);
+    const presRow = (stage, actList) => docRowHTML(stage, 'Présentation commerciale', 'Couverture au nom de ' + esc(fullName(c)), true, actList);
 
     function render(r0Inner){
       pane.innerHTML = docSectionHTML('R0', 'Bilan patrimonial', r0Inner, newBtn)
-        + docSectionHTML('R1', STAGE_META.R1, presRow('R1'))
+        + docSectionHTML('R1', STAGE_META.R1, presRow('R1', DOC_ACTS_BILAN))
         + docSectionHTML('R2', STAGE_META.R2, presRow('R2'));
       bindDocActions(c);
       refreshDocAvailability();
