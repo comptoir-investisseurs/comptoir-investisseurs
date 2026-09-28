@@ -676,19 +676,22 @@
     }).catch(err => { console.error(err); alert('Erreur lors de la génération du document : ' + err.message); });
   }
 
-  /* ---------- DOCUMENTATION : une section par étape, mêmes actions partout ----------
+  /* ---------- DOCUMENTATION : une section par étape ----------
      R0 — la présentation issue du bilan patrimonial, une ligne par bilan enregistré ;
      R1 — la présentation commerciale « objectifs & difficultés » ;
      R2 — la présentation commerciale « solutions proposées ».
      Aperçu       : consulter le document sans le modifier
      Modifier     : récupérer la source éditable (le bilan, ou le modèle .pptx)
      Télécharger  : la copie personnalisée au nom du client
-     PDF          : le document final en PDF                                        */
-  const DOC_ACTS = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger'], ['pdf', 'PDF']];
+     PDF          : le document final en PDF (R1/R2 uniquement — pour R0, Aperçu et
+                    Télécharger portent déjà le vrai deck construit pendant le bilan,
+                    un bouton PDF séparé ferait doublon). */
+  const DOC_ACTS_PRES  = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger'], ['pdf', 'PDF']];
+  const DOC_ACTS_BILAN = [['apercu', 'Aperçu'], ['modifier', 'Modifier'], ['telecharger', 'Télécharger']];
 
-  function docRowHTML(key, title, sub, pending){
+  function docRowHTML(key, title, sub, pending, actList){
     const off = pending ? ' disabled title="Vérification de la disponibilité…"' : '';
-    const acts = DOC_ACTS.map(([act, label]) =>
+    const acts = (actList || DOC_ACTS_PRES).map(([act, label]) =>
       `<button type="button" class="btn doc-act" data-doc="${key}" data-act="${act}"${off}>${label}</button>`).join('');
     return `<div class="doc-row" data-row="${key}">
       <div class="doc-row__id"><b>${title}</b>${sub ? `<span>${sub}</span>` : ''}</div>
@@ -736,10 +739,65 @@
     });
   }
 
+  /* ---------- R0 : le vrai deck (24 pages), pas un lien vers l'outil ----------
+     bilan-patrimonial.html sait se charger en mode « embed » : ?vue=synthese&embed=1
+     masque tout sauf le deck (mêmes règles CSS que l'impression) et signale par
+     postMessage quand le rendu est prêt. Le token de session (sessionStorage) est
+     partagé avec l'iframe — même origine, même onglet — donc pas de reconnexion. */
+  function withBilanFrame(bid, timeoutMs){
+    return new Promise((resolve, reject) => {
+      const frame = document.createElement('iframe');
+      frame.src = 'bilan-patrimonial.html?bilan=' + encodeURIComponent(bid) + '&vue=synthese&embed=1';
+      frame.style.cssText = 'position:fixed;top:-10000px;left:-10000px;width:1300px;height:900px;border:0;visibility:hidden';
+      let done = false;
+      const timer = setTimeout(() => { if(done) return; done = true; cleanup(); frame.remove(); reject(new Error('Délai dépassé.')); }, timeoutMs || 25000);
+      function cleanup(){ window.removeEventListener('message', onMsg); clearTimeout(timer); }
+      function onMsg(e){
+        if(done || e.source !== frame.contentWindow || !e.data || e.data.source !== 'lfdr-bilan') return;
+        done = true; cleanup();
+        if(e.data.type === 'ready') resolve(frame); else { frame.remove(); reject(new Error(e.data.message || 'Chargement du bilan impossible.')); }
+      }
+      window.addEventListener('message', onMsg);
+      document.body.appendChild(frame);
+    });
+  }
+  // Reconstruit le PDF exactement comme le fait « Enregistrer dans le Drive » (drive.js),
+  // via jsPDF + html2canvas déjà chargés par bilan-patrimonial.html — un vrai document,
+  // pas une capture d'écran de la fenêtre d'impression.
+  function bilanPdfBlob(bid){
+    return withBilanFrame(bid).then(frame =>
+      frame.contentWindow.LFDRDrive.buildSynthesisPdfBlob().then(
+        blob => { frame.remove(); return blob; },
+        err => { frame.remove(); throw err; }));
+  }
+  function openDeckLightbox(bid, title){
+    const box = document.createElement('div');
+    box.className = 'doc-lightbox';
+    box.innerHTML = `<div class="doc-lightbox__box">
+      <div class="doc-lightbox__head"><b>${esc(title)}</b><button type="button" class="doc-lightbox__close" aria-label="Fermer">&times;</button></div>
+      <div class="doc-lightbox__body">
+        <p class="doc-lightbox__loading">Génération de l'aperçu…</p>
+        <iframe class="doc-lightbox__frame" src="bilan-patrimonial.html?bilan=${encodeURIComponent(bid)}&vue=synthese&embed=1" title="${esc(title)}" hidden></iframe>
+      </div>
+    </div>`;
+    document.body.appendChild(box);
+    const frame = box.querySelector('iframe'), loading = box.querySelector('.doc-lightbox__loading');
+    function onMsg(e){
+      if(e.source !== frame.contentWindow || !e.data || e.data.source !== 'lfdr-bilan') return;
+      if(e.data.type === 'ready'){ loading.remove(); frame.hidden = false; }
+      else loading.textContent = 'Erreur : ' + (e.data.message || 'aperçu indisponible.');
+    }
+    window.addEventListener('message', onMsg);
+    function close(){ window.removeEventListener('message', onMsg); document.removeEventListener('keydown', onKey); box.remove(); }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    box.querySelector('.doc-lightbox__close').addEventListener('click', close);
+    box.addEventListener('click', e => { if(e.target === box) close(); });
+    document.addEventListener('keydown', onKey);
+  }
+
   function bindDocActions(c){
     const pane = document.getElementById('pane-bilans'); if(!pane) return;
     const dateStr = () => fmtDate(new Date());
-    const slug = s => String(s || 'client').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();
 
     function presentationActions(stage, act){
       const p = LFDRDocs.presentation(stage);
@@ -764,30 +822,26 @@
     }
 
     function bilanActions(bid, act){
-      const key = 'bilan:' + bid, url = 'bilan-patrimonial.html?bilan=' + encodeURIComponent(bid);
-      if(act === 'apercu'){ window.open(url + '&vue=synthese', '_blank', 'noopener'); return; }
-      if(act === 'modifier'){ window.open(url, '_blank', 'noopener'); return; }
-      if(act === 'pdf'){ window.open(url + '&vue=synthese&print=1', '_blank', 'noopener'); return; }
+      const key = 'bilan:' + bid;
+      if(act === 'apercu'){ openDeckLightbox(bid, 'Bilan patrimonial — ' + fullName(c)); return; }
+      if(act === 'modifier'){ window.open('bilan-patrimonial.html?bilan=' + encodeURIComponent(bid), '_blank', 'noopener'); return; }
       if(act === 'telecharger'){
-        docStatus(key, 'Export…');
-        fetch(API + '/bilans?id=eq.' + encodeURIComponent(bid) + '&select=data,date_entretien,created_at', {headers: headers()})
-          .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
-          .then(rows => {
-            if(!rows.length) throw new Error('Bilan introuvable');
-            const row = rows[0];
-            const blob = new Blob([JSON.stringify({app: 'lfdr-bilan', version: 1, exportedAt: new Date().toISOString(), state: row.data}, null, 2)], {type: 'application/json'});
-            LFDRDocs.downloadBlob(blob, 'bilan-' + slug(fullName(c)) + '-' + (row.date_entretien || String(row.created_at || '').slice(0, 10)) + '.json');
-            docStatus(key, 'Fichier du bilan téléchargé (réimportable dans l\'outil).');
-          })
+        docStatus(key, 'Génération du PDF (24 pages)…');
+        bilanPdfBlob(bid)
+          .then(blob => { LFDRDocs.downloadBlob(blob, 'Bilan patrimonial - ' + fullName(c) + '.pdf'); docStatus(key, 'Téléchargé.'); })
           .catch(err => docStatus(key, 'Erreur : ' + err.message, true));
         return;
       }
       if(act === 'envoyer'){
-        if(!confirm('Envoyer le bilan patrimonial à ' + (c.email || 'ce contact') + ' ?\n\nL\'aperçu va s\'ouvrir : exportez-y le PDF, puis joignez-le au brouillon d\'email.')) return;
-        window.open(url + '&vue=synthese&print=1', '_blank', 'noopener');
-        const subject = 'Votre bilan patrimonial — La Financière de Rochechouart';
-        const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint votre bilan patrimonial.\n\nBien cordialement,\nLa Financière de Rochechouart';
-        setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
+        if(!confirm('Envoyer le bilan patrimonial à ' + (c.email || 'ce contact') + ' ?\n\nLe PDF va être téléchargé puis un brouillon d\'email va s\'ouvrir : joignez-y le fichier téléchargé.')) return;
+        docStatus(key, 'Génération du PDF (24 pages)…');
+        bilanPdfBlob(bid).then(blob => {
+          LFDRDocs.downloadBlob(blob, 'Bilan patrimonial - ' + fullName(c) + '.pdf');
+          docStatus(key, 'Téléchargé — joignez le fichier au brouillon.');
+          const subject = 'Votre bilan patrimonial — La Financière de Rochechouart';
+          const body = 'Bonjour ' + (fullName(c) || '') + ',\n\nVeuillez trouver ci-joint votre bilan patrimonial.\n\nBien cordialement,\nLa Financière de Rochechouart';
+          setTimeout(() => LFDRDocs.mailtoDraft(c.email, subject, body), 400);
+        }).catch(err => docStatus(key, 'Erreur : ' + err.message, true));
       }
     }
 
@@ -821,7 +875,7 @@
           ? '<p class="dash-empty">Aucun bilan patrimonial enregistré.</p>'
           : rows.map(b => docRowHTML('bilan:' + b.id,
               'Bilan du ' + fmtDate(b.date_entretien || b.created_at),
-              b.conseiller ? esc(b.conseiller) : '')).join(''));
+              b.conseiller ? esc(b.conseiller) : '', false, DOC_ACTS_BILAN)).join(''));
       })
       .catch(err => { console.error(err); render('<p class="dash-empty">Bilans indisponibles (exécutez supabase-bilans.sql dans Supabase).</p>'); });
   }

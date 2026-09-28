@@ -328,3 +328,22 @@
   .doc-row{align-items:flex-start}
   .doc-row__acts{width:100%}
 }
+
+/* ---------- Aperçu du deck (R0) : lightbox contenant l'iframe embed ---------- */
+.doc-lightbox{position:fixed;inset:0;z-index:200;background:rgba(11,31,18,.72);
+  display:flex;align-items:center;justify-content:center;padding:24px}
+.doc-lightbox__box{background:#fff;border-radius:14px;width:min(1180px,100%);height:min(880px,92vh);
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.doc-lightbox__head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 18px;border-bottom:1px solid var(--line);flex-shrink:0}
+.doc-lightbox__head b{font-family:var(--serif);font-size:1.05rem;font-weight:500;color:var(--green)}
+.doc-lightbox__close{background:none;border:0;font-size:1.6rem;line-height:1;color:var(--muted);cursor:pointer;padding:4px 8px}
+.doc-lightbox__close:hover{color:var(--green)}
+.doc-lightbox__body{position:relative;flex:1;min-height:0;background:#cfcabd}
+.doc-lightbox__frame{width:100%;height:100%;border:0;display:block}
+.doc-lightbox__loading{position:absolute;inset:0;margin:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:.85rem}
+@media(max-width:640px){
+  .doc-lightbox{padding:0}
+  .doc-lightbox__box{border-radius:0;width:100vw;height:100vh}
+}

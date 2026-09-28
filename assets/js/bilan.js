@@ -13,6 +13,15 @@
 (function () {
   'use strict';
 
+  /* ?embed=1 : chargé dans une iframe hors-écran par le CRM (aperçu du deck,
+     génération du PDF réel). Masque tout sauf la synthèse — mêmes règles que
+     l'impression, voir bilan.css — et signale par postMessage quand le rendu
+     est prêt, pour que le parent (même origine) sache remplacer le message
+     d'attente ou lancer window.LFDRDrive.buildSynthesisPdfBlob(). */
+  var qsEmbed = new URLSearchParams(location.search).get('embed') === '1';
+  if (qsEmbed) document.body.classList.add('bp-embed');
+  function notifyEmbedParent(msg) { if (qsEmbed) try { window.parent.postMessage(Object.assign({source: 'lfdr-bilan'}, msg), location.origin); } catch (e) {} }
+
   /* ======================================================================
      PARAMÈTRES (à mettre à jour chaque année)
      ====================================================================== */
@@ -1023,6 +1032,7 @@
     function openLoaded() {
       if (vue === 'synthese') showSynth(); else { goto(elWiz); renderScreen(); }
       if (wantPrint) setTimeout(function () { window.print(); }, 900);
+      if (qsEmbed) setTimeout(function () { notifyEmbedParent({type: 'ready', pages: document.querySelectorAll('#bp-deck .sl').length}); }, 60);
     }
     ensureLogin().then(function () {
       if (bid) return CRM.rest('bilans?id=eq.' + bid + '&select=id,client_id,data').then(function (rows) {
@@ -1036,7 +1046,7 @@
         state.foyer.situation = c.situation_matrimoniale || ''; state.foyer.regime = c.regime_matrimonial || ''; state.foyer.enfants = c.nb_enfants || 0; state.foyer.ages = c.ages_enfants || '';
         current = 0; goto(elWiz); renderScreen();
       });
-    }).catch(function (e) { if (e.message !== 'cancel') toast('CRM : ' + e.message, 6000); });
+    }).catch(function (e) { if (e.message !== 'cancel') { toast('CRM : ' + e.message, 6000); notifyEmbedParent({type: 'error', message: e.message}); } });
     return true;
   }
 
