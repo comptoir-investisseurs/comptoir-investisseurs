@@ -441,6 +441,34 @@
   document.getElementById('search-clients').addEventListener('input', function(){ renderClients(this.value); });
   document.getElementById('search-rappeler').addEventListener('input', function(){ renderRappeler(this.value); });
 
+  // ---------- RECHERCHE GLOBALE (en-tête) : toute la base (clients, prospects, leads), quel que soit l'onglet actif ----------
+  function bindGlobalSearch(){
+    const input = document.getElementById('global-search');
+    const results = document.getElementById('global-search-results');
+    if(!input || !results) return;
+    function close(){ results.hidden = true; results.innerHTML = ''; }
+    function run(){
+      const q = input.value.trim().toLowerCase();
+      if(!q){ close(); return; }
+      const matches = contacts.filter(c => matchSearch(c, q)).slice(0, 12);
+      if(!matches.length){ results.innerHTML = '<div class="gsearch__empty">Aucun résultat pour « ' + esc(input.value.trim()) + ' ».</div>'; results.hidden = false; return; }
+      results.innerHTML = matches.map(c => `<div class="gsearch__row" data-id="${c.id}">
+        <span><b>${esc(fullName(c))}</b>${isMorale(c) ? ' · société' : ''}</span>
+        <span class="gsearch__meta">${esc(c.email || c.telephone || '')}</span>
+      </div>`).join('');
+      results.hidden = false;
+      results.querySelectorAll('.gsearch__row').forEach(row => row.addEventListener('click', () => {
+        openContact(row.dataset.id);
+        input.value = ''; close();
+      }));
+    }
+    input.addEventListener('input', run);
+    input.addEventListener('focus', () => { if(input.value.trim()) run(); });
+    input.addEventListener('keydown', e => { if(e.key === 'Escape'){ input.value = ''; close(); input.blur(); } });
+    document.addEventListener('click', e => { if(!e.target.closest('#gsearch')) close(); });
+  }
+  bindGlobalSearch();
+
   // ---------- ACTIVITIES FEED ----------
   const ACT_ICONS = {
     appel:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>',
