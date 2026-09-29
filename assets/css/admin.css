@@ -208,6 +208,7 @@
 .edit-field input,.edit-field select,.edit-field textarea{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:7px;font-family:var(--sans);font-size:.88rem;outline:none;background:#fff;color:var(--ink);transition:border-color .2s,box-shadow .2s}
 .edit-field input:focus,.edit-field select:focus,.edit-field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,133,63,.1)}
 .edit-field textarea{resize:vertical;min-height:54px}
+.edit-field__u{display:block;font-size:.72rem;color:var(--muted);margin-top:4px}
 
 .modal-save-bar{position:sticky;bottom:-30px;background:#fff;border-top:1px solid var(--line);padding:18px 0 6px;margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .modal-save-status{font-size:.84rem}

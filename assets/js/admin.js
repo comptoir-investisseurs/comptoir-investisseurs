@@ -26,13 +26,18 @@
   function stageOf(c){ const s = c.stage; if(!s) return null; return LEGACY_STAGES[s] || s; }
   function isLead(c){ return (c.type||'client')==='prospect' && !stageOf(c); }
   const PROVENANCE_OPTIONS = ['Rappel', 'Recommandation', 'Réseau personnel', 'Lead site', 'Bilan patrimonial', 'Autre'];
+  // Mêmes intitulés et mêmes choix que le questionnaire du bilan patrimonial
+  // (assets/js/bilan.js — SIT, REGIMES, STATUTS_PRO) : à garder synchronisés.
+  const SIT_OPTIONS = ['', 'Célibataire', 'Marié(e)', 'Pacsé(e)', 'Concubinage', 'Divorcé(e)', 'Veuf(ve)'];
+  const REGIME_OPTIONS = ['', 'Communauté réduite aux acquêts', 'Séparation de biens', 'Communauté universelle', 'Participation aux acquêts', 'PACS : séparation (par défaut)', 'PACS : indivision', 'Ne sait pas'];
+  const STATUT_PRO_OPTIONS = ['', 'Salarié(e)', 'Cadre dirigeant salarié', 'Dirigeant TNS', 'Profession libérale', 'Indépendant / auto-entrepreneur', 'Fonctionnaire', 'Retraité(e)', 'Sans activité'];
 
   // Sections communes aux deux types de personne
   const SEC_PATRIMOINE = {title:'Patrimoine', fields:[
-    ['patrimoine_financier','Patrimoine financier','text'],
-    ['patrimoine_immobilier','Patrimoine immobilier','text'],
+    ['patrimoine_financier','Patrimoine financier','money','€'],
+    ['patrimoine_immobilier','Patrimoine immobilier','money','€'],
     ['placements_existants','Placements existants','array'],
-    ['credits','Crédits (restant dû)','text'],['montant_investir','Montant à investir','text'],
+    ['credits','Crédits','money','€ restant dû'],['montant_investir','Montant à investir','money','€'],
     ['origine_fonds','Origine des fonds','text'],
   ]};
   const SEC_OBJECTIFS = {title:'Objectifs', fields:[
@@ -67,15 +72,15 @@
       ['email','Email','email'],['telephone','Téléphone','tel'],
     ]},
     {title:'Situation familiale', fields:[
-      ['situation_matrimoniale','Situation matrimoniale','text'],
-      ['regime_matrimonial','Régime matrimonial','text'],
-      ['nb_enfants','Nombre d\'enfants','number'],['ages_enfants','Âges des enfants','text'],
+      ['situation_matrimoniale','Situation familiale','select',SIT_OPTIONS],
+      ['regime_matrimonial','Régime matrimonial','select',REGIME_OPTIONS],
+      ['nb_enfants','Nombre d\'enfants à charge','number'],['ages_enfants','Âges des enfants','text'],
       ['personnes_a_charge','Personnes à charge','text'],
       ['testament_donation','Testament / Donations','text'],
     ]},
     {title:'Situation professionnelle', fields:[
-      ['csp','CSP','text'],['profession','Profession','text'],['employeur','Employeur','text'],
-      ['revenus','Revenus (par an)','text'],['capacite_epargne','Capacité d\'épargne (par mois)','text'],
+      ['csp','Statut','select',STATUT_PRO_OPTIONS],['profession','Profession','text'],['employeur','Entreprise / employeur','text'],
+      ['revenus','Revenus','money','€ / an'],['capacite_epargne','Capacité d\'épargne','money','€ / mois'],
     ]},
     SEC_PATRIMOINE, SEC_OBJECTIFS, SEC_RISQUE, SEC_SUIVI,
   ];
@@ -84,7 +89,7 @@
     {title:'Identité société', fields:[
       ['raison_sociale','Raison sociale','text'],
       ['forme_juridique','Forme juridique','select',['','SAS','SASU','SARL','EURL','SA','SCI','SC','Holding (SAS)','Holding (SARL)','SNC','Autre']],
-      ['siren','SIREN / SIRET','text'],['capital_social','Capital social','text'],
+      ['siren','SIREN / SIRET','text'],['capital_social','Capital social','money','€'],
       ['date_creation','Date de création','date'],['activite','Activité / Code NAF','text'],
       ['siege_social','Siège social','text'],
       ['email','Email','email'],['telephone','Téléphone','tel'],
@@ -205,6 +210,13 @@
   function todayStr(){ return new Date().toISOString().slice(0,10); }
   function numFromStr(s){ if(s==null || s==='') return -Infinity; if(typeof s==='number') return s; const m = String(s).replace(/[^\d]/g,''); return m ? parseInt(m,10) : -Infinity; }
   function moneyDisplay(v){ const n = numFromStr(v); return n > -Infinity ? fmtMoney(n) : null; }
+  // Un nombre saisi (patrimoine, revenus...) au format ### ### ### — jamais de
+  // texte libre ("euros", "par an"...) dans la valeur elle-même : l'unité est
+  // affichée à part, comme dans le questionnaire du bilan patrimonial.
+  function formatThousands(v){
+    const digits = String(v==null?'':v).replace(/[^\d]/g,'');
+    return digits ? digits.replace(/\B(?=(\d{3})+(?!\d))/g,' ') : '';
+  }
 
   // Statut de la pastille d'activité d'un prospect : gris = rien de programmé, vert = un
   // prochain contact est prévu, rouge = en retard OU aucun contact fait depuis 2 semaines
@@ -533,6 +545,9 @@
       input = `<textarea id="f_${key}" rows="2">${esc(v)}</textarea>`;
     } else if(type==='array'){
       input = `<input type="text" id="f_${key}" value="${esc(Array.isArray(v)?v.join(', '):v)}" placeholder="séparé par des virgules">`;
+    } else if(type==='money'){
+      input = `<input type="text" inputmode="numeric" class="edit-money" id="f_${key}" value="${esc(formatThousands(v))}" placeholder="### ### ###">` +
+        (options ? `<span class="edit-field__u">${esc(options)}</span>` : '');
     } else {
       input = `<input type="${type}" id="f_${key}" value="${esc(v)}">`;
     }
@@ -622,6 +637,13 @@
     if(toPipelineBtn) toPipelineBtn.addEventListener('click', () => addToPipeline(id));
     if(toProspectBtn) toProspectBtn.addEventListener('click', () => backToProspect(id));
     bindSourceToggle(modalBody);
+    modalBody.querySelectorAll('.edit-money').forEach(el => el.addEventListener('input', () => {
+      const pos = el.selectionStart, before = el.value.length;
+      el.value = formatThousands(el.value);
+      const diff = el.value.length - before;
+      const newPos = Math.max(0, (pos == null ? el.value.length : pos) + diff);
+      el.setSelectionRange(newPos, newPos);
+    }));
   }
 
   function openContact(id, pane){
