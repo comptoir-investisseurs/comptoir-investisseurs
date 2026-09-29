@@ -838,6 +838,49 @@
     document.addEventListener('keydown', onKey);
   }
 
+  // Même écrin que le R0 (lightbox in-app), pour un PDF déjà existant (R1) :
+  // le navigateur affiche le PDF dans une iframe plutôt que d'ouvrir un
+  // nouvel onglet — cohérent visuellement avec l'aperçu du bilan.
+  function openPdfLightbox(url, title){
+    const box = document.createElement('div');
+    box.className = 'doc-lightbox';
+    box.innerHTML = `<div class="doc-lightbox__box">
+      <div class="doc-lightbox__head"><b>${esc(title)}</b><button type="button" class="doc-lightbox__close" aria-label="Fermer">&times;</button></div>
+      <div class="doc-lightbox__body"><iframe class="doc-lightbox__frame" src="${esc(url)}" title="${esc(title)}"></iframe></div>
+    </div>`;
+    document.body.appendChild(box);
+    function close(){ document.removeEventListener('keydown', onKey); box.remove(); }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    box.querySelector('.doc-lightbox__close').addEventListener('click', close);
+    box.addEventListener('click', e => { if(e.target === box) close(); });
+    document.addEventListener('keydown', onKey);
+  }
+
+  // R2 : pas de PDF, et aucune visionneuse PowerPoint n'est intégrée au
+  // navigateur — même écrin que le R0/R1, mais le corps liste ce que contient
+  // la présentation composée (plutôt qu'un cadre vide ou un nouvel onglet qui
+  // se contente de proposer un téléchargement).
+  function openR2PreviewLightbox(title, lines, downloadFn){
+    const box = document.createElement('div');
+    box.className = 'doc-lightbox';
+    const items = lines.map(l => `<li>${esc(l)}</li>`).join('');
+    box.innerHTML = `<div class="doc-lightbox__box doc-lightbox__box--msg">
+      <div class="doc-lightbox__head"><b>${esc(title)}</b><button type="button" class="doc-lightbox__close" aria-label="Fermer">&times;</button></div>
+      <div class="doc-lightbox__body doc-lightbox__body--msg">
+        <p class="doc-lightbox__note">Aucune visionneuse PowerPoint n’est intégrée au navigateur : voici le sommaire de cette présentation composée, dans l’ordre.</p>
+        <ol class="doc-lightbox__list">${items}</ol>
+        <button type="button" class="btn btn--solid" id="doc-lightbox-dl">Télécharger le .pptx</button>
+      </div>
+    </div>`;
+    document.body.appendChild(box);
+    box.querySelector('#doc-lightbox-dl').addEventListener('click', downloadFn);
+    function close(){ document.removeEventListener('keydown', onKey); box.remove(); }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    box.querySelector('.doc-lightbox__close').addEventListener('click', close);
+    box.addEventListener('click', e => { if(e.target === box) close(); });
+    document.addEventListener('keydown', onKey);
+  }
+
   /* ---------- R2 : composition à la carte de la présentation commerciale ----------
      Pas de modèle fixe : le sales coche les produits/SCPI/objectifs à inclure,
      choisit le profil de risque (et l'enveloppe si besoin), renseigne la grille
@@ -884,9 +927,8 @@
     if(!g){ docStatus('R2', 'Configurez d’abord la présentation.', true); return; }
     const name = 'Presentation R2 - ' + fullName(c) + '.pptx';
     if(act === 'apercu'){
-      const url = URL.createObjectURL(g.blob);
-      window.open(url, '_blank', 'noopener');
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      const lines = LFDRDocs2.selectionSummary(g.selection);
+      openR2PreviewLightbox('Présentation R2 — ' + fullName(c), lines, () => LFDRDocs.downloadBlob(g.blob, name));
       return;
     }
     if(act === 'modifier' || act === 'telecharger'){ LFDRDocs.downloadBlob(g.blob, name); docStatus('R2', 'Téléchargé.'); return; }
@@ -1124,7 +1166,7 @@
       // service serveur dédié) : Modifier et Télécharger livrent tous deux le
       // même .pptx personnalisé, seul format disponible — Aperçu reste la
       // version générique pré-exportée, pour un simple coup d'œil au contenu.
-      if(act === 'apercu'){ window.open(p.pdf, '_blank', 'noopener'); return; }
+      if(act === 'apercu'){ openPdfLightbox(p.pdf, p.label + ' — ' + fullName(c)); return; }
       if(act === 'modifier' || act === 'telecharger'){
         docStatus(stage, 'Génération…');
         personalised()

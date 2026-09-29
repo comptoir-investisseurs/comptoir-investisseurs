@@ -168,6 +168,30 @@
     return errs;
   }
 
+  // Sommaire lisible d'une sélection (utilisé pour l'« Aperçu » : aucune
+  // visionneuse PowerPoint n'est intégrée au navigateur, donc pas de vraie
+  // prévisualisation visuelle possible — on liste plutôt, dans l'ordre, ce
+  // que contient la présentation composée).
+  function selectionSummary(sel) {
+    sel = sel || {};
+    var lines = ['Notre maison de Gestion Privée', 'Notre recommandation'];
+    PRODUCTS.forEach(function (p) { if (sel[p.key]) lines.push(p.label); });
+    if (sel.private_equity) lines.push(PRIVATE_EQUITY.label);
+    var funds = SCPI_FUNDS.filter(function (f) { return sel['scpi_' + f.key]; });
+    if (funds.length) lines.push('SCPI : ' + funds.map(function (f) { return f.label; }).join(', '));
+    var profile = null;
+    RISK_PROFILES.forEach(function (p) { if (p.key === sel.profile) profile = p; });
+    if (profile) {
+      lines.push('Allocation retenue — profil ' + profile.label +
+        (sel.envelope ? ' (construction ' + (sel.envelope === 'fr' ? 'française' : 'luxembourgeoise') + ')' : ''));
+    }
+    SITUATIONS.forEach(function (s) { if (sel.situation === s.key) lines.push(s.label); });
+    OBJECTIVES.forEach(function (o) { if (sel['obj_' + o.key]) lines.push(o.label); });
+    if (sel.reprise_contrat) lines.push('Reprise de la gestion d’un contrat existant');
+    lines.push('Conditions tarifaires');
+    return lines;
+  }
+
   // Construit le .pptx final : coupe/réordonne les diapositives du modèle,
   // personnalise la couverture, le sommaire et la grille tarifaire.
   function buildR2PresentationBlob(sel, clientName, dateStr, fees) {
@@ -267,6 +291,7 @@
     FEE_FIELDS: FEE_FIELDS,
     computeFinalOrder: computeFinalOrder,
     validateSelection: validateSelection,
+    selectionSummary: selectionSummary,
     buildR2PresentationBlob: buildR2PresentationBlob,
     fileExists: function (url) { return fetch(url, { method: 'HEAD' }).then(function (r) { return r.ok; }).catch(function () { return false; }); }
   };
