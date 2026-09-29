@@ -279,17 +279,24 @@
   // Point d'entrée générique, utilisé par le CRM (admin.js) : dépose un fichier
   // déjà généré (PDF du bilan R0, .pptx personnalisé R1/R2...) directement dans
   // <Nom Prénom>/Financier/2. Présentations commerciales/ du client concerné.
-  function saveClientFile(clientFolderName, filename, mimeType, blob) {
-    if (!configured()) return Promise.reject(new Error('Google Drive non configuré (assets/js/drive-config.js).'));
+  // saveClientFileWithToken prend un jeton déjà obtenu : à utiliser quand le
+  // fichier à envoyer met du temps à se construire (rendu du bilan, .pptx...),
+  // pour ne demander l'autorisation Google qu'une fois, tout de suite au clic —
+  // les navigateurs bloquent la fenêtre de consentement (popup) si elle
+  // s'ouvre trop longtemps après le geste de l'utilisateur.
+  function saveClientFileWithToken(token, clientFolderName, filename, mimeType, blob) {
     var folderName = safeName(clientFolderName);
     if (!folderName) return Promise.reject(new Error('Nom de client manquant.'));
-    var token;
-    return getDriveToken()
-      .then(function (t) { token = t; return findClientPresentationsFolder(token, folderName); })
-      .then(function (folders) {
-        return driveUploadFile(token, filename, mimeType, blob, folders.presFolder.id)
-          .then(function (file) { return { file: file, clientFolder: folders.clientFolder }; });
-      });
+    return findClientPresentationsFolder(token, folderName).then(function (folders) {
+      return driveUploadFile(token, filename, mimeType, blob, folders.presFolder.id)
+        .then(function (file) { return { file: file, clientFolder: folders.clientFolder }; });
+    });
+  }
+  function saveClientFile(clientFolderName, filename, mimeType, blob) {
+    if (!configured()) return Promise.reject(new Error('Google Drive non configuré (assets/js/drive-config.js).'));
+    return getDriveToken().then(function (token) {
+      return saveClientFileWithToken(token, clientFolderName, filename, mimeType, blob);
+    });
   }
 
   function bindWhenReady() {
@@ -299,6 +306,7 @@
 
   window.LFDRDrive = {
     save: driveSaveInterview, buildExcelBlob: buildExcelBlob, buildSynthesisPdfBlob: buildSynthesisPdfBlob,
-    configured: configured, saveClientFile: saveClientFile, safeName: safeName
+    configured: configured, saveClientFile: saveClientFile, saveClientFileWithToken: saveClientFileWithToken,
+    getDriveToken: getDriveToken, safeName: safeName
   };
 })();
