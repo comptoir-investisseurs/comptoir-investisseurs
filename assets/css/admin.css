@@ -318,7 +318,7 @@
 .doc-row__id{display:flex;flex-direction:column;gap:3px;min-width:0}
 .doc-row__id b{font-family:var(--serif);font-size:1.02rem;font-weight:500;color:var(--green)}
 .doc-row__id span{font-size:.76rem;color:var(--muted)}
-.doc-row__acts{display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.doc-row__acts{display:flex;align-items:flex-start;align-content:flex-start;gap:8px;flex-wrap:wrap;flex-shrink:0}
 .doc-row__acts .btn{padding:5px 12px;font-size:.74rem;min-width:112px;text-align:center}
 .doc-row__acts .btn:disabled{opacity:.4;cursor:not-allowed}
 .doc-row__status{flex-basis:100%;margin:-4px 0 0;font-size:.76rem;color:var(--muted)}
