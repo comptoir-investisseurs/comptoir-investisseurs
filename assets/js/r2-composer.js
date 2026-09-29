@@ -25,7 +25,9 @@
   var PRODUCTS = [
     { key: 'av_fr', label: 'Assurance-vie française', slides: [6] },
     { key: 'av_lux', label: 'Assurance-vie luxembourgeoise (dès 100 000 €)', slides: [7, 8, 9] },
-    { key: 'av_lux_250k', label: 'Assurance-vie luxembourgeoise (ticket usuel 250 000 €)', slides: [16] },
+    // Triangle de sécurité (8) et comparaison France/Luxembourg (9) doivent
+    // accompagner CETTE variante aussi — même socle explicatif, ticket différent.
+    { key: 'av_lux_250k', label: 'Assurance-vie luxembourgeoise (ticket usuel 250 000 €)', slides: [8, 9, 16] },
     { key: 'credit_lombard', label: 'Crédit lombard', slides: [10, 11] },
     { key: 'pea', label: 'PEA (Plan d’Épargne en Actions)', slides: [12] },
     { key: 'cto', label: 'Compte-titres ordinaire', slides: [13] },
