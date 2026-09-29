@@ -82,6 +82,18 @@
       ['csp','Statut','select',STATUT_PRO_OPTIONS],['profession','Profession','text'],['employeur','Entreprise / employeur','text'],
       ['revenus','Revenus','money','€ / an'],['capacite_epargne','Capacité d\'épargne','money','€ / mois'],
     ]},
+    // Des champs séparés, distincts de ceux du contact principal ci-dessus :
+    // sans ça, les données des deux personnes d'un couple finissent mélangées
+    // dans les mêmes cases (ex. deux revenus saisis à la suite dans un seul
+    // champ texte). Mêmes intitulés que le « Conjoint(e) 2 » du bilan patrimonial.
+    {title:'Conjoint(e)', fields:[
+      ['conjoint_civilite','Civilité','select',['','Monsieur','Madame']],
+      ['conjoint_nom','Nom','text'],['conjoint_prenom','Prénom','text'],
+      ['conjoint_date_naissance','Date de naissance','date'],
+      ['conjoint_statut','Statut','select',STATUT_PRO_OPTIONS],
+      ['conjoint_profession','Profession','text'],['conjoint_entreprise','Entreprise / employeur','text'],
+      ['conjoint_revenus','Revenus','money','€ / an'],
+    ]},
     SEC_PATRIMOINE, SEC_OBJECTIFS, SEC_RISQUE, SEC_SUIVI,
   ];
   // Personne morale
@@ -781,20 +793,24 @@
   // pas encore exporté — aucun navigateur ne sait convertir un .pptx en PDF.
   // Modifier/Télécharger/Drive/Envoyer livrent tous le .pptx personnalisé (donc
   // ont besoin du modèle) ; Aperçu ouvre le PDF générique pré-exporté.
-  function refreshDocAvailability(){
-    const p1 = LFDRDocs.presentation('R1');
-    Promise.all([LFDRDocs.fileExists(p1.pptx), LFDRDocs.fileExists(p1.pdf)]).then(([hasPptx, hasPdf]) => {
+  function refreshFixedDocAvailability(stage){
+    const p = LFDRDocs.presentation(stage);
+    Promise.all([LFDRDocs.fileExists(p.pptx), LFDRDocs.fileExists(p.pdf)]).then(([hasPptx, hasPdf]) => {
       const noPptx = hasPptx ? null : 'Présentation non fournie : déposez le fichier dans assets/docs/.';
       const noPdf = hasPdf ? null : 'PDF non disponible : exportez-le une fois depuis PowerPoint vers assets/docs/.';
-      docStatus('R1', '');
-      docSetDisabled('R1', 'modifier', noPptx);
-      docSetDisabled('R1', 'telecharger', noPptx);
-      docSetDisabled('R1', 'drive', noPptx);
-      docSetDisabled('R1', 'envoyer', noPptx);
-      docSetDisabled('R1', 'apercu', noPdf);
-      if(noPptx) docStatus('R1', 'Présentation à fournir.');
-      else if(noPdf) docStatus('R1', 'PDF à exporter une fois depuis PowerPoint.');
+      docStatus(stage, '');
+      docSetDisabled(stage, 'modifier', noPptx);
+      docSetDisabled(stage, 'telecharger', noPptx);
+      docSetDisabled(stage, 'drive', noPptx);
+      docSetDisabled(stage, 'envoyer', noPptx);
+      docSetDisabled(stage, 'apercu', noPdf);
+      if(noPptx) docStatus(stage, 'Présentation à fournir.');
+      else if(noPdf) docStatus(stage, 'PDF à exporter une fois depuis PowerPoint.');
     });
+  }
+  function refreshDocAvailability(){
+    refreshFixedDocAvailability('R1');
+    refreshFixedDocAvailability('SIGNATURE');
     LFDRDocs2.fileExists('assets/docs/lfdr-presentation-r2.pptx').then(has => {
       const btn = document.getElementById('r2-configure');
       if(!btn) return;
@@ -1183,7 +1199,7 @@
     function presentationActions(stage, act){
       const p = LFDRDocs.presentation(stage);
       const personalised = () => LFDRDocs.buildPresentationBlob(stage, fullName(c), dateStr());
-      const pptxName = 'Presentation ' + stage + ' - ' + fullName(c) + '.pptx';
+      const pptxName = p.label + ' - ' + fullName(c) + '.pptx';
       // Pas de conversion PDF (aucun convertisseur .pptx→PDF disponible sans
       // service serveur dédié) : Modifier et Télécharger livrent tous deux le
       // même .pptx personnalisé, seul format disponible — Aperçu reste la
@@ -1242,12 +1258,13 @@
     const pane = document.getElementById('pane-bilans'); if(!pane) return;
     const c = contacts.find(x => x.id === id) || {};
     const newBtn = `<a class="btn doc-new" href="bilan-patrimonial.html?client=${encodeURIComponent(id)}">＋ Nouveau bilan</a>`;
-    const presRow = (stage, actList) => docRowHTML(stage, 'Présentation commerciale', 'Couverture au nom de ' + esc(fullName(c)), true, actList);
+    const presRow = (stage, actList, title) => docRowHTML(stage, title || 'Présentation commerciale', 'Couverture au nom de ' + esc(fullName(c)), true, actList);
 
     function render(r0Inner){
       pane.innerHTML = docSectionHTML('R0', 'Bilan patrimonial', r0Inner, newBtn)
         + docSectionHTML('R1', STAGE_META.R1, presRow('R1', DOC_ACTS_BILAN))
-        + docSectionHTML('R2', STAGE_META.R2, r2RowHTML(id));
+        + docSectionHTML('R2', STAGE_META.R2, r2RowHTML(id))
+        + docSectionHTML('S', 'Signature', presRow('SIGNATURE', DOC_ACTS_BILAN, 'Document de signature'));
       bindDocActions(c);
       refreshDocAvailability();
     }

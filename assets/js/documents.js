@@ -39,7 +39,10 @@
               à côté du .pptx (aucun navigateur ne sait convertir un .pptx). */
   var PRESENTATIONS = {
     R1: { pptx: 'assets/docs/lfdr-presentation-r1.pptx', pdf: 'assets/docs/lfdr-presentation-r1.pdf', label: 'Présentation commerciale (R1)' },
-    R2: { pptx: 'assets/docs/lfdr-presentation-r2.pptx', pdf: 'assets/docs/lfdr-presentation-r2.pdf', label: 'Présentation commerciale (R2)' }
+    R2: { pptx: 'assets/docs/lfdr-presentation-r2.pptx', pdf: 'assets/docs/lfdr-presentation-r2.pdf', label: 'Présentation commerciale (R2)' },
+    // Document à venir : déposer assets/docs/lfdr-signature.pptx (+ .pdf) pour
+    // activer cette section — reste grisée tant que ces fichiers n'existent pas.
+    SIGNATURE: { pptx: 'assets/docs/lfdr-signature.pptx', pdf: 'assets/docs/lfdr-signature.pdf', label: 'Signature' }
   };
 
   function presentation(stage) {
