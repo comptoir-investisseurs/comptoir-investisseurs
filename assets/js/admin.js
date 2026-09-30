@@ -730,6 +730,8 @@
   let currentBilanResume = null;
   // Présentation R2 générée en mémoire (le temps de la session) : { blob, selection, at, slideCount } par client.
   const r2Generated = {};
+  // Convention de signature (R4) générée en mémoire : { blob, values, at } par client.
+  const sigGenerated = {};
   function sendDocumentFlow(c, docLabel, filename, buildBlob){
     if(!confirm('Envoyer « ' + docLabel + ' » à ' + (c.email || 'ce contact') + ' ?\n\nLe fichier va être téléchargé puis un brouillon d\'email va s\'ouvrir : joignez-y le fichier téléchargé (un lien mailto ne peut pas joindre de pièce automatiquement).')) return;
     Promise.resolve(buildBlob()).then(blob => {
@@ -810,13 +812,19 @@
   }
   function refreshDocAvailability(){
     refreshFixedDocAvailability('R1');
-    refreshFixedDocAvailability('SIGNATURE');
     LFDRDocs2.fileExists('assets/docs/lfdr-presentation-r2.pptx').then(has => {
       const btn = document.getElementById('r2-configure');
       if(!btn) return;
       btn.disabled = !has;
       btn.title = has ? '' : 'Modèle source non fourni : déposez assets/docs/lfdr-presentation-r2.pptx.';
       if(!has) docStatus('R2', 'Modèle source à fournir.');
+    });
+    LFDRSign.fileExists().then(has => {
+      const btn = document.getElementById('sig-configure');
+      if(!btn) return;
+      btn.disabled = !has;
+      btn.title = has ? '' : 'Modèle de convention non fourni : déposez assets/docs/lfdr-signature.docx.';
+      if(!has) docStatus('SIGNATURE', 'Modèle de convention à fournir.');
     });
   }
 
@@ -972,6 +980,117 @@
     if(act === 'modifier' || act === 'telecharger'){ LFDRDocs.downloadBlob(g.blob, name); docStatus('R2', 'Téléchargé.'); return; }
     if(act === 'envoyer') sendDocumentFlow(c, 'Présentation commerciale (R2)', name, () => g.blob);
     if(act === 'drive') driveAction(c, 'R2', () => Promise.resolve({ blob: g.blob, filename: name, mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' }));
+  }
+
+  /* ---------- SIGNATURE (R4) : convention IAS pré-remplie (signature.js) ----------
+     Même logique que R2 : « Configurer » pré-remplit les champs depuis la fiche
+     client, le conseiller ajuste/complète, puis un vrai .docx est produit ; les
+     4 actions (Aperçu/Modifier/Télécharger/Drive/Envoyer) se débloquent ensuite. */
+  const SIG_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  function sigRowHTML(id){
+    const g = sigGenerated[id];
+    const off = g ? '' : ' disabled title="Configurez d’abord la convention."';
+    const acts = DOC_ACTS_BILAN.map(([act, label]) =>
+      `<button type="button" class="btn doc-act" data-doc="SIGNATURE" data-act="${act}"${off}>${label}</button>`).join('');
+    return `<div class="doc-row" data-row="SIGNATURE">
+      <div class="doc-row__id"><b>Convention de conseil (IAS)</b><span>Pré-remplie depuis la fiche : identité, situation, patrimoine, objectifs.</span></div>
+      <div class="doc-row__acts">
+        <button type="button" class="btn btn--solid" id="sig-configure" disabled title="Vérification de la disponibilité…">Configurer</button>
+        ${acts}
+        <button type="button" class="btn doc-act" data-doc="SIGNATURE" data-act="drive"${off} title="Enregistrer dans le Drive du client">Drive</button>
+        <button type="button" class="btn btn--solid doc-act" data-doc="SIGNATURE" data-act="envoyer"${off}>Envoyer</button>
+      </div>
+      <p class="doc-row__status" data-status="SIGNATURE"></p>
+    </div>`;
+  }
+  function refreshSigRowState(id){
+    const pane = document.getElementById('pane-bilans'); if(!pane) return;
+    const row = pane.querySelector('[data-row="SIGNATURE"]'); if(!row) return;
+    const g = sigGenerated[id];
+    row.querySelectorAll('.doc-act[data-doc="SIGNATURE"]').forEach(btn => {
+      btn.disabled = !g;
+      if(g) btn.removeAttribute('title'); else btn.title = 'Configurez d’abord la convention.';
+    });
+    if(g) docStatus('SIGNATURE', 'Générée le ' + fmtDate(g.at) + '.');
+  }
+  function signatureActions(c, act){
+    const g = sigGenerated[c.id];
+    if(!g){ docStatus('SIGNATURE', 'Configurez d’abord la convention.', true); return; }
+    const name = 'Convention - ' + fullName(c) + '.docx';
+    if(act === 'apercu'){
+      openR2PreviewLightbox('Convention — ' + fullName(c), LFDRSign.summaryLines(g.values), () => LFDRDocs.downloadBlob(g.blob, name));
+      return;
+    }
+    if(act === 'modifier' || act === 'telecharger'){ LFDRDocs.downloadBlob(g.blob, name); docStatus('SIGNATURE', 'Téléchargée.'); return; }
+    if(act === 'envoyer') sendDocumentFlow(c, 'Convention de conseil (IAS)', name, () => g.blob);
+    if(act === 'drive') driveAction(c, 'SIGNATURE', () => Promise.resolve({ blob: g.blob, filename: name, mimeType: SIG_MIME }));
+  }
+
+  function sigFormHTML(c){
+    const vals = LFDRSign.autofill(c);
+    let html = '<form class="r2-form" id="sig-form"><p class="r2-err" id="sig-err"></p>';
+    LFDRSign.GROUPS.forEach(group => {
+      // Le volet « Personne morale » n'est proposé que pour les clients société.
+      if(group === 'Personne morale' && !isMorale(c)) return;
+      const fields = LFDRSign.FIELDS.filter(f => f.group === group);
+      if(!fields.length) return;
+      html += `<fieldset><legend>${esc(group)}${group==='Conseiller & signature'?'<span>Champs à compléter par le conseiller.</span>':'<span>Pré-rempli depuis la fiche client — ajustable.</span>'}</legend><div class="sig-grid">`;
+      fields.forEach(f => {
+        const v = vals[f.t] || '';
+        html += `<label class="sig-field"><span>${esc(f.label)}</span><input type="text" data-sig="${f.t}" value="${esc(v).replace(/"/g,'&quot;')}"></label>`;
+      });
+      html += '</div></fieldset>';
+    });
+    html += '</form>';
+    return html;
+  }
+  function collectSigValues(form){
+    const vals = {};
+    form.querySelectorAll('[data-sig]').forEach(el => { vals[el.dataset.sig] = el.value.trim(); });
+    return vals;
+  }
+  function openSignatureComposer(c){
+    const box = document.createElement('div');
+    box.className = 'doc-lightbox';
+    box.innerHTML = `<div class="doc-lightbox__box">
+      <div class="doc-lightbox__head"><b>Configurer la convention — ${esc(fullName(c))}</b><button type="button" class="doc-lightbox__close" aria-label="Fermer">&times;</button></div>
+      <div class="doc-lightbox__body doc-lightbox__body--form">${sigFormHTML(c)}</div>
+      <div class="r2-actions">
+        <span class="r2-status" id="sig-status"></span>
+        <button type="button" class="btn" id="sig-cancel">Annuler</button>
+        <button type="button" class="btn btn--solid" id="sig-send">Envoyer</button>
+        <button type="button" class="btn btn--solid" id="sig-download">Générer &amp; télécharger</button>
+      </div>
+    </div>`;
+    document.body.appendChild(box);
+    const form = box.querySelector('#sig-form');
+    const statusEl = box.querySelector('#sig-status');
+    function setStatus(msg, isErr){ statusEl.textContent = msg || ''; statusEl.classList.toggle('is-error', !!isErr); }
+
+    function buildAndCache(){
+      const values = collectSigValues(form);
+      return LFDRSign.buildBlob(values).then(blob => {
+        sigGenerated[c.id] = { blob, values, at: new Date() };
+        refreshSigRowState(c.id);
+        return blob;
+      });
+    }
+    box.querySelector('#sig-download').addEventListener('click', () => {
+      setStatus('Génération…');
+      buildAndCache().then(blob => {
+        LFDRDocs.downloadBlob(blob, 'Convention - ' + fullName(c) + '.docx');
+        setStatus('Générée et téléchargée.');
+      }).catch(err => setStatus('Erreur : ' + err.message, true));
+    });
+    box.querySelector('#sig-send').addEventListener('click', () => {
+      sendDocumentFlow(c, 'Convention de conseil (IAS)', 'Convention - ' + fullName(c) + '.docx', buildAndCache);
+    });
+    function close(){ document.removeEventListener('keydown', onKey); box.remove(); }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    box.querySelector('.doc-lightbox__close').addEventListener('click', close);
+    box.querySelector('#sig-cancel').addEventListener('click', close);
+    box.addEventListener('click', e => { if(e.target === box) close(); });
+    document.addEventListener('keydown', onKey);
   }
 
   // Dépose un fichier déjà généré (buildFile renvoie {blob, filename, mimeType})
@@ -1246,12 +1365,16 @@
       const doc = btn.dataset.doc, act = btn.dataset.act;
       if(doc.indexOf('bilan:') === 0) bilanActions(doc.slice(6), act);
       else if(doc === 'R2') r2Actions(c, act);
+      else if(doc === 'SIGNATURE') signatureActions(c, act);
       else presentationActions(doc, act);
     }));
 
     const r2Btn = pane.querySelector('#r2-configure');
     if(r2Btn) r2Btn.addEventListener('click', () => { if(!r2Btn.disabled) openR2Composer(c); });
+    const sigBtn = pane.querySelector('#sig-configure');
+    if(sigBtn) sigBtn.addEventListener('click', () => { if(!sigBtn.disabled) openSignatureComposer(c); });
     refreshR2RowState(c.id);
+    refreshSigRowState(c.id);
   }
 
   function loadBilans(id){
@@ -1264,7 +1387,7 @@
       pane.innerHTML = docSectionHTML('R0', 'Bilan patrimonial', r0Inner, newBtn)
         + docSectionHTML('R1', STAGE_META.R1, presRow('R1', DOC_ACTS_BILAN))
         + docSectionHTML('R2', STAGE_META.R2, r2RowHTML(id))
-        + docSectionHTML('S', 'Signature', presRow('SIGNATURE', DOC_ACTS_BILAN, 'Document de signature'));
+        + docSectionHTML('R4', 'Signature', sigRowHTML(id));
       bindDocActions(c);
       refreshDocAvailability();
     }
