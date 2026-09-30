@@ -17,7 +17,7 @@
 (function () {
   'use strict';
 
-  var TEMPLATE = 'assets/docs/lfdr-signature.docx';
+  var TEMPLATE = 'assets/docs/lfdr-signature.docx?v=2';
 
   function esc(s) { return String(s == null ? '' : s); }
   function nn(v) { return v != null && String(v).trim() !== ''; }
