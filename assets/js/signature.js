@@ -82,6 +82,19 @@
     { t: 'PATRIM_IMMO', label: 'Patrimoine immobilier', group: 'Patrimoine', from: function (c) { return esc(c.patrimoine_immobilier); } },
     { t: 'DIVERS_BIENS', label: 'Divers autres biens', group: 'Patrimoine', from: null },
     { t: 'PASSIF', label: 'Passif / emprunts', group: 'Patrimoine', from: function (c) { return esc(c.credits); } },
+    { t: 'PM_RAISON', label: 'Raison sociale', group: 'Personne morale', from: function (c) { return esc(c.raison_sociale); } },
+    { t: 'PM_FORME', label: 'Forme juridique', group: 'Personne morale', from: function (c) { return esc(c.forme_juridique); } },
+    { t: 'PM_SIREN', label: 'SIREN', group: 'Personne morale', from: function (c) { return esc(c.siren); } },
+    { t: 'PM_IMMAT', label: 'N° d’immatriculation', group: 'Personne morale', from: function (c) { return esc(c.siren); } },
+    { t: 'PM_CAPITAL', label: 'Capital social', group: 'Personne morale', from: function (c) { return esc(c.capital_social); } },
+    { t: 'PM_SIEGE', label: 'Siège social', group: 'Personne morale', from: function (c) { return esc(c.siege_social); } },
+    { t: 'PM_ACTIVITE', label: 'Activité principale', group: 'Personne morale', from: function (c) { return esc(c.activite); } },
+    { t: 'PM_REGIME_FISCAL', label: 'Régime fiscal', group: 'Personne morale', from: null },
+    { t: 'PM_REPRESENTANT', label: 'Représentant / interlocuteur', group: 'Personne morale', from: function (c) { return esc(c.dirigeant); } },
+    { t: 'PM_DIRIGEANTS', label: 'Dirigeants & associés', group: 'Personne morale', from: function (c) { return esc(c.dirigeant); } },
+    { t: 'PM_BENEF', label: 'Bénéficiaires effectifs', group: 'Personne morale', from: function (c) { return esc(c.beneficiaires_effectifs); } },
+    { t: 'PM_PATRIM_FIN', label: 'Patrimoine financier (société)', group: 'Personne morale', from: function (c) { return esc(c.patrimoine_financier); } },
+    { t: 'PM_PATRIM_IMMO', label: 'Patrimoine immobilier (société)', group: 'Personne morale', from: function (c) { return esc(c.patrimoine_immobilier); } },
     { t: 'CONSEILLER', label: 'Gérant privé (contact)', group: 'Conseiller & signature', from: null },
     { t: 'CONSEILLER_NOM', label: 'Conseiller — nom', group: 'Conseiller & signature', from: null },
     { t: 'CONSEILLER_PRENOM', label: 'Conseiller — prénom', group: 'Conseiller & signature', from: null },
@@ -91,7 +104,7 @@
     { t: 'FEE_ANNUEL', label: 'Frais annuels', group: 'Conseiller & signature', from: null }
   ];
 
-  var GROUPS = ['Identité', 'Situation', 'Objectifs', 'Patrimoine', 'Conseiller & signature'];
+  var GROUPS = ['Identité', 'Situation', 'Objectifs', 'Patrimoine', 'Personne morale', 'Conseiller & signature'];
 
   // Valeurs pré-remplies depuis la fiche client.
   function autofill(c) {

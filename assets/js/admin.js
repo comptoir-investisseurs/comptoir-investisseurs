@@ -1030,6 +1030,8 @@
     const vals = LFDRSign.autofill(c);
     let html = '<form class="r2-form" id="sig-form"><p class="r2-err" id="sig-err"></p>';
     LFDRSign.GROUPS.forEach(group => {
+      // Le volet « Personne morale » n'est proposé que pour les clients société.
+      if(group === 'Personne morale' && !isMorale(c)) return;
       const fields = LFDRSign.FIELDS.filter(f => f.group === group);
       if(!fields.length) return;
       html += `<fieldset><legend>${esc(group)}${group==='Conseiller & signature'?'<span>Champs à compléter par le conseiller.</span>':'<span>Pré-rempli depuis la fiche client — ajustable.</span>'}</legend><div class="sig-grid">`;
