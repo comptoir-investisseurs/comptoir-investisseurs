@@ -556,3 +556,33 @@ body{ animation:pageIn .7s var(--ease) both; }
   /* Contact info: comfortable spacing */
   .info-list li{ gap:14px; }
 }
+
+/* ---------- Editorial layouts (sober "Nous connaître" pages) ---------- */
+.edito-head{ max-width:760px; }
+.edito-lead{ font-family:var(--serif); font-size:clamp(1.4rem,2.2vw,1.9rem); font-weight:400; line-height:1.45; color:var(--ink); max-width:24ch; }
+
+.convictions{ display:grid; grid-template-columns:1fr 1fr; gap:0 72px; margin-top:12px; }
+.conviction{ padding:34px 0; border-top:1px solid var(--line); }
+.conviction__idx{ font-family:var(--serif); font-size:1.05rem; letter-spacing:.06em; color:var(--gold); }
+.conviction h3{ font-family:var(--serif); font-weight:500; font-size:1.55rem; line-height:1.2; margin:8px 0 12px; color:var(--ink); }
+.conviction p{ margin:0; color:var(--muted); font-size:1.02rem; }
+
+.parcours{ list-style:none; margin:30px 0 0; padding:0; }
+.parcours li{ padding:18px 0; border-top:1px solid var(--line); }
+.parcours li:last-child{ border-bottom:1px solid var(--line); }
+.parcours .role{ display:block; font-family:var(--serif); font-size:1.22rem; color:var(--ink); line-height:1.25; }
+.parcours .ctx{ display:block; font-size:.86rem; letter-spacing:.02em; color:var(--muted); margin-top:3px; }
+
+.offers{ margin-top:16px; }
+.offer{ padding:34px 0; border-top:1px solid var(--line); display:grid; grid-template-columns:1fr auto; gap:6px 48px; align-items:baseline; }
+.offer:last-child{ border-bottom:1px solid var(--line); }
+.offer h3{ font-family:var(--serif); font-weight:500; font-size:1.55rem; line-height:1.2; margin:0; color:var(--ink); }
+.offer__meta{ font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); white-space:nowrap; }
+.offer p{ grid-column:1/-1; margin:10px 0 0; color:var(--muted); max-width:72ch; }
+.offer__apply{ grid-column:1/-1; margin-top:16px; }
+
+@media(max-width:760px){
+  .convictions{ grid-template-columns:1fr; gap:0; }
+  .offer{ grid-template-columns:1fr; gap:4px; }
+  .offer__meta{ order:-1; }
+}
