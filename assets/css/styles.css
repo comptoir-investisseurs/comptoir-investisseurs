@@ -609,3 +609,13 @@ body{ animation:pageIn .7s var(--ease) both; }
   .team-member__media{ max-width:300px; }
   .team-member__photo::after,.team-member--rev .team-member__photo::after{ inset:8px -8px -8px 8px; opacity:.55; }
 }
+
+/* ---------- Touch tablets (iPad) at desktop width: tap to open dropdowns ---------- */
+/* Hover never fires on touch, so above the mobile breakpoint we drive the
+   dropdowns from the .is-open class (toggled on tap) instead of :hover. */
+@media (hover: none) and (min-width: 901px){
+  .nav__item:hover > .dropdown{ opacity:0; visibility:hidden; transform:translate(-50%,8px); }
+  .nav__item:hover > .nav__link .nav__caret{ transform:none; }
+  .nav__item.is-open > .dropdown{ opacity:1; visibility:visible; transform:translate(-50%,0); }
+  .nav__item.is-open > .nav__link .nav__caret{ transform:rotate(180deg); }
+}

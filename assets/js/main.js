@@ -33,9 +33,11 @@
     var btn = item.querySelector('.nav__link');
     if (!btn) return;
     btn.addEventListener('click', function (e) {
-      // On mobile (toggle visible) or for button triggers, toggle the panel
+      // On mobile (toggle visible), on touch devices without hover (tablets),
+      // or for button triggers, toggle the panel instead of navigating.
       var isMobile = window.matchMedia('(max-width:900px)').matches;
-      if (btn.tagName === 'BUTTON' || isMobile) {
+      var noHover = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+      if (btn.tagName === 'BUTTON' || isMobile || noHover) {
         e.preventDefault();
         e.stopPropagation(); // keep the page-transition / outside-click handlers from firing
         var open = item.classList.toggle('is-open');
