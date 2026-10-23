@@ -69,7 +69,7 @@
     'Achat de la résidence principale', 'Achat d\'une résidence secondaire', 'Préparer la retraite',
     'Assurer l\'avenir / protéger la famille', 'Épargner intelligemment', 'Rechercher de la rentabilité', 'Valoriser des liquidités',
     'Créer du patrimoine / des rentes', 'Diminuer les impôts', 'Transmettre', 'Dynamiser les placements financiers',
-    'Placer la trésorerie d\'entreprise', 'Projet professionnel', 'Mobilité / expatriation'
+    'Placer la trésorerie d\'entreprise', 'Projet professionnel', 'Mobilité / expatriation', 'Investir de façon responsable (ESG/ISR)'
   ];
 
   /* ======================================================================
@@ -408,7 +408,7 @@
      ÉCRANS DE L'ENTRETIEN
      Types : open · choice · multi · fields · list
      ====================================================================== */
-  var CHAPTERS = ['Situation', 'Revenus', 'Immobilier', 'Financier', 'Budget', 'Objectifs', 'Notes'];
+  var CHAPTERS = ['Situation', 'Revenus', 'Immobilier', 'Financier', 'Objectifs', 'Notes'];
   var SIT = ['Célibataire', 'Marié(e)', 'Pacsé(e)', 'Concubinage', 'Divorcé(e)', 'Veuf(ve)'];
   var REGIMES = ['Communauté réduite aux acquêts', 'Séparation de biens', 'Communauté universelle', 'Participation aux acquêts', 'PACS : séparation (par défaut)', 'PACS : indivision', 'Ne sait pas'];
   var STATUTS_PRO = ['Salarié(e)', 'Cadre dirigeant salarié', 'Dirigeant TNS', 'Profession libérale', 'Indépendant / auto-entrepreneur', 'Fonctionnaire', 'Retraité(e)', 'Sans activité'];
@@ -442,10 +442,12 @@
     { ch: 0, type: 'fields', title: 'Enfants et foyer', hint: 'Le nombre de parts est proposé automatiquement.', path: 'foyer', calc: function () { return [['Parts suggérées', String(suggestedParts()).replace('.', ',')]]; }, fields: [
       { k: 'enfants', l: 'Nombre d\'enfants à charge', t: 'number' }, { k: 'ages', l: 'Âges des enfants', u: 'ex. 4, 7 et 12 ans', opt: true }, { k: 'parts', l: 'Nombre de parts fiscales', t: 'number', u: 'vide = valeur suggérée', opt: true }
     ] },
+    { ch: 0, type: 'fields', title: 'Retraite', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Rendement retenu (profil ' + R.profil.nom.toLowerCase() + ')', pc(R.profil.taux)], ['Capital projeté à la retraite', R.retraite.epargneProjetee ? eur(R.retraite.epargneProjetee) : '-'], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-']]; }, fields: [
+      { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)', opt: true }, { k: 'renteRetraite', l: 'Revenu souhaité à la retraite', t: 'number', u: '€ / mois nets', opt: true }, { k: 'pensionEstimee', l: 'Pension estimée', t: 'number', u: '€ / mois', opt: true }
+    ] },
 
     { ch: 1, type: 'fields', title: 'Impôt du foyer', hint: 'L\'impôt est estimé par le barème ; le montant réel de l\'avis d\'imposition prime s\'il est saisi.', path: 'fisc', calc: function (R) { return [['Revenu imposable global', eur(R.fisc.rni)], ['TMI', pc(R.fisc.tmi, 0)], ['Impôt estimé', eur(R.fisc.impot)]]; }, fields: [
-      { k: 'impotPaye', l: 'Impôt payé l\'an dernier', t: 'number', u: '€ (avis d\'imposition)', opt: true }, { k: 'reductions', l: 'Réductions et crédits d\'impôt en place', t: 'number', u: '€ / an (dispositifs, dons, emploi à domicile…)', opt: true },
-      { k: 'pensionVersee', l: 'Pension alimentaire versée', t: 'number', u: '€ / an', opt: true }, { k: 'ifi', l: 'Assujetti à l\'IFI ?', t: 'select', o: ['Non', 'Oui', 'Ne sait pas'], opt: true }
+      { k: 'impotPaye', l: 'Impôt payé l\'an dernier', t: 'number', u: '€ (avis d\'imposition)', opt: true }, { k: 'ifi', l: 'Assujetti à l\'IFI ?', t: 'select', o: ['Non', 'Oui', 'Ne sait pas'], opt: true }
     ] },
 
     { ch: 2, type: 'choice', title: 'Résidence principale', path: 'rp.statut', options: ['Locataire', 'Propriétaire', 'Logé(e) à titre gratuit'], grid: true },
@@ -466,31 +468,22 @@
 
     { ch: 3, type: 'list', title: 'Comptes et livrets', hint: 'Comptes courants, Livret A, LDDS, PEL… Un bloc par compte, une estimation suffit.', path: 'treso', itemLabel: 'Compte', fields: [
       { k: 'type', l: 'Type', t: 'select', o: TRESO_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'montant', l: 'Montant', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement', opt: true }, { k: 'taux', l: 'Taux', t: 'number', u: '% / an, vide = taux usuel', opt: true }
-    ], onItem: function (it) { if (it.type && (it.taux === '' || it.taux == null)) { var d = TRESO_TYPES.filter(function (t) { return t[0] === it.type; })[0]; if (d) it.taux = String(d[2] * 100); } } },
+    ], onItem: function (it) { if (it.type && (it.taux === '' || it.taux == null)) { var d = TRESO_TYPES.filter(function (t) { return t[0] === it.type; })[0]; if (d) it.taux = String(+(d[2] * 100).toFixed(4)); } } },
     { ch: 3, type: 'list', title: 'Placements', hint: 'Assurance-vie, PEA, compte-titres, PER, PEE, SCPI… Un bloc par contrat.', path: 'plac', itemLabel: 'Placement', fields: [
       { k: 'type', l: 'Type', t: 'select', o: PLAC_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'montant', l: 'Valorisation', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement / assureur', opt: true },
-      { k: 'taux', l: 'Performance annuelle moyenne', t: 'number', u: '% / an', opt: true }, { k: 'risque', l: 'Niveau de risque', t: 'select', o: [['1', '1/4 faible'], ['2', '2/4 moyen faible'], ['3', '3/4 moyen fort'], ['4', '4/4 fort']], opt: true },
+      { k: 'taux', l: 'Performance annuelle moyenne', t: 'number', u: '% / an', opt: true }, { k: 'frais', l: 'Frais globaux annuels', t: 'number', u: '% / an (gestion, UC, enveloppe…)', opt: true }, { k: 'risque', l: 'Niveau de risque', t: 'select', o: [['1', '1/4 faible'], ['2', '2/4 moyen faible'], ['3', '3/4 moyen fort'], ['4', '4/4 fort']], opt: true },
       { k: 'dispo', l: 'Disponibilité', t: 'select', o: ['Disponible', 'Bloqué'], opt: true }, { k: 'support', l: 'Supports', t: 'select', o: ['Fonds euros', 'Unités de compte', 'Mixte', 'Actions en direct', 'Obligations', 'Immobilier', 'Autre'], opt: true }
-    ] },
+    ], calcItem: function (p) { return 'Coût des frais : ' + eur(num(p.montant) * num(p.frais) / 100) + ' / an' + (p.frais ? '' : ' (renseignez les frais globaux annuels)'); } },
     { ch: 3, type: 'choice', title: 'Des donations déjà réalisées aux enfants ?', path: 'dec.dons', options: ['Non', 'Oui, des dons manuels', 'Oui, une donation notariée', 'Sans objet'], grid: true },
 
-    { ch: 4, type: 'fields', title: 'Budget mensuel', hint: 'Revenus nets, loyers, crédits et impôt sont repris automatiquement. Complétez le reste.', path: 'budget', calc: function (R) { return [['Revenus / mois', eurM(R.revTotalM)], ['Charges / mois', eurM(R.chTotalM)], ['Endettement brut', pc(R.endBrut, 0)], ['Capacité d\'épargne', eurM(R.capaciteEpargne)]]; }, fields: [
-      { k: 'trainDeVie', l: 'Train de vie mensuel', t: 'number', u: '€ / mois (courses, loisirs, vacances…)' }, { k: 'epargneMensuelle', l: 'Épargne réellement mise de côté', t: 'number', u: '€ / mois' },
-      { k: 'chargesDiverses', l: 'Autres charges fixes', t: 'number', u: '€ / mois (assurances, scolarité…)', opt: true }, { k: 'pensions', l: 'Pensions perçues', t: 'number', u: '€ / mois', opt: true },
-      { k: 'dividendes', l: 'Dividendes', t: 'number', u: '€ / mois', opt: true }, { k: 'revDivers', l: 'Autres revenus', t: 'number', u: '€ / mois', opt: true }
+    { ch: 4, type: 'multi', title: 'Vos objectifs', hint: 'Sélectionnez les objectifs exprimés, puis leur échéance à l\'écran suivant.', path: 'obj.liste', options: OBJECTIFS, grid: true },
+    { ch: 4, when: function () { return (state.obj.liste || []).length > 0; }, type: 'echeances', title: 'Échéance de chaque objectif', hint: 'CT : moins de 2 ans · MT : 2 à 5 ans · LT : plus de 5 ans.' },
+    { ch: 4, type: 'fields', title: 'Ce qui compte pour vous', hint: 'Les mots du client, repris tels quels dans la synthèse.', path: 'dec', fields: [
+      { k: 'pourquoiRdv', l: 'Ce que vous cherchez à faire', t: 'textarea', w: true }, { k: 'importance', l: 'Pourquoi c\'est important pour vous', t: 'textarea', w: true, opt: true }
     ] },
+    { ch: 4, type: 'choice', title: 'Quelle attitude face au risque ?', path: 'obj.profil', options: ['Conservateur : je suis très prudent', 'Équilibré : j\'accepte des fluctuations modérées', 'Opportuniste : je vise la performance avec des à-coups', 'Dynamique : j\'accepte des baisses fortes pour un rendement élevé'] },
 
-    { ch: 5, type: 'multi', title: 'Vos objectifs', hint: 'Sélectionnez les objectifs exprimés, puis leur échéance à l\'écran suivant.', path: 'obj.liste', options: OBJECTIFS, grid: true },
-    { ch: 5, when: function () { return (state.obj.liste || []).length > 0; }, type: 'echeances', title: 'Échéance de chaque objectif', hint: 'CT : moins de 2 ans · MT : 2 à 5 ans · LT : plus de 5 ans.' },
-    { ch: 5, type: 'fields', title: 'Ce qui compte pour vous', hint: 'Les mots du client, repris tels quels dans la synthèse.', path: 'dec', fields: [
-      { k: 'pourquoiRdv', l: 'Ce que vous cherchez à faire', t: 'textarea', w: true }, { k: 'importance', l: 'Pourquoi c\'est important pour vous', t: 'textarea', w: true, opt: true }, { k: 'essaye', l: 'Ce que vous avez déjà essayé', t: 'textarea', w: true, opt: true }
-    ] },
-    { ch: 5, type: 'choice', title: 'Quelle attitude face au risque ?', path: 'obj.profil', options: ['Conservateur : je refuse toute perte', 'Équilibré : j\'accepte des fluctuations modérées', 'Opportuniste : je vise la performance avec des à-coups', 'Dynamique : j\'accepte des baisses fortes pour un rendement élevé'] },
-    { ch: 5, type: 'fields', title: 'Retraite', hint: 'Capital nécessaire calculé avec la règle des 4 % (rente annuelle ÷ 4 %).', path: 'obj', calc: function (R) { return [['Capital retraite nécessaire', eur(R.retraite.capital)], ['Rendement retenu (profil ' + R.profil.nom.toLowerCase() + ')', pc(R.profil.taux)], ['Capital projeté à la retraite', R.retraite.epargneProjetee ? eur(R.retraite.epargneProjetee) : '-'], ['Effort d\'épargne requis', R.retraite.effortMensuel ? eurM(R.retraite.effortMensuel) : '-']]; }, fields: [
-      { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)', opt: true }, { k: 'renteRetraite', l: 'Revenu souhaité à la retraite', t: 'number', u: '€ / mois nets', opt: true }, { k: 'pensionEstimee', l: 'Pension estimée', t: 'number', u: '€ / mois', opt: true }
-    ] },
-
-    { ch: 6, type: 'fields', title: 'Notes du conseiller', hint: 'Facultatif. Repris dans la synthèse et la fiche sales.', path: 'notes', fields: [
+    { ch: 5, type: 'fields', title: 'Notes du conseiller', hint: 'Facultatif. Repris dans la synthèse et la fiche sales.', path: 'notes', fields: [
       { k: 'situation', l: 'Commentaires', t: 'textarea', w: true, opt: true }, { k: 'sales', l: 'Message pour l\'équipe commerciale', t: 'textarea', w: true, opt: true },
       { k: 'date', l: 'Date de l\'entretien', t: 'date' }, { k: 'conseiller', l: 'Conseiller', opt: true }
     ], last: true }
@@ -873,13 +866,8 @@
     var projet = S.projet.echeance && S.projet.echeance !== 'Non' ? '<div class="card card--gold"><div class="card__t">Projet d\'acquisition : ' + esc(S.projet.echeance) + '</div>' + kv([['Type de bien', dash(S.projet.type)], ['Localisation', dash(S.projet.localisation)], ['Budget', eur(S.projet.budget)], ['Apport', eur(S.projet.apport)], ['Emprunt nécessaire', eur(num(S.projet.emprunt) || Math.max(0, num(S.projet.budget) - num(S.projet.apport)))], ['Raisons', dash(S.projet.raisons)]]) + '</div>' : '';
     H += slide(head('Immobilier', 'Vos biens, leur rendement et leur financement') + '<div class="g3">' + immoCards + projet + '</div>');
 
-    // 9. Budget
-    H += divider(6, 'Budget et capacité d\'épargne');
-    var budgetItems = [{ l: 'Revenus', v: R.revTotalM, c: '#15462A' }, { l: 'Charges fixes', v: R.chTotalM, c: '#A9853F' }, { l: 'Train de vie', v: R.trainDeVie, c: '#C9A86A' }, { l: 'Capacité d\'épargne', v: Math.max(0, R.capaciteEpargne), c: '#001B00' }, { l: 'Épargne réelle', v: R.epargneActuelle, c: '#E6C989' }];
-    H += slide(head('Budget mensuel', 'Des revenus à la capacité d\'épargne') + '<div class="kpis"><div class="kpi kpi--g"><div class="kpi__l">Revenus nets mensuels</div><div class="kpi__v">' + eur(R.revTotalM) + '</div></div><div class="kpi kpi--gd"><div class="kpi__l">Charges mensuelles</div><div class="kpi__v">' + eur(R.chTotalM) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Reste à vivre</div><div class="kpi__v">' + eur(R.resteAVivre) + '</div></div><div class="kpi"><div class="kpi__l">Capacité d\'épargne</div><div class="kpi__v">' + eur(R.capaciteEpargne) + '</div></div><div class="kpi kpi--gl"><div class="kpi__l">Effort d\'épargne actuel</div><div class="kpi__v">' + eur(R.epargneActuelle) + '</div></div></div><div class="g3"><div><h4>Revenus mensuels</h4><table class="tb tb--sm">' + Object.keys(R.revM).map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="r">' + eur(R.revM[k]) + '</td></tr>'; }).join('') + '<tr class="tot"><td>Total (RIG)</td><td class="r">' + eur(R.revTotalM) + '</td></tr></table></div><div><h4>Charges mensuelles</h4><table class="tb tb--sm">' + Object.keys(R.chM).map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="r">' + eur(R.chM[k]) + '</td></tr>'; }).join('') + '<tr><td>Train de vie</td><td class="r">' + eur(R.trainDeVie) + '</td></tr><tr class="tot"><td>Total</td><td class="r">' + eur(R.chTotalM + R.trainDeVie) + '</td></tr></table></div><div><h4>Vue d\'ensemble</h4>' + hbars(budgetItems, { fmt: eurM }) + '<p class="muted" style="font-size:.8em;margin-top:.6em">Capacité d\'épargne = revenus − charges − train de vie. L\'écart avec l\'épargne réelle mesure les flux non affectés.</p></div></div>');
-
-    // 10. Objectifs (frise seule) puis retraite / études sur une page dédiée
-    H += divider(7, 'Vos objectifs et projets');
+    // 9. Objectifs (frise seule) puis retraite / études sur une page dédiée
+    H += divider(6, 'Vos objectifs et projets');
     var byE = { CT: [], MT: [], LT: [] };
     (S.obj.liste || []).forEach(function (o) { var e = (S.obj.echeances || {})[o] || 'MT'; byE[e].push(o); });
     var maxCol = Math.max(byE.CT.length, byE.MT.length, byE.LT.length);
@@ -894,7 +882,7 @@
     }
 
     // 11. Synthèse & points d'attention (fiche sales)
-    H += divider(8, 'Synthèse et points d\'attention');
+    H += divider(7, 'Synthèse et points d\'attention');
     var recap = '<table class="tb"><tr><th></th><th class="r">Situation actuelle</th><th class="r">Situation cible</th></tr>' + [['Montant d\'imposition', eur(R.fisc.impotRetenu)], ['Total actif', eur(R.actifBrut)], ['Total épargne financière', eur(R.finTotal)], ['Total passif', eur(R.crdTotal)], ['Total mensualités', eurM(R.mensCredits)], ['Taux d\'endettement', pc(R.endBrut, 0)], ['Effort d\'épargne', eurM(R.epargneActuelle)], ['Rendement moyen brut de l\'épargne', pc(R.rendMoyen)]].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="r">' + r[1] + '</td><td class="r muted">à construire</td></tr>'; }).join('') + '</table>';
     H += slide(head('Votre audit en synthèse', 'Ancienne situation : la nouvelle se construit avec votre conseiller') + '<div class="g12"><div><div class="tab-head">Ancienne situation</div><div class="card" style="border-radius:0 .35em .35em .35em">' + recap + '</div></div><div><div class="tab-head">Ce que révèle votre bilan</div><div class="card card--sand" style="border-radius:0 .35em .35em .35em">' + (L.length ? '<ul style="margin:0;padding-left:1.2em">' + L.slice(0, 7).map(function (i) { return '<li style="margin-bottom:.45em"><b>' + esc(i.titre) + '.</b> ' + esc(i.constat) + '</li>'; }).join('') + '</ul>' : '<p class="muted">Aucun point saillant détecté : compléter les données.</p>') + '</div></div></div>');
     // Fiche sales détaillée (pistes à creuser, sans solution)
@@ -905,7 +893,7 @@
     });
 
     // 12. Verbatims & commentaires
-    H += divider(9, 'Vos mots, nos commentaires');
+    H += divider(8, 'Vos mots, nos commentaires');
     var verbs = [['Ce que vous cherchez à faire', S.dec.pourquoiRdv], ['Pourquoi c\'est important', S.dec.importance], ['Ce qui a déjà été tenté', S.dec.essaye], ['Donations réalisées', S.dec.dons]].filter(function (v) { return v[1]; });
     var notes = [['Commentaires', S.notes.situation]].filter(function (v) { return v[1]; });
     H += slide(head('Vos mots', 'Ce que vous nous avez confié') + '<div class="g2"><div>' + (verbs.slice(0, Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') || '<p class="muted">-</p>') + '</div><div>' + verbs.slice(Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') + (notes.length ? '<div class="card card--soft" style="margin-top:.6em"><div class="card__t">Commentaires du conseiller</div>' + notes.map(function (n) { return '<p><b style="color:var(--gold-light)">' + esc(n[0]) + ' : </b>' + esc(n[1]) + '</p>'; }).join('') + '</div>' : '') + '</div></div>');
