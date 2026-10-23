@@ -803,7 +803,7 @@
   function dash(v) { return v ? esc(v) : '-'; }
 
   function showSynth() {
-    save(); var R = compute(), S = state, L = insights(R); pageNo = 0; var H = '';
+    save(); var R = compute(), S = state; pageNo = 0; var H = '';
     var date = fmtDate(S.notes.date);
 
     // 1. Couverture : reprise à l'identique de la diapositive 1 de la présentation commerciale
@@ -881,16 +881,10 @@
       H += slide(head('Retraite', 'Chiffrer l\'objectif de long terme') + '<div class="g12">' + retraiteCard + proj + '</div>');
     }
 
-    // 11. Synthèse & points d'attention (fiche sales)
-    H += divider(7, 'Synthèse et points d\'attention');
-    var recap = '<table class="tb"><tr><th></th><th class="r">Situation actuelle</th><th class="r">Situation cible</th></tr>' + [['Montant d\'imposition', eur(R.fisc.impotRetenu)], ['Total actif', eur(R.actifBrut)], ['Total épargne financière', eur(R.finTotal)], ['Total passif', eur(R.crdTotal)], ['Total mensualités', eurM(R.mensCredits)], ['Taux d\'endettement', pc(R.endBrut, 0)], ['Effort d\'épargne', eurM(R.epargneActuelle)], ['Rendement moyen brut de l\'épargne', pc(R.rendMoyen)]].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="r">' + r[1] + '</td><td class="r muted">à construire</td></tr>'; }).join('') + '</table>';
-    H += slide(head('Votre audit en synthèse', 'Ancienne situation : la nouvelle se construit avec votre conseiller') + '<div class="g12"><div><div class="tab-head">Ancienne situation</div><div class="card" style="border-radius:0 .35em .35em .35em">' + recap + '</div></div><div><div class="tab-head">Ce que révèle votre bilan</div><div class="card card--sand" style="border-radius:0 .35em .35em .35em">' + (L.length ? '<ul style="margin:0;padding-left:1.2em">' + L.slice(0, 7).map(function (i) { return '<li style="margin-bottom:.45em"><b>' + esc(i.titre) + '.</b> ' + esc(i.constat) + '</li>'; }).join('') + '</ul>' : '<p class="muted">Aucun point saillant détecté : compléter les données.</p>') + '</div></div></div>');
-    // Fiche sales détaillée (pistes à creuser, sans solution)
-    var chunks = []; for (var i = 0; i < L.length; i += 6) chunks.push(L.slice(i, i + 6));
-    if (!chunks.length) chunks.push([]);
-    chunks.forEach(function (ch, ci) {
-      H += slide(head('Points d\'attention' + (chunks.length > 1 ? ' (' + (ci + 1) + '/' + chunks.length + ')' : ''), 'Constats chiffrés et questions à approfondir lors du prochain échange') + '<div class="obs">' + (ch.map(function (o) { return '<div class="ob ob--' + o.prio + '"><div class="ob__h"><div class="ob__t">' + esc(o.titre) + '</div>' + prioPill(o.prio) + '</div><p class="ob__c">' + esc(o.constat) + '</p><div class="ob__q">' + esc(o.question) + '</div></div>'; }).join('') || '<p class="muted">Aucun constat.</p>') + '</div>');
-    });
+    // 11. Synthèse
+    H += divider(7, 'Synthèse');
+    var recap = '<table class="tb"><tr><th></th><th class="r">Situation actuelle</th><th class="r">Situation cible</th></tr>' + [['Montant d\'imposition', eur(R.fisc.impotRetenu)], ['Total actif', eur(R.actifBrut)], ['Total épargne financière', eur(R.finTotal)], ['Total passif', eur(R.crdTotal)], ['Total mensualités', eurM(R.mensCredits)], ['Taux d\'endettement', pc(R.endBrut, 0)], ['Rendement moyen brut de l\'épargne', pc(R.rendMoyen)]].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="r">' + r[1] + '</td><td class="r muted">à construire</td></tr>'; }).join('') + '</table>';
+    H += slide(head('Votre audit en synthèse', 'Ancienne situation : la nouvelle se construit avec votre conseiller') + '<div class="g12"><div><div class="tab-head">Ancienne situation</div><div class="card" style="border-radius:0 .35em .35em .35em">' + recap + '</div></div><div><div class="tab-head">Répartition de votre patrimoine</div><div class="card card--sand" style="border-radius:0 .35em .35em .35em">' + donut(CAT_ORDER.map(function (c) { return { l: CAT_LABELS[c], v: R.cats[c], c: CAT_COLORS[c], dark: c === 'immojou' || c === 'immorap' }; }), { label: 'Actif brut' }) + '</div></div></div>');
 
     // 12. Verbatims & commentaires
     H += divider(8, 'Vos mots, nos commentaires');
