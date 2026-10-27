@@ -832,8 +832,8 @@
       a0 = a1;
     });
     var center = '<text x="' + cx + '" y="' + (cy - 2) + '" text-anchor="middle" class="lab lab--m" style="font-size:8px">' + esc(opts.label || 'Total') + '</text><text x="' + cx + '" y="' + (cy + 10) + '" text-anchor="middle" class="lab lab--b" style="font-size:10px">' + (opts.center || eur(total)) + '</text>';
-    var legend = '<div class="legend">' + items.filter(function (i) { return i.v > 0; }).map(function (i) { return '<span><i style="background:' + i.c + '"></i>' + esc(i.l) + '<b>' + eur(i.v) + '</b></span>'; }).join('') + '</div>';
-    return '<svg class="chart chart--donut" viewBox="0 0 180 180" role="img" aria-label="' + esc(opts.label || '') + '">' + (total ? paths + center : '<text x="90" y="92" text-anchor="middle" class="lab lab--m">Aucune donnée</text>') + '</svg>' + legend;
+    var legend = '<div class="legend' + (opts.legendCol ? ' legend--col' : '') + '">' + items.filter(function (i) { return i.v > 0; }).map(function (i) { return '<span><i style="background:' + i.c + '"></i>' + esc(i.l) + '<b>' + eur(i.v) + '</b></span>'; }).join('') + '</div>';
+    return '<svg class="chart chart--donut' + (opts.grand ? ' chart--donut-lg' : '') + '" viewBox="0 0 180 180" role="img" aria-label="' + esc(opts.label || '') + '">' + (total ? paths + center : '<text x="90" y="92" text-anchor="middle" class="lab lab--m">Aucune donnée</text>') + '</svg>' + legend;
   }
   function hbars(items, opts) {
     opts = opts || {}; var max = Math.max.apply(null, items.map(function (i) { return i.v; }).concat([1]));
@@ -932,6 +932,28 @@
       '<text x="104" y="19" text-anchor="middle" font-family="Jost,sans-serif" font-size="16" font-weight="500" letter-spacing="2.24" fill="' + fg + '">' + esc(label) + '</text></svg></span>';
   }
   function dash(v) { return v ? esc(v) : '-'; }
+  // Met en forme un texte libre du conseiller : retours à la ligne en paragraphes,
+  // tirets en puces, y compris quand tout est écrit sur une seule ligne.
+  function richText(t) {
+    var txt = String(t == null ? '' : t).trim();
+    if (!txt) return '';
+    var lines = txt.split(/\r?\n+/).map(function (l) { return l.trim(); }).filter(Boolean);
+    function ul(items) { return '<ul>' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'; }
+    if (lines.length === 1 && (txt.match(/\s[-–•]\s/g) || []).length >= 2) {
+      var i = txt.search(/\s[-–•]\s/), tete = txt.slice(0, i).trim();
+      var pts = txt.slice(i).split(/\s[-–•]\s/).map(function (l) { return l.trim(); }).filter(Boolean);
+      return (tete ? '<p>' + esc(tete) + '</p>' : '') + ul(pts);
+    }
+    var out = '', buf = [];
+    lines.forEach(function (l) {
+      var m = /^[-–•*]\s*(.+)$/.exec(l);
+      if (m) { buf.push(m[1]); return; }
+      if (buf.length) { out += ul(buf); buf = []; }
+      out += '<p>' + esc(l) + '</p>';
+    });
+    if (buf.length) out += ul(buf);
+    return out;
+  }
 
   function showSynth() {
     save(); var R = compute(), S = state; pageNo = 0; var H = '';
@@ -989,17 +1011,20 @@
     var actifKpis = '<div class="kpis"><div class="kpi kpi--g"><div class="kpi__l">Actif brut</div><div class="kpi__v">' + eur(R.actifBrut) + '</div></div><div class="kpi kpi--gd"><div class="kpi__l">Passif (capital restant dû)</div><div class="kpi__v">' + eur(R.crdTotal) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Actif net</div><div class="kpi__v">' + eur(R.actifNet) + '</div></div><div class="kpi"><div class="kpi__l">Épargne financière</div><div class="kpi__v">' + eur(R.finTotal) + '</div></div></div>';
     var actifHead = '<tr><th>Produit</th><th class="r">Montant</th><th class="r">Tx</th><th>Risque</th><th>Dispo.</th><th>Support / nature</th></tr>';
     var actifTot = '<tr class="tot"><td>Total actif</td><td class="r">' + eur(R.actifBrut) + '</td><td class="r">' + (R.finTotal ? pc(R.rendMoyen) : '-') + '</td><td colspan="3"></td></tr>';
-    var actifDonut = '<div><h4>Répartition par nature</h4>' + donut(CAT_ORDER.map(function (c) { return { l: CAT_LABELS[c], v: R.cats[c], c: CAT_COLORS[c], dark: c === 'immojou' || c === 'immorap' }; }), { label: 'Actif brut' }) + '</div>';
+    var actifDonut = '<div><h4>Répartition par nature</h4>' + donut(CAT_ORDER.map(function (c) { return { l: CAT_LABELS[c], v: R.cats[c], c: CAT_COLORS[c], dark: c === 'immojou' || c === 'immorap' }; }), { label: 'Actif brut', legendCol: true, grand: true }) + '</div>';
     if (!actifRows.length) actifRows = [{ grp: '', html: '<tr><td colspan="6" class="muted">Aucun actif renseigné.</td></tr>' }];
     var PER = 11, pages = []; for (var ai = 0; ai < actifRows.length; ai += PER) pages.push(actifRows.slice(ai, ai + PER));
     pages.forEach(function (rows, pi) {
-      var last = pi === pages.length - 1, cls = rows.length > 7 ? 'tb tb--xs' : 'tb tb--sm';
+      var last = pi === pages.length - 1;
+      // peu de lignes : on aère pour occuper la slide ; beaucoup : on resserre
+      // on aère par défaut pour remplir la slide ; si ça dépasse, fitSlides rattrape
+      var cls = rows.length > 11 ? 'tb tb--sm' : 'tb tb--airy';
       var cont = '';
       if (pi > 0 && rows[0] && rows[0].grp && !/class="grp"/.test(rows[0].html)) {
         var ob = R.ownerMap[rows[0].grp];
         if (ob) cont = '<tr class="grp"><td colspan="6">' + esc(ob.label) + '<span class="grp__s">suite</span></td></tr>';
       }
-      H += slide(head('Actifs' + (pages.length > 1 ? ' (' + (pi + 1) + '/' + pages.length + ')' : ''), R.detentionRenseignee ? 'Inventaire de vos avoirs, regroupé par détenteur' : 'Inventaire de vos avoirs') + actifKpis + '<div class="g21" style="grid-template-columns:1.8fr 1fr"><table class="' + cls + '">' + actifHead + cont + rows.map(function (r) { return r.html; }).join('') + (last ? actifTot : '') + '</table>' + (pi === 0 ? actifDonut : '') + '</div>');
+      H += slide(head('Actifs' + (pages.length > 1 ? ' (' + (pi + 1) + '/' + pages.length + ')' : ''), R.detentionRenseignee ? 'Inventaire de vos avoirs, regroupé par détenteur' : 'Inventaire de vos avoirs') + actifKpis + '<div class="g21 g--mid" style="grid-template-columns:1.7fr 1fr"><table class="' + cls + '">' + actifHead + cont + rows.map(function (r) { return r.html; }).join('') + (last ? actifTot : '') + '</table>' + (pi === 0 ? actifDonut : '') + '</div>');
     });
 
     // Répartition du patrimoine par détenteur
@@ -1008,9 +1033,9 @@
         return '<tr><td>' + esc(o.label) + '</td><td class="r">' + eur(o.actif) + '</td><td class="r">' + eur(o.passif) + '</td><td class="r">' + eur(o.net) + '</td><td class="r">' + (R.actifNet ? pc(o.net / R.actifNet, 0) : '-') + '</td><td class="r">' + o.lignes.length + '</td></tr>';
       }).join('');
       var detColors = ['#001B00', '#15462A', '#A9853F', '#C9A86A', '#E6C989', '#E7DCC7', '#6A6A6A'];
-      var detDonut = donut(R.owners.map(function (o, i) { return { l: o.label, v: Math.max(0, o.actif), c: detColors[i % detColors.length], dark: i % detColors.length < 2 }; }), { label: 'Actif brut' });
+      var detDonut = donut(R.owners.map(function (o, i) { return { l: o.label, v: Math.max(0, o.actif), c: detColors[i % detColors.length], dark: i % detColors.length < 2 }; }), { label: 'Actif brut', legendCol: true, grand: true });
       H += slide(head('Détention du patrimoine', 'Ce que détient chacun : Monsieur, Madame, le couple et les sociétés') +
-        '<div class="g21"><div><table class="tb tb--sm"><tr><th>Détenteur</th><th class="r">Actifs</th><th class="r">Dettes</th><th class="r">Net</th><th class="r">Part du net</th><th class="r">Lignes</th></tr>' + detRows +
+        '<div class="g21 g--mid" style="grid-template-columns:1.5fr 1fr"><div><table class="tb ' + (R.owners.length > 8 ? 'tb--sm' : 'tb--airy') + '"><tr><th>Détenteur</th><th class="r">Actifs</th><th class="r">Dettes</th><th class="r">Net</th><th class="r">Part du net</th><th class="r">Lignes</th></tr>' + detRows +
         '<tr class="tot"><td>Total</td><td class="r">' + eur(R.actifBrut) + '</td><td class="r">' + eur(R.crdTotal) + '</td><td class="r">' + eur(R.actifNet) + '</td><td class="r">100 %</td><td class="r">' + R.actifLignes.length + '</td></tr></table></div><div><h4>Répartition des actifs par détenteur</h4>' + detDonut + '</div></div>');
     }
 
@@ -1065,13 +1090,21 @@
     // 11. Synthèse
     H += divider(7, 'Synthèse');
     var recap = '<table class="tb"><tr><th></th><th class="r">Situation actuelle</th><th class="r">Situation cible</th></tr>' + [['Montant d\'imposition', eur(R.fisc.impotRetenu)], ['Total actif', eur(R.actifBrut)], ['Total épargne financière', eur(R.finTotal)], ['Total passif', eur(R.crdTotal)], ['Total mensualités', eurM(R.mensCredits)], ['Taux d\'endettement', pc(R.endBrut, 0)], ['Rendement moyen brut de l\'épargne', pc(R.rendMoyen)]].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="r">' + r[1] + '</td><td class="r muted">à construire</td></tr>'; }).join('') + '</table>';
-    H += slide(head('Votre audit en synthèse', 'Ancienne situation : la nouvelle se construit avec votre conseiller') + '<div class="g12"><div><div class="tab-head">Ancienne situation</div><div class="card" style="border-radius:0 .35em .35em .35em">' + recap + '</div></div><div><div class="tab-head">Répartition de votre patrimoine</div><div class="card card--sand" style="border-radius:0 .35em .35em .35em">' + donut(CAT_ORDER.map(function (c) { return { l: CAT_LABELS[c], v: R.cats[c], c: CAT_COLORS[c], dark: c === 'immojou' || c === 'immorap' }; }), { label: 'Actif brut' }) + '</div></div></div>');
+    H += slide(head('Votre audit en synthèse', 'Votre situation aujourd\'hui : la suite se construit avec votre conseiller') + '<div class="g12"><div><div class="tab-head">Votre situation</div><div class="card" style="border-radius:0 .35em .35em .35em">' + recap + '</div></div><div><div class="tab-head">Répartition de votre patrimoine</div><div class="card card--sand" style="border-radius:0 .35em .35em .35em">' + donut(CAT_ORDER.map(function (c) { return { l: CAT_LABELS[c], v: R.cats[c], c: CAT_COLORS[c], dark: c === 'immojou' || c === 'immorap' }; }), { label: 'Actif brut' }) + '</div></div></div>');
 
     // 12. Verbatims & commentaires
     H += divider(8, 'Vos mots, nos commentaires');
-    var verbs = [['Ce que vous cherchez à faire', S.dec.pourquoiRdv], ['Pourquoi c\'est important', S.dec.importance], ['Ce qui a déjà été tenté', S.dec.essaye], ['Donations réalisées', S.dec.dons]].filter(function (v) { return v[1]; });
-    var notes = [['Commentaires', S.notes.situation]].filter(function (v) { return v[1]; });
-    H += slide(head('Vos mots', 'Ce que vous nous avez confié') + '<div class="g2"><div>' + (verbs.slice(0, Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') || '<p class="muted">-</p>') + '</div><div>' + verbs.slice(Math.ceil(verbs.length / 2)).map(function (v) { return '<div class="vb"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('') + (notes.length ? '<div class="card card--soft" style="margin-top:.6em"><div class="card__t">Commentaires du conseiller</div>' + notes.map(function (n) { return '<p><b style="color:var(--gold-light)">' + esc(n[0]) + ' : </b>' + esc(n[1]) + '</p>'; }).join('') + '</div>' : '') + '</div></div>');
+    var verbs = [['Ce que vous cherchez à faire', S.dec.pourquoiRdv], ['Pourquoi c\'est important', S.dec.importance], ['Ce qui a déjà été tenté', S.dec.essaye]].filter(function (v) { return v[1]; });
+    var noteTxt = (S.notes.situation || '').trim();
+    // Peu de verbatims : on les laisse respirer en grand format.
+    var vbCls = 'vb' + (verbs.length <= 2 ? ' vb--lg' : '');
+    var vbHtml = verbs.length
+      ? verbs.map(function (v) { return '<div class="' + vbCls + '"><div class="vb__q">' + esc(v[0]) + '</div><div class="vb__a">« ' + esc(v[1]) + ' »</div></div>'; }).join('')
+      : '<p class="muted">Aucun verbatim recueilli pendant l\'entretien.</p>';
+    var notesCard = noteTxt ? '<div class="card card--soft"><div class="card__t">Commentaires du conseiller</div><div class="nts">' + richText(noteTxt) + '</div></div>' : '';
+    H += slide(head('Vos mots', 'Ce que vous nous avez confié') + (notesCard
+      ? '<div class="g21 g--mid" style="grid-template-columns:1.3fr 1fr"><div>' + vbHtml + '</div><div>' + notesCard + '</div></div>'
+      : '<div style="max-width:80%">' + vbHtml + '</div>'));
 
     // 13. Informations importantes
     tocPages.push([tocPages.length + 1, 'Informations importantes', pageNo + 1]);

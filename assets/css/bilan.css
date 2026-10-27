@@ -226,6 +226,7 @@
 /* grilles et cartes */
 .g2{ display:grid; grid-template-columns:1fr 1fr; gap:2.2%; }
 .g2 > *, .g3 > *, .g21 > *, .g12 > *{ align-self:start; }
+.g--mid > *{ align-self:center; }
 .g3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:2%; }
 .g21{ display:grid; grid-template-columns:1.35fr 1fr; gap:3%; }
 .g12{ display:grid; grid-template-columns:1fr 1.35fr; gap:3%; }
@@ -258,6 +259,12 @@
 .tb--kv td:first-child{ color:var(--bp-grey); width:55%; }
 .tb--kv td:last-child{ text-align:right; font-weight:400; color:var(--green); }
 .tb--sm{ font-size:.82em; }
+/* version aérée : utilisée quand la page compte peu de lignes, pour occuper la slide */
+.tb--airy{ font-size:1em; }
+.tb--airy th{ padding:.7em .6em; }
+.tb--airy td{ padding:.95em .6em; }
+.tb--airy tr.grp td{ padding-top:1.5em; padding-bottom:.7em; }
+.tb--airy tr.tot td{ padding-top:1.1em; padding-bottom:1.1em; }
 .tb--xs{ font-size:.7em; }
 /* en-tête de famille de détention dans l'inventaire des actifs */
 .tb tr.grp td{ background:var(--sand); color:var(--green); font-weight:500; letter-spacing:.04em; border-bottom:1px solid var(--gold); padding-top:.5em; }
@@ -278,6 +285,7 @@
 .chart{ width:100%; height:auto; display:block; }
 .chart--bars{ max-width:34em; }
 .chart--donut{ max-width:19em; margin-inline:auto; }
+.chart--donut-lg{ max-width:26em; }
 .chart text{ font-family:var(--sans); }
 .chart .lab{ font-size:9px; fill:var(--ink); }
 .chart .lab--m{ fill:var(--bp-grey); }
@@ -285,6 +293,10 @@
 .chart .grid{ stroke:rgba(0,27,0,.08); stroke-width:1; }
 .legend{ display:flex; flex-wrap:wrap; gap:.4em 1.2em; font-size:.82em; margin-top:.5em; }
 .legend span{ display:inline-flex; align-items:center; gap:.45em; }
+.legend--col{ flex-direction:column; flex-wrap:nowrap; align-items:stretch; gap:.75em; margin-top:1.2em; }
+.legend--col span{ width:100%; gap:.7em; padding-bottom:.55em; border-bottom:1px solid rgba(0,27,0,.1); }
+.legend--col span:last-child{ border-bottom:0; }
+.legend--col b{ margin-left:auto; }
 .legend i{ width:.85em; height:.85em; border-radius:2px; display:inline-block; flex:none; }
 .legend b{ font-weight:500; color:var(--green); margin-left:.2em; }
 
@@ -301,9 +313,13 @@
 .ob__q::before{ content:"À creuser : "; font-family:var(--sans); font-style:normal; font-size:.72em; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); }
 
 /* verbatims */
-.vb{ border-left:2px solid var(--gold); padding:.3em 1em; margin-bottom:.9em; }
+.vb{ border-left:2px solid var(--gold); padding:.5em 1.2em; margin-bottom:1.5em; }
+.vb:last-child{ margin-bottom:0; }
 .vb__q{ font-size:.7em; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-bottom:.2em; }
-.vb__a{ font-family:var(--serif); font-style:italic; font-size:1.15em; color:var(--green); }
+.vb__a{ font-family:var(--serif); font-style:italic; font-size:1.15em; color:var(--green); line-height:1.4; }
+.vb--lg{ padding:.6em 1.4em; }
+.vb--lg .vb__a{ font-size:1.5em; }
+.vb--lg .vb__q{ margin-bottom:.45em; }
 
 /* frise objectifs */
 .tl{ position:relative; margin:1.4em 0 0; padding-top:1.6em; }
@@ -315,6 +331,12 @@
 .tl__h{ text-align:center; font-weight:500; color:var(--green); letter-spacing:.14em; text-transform:uppercase; font-size:.78em; margin-bottom:.6em; }
 .tl__item{ background:#fff; border:1px solid rgba(0,27,0,.1); border-radius:.3em; padding:.5em .8em; margin-bottom:.45em; font-size:.92em; }
 .tl--dense .tl__item{ font-size:.8em; padding:.35em .7em; margin-bottom:.3em; }
+
+.nts{ font-size:.95em; line-height:1.6; }
+.nts p{ margin:0 0 .5em; }
+.nts ul{ margin:.2em 0 0; padding-left:1.1em; }
+.nts li{ margin-bottom:.4em; }
+.nts li::marker{ color:var(--gold-light); }
 
 .disc{ font-size:.82em; line-height:1.55; columns:2; column-gap:4%; }
 .disc h4{ column-span:all; }
