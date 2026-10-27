@@ -866,19 +866,28 @@
     return '<svg class="chart" viewBox="0 0 320 28" role="img" aria-label="' + esc((opts || {}).label || '') + '">' + s + '</svg><div class="legend">' + items.map(function (i) { return '<span><i style="background:' + i.c + '"></i>' + esc(i.l) + '<b>' + eur(i.v) + '</b></span>'; }).join('') + '</div>';
   }
   function baremeChart(R) {
-    // position du revenu par part dans le barème progressif
-    var q = R.fisc.rni / (R.fisc.parts || 1), max = Math.max(200000, q * 1.15), W = 320, H = 70, L = 8, plotW = W - 16, prev = 0, s = '';
+    // Position du revenu par part dans le barème progressif.
+    // Le repère est dessiné dans un cadre large (620 unités) : à l'affichage,
+    // le SVG est mis à l'échelle de la colonne, donc plus le cadre est grand
+    // par rapport aux tailles de texte, plus les libellés restent discrets.
+    var q = R.fisc.rni / (R.fisc.parts || 1), max = Math.max(200000, q * 1.15);
+    var W = 620, H = 104, L = 14, plotW = W - 2 * L, prev = 0, s = '';
+    var yBar = 36, hBar = 24;
     var cols = ['#E7DCC7', '#E6C989', '#C9A86A', '#15462A', '#001B00'];
     PARAMS.bareme.forEach(function (t, i) {
       var hi = Math.min(t.max, max), x0 = L + plotW * prev / max, x1 = L + plotW * hi / max;
-      if (x1 > x0) { s += '<rect x="' + x0.toFixed(1) + '" y="18" width="' + Math.max(0, x1 - x0 - 1.5).toFixed(1) + '" height="18" rx="2" fill="' + cols[i] + '"><title>Tranche à ' + pc(t.taux, 0) + '</title></rect>'; if (x1 - x0 > 26) s += '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="30" text-anchor="middle" class="lab lab--b" style="fill:' + (i >= 3 ? '#fff' : '#1E211C') + '">' + pc(t.taux, 0) + '</text>'; }
-      if (t.max < max) s += '<text x="' + x1.toFixed(1) + '" y="48" text-anchor="middle" class="lab lab--m" style="font-size:7px">' + Math.round(t.max / 1000) + ' k€</text>';
+      if (x1 > x0) {
+        s += '<rect x="' + x0.toFixed(1) + '" y="' + yBar + '" width="' + Math.max(0, x1 - x0 - 2).toFixed(1) + '" height="' + hBar + '" rx="3" fill="' + cols[i] + '"><title>Tranche à ' + pc(t.taux, 0) + '</title></rect>';
+        if (x1 - x0 > 42) s += '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="' + (yBar + hBar / 2 + 3.2) + '" text-anchor="middle" class="lab lab--b" style="font-size:9px;fill:' + (i >= 3 ? '#fff' : '#1E211C') + '">' + pc(t.taux, 0) + '</text>';
+      }
+      if (t.max < max) s += '<text x="' + x1.toFixed(1) + '" y="' + (yBar + hBar + 13) + '" text-anchor="middle" class="lab lab--m" style="font-size:8px">' + Math.round(t.max / 1000) + ' k€</text>';
       prev = t.max;
     });
     var xq = L + plotW * Math.min(q, max) / max;
-    s += '<line x1="' + xq.toFixed(1) + '" x2="' + xq.toFixed(1) + '" y1="8" y2="42" stroke="#A9853F" stroke-width="2"/><text x="' + xq.toFixed(1) + '" y="6" text-anchor="' + (xq > W - 70 ? 'end' : (xq < 70 ? 'start' : 'middle')) + '" class="lab lab--b" style="font-size:8px">' + eur(q) + ' par part</text>';
+    s += '<line x1="' + xq.toFixed(1) + '" x2="' + xq.toFixed(1) + '" y1="' + (yBar - 14) + '" y2="' + (yBar + hBar + 4) + '" stroke="#A9853F" stroke-width="1.6"/>';
+    s += '<text x="' + xq.toFixed(1) + '" y="' + (yBar - 18) + '" text-anchor="' + (xq > W - 110 ? 'end' : (xq < 110 ? 'start' : 'middle')) + '" class="lab lab--b" style="font-size:9.5px">' + eur(q) + ' par part</text>';
     var nxt = PARAMS.bareme.filter(function (t) { return t.max > q; })[0];
-    if (nxt && nxt.max < Infinity) s += '<text x="' + L + '" y="64" class="lab lab--m" style="font-size:7.5px">Marge avant la tranche suivante : ' + eur((nxt.max - q) * (R.fisc.parts || 1)) + ' de revenu imposable</text>';
+    if (nxt && nxt.max < Infinity) s += '<text x="' + L + '" y="' + (H - 6) + '" class="lab lab--m" style="font-size:8.5px">Marge avant la tranche suivante : ' + eur((nxt.max - q) * (R.fisc.parts || 1)) + ' de revenu imposable</text>';
     return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Position dans le barème">' + s + '</svg>';
   }
   function projection(R) {
@@ -1005,7 +1014,7 @@
       '<div><h4>Structure des revenus mensuels</h4>' + hbars(revBars, { fmt: eurM, rowH: 34 }) +
       (fiscExtra.length ? '<div class="kpis" style="margin:1.4em 0 0">' + fiscExtra.map(function (k) { return '<div class="kpi"><div class="kpi__l">' + k[0] + '</div><div class="kpi__v" style="font-size:1.3em">' + k[1] + '</div></div>'; }).join('') + '</div>' : '') +
       '</div></div>' +
-      '<div style="margin-top:1.8em"><h4>Position dans le barème (revenu par part)</h4><div style="max-width:74%">' + baremeChart(R) + '</div></div>');
+      '<div style="margin-top:1.6em"><h4>Position dans le barème (revenu par part)</h4><div style="max-width:58%">' + baremeChart(R) + '</div></div>');
 
     // 5. Actif
     H += divider(3, 'Votre patrimoine');
