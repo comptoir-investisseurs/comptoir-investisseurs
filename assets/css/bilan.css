@@ -166,7 +166,8 @@
 /* une "slide" 16:9 */
 .sl{
   position:relative; width:min(1200px,100%); aspect-ratio:16/9; background:var(--bp-cream); color:var(--ink);
-  box-shadow:0 8px 34px rgba(0,0,0,.2); overflow:hidden; font-size:clamp(9px,1.05vw,13.5px); line-height:1.5;
+  box-shadow:0 8px 34px rgba(0,0,0,.2); overflow:hidden; line-height:1.5;
+  font-size:calc(clamp(9px,1.05vw,13.5px) * var(--fit,1));
   padding:4.2% 4.6% 3.4% 5.2%;
 }
 .sl::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4.4%; background:var(--green); }
@@ -258,6 +259,9 @@
 .tb--kv td:last-child{ text-align:right; font-weight:400; color:var(--green); }
 .tb--sm{ font-size:.82em; }
 .tb--xs{ font-size:.7em; }
+/* en-tête de famille de détention dans l'inventaire des actifs */
+.tb tr.grp td{ background:var(--sand); color:var(--green); font-weight:500; letter-spacing:.04em; border-bottom:1px solid var(--gold); padding-top:.5em; }
+.tb tr.grp .grp__s{ float:right; font-weight:400; font-size:.88em; color:var(--bp-grey); letter-spacing:0; }
 .tb--xs td{ padding:.22em .4em; line-height:1.3; }
 .tb--xs .pill{ font-size:.85em; }
 .card--green .tb td, .card--gold .tb td, .card--soft .tb td{ color:#fff; border-color:rgba(255,255,255,.18); }
@@ -322,7 +326,7 @@
   .no-print, .bp-home, .bp-wizard{ display:none !important; }
   .bp-synth{ display:block !important; }
   .bp-deck{ padding:0; gap:0; }
-  .sl{ width:297mm; height:167.06mm; aspect-ratio:auto; box-shadow:none; page-break-after:always; break-after:page; font-size:11.4px; margin:0 auto; }
+  .sl{ width:297mm; height:167.06mm; aspect-ratio:auto; box-shadow:none; page-break-after:always; break-after:page; font-size:calc(11.4px * var(--fit,1)); margin:0 auto; }
   .sl--cover, .sl--divider{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }

@@ -129,9 +129,12 @@
       ['CONJOINT(E) 1 / CONJOINT(E) 2', 'Conjoint(e) 1', (R.couple ? 'Conjoint(e) 2' : '')],
       ['Civilité', S.lui.civilite || '', S.elle.civilite || ''], ['Nom', S.lui.nom || '', S.elle.nom || ''], ['Prénom', S.lui.prenom || '', S.elle.prenom || ''],
       ['Date de naissance', fmtDate(S.lui.naissance), R.couple ? fmtDate(S.elle.naissance) : ''], ['Téléphone', S.lui.tel || '', S.elle.tel || ''], ['Email', S.lui.email || '', S.elle.email || ''],
-      ['Profession', S.lui.profession || '', S.elle.profession || ''], ['Entreprise', S.lui.entreprise || '', S.elle.entreprise || ''], ['Statut', S.lui.statut || '', S.elle.statut || ''],
+      ['Profession', S.lui.profession || '', S.elle.profession || ''], ['Entreprise', S.lui.entreprise || '', S.elle.entreprise || ''],
+      ['Statut', B.freeLabel(S.lui.statut, S.lui.statutAutre) || '', B.freeLabel(S.elle.statut, S.elle.statutAutre) || ''],
       ['Changement professionnel envisagé', S.lui.depart || '', S.elle.depart || '']
-    ]);
+    ].concat((S.societes || []).length ? [[], ['SOCIÉTÉS DÉTENUES'], ['Nom', 'Forme', 'Rôle', 'Détenue par', 'Quote-part']].concat((S.societes || []).map(function (x, i) {
+      return [B.socLabel(x, i), B.socForme(x), B.socRole(x), B.ownerLabel(x), x.part ? x.part + ' %' : '100 %'];
+    })) : []));
 
     var revRows = [['REVENUS ET FISCALITÉ'], ['Personne', 'Fixes bruts', 'Variables bruts', 'Net imposable', 'Autres revenus']];
     R.persons.forEach(function (k) { var p = S[k], o = R.pers[k]; revRows.push([B.nomComplet(p) || k, num(p.fixes), num(p.variables), o.net, o.divers]); });
@@ -140,23 +143,28 @@
     sheet('Revenus & fiscalité', revRows);
 
     var immoRows = [['IMMOBILIER'], []];
-    immoRows.push(['Résidence principale'], ['Statut', S.rp.statut || ''], ['Adresse / ville', S.rp.adresse || ''], ['Valeur estimée', S.rp.valeur || ''], ['Valeur d\'achat', S.rp.achat || ''], ['Loyer (si locataire)', S.rp.loyer || ''], []);
+    immoRows.push(['Résidence principale'], ['Statut', S.rp.statut || ''], ['Adresse / ville', S.rp.adresse || ''], ['Détenue par', B.ownerLabel(S.rp)], ['Valeur actuelle estimée', S.rp.valeur || ''], ['Loyer (si locataire)', S.rp.loyer || ''], []);
     (S.rp.credits || []).forEach(function (c, i) { immoRows.push(['Crédit RP ' + (i + 1), 'Capital ' + (c.capital || 0), 'Taux ' + (c.taux || 0) + '%', 'Durée ' + (c.duree || 0) + ' ans', 'Début ' + (c.debut || '')]); });
     immoRows.push([]);
     (S.biens || []).forEach(function (b, i) {
-      immoRows.push(['Bien ' + (i + 1), b.type || '', b.localisation || '', b.statut || ''], ['Valeur estimée', b.valeur || '', 'Valeur d\'achat', b.achat || ''], ['Loyer net perçu', b.loyer || '']);
+      immoRows.push(['Bien ' + (i + 1), B.freeLabel(b.type, b.typeAutre), b.localisation || '', B.freeLabel(b.statut, b.statutAutre)], ['Détenu par', B.ownerLabel(b)], ['Valeur actuelle estimée', b.valeur || ''], ['Loyer net perçu', b.loyer || '']);
       (b.credits || []).forEach(function (c, j) { immoRows.push(['Crédit bien ' + (i + 1) + '.' + (j + 1), 'Capital ' + (c.capital || 0), 'Taux ' + (c.taux || 0) + '%', 'Durée ' + (c.duree || 0) + ' ans', 'Début ' + (c.debut || '')]); });
       immoRows.push([]);
     });
     if (S.projet.echeance && S.projet.echeance !== 'Non') immoRows.push(['Projet d\'acquisition', S.projet.echeance], ['Type', S.projet.type || ''], ['Localisation', S.projet.localisation || ''], ['Budget', S.projet.budget || ''], ['Apport', S.projet.apport || '']);
-    (S.creditsAutres || []).forEach(function (c, i) { immoRows.push(['Autre crédit ' + (i + 1), c.designation || '', c.type || '', 'Capital ' + (c.capital || 0), 'Taux ' + (c.taux || 0) + '%']); });
+    (S.creditsAutres || []).forEach(function (c, i) { immoRows.push(['Autre crédit ' + (i + 1), c.designation || '', B.freeLabel(c.type, c.typeAutre), 'Souscrit par ' + B.ownerLabel(c), 'Capital ' + (c.capital || 0), 'Taux ' + (c.taux || 0) + '%']); });
     sheet('Immobilier', immoRows);
 
-    var finRows = [['TRÉSORERIE ET PLACEMENTS'], ['Type', 'Établissement', 'Montant', 'Taux', 'Autres']];
-    (S.treso || []).forEach(function (t) { var d = B.TRESO_TYPES.filter(function (x) { return x[0] === t.type; })[0]; finRows.push([d ? d[1] : t.type, t.etab || '', num(t.montant), t.taux ? t.taux + '%' : '', '']); });
-    (S.plac || []).forEach(function (p) { var d = B.PLAC_TYPES.filter(function (x) { return x[0] === p.type; })[0]; finRows.push([d ? d[1] : p.type, p.etab || '', num(p.montant), p.taux ? p.taux + '%' : '', 'Risque ' + (p.risque || '') + '/4 · ' + (p.dispo || '')]); });
+    var finRows = [['TRÉSORERIE ET PLACEMENTS'], ['Type', 'Détenu par', 'Établissement', 'Montant', 'Taux', 'Autres']];
+    (S.treso || []).forEach(function (t) { finRows.push([B.typeLabel(B.TRESO_TYPES, t.type, t), B.ownerLabel(t), t.etab || '', num(t.montant), t.taux ? t.taux + '%' : '', '']); });
+    (S.plac || []).forEach(function (p) { finRows.push([B.typeLabel(B.PLAC_TYPES, p.type, p), B.ownerLabel(p), p.etab || '', num(p.montant), p.taux ? p.taux + '%' : '', 'Risque ' + (p.risque || '') + '/4 · ' + (p.dispo || '')]); });
     finRows.push([], ['Épargne financière totale', R.finTotal], ['Rendement moyen brut', pc(R.rendMoyen)], ['Donations réalisées', S.dec.dons || '']);
     sheet('Financier', finRows);
+
+    var detRows = [['DÉTENTION DU PATRIMOINE'], ['Détenteur', 'Actifs', 'Dettes', 'Net', 'Lignes']];
+    (R.owners || []).forEach(function (o) { detRows.push([o.label, o.actif, o.passif, o.net, o.lignes.length]); });
+    detRows.push(['Total', R.actifBrut, R.crdTotal, R.actifNet, (R.actifLignes || []).length]);
+    sheet('Détention', detRows);
 
     sheet('Budget', [['BUDGET MENSUEL'], ['Poste', 'Montant / mois'],
       ['Revenus nets (T/S)', R.revM['Revenus nets (T/S)']], ['Pensions perçues', R.revM['Pensions perçues']], ['BNC / BIC', R.revM['BNC / BIC']], ['Dividendes', R.revM['Dividendes']],
