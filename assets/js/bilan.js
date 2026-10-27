@@ -910,11 +910,11 @@
      SYNTHÈSE : rendu des « slides »
      ====================================================================== */
   var pageNo = 0;
-  function slide(inner, cls) { pageNo++; return '<section class="sl' + (cls ? ' ' + cls : '') + '">' + inner + (cls ? '' : '<img class="sl__logo" src="assets/img/logo.png" alt=""><div class="sl__foot">La Financière de Rochechouart · Bilan patrimonial · ' + esc(clientLabel()) + ' · Document confidentiel</div><div class="sl__pn">' + pageNo + '</div>') + '</section>'; }
+  function slide(inner, cls) { pageNo++; return '<section class="sl' + (cls ? ' ' + cls : '') + '">' + inner + (cls ? '' : '<img class="sl__logo" src="assets/img/logo-slides.png" alt=""><div class="sl__foot">La Financière de Rochechouart · Bilan patrimonial · ' + esc(clientLabel()) + ' · Document confidentiel</div><div class="sl__pn">' + pageNo + '</div>') + '</section>'; }
   function head(t, sub) { return '<h2>' + esc(t) + '</h2><h3>' + esc(sub || '') + '</h3>'; }
   var tocPages = [];
-  function divider(n, t) { tocPages.push([n, t, pageNo + 1]); return slide('<div class="dv__green"></div><div class="dv__title">' + n + '. ' + esc(t) + '</div><div class="dv__rule"></div><div class="wave dv__wave"></div><img class="dv__logo" src="assets/img/logo.png" alt="">', 'sl--divider'); }
-  function tocSlide() { return slide('<div class="wave toc__wave--l"></div><div class="wave toc__wave--r"></div><div class="toc__panel"></div><div class="toc__title">SOMMAIRE</div><div class="toc__rule"></div><div class="toc__list">' + tocPages.map(function (t) { return '<div class="toc__row"><span class="n">' + t[0] + '. ' + esc(t[1]) + '</span><span class="d"></span><span class="p">p. ' + t[2] + '</span></div>'; }).join('') + '</div><img class="toc__logo" src="assets/img/logo.png" alt="">', 'sl--toc'); }
+  function divider(n, t) { tocPages.push([n, t, pageNo + 1]); return slide('<div class="dv__green"></div><div class="dv__title">' + n + '. ' + esc(t) + '</div><div class="dv__rule"></div><div class="wave dv__wave"></div><img class="dv__logo" src="assets/img/logo-slides.png" alt="">', 'sl--divider'); }
+  function tocSlide() { return slide('<div class="wave toc__wave--l"></div><div class="wave toc__wave--r"></div><div class="toc__panel"></div><div class="toc__title">SOMMAIRE</div><div class="toc__rule"></div><div class="toc__list">' + tocPages.map(function (t) { return '<div class="toc__row"><span class="n">' + t[0] + '. ' + esc(t[1]) + '</span><span class="d"></span><span class="p">p. ' + t[2] + '</span></div>'; }).join('') + '</div><img class="toc__logo" src="assets/img/logo-slides.png" alt="">', 'sl--toc'); }
   function kv(rows) { return '<table class="tb tb--kv">' + rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + r[1] + '</td></tr>'; }).join('') + '</table>'; }
   /* Pastilles « N/4 » et « PRIORITÉ … » en SVG plutôt qu'en <span>/<div> à fond
      arrondi : sous html2canvas (export PDF), le texte de ces badges — pourtant
@@ -1014,7 +1014,7 @@
       '<div><h4>Structure des revenus mensuels</h4>' + hbars(revBars, { fmt: eurM, rowH: 34 }) +
       (fiscExtra.length ? '<div class="kpis" style="margin:1.4em 0 0">' + fiscExtra.map(function (k) { return '<div class="kpi"><div class="kpi__l">' + k[0] + '</div><div class="kpi__v" style="font-size:1.3em">' + k[1] + '</div></div>'; }).join('') + '</div>' : '') +
       '</div></div>' +
-      '<div style="margin-top:1.6em"><h4>Position dans le barème (revenu par part)</h4><div style="max-width:58%">' + baremeChart(R) + '</div></div>');
+      '<div style="margin-top:1.6em"><h4>Position dans le barème (revenu par part)</h4><div style="max-width:62%">' + baremeChart(R) + '</div></div>');
 
     // 5. Actif
     H += divider(3, 'Votre patrimoine');
