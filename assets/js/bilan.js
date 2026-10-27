@@ -50,7 +50,7 @@
   var TRESO_TYPES = [
     ['cc', 'Compte courant', 0], ['la', 'Livret A', 0.017], ['ldds', 'LDDS', 0.017], ['lep', 'LEP', 0.0275],
     ['livret', 'Livret bancaire', 0.02], ['pel', 'PEL', 0.0175], ['cel', 'CEL', 0.0125], ['cat', 'Compte à terme / DAT', 0.03],
-    ['ccsoc', 'Compte courant d\'associé', 0], ['autre', 'Autre compte (à préciser)', 0]
+    ['ccsoc', 'Compte courant d\'associé', 0]
   ];
   var PLAC_TYPES = [
     ['av', 'Assurance-vie', 'prodfi'], ['avlux', 'Assurance-vie luxembourgeoise', 'prodfi'], ['capi', 'Contrat de capitalisation', 'prodfi'], ['per', 'PER / PERP / Madelin', 'prodfi'],
@@ -58,11 +58,12 @@
     ['pea', 'PEA', 'vm'], ['peapme', 'PEA-PME', 'vm'], ['ct', 'Compte-titres', 'vm'],
     ['scpi', 'SCPI / OPCI', 'immorap'], ['pe', 'Private equity / parts de société', 'vm'],
     ['fcpi', 'FCPI / FIP', 'vm'], ['dat', 'Dépôt à terme (DAT)', 'prodfi'], ['crypto', 'Crypto-actifs', 'vm'],
-    ['or', 'Or / métaux', 'vm'], ['autre', 'Autre placement (à préciser)', 'prodfi']
+    ['or', 'Or / métaux', 'vm']
   ];
   // Formes et rôles des sociétés détenues par le foyer
-  var SOC_FORMES = ['SAS', 'SASU', 'SARL', 'EURL', 'SA', 'SNC', 'SCI', 'SCI à l\'IS', 'SC / Société civile', 'SELARL / SELAS', 'SCP', 'GFA / GFF', 'Entreprise individuelle / micro', 'Autre (à préciser)'];
-  var SOC_ROLES = ['Société commerciale (exploitation)', 'Société civile immobilière', 'Holding patrimoniale', 'Société de portefeuille / trésorerie', 'Société professionnelle (libérale)', 'Société agricole / forestière', 'Société en sommeil', 'Autre (à préciser)'];
+  var SOC_FORMES = ['SAS', 'SASU', 'SARL', 'EURL', 'SA', 'SNC', 'SCI', 'SCI à l\'IS', 'SC / Société civile', 'SELARL / SELAS', 'SCP', 'GFA / GFF', 'Entreprise individuelle / micro'];
+  var SOC_ROLES = ['Société commerciale (exploitation)', 'Société civile immobilière', 'Holding patrimoniale', 'Société de portefeuille / trésorerie', 'Société professionnelle (libérale)', 'Société agricole / forestière'];
+  var BLOQUE_TRESO = ['pel', 'cel', 'cat'];   // comptes d'épargne bloqués ou à préavis
   var CAT_LABELS = { immojou: 'Immobilier de jouissance', immorap: 'Immobilier de rapport', vm: 'Valeurs mobilières', prodfi: 'Produits financiers', liquid: 'Liquidités' };
   var CAT_ORDER = ['immojou', 'immorap', 'vm', 'prodfi', 'liquid'];
   var CAT_COLORS = { immojou: '#001B00', immorap: '#15462A', vm: '#A9853F', prodfi: '#C9A86A', liquid: '#E7DCC7' };
@@ -176,7 +177,7 @@
     var o = [['lui', persLabel('lui')]];
     if (isCouple() || state.elle.nom || civ(state.elle)) { o.push(['elle', persLabel('elle')]); o.push(['union', coupleLabel()]); }
     if (withSocietes !== false) (state.societes || []).forEach(function (s, i) { o.push(['soc:' + i, socLabel(s, i)]); });
-    o.push(['indivision', 'Indivision (autre)'], ['enfants', 'Enfant(s)'], ['demembrement', 'Démembrement (usufruit / nue-propriété)'], ['autre', 'Autre (à préciser)']);
+    o.push(['indivision', 'Indivision (autre)'], ['enfants', 'Enfant(s)'], ['demembrement', 'Démembrement (usufruit / nue-propriété)']);
     return o;
   }
   function ownerOptionsNoSoc() { return ownerOptions(false); }
@@ -201,8 +202,7 @@
   // champs « détenu par » ajoutés à chaque bloc patrimonial
   function ownerFields(label, withSocietes) {
     return [
-      { k: 'detenteur', l: label || 'Détenu par', t: 'select', o: withSocietes === false ? ownerOptionsNoSoc : ownerOptions },
-      { k: 'detenteurAutre', l: 'Si « autre », précisez', opt: true }
+      { k: 'detenteur', l: label || 'Détenu par', t: 'combo', o: withSocietes === false ? ownerOptionsNoSoc : ownerOptions, u: 'choisissez ou saisissez librement' }
     ];
   }
   // libellé d'un type avec option « autre » en texte libre
@@ -341,7 +341,7 @@
     if (R.rp) ligne({ det: R.rp.det, detLabel: R.rp.detLabel, nom: 'Résidence principale', detail: S.rp.adresse || '', montant: R.rp.valeur, taux: null, risque: 1, dispo: 'Bloqué', nature: CAT_LABELS.immojou });
     R.biens.forEach(function (b) { ligne({ det: b.det, detLabel: b.detLabel, nom: b.typeLabel, detail: b.src.localisation || '', montant: b.valeur, taux: b.loyerM ? b.renta : null, risque: 2, dispo: 'Bloqué', nature: (b.jouissance ? CAT_LABELS.immojou : CAT_LABELS.immorap) + (b.statutLabel ? ' · ' + b.statutLabel : '') }); });
     R.plac.forEach(function (p) { ligne({ det: p.det, detLabel: p.detLabel, nom: p.label, detail: p.src.etab || '', montant: p.montant, taux: p.taux, risque: p.risque, dispo: p.src.dispo || '-', nature: p.src.support || CAT_LABELS[p.cat] }); });
-    R.treso.forEach(function (t) { ligne({ det: t.det, detLabel: t.detLabel, nom: t.label, detail: t.src.etab || '', montant: t.montant, taux: t.taux, risque: 1, dispo: /pel|cel|cat/.test(t.src.type || '') ? 'Bloqué' : 'Disponible', nature: 'Liquidités' }); });
+    R.treso.forEach(function (t) { ligne({ det: t.det, detLabel: t.detLabel, nom: t.label, detail: t.src.etab || '', montant: t.montant, taux: t.taux, risque: 1, dispo: BLOQUE_TRESO.indexOf(t.src.type) >= 0 ? 'Bloqué' : 'Disponible', nature: 'Liquidités' }); });
     R.credits.forEach(function (c) { ownBucket(c.det || '', c.detLabel).passif += c.info.crd; });
     R.owners.forEach(function (o) { o.net = o.actif - o.passif; });
     R.owners.sort(function (a, b) { return (ownerRank(a.code) - ownerRank(b.code)) || a.label.localeCompare(b.label); });
@@ -353,7 +353,7 @@
     R.rend = [0, 0, 0, 0];
     R.dispo = { dispo: 0, bloque: 0 };
     function bucket(t) { for (var i = 0; i < REND_BUCKETS.length; i++) if (t < REND_BUCKETS[i][2]) return i; return 3; }
-    R.treso.forEach(function (t) { R.risque[1] += t.montant; R.rend[bucket(t.taux)] += t.montant; if (/pel|cel|cat/.test(t.src.type)) R.dispo.bloque += t.montant; else R.dispo.dispo += t.montant; });
+    R.treso.forEach(function (t) { R.risque[1] += t.montant; R.rend[bucket(t.taux)] += t.montant; if (BLOQUE_TRESO.indexOf(t.src.type) >= 0) R.dispo.bloque += t.montant; else R.dispo.dispo += t.montant; });
     R.plac.forEach(function (p) { R.risque[p.risque] += p.montant; R.rend[bucket(p.taux)] += p.montant; if (p.src.dispo === 'Disponible') R.dispo.dispo += p.montant; else R.dispo.bloque += p.montant; });
     R.finTotal = liquid + vm + prodfi + scpi;
     R.rendMoyen = R.finTotal ? (R.treso.reduce(function (a, t) { return a + t.montant * t.taux; }, 0) + R.plac.reduce(function (a, p) { return a + p.montant * p.taux; }, 0)) / R.finTotal : 0;
@@ -511,9 +511,9 @@
   var CHAPTERS = ['Situation', 'Revenus', 'Immobilier', 'Financier', 'Objectifs', 'Notes'];
   var SIT = ['Célibataire', 'Marié(e)', 'Pacsé(e)', 'Concubinage', 'Divorcé(e)', 'Veuf(ve)'];
   var REGIMES = ['Communauté réduite aux acquêts', 'Séparation de biens', 'Communauté universelle', 'Participation aux acquêts', 'PACS : séparation (par défaut)', 'PACS : indivision', 'Ne sait pas'];
-  var STATUTS_PRO = ['Salarié(e)', 'Cadre dirigeant salarié', 'Dirigeant TNS', 'Profession libérale', 'Indépendant / auto-entrepreneur', 'Fonctionnaire', 'Retraité(e)', 'Sans activité', 'Autre (à préciser)'];
-  var BIEN_TYPES = ['Appartement', 'Maison', 'Immeuble', 'Local commercial / bureaux', 'Parking / box', 'Terrain', 'Parts de SCI', 'Bien agricole / forestier', 'Autre (à préciser)'];
-  var BIEN_STATUTS = ['Nu (revenus fonciers)', 'LMNP', 'LMP', 'SCI à l\'IR', 'SCI à l\'IS', 'Dispositif fiscal (Pinel, Denormandie, Malraux…)', 'Résidence secondaire (jouissance)', 'Mis à disposition (famille)', 'Vacant', 'Autre (à préciser)'];
+  var STATUTS_PRO = ['Salarié(e)', 'Cadre dirigeant salarié', 'Dirigeant TNS', 'Profession libérale', 'Indépendant / auto-entrepreneur', 'Fonctionnaire', 'Retraité(e)', 'Sans activité'];
+  var BIEN_TYPES = ['Appartement', 'Maison', 'Immeuble', 'Local commercial / bureaux', 'Parking / box', 'Terrain', 'Parts de SCI', 'Bien agricole / forestier'];
+  var BIEN_STATUTS = ['Nu (revenus fonciers)', 'LMNP', 'LMP', 'SCI à l\'IR', 'SCI à l\'IS', 'Dispositif fiscal (Pinel, Denormandie, Malraux…)', 'Résidence secondaire (jouissance)', 'Mis à disposition (famille)', 'Vacant'];
 
   function creditFields() {
     return [
@@ -528,7 +528,7 @@
       fields: [
         { k: 'civilite', l: 'Civilité', t: 'select', o: ['Monsieur', 'Madame'] }, { k: 'nom', l: 'Nom' }, { k: 'prenom', l: 'Prénom' },
         { k: 'naissance', l: 'Date de naissance', t: 'date' }, { k: 'tel', l: 'Téléphone', t: 'tel', opt: true }, { k: 'email', l: 'Email', t: 'email', opt: true },
-        { k: 'profession', l: 'Profession' }, { k: 'statut', l: 'Statut', t: 'select', o: STATUTS_PRO }, { k: 'statutAutre', l: 'Si « autre », précisez', opt: true }, { k: 'entreprise', l: 'Entreprise / employeur', opt: true },
+        { k: 'profession', l: 'Profession' }, { k: 'statut', l: 'Statut', t: 'combo', o: STATUTS_PRO }, { k: 'entreprise', l: 'Entreprise / employeur', opt: true },
         { k: 'fixes', l: 'Revenus fixes bruts', t: 'number', u: '€ / an' }, { k: 'variables', l: 'Revenus variables bruts', t: 'number', u: '€ / an', opt: true },
         { k: 'net', l: 'Revenus nets imposables', t: 'number', u: '€ / an, vide = 78 % du brut', opt: true }, { k: 'divers', l: 'Autres revenus (BNC/BIC, pensions, dividendes)', t: 'number', u: '€ / an', opt: true },
         { k: 'depart', l: 'Changement professionnel envisagé ?', t: 'select', o: ['Non', 'Oui, à court terme', 'Oui, à moyen terme', 'Peut-être'], opt: true }
@@ -541,8 +541,8 @@
     personScreen('lui', 'Conjoint(e) 1'), personScreen('elle', 'Conjoint(e) 2'),
     { ch: 0, type: 'list', title: 'Sociétés détenues', hint: 'SAS, SARL, EURL, SCI, holding… Un bloc par société : le nom, la forme, le rôle et qui la détient suffisent. Ces sociétés deviennent ensuite des détenteurs possibles pour les placements, les comptes et les biens. Continuez si aucune.', path: 'societes', itemLabel: 'Société', fields: [
       { k: 'nom', l: 'Nom de la société' },
-      { k: 'forme', l: 'Forme juridique', t: 'select', o: SOC_FORMES }, { k: 'formeAutre', l: 'Si « autre », précisez', opt: true },
-      { k: 'role', l: 'Rôle', t: 'select', o: SOC_ROLES }, { k: 'roleAutre', l: 'Si « autre », précisez', opt: true }
+      { k: 'forme', l: 'Forme juridique', t: 'combo', o: SOC_FORMES },
+      { k: 'role', l: 'Rôle', t: 'combo', o: SOC_ROLES }
     ].concat(ownerFields('Détenue par', false), [
       { k: 'part', l: 'Quote-part détenue', t: 'number', u: '%, vide = 100 %', opt: true }
     ]), calcItem: function (s, i) { return socLabel(s, i) + (socRole(s) ? ' · ' + socRole(s) : '') + ' · détenue par ' + ownerLabel(ownerCode(s), s) + (num(s.part) ? ' à ' + pc(pct(s.part)) : ''); } },
@@ -564,8 +564,8 @@
     ].concat(ownerFields('Détenue par')) },
     { ch: 2, when: function () { return state.rp.statut === 'Propriétaire'; }, type: 'list', title: 'Crédit sur la résidence principale', hint: 'Continuez si le bien est payé. Mensualité et capital restant dû sont calculés à partir du capital, du taux, de la durée et de la date de début.', path: 'rp.credits', itemLabel: 'Prêt', fields: creditFields(), calcItem: function (c) { var i = creditInfo(c); return 'Mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd) + (i.fin ? ' · fin ' + i.fin : ''); } },
     { ch: 2, type: 'list', title: 'Autres biens immobiliers', hint: 'Locatif, résidence secondaire, SCI… Précisez pour chaque bien qui le détient. Continuez si aucun.', path: 'biens', itemLabel: 'Bien', fields: [
-      { k: 'type', l: 'Type', t: 'select', o: BIEN_TYPES }, { k: 'typeAutre', l: 'Si « autre », précisez', opt: true }, { k: 'localisation', l: 'Ville', opt: true },
-      { k: 'statut', l: 'Régime de détention', t: 'select', o: BIEN_STATUTS }, { k: 'statutAutre', l: 'Si « autre », précisez', opt: true }
+      { k: 'type', l: 'Type', t: 'combo', o: BIEN_TYPES }, { k: 'localisation', l: 'Ville', opt: true },
+      { k: 'statut', l: 'Régime de détention', t: 'combo', o: BIEN_STATUTS }
     ].concat(ownerFields('Détenu par'), [
       { k: 'valeur', l: 'Valeur actuelle estimée', t: 'number', u: '€' }, { k: 'loyer', l: 'Loyer net perçu', t: 'number', u: '€ / mois', opt: true }
     ]), sub: { path: 'credits', label: 'Crédit sur ce bien', fields: creditFields() }, calcItem: function (b) { var v = num(b.valeur); var r = v ? num(b.loyer) * 12 / v : 0; var m = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).mensualite; }, 0); var crd = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).crd; }, 0); return ownerLabel(ownerCode(b), b) + ' · rentabilité brute ' + pc(r) + ' · mensualités ' + eurM(m) + ' · CRD ' + eur(crd) + ' · cash-flow ' + eurM(num(b.loyer) - m); } },
@@ -573,19 +573,19 @@
     { ch: 2, when: function () { return state.projet.echeance && state.projet.echeance !== 'Non'; }, type: 'fields', title: 'Le projet', path: 'projet', fields: [
       { k: 'type', l: 'Type de bien', opt: true }, { k: 'localisation', l: 'Localisation', opt: true }, { k: 'budget', l: 'Budget', t: 'number', u: '€' }, { k: 'apport', l: 'Apport', t: 'number', u: '€', opt: true }
     ] },
-    { ch: 2, type: 'list', title: 'Autres crédits en cours', hint: 'Consommation, auto, étudiant, crédit porté par une société… Continuez si aucun.', path: 'creditsAutres', itemLabel: 'Crédit', fields: [{ k: 'designation', l: 'Désignation' }, { k: 'type', l: 'Nature', t: 'select', o: ['Consommation', 'Auto / LOA', 'Étudiant', 'Familial', 'Professionnel', 'Immobilier', 'Autre (à préciser)'], opt: true }, { k: 'typeAutre', l: 'Si « autre », précisez', opt: true }].concat(ownerFields('Souscrit par'), creditFields()), calcItem: function (c) { var i = creditInfo(c); return ownerLabel(ownerCode(c), c) + ' · mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd); } },
+    { ch: 2, type: 'list', title: 'Autres crédits en cours', hint: 'Consommation, auto, étudiant, crédit porté par une société… Continuez si aucun.', path: 'creditsAutres', itemLabel: 'Crédit', fields: [{ k: 'designation', l: 'Désignation' }, { k: 'type', l: 'Nature', t: 'combo', o: ['Consommation', 'Auto / LOA', 'Étudiant', 'Familial', 'Professionnel', 'Immobilier'], opt: true }].concat(ownerFields('Souscrit par'), creditFields()), calcItem: function (c) { var i = creditInfo(c); return ownerLabel(ownerCode(c), c) + ' · mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd); } },
 
     { ch: 3, type: 'list', title: 'Comptes et livrets', hint: 'Comptes courants, Livret A, LDDS, PEL, compte à terme… Un bloc par compte, en précisant le titulaire : Monsieur, Madame, compte joint ou société.', path: 'treso', itemLabel: 'Compte', fields: [
-      { k: 'type', l: 'Type', t: 'select', o: TRESO_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'typeAutre', l: 'Si « autre », précisez', opt: true }
+      { k: 'type', l: 'Type', t: 'combo', o: TRESO_TYPES.map(function (t) { return [t[0], t[1]]; }) }
     ].concat(ownerFields('Titulaire'), [
       { k: 'montant', l: 'Montant', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement', opt: true }, { k: 'taux', l: 'Taux', t: 'number', u: '% / an, vide = taux usuel', opt: true }
     ]), calcItem: function (t) { return typeLabel(TRESO_TYPES, t.type, t) + ' · ' + ownerLabel(ownerCode(t), t) + ' · ' + eur(t.montant); }, onItem: function (it) { if (it.type && (it.taux === '' || it.taux == null)) { var d = TRESO_TYPES.filter(function (t) { return t[0] === it.type; })[0]; if (d) it.taux = String(+(d[2] * 100).toFixed(4)); } } },
     { ch: 3, type: 'list', title: 'Placements', hint: 'Assurance-vie, PEA, compte-titres, PER, PER sur société, PEE, SCPI, FCPI, DAT… Un bloc par contrat, en précisant le détenteur.', path: 'plac', itemLabel: 'Placement', fields: [
-      { k: 'type', l: 'Type', t: 'select', o: PLAC_TYPES.map(function (t) { return [t[0], t[1]]; }) }, { k: 'typeAutre', l: 'Si « autre », précisez', opt: true }
+      { k: 'type', l: 'Type', t: 'combo', o: PLAC_TYPES.map(function (t) { return [t[0], t[1]]; }) }
     ].concat(ownerFields('Détenu par'), [
       { k: 'montant', l: 'Valorisation', t: 'number', u: '€' }, { k: 'etab', l: 'Établissement / assureur', opt: true },
       { k: 'taux', l: 'Performance annuelle moyenne', t: 'number', u: '% / an', opt: true }, { k: 'frais', l: 'Frais globaux annuels', t: 'number', u: '% / an (gestion, UC, enveloppe…)', opt: true }, { k: 'risque', l: 'Niveau de risque', t: 'select', o: [['1', '1/4 faible'], ['2', '2/4 moyen faible'], ['3', '3/4 moyen fort'], ['4', '4/4 fort']], opt: true },
-      { k: 'dispo', l: 'Disponibilité', t: 'select', o: ['Disponible', 'Bloqué'], opt: true }, { k: 'support', l: 'Supports', t: 'select', o: ['Fonds euros', 'Unités de compte', 'Mixte', 'Actions en direct', 'Obligations', 'Immobilier', 'Autre'], opt: true }
+      { k: 'dispo', l: 'Disponibilité', t: 'select', o: ['Disponible', 'Bloqué'], opt: true }, { k: 'support', l: 'Supports', t: 'combo', o: ['Fonds euros', 'Unités de compte', 'Mixte', 'Actions en direct', 'Obligations', 'Immobilier'], opt: true }
     ]), calcItem: function (p) { return typeLabel(PLAC_TYPES, p.type, p) + ' · ' + ownerLabel(ownerCode(p), p) + ' · coût des frais ' + eur(num(p.montant) * num(p.frais) / 100) + ' / an' + (p.frais ? '' : ' (renseignez les frais globaux annuels)'); } },
     { ch: 3, type: 'choice', title: 'Des donations déjà réalisées aux enfants ?', path: 'dec.dons', options: ['Non', 'Oui, des dons manuels', 'Oui, une donation notariée', 'Sans objet'], grid: true },
 
@@ -614,6 +614,7 @@
     view.classList.add('is-active'); window.scrollTo(0, 0);
   }
 
+  var ADD_LABELS = { 'Bien': 'un bien', 'Compte': 'un compte', 'Prêt': 'un prêt', 'Crédit': 'un crédit', 'Placement': 'un placement', 'Société': 'une société' };
   function field(f, path, val) {
     var id = 'f_' + path.replace(/[^a-z0-9]/gi, '_') + '_' + f.k;
     var h = '<div class="bp-field' + (f.w ? ' bp-field--wide' : '') + '"><label for="' + id + '">' + esc(f.l) + (f.opt ? ' <em class="opt">facultatif</em>' : '') + '</label>';
@@ -622,6 +623,18 @@
     if (f.t === 'select') {
       var fo = typeof f.o === 'function' ? f.o() : f.o;
       h += '<select id="' + id + '"' + dp + '><option value="">-</option>' + fo.map(function (o) { var ov = Array.isArray(o) ? o[0] : o, ol = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(ov) + '"' + (String(v) === String(ov) ? ' selected' : '') + '>' + esc(ol) + '</option>'; }).join('') + '</select>';
+    } else if (f.t === 'combo') {
+      // liste de suggestions dans la case elle-même : on choisit dans le menu
+      // ou on écrit ce qu'on veut. Les listes à code (types de comptes, de
+      // placements, détenteurs) stockent le code quand le libellé est reconnu,
+      // et le texte saisi sinon.
+      var co = typeof f.o === 'function' ? f.o() : f.o;
+      var pairs = co.map(function (o) { return Array.isArray(o) ? [String(o[0]), String(o[1])] : [String(o), String(o)]; });
+      var code = false, map = {}, shown = String(v);
+      pairs.forEach(function (pr) { map[pr[1]] = pr[0]; if (pr[0] !== pr[1]) code = true; });
+      for (var ci = 0; ci < pairs.length; ci++) if (String(v) === pairs[ci][0]) { shown = pairs[ci][1]; break; }
+      h += '<input id="' + id + '" list="' + id + '_dl" autocomplete="off"' + dp + (code ? ' data-map="' + esc(JSON.stringify(map)) + '"' : '') + ' value="' + esc(shown) + '"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : '') + '>';
+      h += '<datalist id="' + id + '_dl">' + pairs.map(function (pr) { return '<option value="' + esc(pr[1]) + '"></option>'; }).join('') + '</datalist>';
     } else if (f.t === 'textarea') {
       h += '<textarea id="' + id + '"' + dp + '>' + esc(v) + '</textarea>';
     } else {
@@ -683,7 +696,7 @@
         if (s.calcItem) h += '<div class="u" style="margin-top:10px;color:var(--gold-light);font-size:.8rem" data-calcitem="' + i + '">' + esc(s.calcItem(it, i)) + '</div>';
         h += '</div>';
       });
-      h += '<button type="button" class="bp-add" data-add="1">+ Ajouter ' + (s.itemLabel === 'Bien' ? 'un bien' : s.itemLabel === 'Compte' ? 'un compte' : s.itemLabel === 'Prêt' ? 'un prêt' : s.itemLabel === 'Crédit' ? 'un crédit' : 'un placement') + '</button></div>';
+      h += '<button type="button" class="bp-add" data-add="1">+ Ajouter ' + (ADD_LABELS[s.itemLabel] || ('un ' + String(s.itemLabel || 'élément').toLowerCase())) + '</button></div>';
     }
     elCard.innerHTML = h;
     elCard.classList.remove('bp-card'); void elCard.offsetWidth; elCard.classList.add('bp-card');
@@ -738,14 +751,15 @@
   /* ---- événements de saisie (délégation) ---- */
   elCard.addEventListener('input', function (e) {
     var t = e.target, p = t.getAttribute('data-path'); if (p == null) return;
-    var k = t.getAttribute('data-key');
-    set(k ? p + '.' + k : p, t.value);
+    var k = t.getAttribute('data-key'), val = t.value, m = t.getAttribute('data-map');
+    if (m) { try { var mm = JSON.parse(m); if (Object.prototype.hasOwnProperty.call(mm, val)) val = mm[val]; } catch (e2) {} }
+    set(k ? p + '.' + k : p, val);
     refreshCalc(); renderLive(); save();
   });
   elCard.addEventListener('change', function (e) {
     var t = e.target, p = t.getAttribute('data-path'); if (p == null) return;
     var s = visible()[current];
-    if (s.type === 'list' && s.onItem) { var idx = num(p.split('.').pop()); var it = (get(s.path) || [])[idx]; if (it) { s.onItem(it); renderScreen(); } }
+    if (s.type === 'list' && s.onItem && t.getAttribute('data-key') === 'type') { var idx = num(p.split('.').pop()); var it = (get(s.path) || [])[idx]; if (it) { s.onItem(it); renderScreen(); } }
   });
   elCard.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
