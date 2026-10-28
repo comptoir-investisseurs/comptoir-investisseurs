@@ -126,6 +126,8 @@
   function eurM(v) { return eur(v) + ' / mois'; }
   function pc(v, d) { return (num(v) * 100).toFixed(d == null ? 1 : d).replace('.', ',') + ' %'; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // comparaison souple d'un texte saisi : sans accents, sans casse, espaces normalisés
+  function norm(s) { return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[\s ]+/g, ' ').trim().toLowerCase(); }
   function age(dateStr) { if (!dateStr) return null; var d = new Date(dateStr); if (isNaN(d)) return null; var t = new Date(); var a = t.getFullYear() - d.getFullYear(); var m = t.getMonth() - d.getMonth(); if (m < 0 || (m === 0 && t.getDate() < d.getDate())) a--; return a; }
   function fmtDate(s) { if (!s) return '-'; var d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('fr-FR'); }
   function isCouple() { return ['Marié(e)', 'Pacsé(e)', 'Concubinage'].indexOf(state.foyer.situation) >= 0; }
@@ -181,6 +183,20 @@
     return o;
   }
   function ownerOptionsNoSoc() { return ownerOptions(false); }
+  // Alias acceptés en saisie libre pour rattacher un actif à une société : le nom
+  // seul (« LES CHOUNOUTES »), le nom + la forme, et la forme entre parenthèses.
+  // Sans cela, taper autre chose que le libellé exact de la liste laissait un
+  // détenteur en texte libre, et la société n'héritait d'aucun actif.
+  function ownerAliases() {
+    var a = [];
+    (state.societes || []).forEach(function (s, i) {
+      var n = socNom(s), f = socForme(s), code = 'soc:' + i;
+      if (!n) return;
+      a.push([n, code]);
+      if (f) { a.push([n + ' ' + f, code]); a.push([f + ' ' + n, code]); }
+    });
+    return a;
+  }
   function ownerCode(it) { return (it && it.detenteur) || ''; }
   function ownerLabel(code, it) {
     if (!code) return 'Détention non précisée';
@@ -192,6 +208,15 @@
   }
   // clé de regroupement : « autre » est regroupé par le texte libre saisi
   function ownerKey(it) { var c = ownerCode(it); return c === 'autre' ? 'autre:' + ((it.detenteurAutre || '').trim().toLowerCase() || '-') : c; }
+  function isSocOwner(it) { return ownerCode(it).indexOf('soc:') === 0; }
+  // Alerte de saisie : un bien déclaré en régime société (SCI…) dont le détenteur
+  // n'est pas l'une des sociétés déclarées ne remontera pas dans ses actifs.
+  function alerteSoc(it) {
+    if (isSocOwner(it) || !/sci|holding|soci[ée]t/i.test(it.statut || '')) return '';
+    return (state.societes || []).length
+      ? ' · ⚠ régime en société : sélectionnez la société dans « Détenu par » pour que le bien remonte dans ses actifs'
+      : ' · ⚠ régime en société : déclarez-la à l\'écran « Sociétés détenues » pour pouvoir y rattacher le bien';
+  }
   function ownerRank(code) {
     if (!code) return 90;
     if (code === 'lui') return 0; if (code === 'elle') return 1; if (code === 'union') return 2;
@@ -202,7 +227,12 @@
   // champs « détenu par » ajoutés à chaque bloc patrimonial
   function ownerFields(label, withSocietes) {
     return [
-      { k: 'detenteur', l: label || 'Détenu par', t: 'combo', o: withSocietes === false ? ownerOptionsNoSoc : ownerOptions, u: 'choisissez ou saisissez librement' }
+      {
+        k: 'detenteur', l: label || 'Détenu par', t: 'combo',
+        o: withSocietes === false ? ownerOptionsNoSoc : ownerOptions,
+        a: withSocietes === false ? null : ownerAliases,
+        u: withSocietes === false ? 'choisissez ou saisissez librement' : 'personne, couple ou société : choisissez dans la liste ou saisissez librement'
+      }
     ];
   }
   // libellé d'un type avec option « autre » en texte libre
@@ -566,12 +596,12 @@
       { k: 'valeur', l: 'Valeur actuelle estimée', t: 'number', u: '€' }, { k: 'adresse', l: 'Ville', opt: true }
     ].concat(ownerFields('Détenue par')) },
     { ch: 2, when: function () { return state.rp.statut === 'Propriétaire'; }, type: 'list', title: 'Crédit sur la résidence principale', hint: 'Continuez si le bien est payé. Mensualité et capital restant dû sont calculés à partir du capital, du taux, de la durée et de la date de début.', path: 'rp.credits', itemLabel: 'Prêt', fields: creditFields(), calcItem: function (c) { var i = creditInfo(c); return 'Mensualité ' + eurM(i.mensualite) + ' · CRD ' + eur(i.crd) + (i.fin ? ' · fin ' + i.fin : ''); } },
-    { ch: 2, type: 'list', title: 'Autres biens immobiliers', hint: 'Locatif, résidence secondaire, SCI… Précisez pour chaque bien qui le détient. Continuez si aucun.', path: 'biens', itemLabel: 'Bien', fields: [
+    { ch: 2, type: 'list', title: 'Autres biens immobiliers', hint: 'Locatif, résidence secondaire, SCI… Précisez pour chaque bien qui le détient. Si le bien est logé dans une société, choisissez-la dans « Détenu par » : c\'est ce qui la fait apparaître avec ses actifs et ses dettes dans la synthèse. Continuez si aucun.', path: 'biens', itemLabel: 'Bien', fields: [
       { k: 'type', l: 'Type', t: 'combo', o: BIEN_TYPES }, { k: 'localisation', l: 'Ville', opt: true },
       { k: 'statut', l: 'Régime de détention', t: 'combo', o: BIEN_STATUTS }
     ].concat(ownerFields('Détenu par'), [
       { k: 'valeur', l: 'Valeur actuelle estimée', t: 'number', u: '€' }, { k: 'loyer', l: 'Loyer net perçu', t: 'number', u: '€ / mois', opt: true }
-    ]), sub: { path: 'credits', label: 'Crédit sur ce bien', fields: creditFields() }, calcItem: function (b) { var v = num(b.valeur); var r = v ? num(b.loyer) * 12 / v : 0; var m = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).mensualite; }, 0); var crd = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).crd; }, 0); return ownerLabel(ownerCode(b), b) + ' · rentabilité brute ' + pc(r) + ' · mensualités ' + eurM(m) + ' · CRD ' + eur(crd) + ' · cash-flow ' + eurM(num(b.loyer) - m); } },
+    ]), sub: { path: 'credits', label: 'Crédit sur ce bien', fields: creditFields() }, calcItem: function (b) { var v = num(b.valeur); var r = v ? num(b.loyer) * 12 / v : 0; var m = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).mensualite; }, 0); var crd = (b.credits || []).reduce(function (a, c) { return a + creditInfo(c).crd; }, 0); return ownerLabel(ownerCode(b), b) + ' · rentabilité brute ' + pc(r) + ' · mensualités ' + eurM(m) + ' · CRD ' + eur(crd) + ' · cash-flow ' + eurM(num(b.loyer) - m) + alerteSoc(b); } },
     { ch: 2, type: 'choice', title: 'Un projet d\'acquisition immobilière ?', path: 'projet.echeance', options: ['Non', 'Moins d\'un an', '1 à 3 ans', 'Plus de 3 ans'], grid: true },
     { ch: 2, when: function () { return state.projet.echeance && state.projet.echeance !== 'Non'; }, type: 'fields', title: 'Le projet', path: 'projet', fields: [
       { k: 'type', l: 'Type de bien', opt: true }, { k: 'localisation', l: 'Localisation', opt: true }, { k: 'budget', l: 'Budget', t: 'number', u: '€' }, { k: 'apport', l: 'Apport', t: 'number', u: '€', opt: true }
@@ -635,6 +665,9 @@
       var pairs = co.map(function (o) { return Array.isArray(o) ? [String(o[0]), String(o[1])] : [String(o), String(o)]; });
       var code = false, map = {}, shown = String(v);
       pairs.forEach(function (pr) { map[pr[1]] = pr[0]; if (pr[0] !== pr[1]) code = true; });
+      // alias de saisie : reconnus à l'écriture, absents du menu déroulant
+      var extra = typeof f.a === 'function' ? f.a() : (f.a || []);
+      (extra || []).forEach(function (pr) { if (pr && pr[0] && !Object.prototype.hasOwnProperty.call(map, pr[0])) { map[pr[0]] = pr[1]; code = true; } });
       for (var ci = 0; ci < pairs.length; ci++) if (String(v) === pairs[ci][0]) { shown = pairs[ci][1]; break; }
       h += '<input id="' + id + '" list="' + id + '_dl" autocomplete="off"' + dp + (code ? ' data-map="' + esc(JSON.stringify(map)) + '"' : '') + ' value="' + esc(shown) + '"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : '') + '>';
       h += '<datalist id="' + id + '_dl">' + pairs.map(function (pr) { return '<option value="' + esc(pr[1]) + '"></option>'; }).join('') + '</datalist>';
@@ -755,7 +788,18 @@
   elCard.addEventListener('input', function (e) {
     var t = e.target, p = t.getAttribute('data-path'); if (p == null) return;
     var k = t.getAttribute('data-key'), val = t.value, m = t.getAttribute('data-map');
-    if (m) { try { var mm = JSON.parse(m); if (Object.prototype.hasOwnProperty.call(mm, val)) val = mm[val]; } catch (e2) {} }
+    if (m) {
+      try {
+        var mm = JSON.parse(m);
+        if (Object.prototype.hasOwnProperty.call(mm, val)) val = mm[val];
+        else {
+          // rattrapage souple : casse, accents et espaces en trop ne doivent pas
+          // empêcher la reconnaissance d'une société ou d'un détenteur connu
+          var nv = norm(val);
+          if (nv) for (var kk in mm) if (Object.prototype.hasOwnProperty.call(mm, kk) && norm(kk) === nv) { val = mm[kk]; break; }
+        }
+      } catch (e2) {}
+    }
     set(k ? p + '.' + k : p, val);
     refreshCalc(); renderLive(); save();
   });
@@ -848,17 +892,23 @@
   }
   function gauge(v, opts) {
     opts = opts || {}; var max = opts.max || 0.6, frac = Math.min(1, Math.max(0, v / max));
-    var cx = 90, cy = 84, R = 66, a = Math.PI * (1 - frac);
+    var cx = 90, cy = 80, R = 62;
     var arc = function (f) { var ang = Math.PI * (1 - f); return (cx + R * Math.cos(ang)).toFixed(2) + ' ' + (cy - R * Math.sin(ang)).toFixed(2); };
-    var seuil = (opts.seuil || 0.35) / max;
+    var seuil = Math.min(1, (opts.seuil || 0.35) / max);
+    // le cadran ne couvre qu'un demi-cercle : l'arc parcouru ne dépasse jamais
+    // 180°, donc le drapeau « large-arc » reste toujours à 0 — à 1 le navigateur
+    // trace l'arc complémentaire, sur l'autre cercle possible, d'où une bosse
+    // décalée au-dessus du tracé.
     var s = '<path d="M' + arc(0) + ' A' + R + ' ' + R + ' 0 0 1 ' + arc(1) + '" fill="none" stroke="#E7DCC7" stroke-width="12" stroke-linecap="round"/>';
-    if (frac > 0) s += '<path d="M' + arc(0) + ' A' + R + ' ' + R + ' 0 ' + (frac > 0.5 ? 1 : 0) + ' 1 ' + arc(frac) + '" fill="none" stroke="' + (v >= (opts.seuil || 0.35) ? '#001B00' : '#A9853F') + '" stroke-width="12" stroke-linecap="round"/>';
-    s += '<line x1="' + (cx + (R - 12) * Math.cos(Math.PI * (1 - seuil))).toFixed(1) + '" y1="' + (cy - (R - 12) * Math.sin(Math.PI * (1 - seuil))).toFixed(1) + '" x2="' + (cx + (R + 12) * Math.cos(Math.PI * (1 - seuil))).toFixed(1) + '" y2="' + (cy - (R + 12) * Math.sin(Math.PI * (1 - seuil))).toFixed(1) + '" stroke="#1E211C" stroke-width="1.2"/>';
-    s += '<text x="' + cx + '" y="' + (cy - 6) + '" text-anchor="middle" style="font-family:Cormorant Garamond,serif;font-size:26px;font-weight:600;fill:#001B00">' + pc(v, 0) + '</text>';
-    s += '<text x="' + cx + '" y="' + (cy + 10) + '" text-anchor="middle" class="lab lab--m">' + esc(opts.label || '') + '</text>';
-    s += '<text x="12" y="' + (cy + 14) + '" class="lab lab--m">0 %</text><text x="' + (cx * 2 - 12) + '" y="' + (cy + 14) + '" text-anchor="end" class="lab lab--m">' + pc(max, 0) + '</text>';
-    s += '<text x="' + (cx + (R + 16) * Math.cos(Math.PI * (1 - seuil))).toFixed(1) + '" y="' + (cy - (R + 16) * Math.sin(Math.PI * (1 - seuil)) + 3).toFixed(1) + '" text-anchor="middle" class="lab lab--m" style="font-size:7px">seuil ' + pc(opts.seuil || 0.35, 0) + '</text>';
-    return '<svg class="chart" viewBox="0 0 180 100" role="img" aria-label="' + esc(opts.label || '') + '">' + s + '</svg>';
+    if (frac > 0) s += '<path d="M' + arc(0) + ' A' + R + ' ' + R + ' 0 0 1 ' + arc(frac) + '" fill="none" stroke="' + (v >= (opts.seuil || 0.35) ? '#001B00' : '#A9853F') + '" stroke-width="12" stroke-linecap="round"/>';
+    // repère du seuil : trait en travers du tracé, libellé juste au-dessus
+    var sa = Math.PI * (1 - seuil), sc = Math.cos(sa), ss = Math.sin(sa);
+    s += '<line x1="' + (cx + (R - 9) * sc).toFixed(1) + '" y1="' + (cy - (R - 9) * ss).toFixed(1) + '" x2="' + (cx + (R + 9) * sc).toFixed(1) + '" y2="' + (cy - (R + 9) * ss).toFixed(1) + '" stroke="' + (frac >= seuil ? '#FCF9EF' : '#1E211C') + '" stroke-width="1.2"/>';
+    s += '<text x="' + cx + '" y="' + (cy - 4) + '" text-anchor="middle" style="font-family:Cormorant Garamond,serif;font-size:26px;font-weight:600;fill:#001B00">' + pc(v, 0) + '</text>';
+    s += '<text x="' + cx + '" y="' + (cy + 10) + '" text-anchor="middle" class="lab lab--m" style="font-size:8px">' + esc(opts.label || '') + '</text>';
+    s += '<text x="10" y="' + (cy + 23) + '" class="lab lab--m" style="font-size:8px">0 %</text><text x="' + (cx * 2 - 10) + '" y="' + (cy + 23) + '" text-anchor="end" class="lab lab--m" style="font-size:8px">' + pc(max, 0) + '</text>';
+    s += '<text x="' + (cx + (R + 13) * sc).toFixed(1) + '" y="' + (cy - (R + 13) * ss + 2).toFixed(1) + '" text-anchor="' + (seuil > 0.72 ? 'end' : (seuil < 0.28 ? 'start' : 'middle')) + '" class="lab lab--m" style="font-size:7px">seuil ' + pc(opts.seuil || 0.35, 0) + '</text>';
+    return '<svg class="chart" viewBox="0 0 180 106" role="img" aria-label="' + esc(opts.label || '') + '">' + s + '</svg>';
   }
   function stackbar(items, opts) {
     var total = items.reduce(function (a, i) { return a + i.v; }, 0) || 1, x = 0, s = '', W = 320;
@@ -993,11 +1043,14 @@
         return '<tr><td>' + esc(s.nom) + '</td><td>' + dash(s.forme) + '</td><td>' + dash(s.role) + '</td><td>' + esc(s.detLabel) + '</td><td class="r">' + (s.part ? pc(pct(s.part), 0) : '100 %') + '</td><td class="r">' + (b ? eur(b.actif) : '-') + '</td><td class="r">' + (b && b.passif ? eur(b.passif) : '-') + '</td><td class="r">' + (b ? eur(b.net) : '-') + '</td></tr>';
       }).join('');
       var socTot = R.societes.reduce(function (a, s) { var b = R.ownerMap[s.key]; return { actif: a.actif + (b ? b.actif : 0), passif: a.passif + (b ? b.passif : 0), net: a.net + (b ? b.net : 0) }; }, { actif: 0, passif: 0, net: 0 });
+      var socVides = R.societes.filter(function (s) { var b = R.ownerMap[s.key]; return !b || (!b.actif && !b.passif); }).map(function (s) { return s.nom; });
       H += slide(head('Sociétés détenues', 'Les structures du foyer et ce qu\'elles portent') +
         '<div class="kpis"><div class="kpi kpi--g"><div class="kpi__l">Nombre de sociétés</div><div class="kpi__v">' + R.societes.length + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Actifs logés en société</div><div class="kpi__v">' + eur(socTot.actif) + '</div></div><div class="kpi"><div class="kpi__l">Dettes portées</div><div class="kpi__v">' + eur(socTot.passif) + '</div></div><div class="kpi kpi--gd"><div class="kpi__l">Net en société</div><div class="kpi__v">' + eur(socTot.net) + '</div></div></div>' +
         '<table class="tb ' + (R.societes.length > 8 ? 'tb--sm' : 'tb--airy') + '"><tr><th>Société</th><th>Forme</th><th>Rôle</th><th>Détenue par</th><th class="r">Quote-part</th><th class="r">Actifs</th><th class="r">Dettes</th><th class="r">Net</th></tr>' + socRows +
         '<tr class="tot"><td colspan="5">Total</td><td class="r">' + eur(socTot.actif) + '</td><td class="r">' + eur(socTot.passif) + '</td><td class="r">' + eur(socTot.net) + '</td></tr></table>' +
-        '<p class="muted" style="margin-top:.8em;font-size:.82em">Les actifs et dettes affichés sont ceux rattachés à chaque société dans le reste du bilan. La trésorerie d\'exploitation, la valorisation des titres et la politique de rémunération ne sont pas reprises ici.</p>');
+        '<p class="muted" style="margin-top:.8em;font-size:.82em">Les actifs et dettes affichés sont ceux rattachés à chaque société dans le reste du bilan. La trésorerie d\'exploitation, la valorisation des titres et la politique de rémunération ne sont pas reprises ici.' +
+        // rappel de saisie réservé au conseiller : masqué à l'impression et dans le PDF
+        (socVides.length ? ' <span class="no-print" style="color:#A9853F"><b>Rappel conseiller : ' + esc(socVides.join(', ')) + (socVides.length > 1 ? ' ne portent' : ' ne porte') + ' aucun actif ni dette.</b> Pour les y rattacher, sélectionnez la société dans le champ « Détenu par » du bien, du compte ou du placement concerné.</span>' : '') + '</p>');
     }
 
     // 4. Revenus & fiscalité
