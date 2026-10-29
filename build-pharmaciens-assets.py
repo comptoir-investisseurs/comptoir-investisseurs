@@ -37,6 +37,8 @@ PHOTOS = [
     # Hero de l'accueil : pharmacienne dans son officine (photo fournie par le client).
     # Étalonnage léger pour préserver les carnations.
     ("Pharmacienne-officine.jpg", "officine-pharmacienne.jpg", 1900, 93, 6),
+    ("Pharmacie-armoire.jpg",     "armoire-pharmacie.jpg",      1700, 92, 7),
+    ("Pharmacie-pilulier.jpg",    "pilulier.jpg",               1700, 90, 8),
     ("Family.jpg",               "famille-champ.jpg",     1800, 88, 10),
     ("A woman and her kid.jpg",  "transmission.jpg",      1800, 88, 10),
     ("Save.jpg",                 "epargne.jpg",           1800, 86, 11),
@@ -64,16 +66,24 @@ CROPS = [
     ("Pharmacienne-officine.jpg", "officine-rayonnages.jpg", "636x509+820+330"),
     ("Pharmacienne-officine.jpg", "officine-geste.jpg",      "600x480+820+140"),
     ("Pharmacienne-officine.jpg", "officine-portrait.jpg",   "700x560+180+230"),
+    # Intérieur de commerce : on garde la partie en flou, sans texte ni enseigne.
+    ("Pharmacie-interieur.jpg",   "interieur-pharmacie.jpg", "1050x840+950+120"),
+    ("Pharmacie-rayonnages.jpg",  "rayonnages-pharmacie.jpg", "1000x800+250+150"),
 ]
+
+# Rayonnages garnis : la photo porte des marques tierces et des étiquettes de prix en
+# devise étrangère. Un flou léger la ramène à une matière d'arrière-plan.
+BLUR = {"rayonnages-pharmacie.jpg": "0x9"}
 
 def crop_photos():
     for src, dst, geom in CROPS:
         s = os.path.join(ROOT, src)
         if not os.path.exists(s):
             print("  ! source absente :", src); continue
+        soften = ["-blur", BLUR[dst]] if dst in BLUR else ["-unsharp", "0x0.8+0.6+0.02"]
         subprocess.run([
             "convert", s, "-auto-orient", "-crop", geom, "+repage",
-            "-resize", "1200x960", "-unsharp", "0x0.8+0.6+0.02",
+            "-resize", "1200x960"] + soften + [
             "-modulate", "100,93,104",
             "-fill", ACCENT, "-colorize", "6",
             "-strip", "-interlace", "Plane", "-sampling-factor", "4:2:0",
@@ -389,9 +399,7 @@ def og_html():
              "<div style='width:70px;height:2px;background:%s;margin:28px 0'></div>"
              "<div style=\"font-family:'Jost',sans-serif;font-size:23px;font-weight:300;opacity:.85\">"
              "Structurer, placer et transmettre le produit de votre cession.</div>"
-             "<div style=\"font-family:'Jost',sans-serif;font-size:15px;letter-spacing:.16em;"
-             "text-transform:uppercase;opacity:.6;margin-top:34px\">une marque de La Financière de "
-             "Rochechouart</div></div>" % (CREAM, MINT, MINT))
+             "</div>" % (CREAM, MINT, MINT))
     return ("<div style='position:relative;width:1200px;height:630px;overflow:hidden;background:%s'>%s%s</div>"
             % (DEEP, art, texte))
 

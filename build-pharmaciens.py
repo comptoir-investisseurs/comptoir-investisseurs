@@ -56,19 +56,6 @@ EXTRA_CSS = """
 /* =========================================================================
    Officine & Patrimoine — compléments propres à la marque
    ========================================================================= */
-/* Mention d'adossement, sous le logo */
-.endorse{
-  display:block; font-size:.62rem; letter-spacing:.22em; text-transform:uppercase;
-  font-weight:400; margin-top:5px; opacity:.72; white-space:nowrap;
-}
-.site-header .brand{ flex-direction:column; align-items:flex-start; gap:0; }
-.site-header .endorse{ color:#fff; }
-.site-header.is-solid .endorse,.site-header.is-light .endorse{ color:var(--green); }
-.site-footer .brand{ flex-direction:column; align-items:flex-start; gap:0; }
-/* Dans le pied de page la mention peut revenir à la ligne : sinon elle impose sa
-   largeur à la première colonne de la grille et fait déborder la page sur mobile. */
-.site-footer .endorse{ color:var(--cream); opacity:.7; margin-top:8px; white-space:normal; }
-
 /* Bandeau d'annonce (fiscalité, délais) */
 .flash{
   background:var(--green-700); color:var(--cream); font-size:.86rem; letter-spacing:.04em;
@@ -147,11 +134,7 @@ EXTRA_CSS = """
 .site-header.is-solid .brand__logo{ height:34px; }
 .nav{ gap:clamp(14px,1.8vw,30px); }
 
-@media (max-width:1180px){
-  .site-header .endorse{ display:none; }
-}
 @media (max-width:700px){
-  .endorse{ font-size:.55rem; letter-spacing:.16em; }
   /* Cadrage mobile du hero : recentrer sur la pharmacienne et ses rayonnages */
   .hero__bg img{ object-position:34% center; }
   .step{ grid-template-columns:1fr; gap:10px; }
@@ -278,9 +261,8 @@ def render_brand(mode="header"):
         imgs = ('<img class="brand__logo brand__logo--dark" src="assets/img/logo.png" alt="%s">'
                 '<img class="brand__logo brand__logo--light" src="assets/img/logo-light.png" alt="" aria-hidden="true">'
                 % html.escape(BRAND))
-    return ('<a class="brand brand--img" href="index.html" aria-label="%s · accueil">%s'
-            '<span class="endorse">%s</span></a>'
-            % (html.escape(BRAND), imgs, ENDORSEMENT))
+    return ('<a class="brand brand--img" href="index.html" aria-label="%s · accueil">%s</a>'
+            % (html.escape(BRAND), imgs))
 
 def render_header():
     items = []
@@ -335,7 +317,7 @@ def render_footer():
             '<p><a href="mailto:%s">%s</a></p>'
             '<p style="margin-top:16px"><a class="link-arrow" href="contact.html">Prendre rendez-vous %s</a></p></div>'
         '</div>'
-        '<p class="disclaimer">%s est une marque de %s, cabinet de gestion privée et de placement de trésorerie. '
+        '<p class="disclaimer">'
         'Les informations présentées sur ce site ont une vocation strictement informative et ne constituent ni un conseil '
         'en investissement, ni un conseil juridique ou fiscal, ni une sollicitation, ni une offre de souscription. Les '
         'montants, seuils et régimes fiscaux cités sont donnés à titre indicatif et doivent être vérifiés à la date de '
@@ -343,13 +325,11 @@ def render_footer():
         'investissement comporte des risques, notamment de perte en capital et d’illiquidité. La fiscalité dépend de la '
         'situation individuelle de chaque client et est susceptible d’évoluer.</p>'
         '<div class="footer-bottom">'
-          '<span>© <span id="year">%s</span> %s — %s. Tous droits réservés.</span>'
+          '<span>© <span id="year">%s</span> %s. Tous droits réservés.</span>'
           '<span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; '
-          '<a href="contact.html">Contact</a> &nbsp;·&nbsp; '
-          '<a href="https://www.lafinancierederochechouart.com" rel="noopener">%s</a></span>'
+          '<a href="contact.html">Contact</a></span>'
         '</div></div></footer>'
-      % (ADDRESS, EMAIL, EMAIL, arrow(), BRAND, PARENT,
-         datetime.date.today().year, BRAND, ENDORSEMENT, PARENT))
+      % (ADDRESS, EMAIL, EMAIL, arrow(), datetime.date.today().year, BRAND))
 
 # ==========================================================================
 # Gabarit + référencement
@@ -362,7 +342,7 @@ LAYOUT = """<!doctype html>
 <title>__TITLE__</title>
 <meta name="description" content="__DESC__">
 <meta name="keywords" content="__KEYWORDS__">
-<meta name="author" content="Officine &amp; Patrimoine — La Financière de Rochechouart">
+<meta name="author" content="Officine &amp; Patrimoine">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 <link rel="canonical" href="__CANON__">
 <meta property="og:type" content="website">
@@ -400,9 +380,7 @@ ORG_JSONLD = """{
   "@context": "https://schema.org",
   "@type": "FinancialService",
   "name": "Officine & Patrimoine",
-  "alternateName": "Officine et Patrimoine — La Financière de Rochechouart",
   "description": "Conseil en gestion de patrimoine pour les pharmaciens titulaires qui cèdent leur officine : fiscalité de la cession, apport-cession, holding, placement et transmission du produit de la vente.",
-  "parentOrganization": { "@type": "Organization", "name": "La Financière de Rochechouart" },
   "url": "%s/",
   "logo": "%s/assets/img/logo.png",
   "image": "%s/assets/img/og-officine-patrimoine.jpg",
@@ -1244,7 +1222,7 @@ SITUATION.update({
   desc="Revenus complémentaires après la cession d'une officine : retraits programmés, coupons, SCPI, dividendes de holding et leur fiscalité.",
   kw="revenus complémentaires pharmacien, rente après cession officine, retraits programmés assurance-vie, "
      "revenus réguliers capital cession, complément de retraite pharmacien, vivre des revenus de son capital",
-  img="serenite.jpg", alt="Banc face à la mer, image d’un revenu régulier et paisible",
+  img="pilulier.jpg", alt="Pilulier hebdomadaire rempli, image d’un revenu régulier",
   eyebrow="Revenus",
   subtitle="Le revenu net, seul objectif qui compte",
   paras=[
@@ -1640,7 +1618,7 @@ SOLUTIONS = {
   desc="Assurance-vie après la vente d'une pharmacie : rachats programmés, fiscalité après 8 ans, allocation libre et clause bénéficiaire.",
   kw="assurance-vie pharmacien, assurance vie après cession entreprise, rachats partiels programmés, "
      "fiscalité assurance vie 8 ans, clause bénéficiaire, fonds en euros, unités de compte architecture ouverte",
-  img="ocean.jpg", alt="Vague vue du ciel, image de régularité",
+  img="armoire-pharmacie.jpg", alt="Armoire à pharmacie, flacons alignés derrière une vitre",
   eyebrow="Placements financiers", subtitle="Trois fonctions dans un seul contrat",
   paras=[
     "L’assurance-vie remplit simultanément trois rôles qu’aucune autre enveloppe ne cumule : faire travailler "
@@ -2333,7 +2311,7 @@ SOLUTIONS.update({
   desc="Immobilier de santé : murs d'officines, maisons de santé et cliniques, en direct ou via des véhicules collectifs mutualisés.",
   kw="immobilier de santé, murs de pharmacie investissement, maison de santé pluriprofessionnelle, SCPI santé, "
      "EHPAD investissement, clinique immobilier, investir dans la santé pharmacien",
-  img="officine-rayonnages.jpg", alt="Rayonnages d’une officine, boîtes de médicaments alignées",
+  img="rayonnages-pharmacie.jpg", alt="Rayonnages garnis d’une pharmacie",
   eyebrow="Immobilier", subtitle="Un secteur que vous maîtrisez",
   paras=[
     "Peu d’investisseurs comprennent aussi bien qu’un ancien titulaire ce qui fait la valeur d’un local de "
@@ -2725,7 +2703,7 @@ def build_nos_solutions():
       "private equity, SCPI et structuration juridique.",
       "solutions placement pharmacien, assurance vie pharmacien, trésorerie holding, private equity, SCPI, "
       "structuration juridique cession, family office pharmacien",
-      "molecule.jpg", "Réseau moléculaire, image de l’architecture ouverte",
+      "interieur-pharmacie.jpg", "Rayonnages d’officine en arrière-plan flou",
       "Nos solutions", "Des outils, au service d’une stratégie",
       ["Nous ne commercialisons aucun produit maison. Pour chaque besoin identifié lors du bilan patrimonial, "
        "nous sélectionnons les solutions sur l’ensemble du marché : plusieurs assureurs, plusieurs sociétés "
@@ -3066,12 +3044,12 @@ def build_home():
 <section class="section" id="intro">
   <div class="container split">
     <div data-reveal>
-      <p class="eyebrow">La marque</p>
+      <p class="eyebrow">La maison</p>
       <h2 class="title-lg">Un cabinet de gestion privée qui connaît le métier de titulaire</h2>
       <hr class="rule">
-      <p class="lede">Officine &amp; Patrimoine est la marque de La Financière de Rochechouart dédiée aux
-      pharmaciens qui cèdent leur officine. Même maison, mêmes équipes, mêmes solutions en architecture
-      ouverte — avec une spécialisation sur une opération et une seule.</p>
+      <p class="lede">Officine &amp; Patrimoine accompagne les pharmaciens titulaires qui cèdent leur
+      officine : une maison de conseil indépendante, en architecture ouverte, spécialisée sur une
+      opération et une seule.</p>
       <p>Vendre une pharmacie n’est pas vendre une entreprise comme une autre. La forme de la cession — fonds
       de commerce ou titres de société d’exercice — change la fiscalité du vendeur. Le départ à la retraite
       conditionne plusieurs régimes de faveur. Les murs, souvent détenus en société civile, suivent un
@@ -3505,8 +3483,8 @@ def build_contact():
     body += section('<div class="map" data-reveal><iframe title="Plan, %s" loading="lazy" src="%s"></iframe>'
                     '</div>' % (ADDRESS, osm), cls="section--tight")
     page("contact.html", "Nous contacter",
-         "Contactez Officine & Patrimoine, marque de La Financière de Rochechouart : conseil patrimonial pour "
-         "pharmaciens cédants. 58 rue de Monceau, 75008 Paris.",
+         "Contactez Officine & Patrimoine, conseil patrimonial pour pharmaciens cédants. "
+         "58 rue de Monceau, 75008 Paris.",
          body,
          keywords="contact conseiller patrimonial pharmacien, rendez-vous gestion de patrimoine pharmacien, "
                   "cabinet gestion privée Paris pharmacien",

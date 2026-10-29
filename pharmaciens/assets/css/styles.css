@@ -560,19 +560,6 @@ body{ animation:pageIn .7s var(--ease) both; }
 /* =========================================================================
    Officine & Patrimoine — compléments propres à la marque
    ========================================================================= */
-/* Mention d'adossement, sous le logo */
-.endorse{
-  display:block; font-size:.62rem; letter-spacing:.22em; text-transform:uppercase;
-  font-weight:400; margin-top:5px; opacity:.72; white-space:nowrap;
-}
-.site-header .brand{ flex-direction:column; align-items:flex-start; gap:0; }
-.site-header .endorse{ color:#fff; }
-.site-header.is-solid .endorse,.site-header.is-light .endorse{ color:var(--green); }
-.site-footer .brand{ flex-direction:column; align-items:flex-start; gap:0; }
-/* Dans le pied de page la mention peut revenir à la ligne : sinon elle impose sa
-   largeur à la première colonne de la grille et fait déborder la page sur mobile. */
-.site-footer .endorse{ color:var(--cream); opacity:.7; margin-top:8px; white-space:normal; }
-
 /* Bandeau d'annonce (fiscalité, délais) */
 .flash{
   background:var(--green-700); color:var(--cream); font-size:.86rem; letter-spacing:.04em;
@@ -651,11 +638,7 @@ body{ animation:pageIn .7s var(--ease) both; }
 .site-header.is-solid .brand__logo{ height:34px; }
 .nav{ gap:clamp(14px,1.8vw,30px); }
 
-@media (max-width:1180px){
-  .site-header .endorse{ display:none; }
-}
 @media (max-width:700px){
-  .endorse{ font-size:.55rem; letter-spacing:.16em; }
   /* Cadrage mobile du hero : recentrer sur la pharmacienne et ses rayonnages */
   .hero__bg img{ object-position:34% center; }
   .step{ grid-template-columns:1fr; gap:10px; }

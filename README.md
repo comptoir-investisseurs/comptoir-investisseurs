@@ -163,12 +163,15 @@ Pensez à optimiser les photos pour le web (largeur ~1100–1920 px, JPEG qualit
 
 ## Officine & Patrimoine — site pharmaciens (`pharmaciens/`)
 
-Marque de La Financière de Rochechouart dédiée aux **pharmaciens titulaires qui viennent
-de céder leur officine**. Même maison et mêmes solutions, un site dédié avec sa propre
-identité : palette « vert officine » (croix verte de pharmacie, blanc menthé) et visuels
-propres à l'univers de l'officine. Le site est **calqué sur le site LFDR** : même design
-system, mêmes composants, mêmes mentions légales — adaptées pour préciser que la marque
-n'est pas une personne morale distincte.
+Site dédié aux **pharmaciens titulaires qui viennent de céder leur officine**, avec sa
+propre identité : palette « vert officine » (croix verte de pharmacie, blanc menthé) et
+visuels propres à l'univers de l'officine. Il est **calqué sur le site LFDR** : même
+design system, mêmes composants, mêmes mentions légales.
+
+À la demande du client, la marque ne s'affiche plus comme adossée à La Financière de
+Rochechouart : la mention « une marque de La Financière de Rochechouart » a été retirée
+du logo, du pied de page, de l'image de partage et des métadonnées. L'identification de
+l'éditeur subsiste uniquement dans `mentions-legales.html`, où la loi l'impose.
 
 **40 pages**, générées par `build-pharmaciens.py` dans `pharmaciens/` :
 
@@ -220,11 +223,17 @@ photographies du dépôt étalonnées dans la palette, illustrations de l'univer
 (comptoir, croix verte, mortier, molécule, façade…) composées en SVG et rendues via
 Chromium, logo, favicons, image de partage et texture de fond.
 
-La photographie d'officine (`Pharmacienne-officine.jpg`, à la racine) sert de hero sur
-l'accueil ; le script en tire aussi trois recadrages — rayonnages, geste, portrait — qui
-alimentent les pages liées au métier (accueil, Votre situation, Vous venez de vendre,
-immobilier de santé). `hero-officine.jpg` est l'ancien hero illustré, conservé comme
-variante : pour le remettre, changez le `src` du hero dans `build_home()`.
+Les photographies d'officine sont à la racine du dépôt (`Pharmacienne-officine.jpg`,
+`Pharmacie-armoire.jpg`, `Pharmacie-pilulier.jpg`, `Pharmacie-interieur.jpg`,
+`Pharmacie-rayonnages.jpg`). La première sert de hero sur l'accueil ; le script en tire
+trois recadrages — rayonnages, geste, portrait — pour les pages liées au métier.
+`hero-officine.jpg` est l'ancien hero illustré, conservé comme variante : pour le
+remettre, changez le `src` du hero dans `build_home()`.
+
+Le dictionnaire `BLUR` de `build-pharmaciens-assets.py` applique un flou à un recadrage
+donné. Il sert pour `rayonnages-pharmacie.jpg`, dont la photo d'origine porte des marques
+tierces et des étiquettes de prix en devise étrangère : le flou la ramène à une matière
+d'arrière-plan où rien n'est lisible.
 
 Pour ajouter d'autres photos : déposez-les à la racine du dépôt, ajoutez une ligne dans
 `PHOTOS` (source, nom de sortie, largeur, saturation, intensité du virage vert) ou dans
