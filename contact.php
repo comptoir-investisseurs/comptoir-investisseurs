@@ -14,11 +14,16 @@
    en déposant un contact-secrets.php à côté (non suivi par git).
    ========================================================================= */
 
+// Destinataire : la boite du cabinet, sur le domaine court historique
+// (cf. assets/js/bilan.js — le site et l'email sont sur deux domaines).
 $CONTACT_TO   = 'contact@lfd-rochechouart.com';
-// L'expéditeur doit être une adresse du domaine hébergé, sinon l'email part
-// en spam (SPF/DKIM). Ne mettez jamais l'adresse du visiteur ici : elle va
-// dans Reply-To, plus bas.
-$CONTACT_FROM = 'contact@lfd-rochechouart.com';
+
+// Expediteur : OBLIGATOIREMENT une adresse du domaine heberge par Hostinger,
+// c'est-a-dire celui du site (lafinancierederochechouart.com). Une adresse
+// d'un autre domaine ferait echouer SPF/DKIM et partirait en spam, meme si la
+// boite existe. Ne mettez jamais l'adresse du visiteur ici : elle va dans
+// Reply-To, plus bas, pour que « Repondre » ecrive bien au prospect.
+$CONTACT_FROM = 'no-reply@lafinancierederochechouart.com';
 $CONTACT_FROM_NAME = 'Site La Financiere de Rochechouart';
 
 if (is_file(__DIR__ . '/contact-secrets.php')) {
