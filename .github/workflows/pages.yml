@@ -35,6 +35,8 @@ jobs:
             --exclude 'build.py' \
             --exclude '*.sql' \
             --exclude 'SECURITY-AUDIT.md' \
+            --exclude 'contact.php' \
+            --exclude 'contact-secrets.php' \
             --exclude 'bilan-patrimonial.html' \
             --exclude 'assets/js/bilan.js' \
             --exclude 'assets/js/drive.js' \

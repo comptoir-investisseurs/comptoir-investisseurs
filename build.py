@@ -71,7 +71,7 @@ ADDRESS = "58 rue de Monceau, 75008 Paris"
 
 # Swap these for your own assets, then re-run `python3 build.py`.
 # (e.g. LOGO_MARK = "assets/img/logo.png", HERO_IMG = "assets/img/hero.jpg")
-LOGO_MARK  = "assets/img/monogram.svg"  # favicon
+LOGO_MARK  = "assets/img/monogram.svg"  # monogramme (en-tete) ; favicons PNG dans LAYOUT
 HERO_IMG   = "assets/img/hero.jpg"       # full-width homepage background photo
 # Full wordmark logo (dark version for light backgrounds + cream version for dark).
 BRAND_LOGO       = "assets/img/logo.png"
@@ -243,7 +243,10 @@ LAYOUT = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>__TITLE__ · La Financière de Rochechouart</title>
 <meta name="description" content="__DESC__">
-<link rel="icon" href="__FAVICON__">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png?v=2">
+<link rel="icon" href="assets/img/favicon.png?v=2">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -255,12 +258,12 @@ __HEADER__
 __BODY__
 </main>
 __FOOTER__
-<script src="assets/js/main.js"></script>
+<script src="assets/js/main.js"></script>__SCRIPTS__
 </body>
 </html>
 """
 
-def page(slug, title, desc, body, home=False):
+def page(slug, title, desc, body, home=False, scripts=None):
     # Centralised photo distribution: swap feature images per page for variety.
     imgs = PAGE_IMAGES.get(slug[:-5] if slug.endswith(".html") else slug)
     if imgs:
@@ -274,11 +277,12 @@ def page(slug, title, desc, body, home=False):
     out = (LAYOUT
            .replace("__TITLE__", html.escape(title))
            .replace("__DESC__", html.escape(desc))
-           .replace("__FAVICON__", LOGO_MARK)
            .replace("__BODYCLASS__", ' class="home"' if home else "")
            .replace("__HEADER__", render_header())
            .replace("__FOOTER__", render_footer())
-           .replace("__BODY__", body))
+           .replace("__BODY__", body)
+           .replace("__SCRIPTS__", "".join(
+               '\n<script src="assets/js/%s"></script>' % sc for sc in (scripts or []))))
     with open(os.path.join(ROOT, slug), "w", encoding="utf-8") as f:
         f.write(out)
     print("wrote", slug)
@@ -2983,12 +2987,14 @@ def build_contact():
     form = (
       '<form id="contact-form" class="form" novalidate>'
         '<div class="row">'
-          '<div class="field"><label for="f-name">Nom &amp; prénom</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>'
-          '<div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>'
+          '<div class="field"><label for="f-prenom">Prénom</label><input id="f-prenom" name="prenom" type="text" autocomplete="given-name" required></div>'
+          '<div class="field"><label for="f-nom">Nom</label><input id="f-nom" name="nom" type="text" autocomplete="family-name" required></div>'
         '</div>'
         '<div class="row">'
+          '<div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>'
           '<div class="field"><label for="f-phone">Téléphone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>'
-          '<div class="field"><label for="f-subject">Objet</label>'
+        '</div>'
+        '<div class="field"><label for="f-subject">Objet</label>'
             '<select id="f-subject" name="subject">'
               '<option>Gestion privée &amp; placements</option>'
               '<option>Assurance-vie luxembourgeoise</option>'
@@ -2998,8 +3004,10 @@ def build_contact():
               '<option>Family Office</option>'
               '<option>Autre demande</option>'
             '</select></div>'
-        '</div>'
         '<div class="field"><label for="f-message">Votre message</label><textarea id="f-message" name="message" required></textarea></div>'
+        '<div aria-hidden="true" style="position:absolute;left:-9999px" tabindex="-1">'
+          '<label for="f-company">Société</label><input id="f-company" name="company" type="text" autocomplete="off">'
+        '</div>'
         '<div class="form__status" role="status" aria-live="polite"></div>'
         '<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">'
           '<button class="btn btn--solid" type="submit">Envoyer ma demande %s</button>'
@@ -3015,7 +3023,8 @@ def build_contact():
         '</div>')
     osm = ('https://www.openstreetmap.org/export/embed.html?bbox=2.3019%%2C48.8737%%2C2.3219%%2C48.8837&amp;layer=mapnik&amp;marker=%s%%2C%s' % (lat, lon))
     body += section('<div class="map" data-reveal><iframe title="Plan, 58 rue de Monceau, 75008 Paris" loading="lazy" src="%s"></iframe></div>' % osm, cls="section--tight")
-    page("contact.html","Nous contacter","Contactez La Financière de Rochechouart, 58 rue de Monceau, 75008 Paris, contact@lfd-rochechouart.com.", body)
+    page("contact.html","Nous contacter","Contactez La Financière de Rochechouart, 58 rue de Monceau, 75008 Paris, contact@lfd-rochechouart.com.", body,
+     scripts=["supabase-config.js", "contact-config.js", "contact.js"])
 
 def build_mentions():
     body = page_hero("Mentions légales",

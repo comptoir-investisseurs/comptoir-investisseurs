@@ -67,6 +67,25 @@ animations modernes (révélations au défilement, transitions de page, effets d
   directement via « + Ajouter un client » dans l'onglet Clients, et l'onglet Actifs d'une fiche
   affiche la répartition Financier / Immobilier / Disponible déclarée au dernier bilan tant
   qu'aucune enveloppe réelle n'a été saisie côté Cockpit.
+- **Formulaire de contact** — `contact.html` : la demande part d'abord dans Supabase
+  (table `clients`, en prospect `Lead site` sans étape de pipeline), donc elle apparaît
+  immédiatement dans le CRM, onglet « À rappeler ». Une notification email est ensuite
+  envoyée au cabinet par `contact.php`, servi par **Hostinger sur la même origine** que le
+  site : pas de CORS, pas de service tiers, pas de clé API, pas de réveil à froid. Cette
+  notification est facultative — si elle échoue, la demande reste enregistrée et le visiteur
+  voit malgré tout une confirmation. Le repli `mailto:` ne sert plus que si Supabase est
+  injoignable. Logique dans `assets/js/contact.js`, endpoint dans
+  `assets/js/contact-config.js` (`CONTACT_ENDPOINT`).
+  `contact.php` valide les champs, neutralise les injections d'en-têtes, borne les tailles,
+  limite à 5 envois par IP et par quart d'heure et ignore les soumissions qui remplissent le
+  pot de miel. Il n'a **aucune configuration obligatoire** : il envoie via la fonction `mail()`
+  de Hostinger, depuis une adresse du domaine hébergé (indispensable pour SPF/DKIM, sinon
+  l'email part en spam). Pour changer le destinataire ou passer par SMTP, déposez un
+  `contact-secrets.php` à côté (ignoré par git, exclu de GitHub Pages) qui redéfinit
+  `$CONTACT_TO`, `$CONTACT_FROM` ou `$CONTACT_FROM_NAME`.
+  ⚠️ `contact.php` doit être déposé dans le même dossier que les HTML sur Hostinger
+  (`public_html/`). GitHub Pages n'exécutant pas PHP, il en est exclu : sur Pages le
+  formulaire enregistre le lead dans le CRM mais n'envoie pas d'email.
 - **Suivi des produits structurés** — `structures.html` : book, fiches produit, calendrier de
   coupons/autocalls et cours réels des sous-jacents (Yahoo Finance). Les cours passent par
   `server/` (petit relais Node/Express, à déployer séparément sur Render en tant que **Web
@@ -169,18 +188,22 @@ couleurs (`--green`, `--gold`, `--cream`…), typographies, rythme. Les polices
 
 ## Déploiement
 
-Site 100 % statique, publié en ligne sur **GitHub Pages** (`.github/workflows/pages.yml`,
-déclenché à chaque push sur la branche déployée) et sur **Render** (site statique).
-Le relais de cours (`server/`) est un service à part, également sur Render — voir
-`server/package.json`. Reste déployable tel quel sur tout hébergeur statique classique
-si besoin ; pour GitHub Pages, servez la racine du dépôt.
+Le site en production est servi par **Hostinger** : déposez le contenu du dépôt dans
+`public_html/`, `contact.php` compris (c'est le seul fichier qui a besoin de PHP).
+Une publication **GitHub Pages** existe en parallèle (`.github/workflows/pages.yml`,
+déclenchée à chaque push sur la branche déployée) ; Pages n'exécutant pas PHP,
+`contact.php` en est exclu et la notification email n'y fonctionne pas (le lead est tout de
+même enregistré dans le CRM). Le relais de cours (`server/`) est un service Node à part,
+hébergé sur Render — voir `server/package.json`.
 
 ## Structure
 
 ```
 index.html, vos-besoins.html, …      Pages générées
 assets/css/styles.css                Design system
-assets/js/main.js                    Interactions (menu, reveals, transitions, formulaire)
+assets/js/main.js                    Interactions (menu, reveals, transitions)
+assets/js/contact.js                 Formulaire de contact (Supabase + notification)
+contact.php                          Notification email des demandes (PHP, Hostinger)
 assets/img/*.svg                     Logo, hero et visuels (remplaçables)
 build.py                             Générateur du site
 ```

@@ -1,5 +1,6 @@
 # Fichiers contenant des secrets — NE JAMAIS committer
 supabase-invitations.sql
+contact-secrets.php
 *.secret
 .env
 .env.*
