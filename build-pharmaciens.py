@@ -124,6 +124,14 @@ EXTRA_CSS = """
 .cross-rule svg{ width:18px; height:18px; }
 .cross-rule span{ font-size:.74rem; letter-spacing:.28em; text-transform:uppercase; font-weight:500; }
 
+/* Hero photographique : la photo d'officine est claire à droite, là où se pose le
+   panneau de texte. On remplace le voile d'origine (dégradé vers la gauche) par un
+   voile qui s'assombrit vers la droite, et on densifie le panneau. */
+.home .hero__bg::after{
+  background:linear-gradient(90deg,rgba(4,40,34,.30) 0%,rgba(4,40,34,.42) 40%,rgba(4,40,34,.72) 100%);
+}
+.home .hero__panel{ background:rgba(6,50,43,.78); }
+
 /* Texture : motif de croix répété plutôt qu'étiré plein cadre */
 .page-hero::before,.cta-band::before{
   background:url('../img/img-texture.svg') repeat; background-size:180px 180px;
@@ -144,8 +152,8 @@ EXTRA_CSS = """
 }
 @media (max-width:700px){
   .endorse{ font-size:.55rem; letter-spacing:.16em; }
-  /* Garder la croix d'officine visible dans le cadrage mobile du hero */
-  .hero__bg img{ object-position:22% center; }
+  /* Cadrage mobile du hero : recentrer sur la pharmacienne et ses rayonnages */
+  .hero__bg img{ object-position:34% center; }
   .step{ grid-template-columns:1fr; gap:10px; }
   .figures{ gap:22px; }
 }
@@ -660,7 +668,7 @@ SITUATION = {
   kw="vendre sa pharmacie, vente officine que faire, j'ai vendu ma pharmacie, cession officine capital, "
      "placer argent vente pharmacie, pharmacien vient de vendre, après la vente de l'officine, "
      "conseil patrimonial pharmacien, gestion de patrimoine pharmacien titulaire",
-  img="jardin-officine.jpg", alt="Jardin méditerranéen en terrasses, image d’une nouvelle étape de vie",
+  img="officine-geste.jpg", alt="Main d’une pharmacienne saisissant une boîte de médicament sur un rayonnage",
   eyebrow="Le moment charnière",
   subtitle="Un capital qui ne se reconstituera pas",
   paras=[
@@ -1444,7 +1452,7 @@ SITUATION.update({
   desc="Murs de pharmacie : conserver et louer au repreneur, vendre ou démembrer. Fiscalité des loyers et de la plus-value immobilière.",
   kw="murs de pharmacie, vendre les murs de l'officine, SCI murs pharmacie, bail commercial pharmacie, "
      "loyer murs officine fiscalité, plus-value immobilière murs pharmacie, conserver les murs après cession",
-  img="immobilier.jpg", alt="Façade d’immeuble, image des murs commerciaux",
+  img="facade-officine.jpg", alt="Façade d’officine stylisée, vitrine et enseigne",
   eyebrow="Immobilier d’exploitation",
   subtitle="Un actif de rendement, et un risque de concentration",
   paras=[
@@ -1877,7 +1885,7 @@ SOLUTIONS = {
   desc="Produits structurés : mécanismes de protection, coupons conditionnels, barrières et place de ces solutions dans une allocation.",
   kw="produits structurés, autocall, coupon conditionnel, capital protégé, barrière de protection, EMTN, "
      "placement structuré sur mesure, rendement défini à l'avance",
-  img="molecule.jpg", alt="Réseau moléculaire, image de mécanismes combinés",
+  img="mortier.jpg", alt="Mortier et pilon d’apothicaire, image de la préparation sur mesure",
   eyebrow="Placements financiers", subtitle="Un contrat dont vous connaissez les règles",
   paras=[
     "Un produit structuré est un instrument dont le rendement et le remboursement suivent une formule connue "
@@ -2325,7 +2333,7 @@ SOLUTIONS.update({
   desc="Immobilier de santé : murs d'officines, maisons de santé et cliniques, en direct ou via des véhicules collectifs mutualisés.",
   kw="immobilier de santé, murs de pharmacie investissement, maison de santé pluriprofessionnelle, SCPI santé, "
      "EHPAD investissement, clinique immobilier, investir dans la santé pharmacien",
-  img="facade-officine.jpg", alt="Façade d’officine stylisée avec enseigne",
+  img="officine-rayonnages.jpg", alt="Rayonnages d’une officine, boîtes de médicaments alignées",
   eyebrow="Immobilier", subtitle="Un secteur que vous maîtrisez",
   paras=[
     "Peu d’investisseurs comprennent aussi bien qu’un ancien titulaire ce qui fait la valeur d’un local de "
@@ -2660,7 +2668,7 @@ def build_votre_situation():
       "transmission et murs de l'officine.",
       "situation pharmacien cession, besoins pharmacien vendeur officine, conseil pharmacien retraite, "
       "patrimoine pharmacien titulaire, accompagnement cession pharmacie",
-      "jardin-officine.jpg", "Jardin en terrasses, image du temps retrouvé",
+      "officine-portrait.jpg", "Pharmacienne titulaire dans son officine",
       "Votre situation", "Des questions précises, pas des généralités",
       ["Un pharmacien qui cède à 58 ans pour racheter une autre officine n’a pas les mêmes besoins qu’un "
        "titulaire de 65 ans qui liquide ses droits à la retraite, ni que celui qui part vivre à l’étranger.",
@@ -2983,7 +2991,7 @@ def build_family_office():
       "Au-delà du placement : la coordination de vos intérêts patrimoniaux, familiaux et professionnels, "
       "avec un interlocuteur unique qui connaît l’ensemble de votre dossier.",
       crumbs)
-    body += section(feature_row("cour.jpg", "Cour d’honneur classique", "Family Office",
+    body += section(feature_row("croix-verte.jpg", "Croix verte d’officine", "Family Office",
       "Un chef d’orchestre, pas un instrument de plus",
       ["Après une cession importante, le patrimoine se disperse : plusieurs banques, plusieurs contrats, une "
        "ou deux sociétés, de l’immobilier, des engagements familiaux. Personne n’en a la vision complète — "
@@ -3034,7 +3042,7 @@ def build_family_office():
 def build_home():
     body = """
 <section class="hero">
-  <div class="hero__bg"><img src="assets/img/hero-officine.jpg" alt="Comptoir d’officine stylisé, croix verte lumineuse"></div>
+  <div class="hero__bg"><img src="assets/img/officine-pharmacienne.jpg" alt="Pharmacienne titulaire dans son officine, prenant une boîte de médicament sur un rayonnage"></div>
   <div class="guides"><span class="v v1"></span><span class="v v2"></span><span class="h h1"></span></div>
   <div class="container">
     <div class="hero__panel" data-reveal>
@@ -3072,7 +3080,7 @@ def build_home():
       eux : notre métier commence là où le leur s’arrête, à la question du capital.</p>
       <a class="link-arrow" href="votre-situation.html">Découvrir notre accompagnement __ARROW__</a>
     </div>
-    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/jardin-officine.jpg" alt="Jardin en terrasses, image du temps retrouvé après la cession"></div></div>
+    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/officine-rayonnages.jpg" alt="Rayonnages d’officine garnis de boîtes de médicaments"></div></div>
   </div>
 </section>
 """.replace("__ARROW__", arrow())

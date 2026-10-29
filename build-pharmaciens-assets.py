@@ -34,13 +34,12 @@ CREAM  = "#EDF5F1"
 # ---------------------------------------------------------------------------
 # (fichier source, nom de sortie, largeur, saturation, intensité du virage vert)
 PHOTOS = [
-    ("Garden.jpg",               "jardin-officine.jpg",   1800, 90, 9),
-    ("Family very happy.jpg",    "famille-mer.jpg",       1800, 88, 10),
+    # Hero de l'accueil : pharmacienne dans son officine (photo fournie par le client).
+    # Étalonnage léger pour préserver les carnations.
+    ("Pharmacienne-officine.jpg", "officine-pharmacienne.jpg", 1900, 93, 6),
     ("Family.jpg",               "famille-champ.jpg",     1800, 88, 10),
     ("A woman and her kid.jpg",  "transmission.jpg",      1800, 88, 10),
-    ("Family happy.jpg",         "famille-sourire.jpg",   1600, 88, 10),
     ("Save.jpg",                 "epargne.jpg",           1800, 86, 11),
-    ("Saving.jpg",               "capital.jpg",           1600, 86, 11),
     ("Bridge.jpg",               "pont-transmission.jpg", 1600, 88, 10),
     ("Building.jpg",             "immobilier.jpg",        1800, 88, 10),
     ("Bank USA.jpg",             "institution.jpg",       1800, 86, 11),
@@ -57,6 +56,30 @@ PHOTOS = [
     ("assets/img/retraite.jpg",      "retraite.jpg",      1800, 90, 9),
     ("assets/img/paris-courtyard.jpg", "cour.jpg",        1600, 88, 10),
 ]
+
+# Recadrages de la photo d'officine : une série éditoriale cohérente (les rayonnages,
+# le geste, le portrait) tirée d'une même prise de vue, pour les pages qui doivent
+# montrer le métier plutôt qu'une image financière.
+CROPS = [
+    ("Pharmacienne-officine.jpg", "officine-rayonnages.jpg", "636x509+820+330"),
+    ("Pharmacienne-officine.jpg", "officine-geste.jpg",      "600x480+820+140"),
+    ("Pharmacienne-officine.jpg", "officine-portrait.jpg",   "700x560+180+230"),
+]
+
+def crop_photos():
+    for src, dst, geom in CROPS:
+        s = os.path.join(ROOT, src)
+        if not os.path.exists(s):
+            print("  ! source absente :", src); continue
+        subprocess.run([
+            "convert", s, "-auto-orient", "-crop", geom, "+repage",
+            "-resize", "1200x960", "-unsharp", "0x0.8+0.6+0.02",
+            "-modulate", "100,93,104",
+            "-fill", ACCENT, "-colorize", "6",
+            "-strip", "-interlace", "Plane", "-sampling-factor", "4:2:0",
+            "-quality", "84", os.path.join(OUT, dst),
+        ], check=True)
+        print("  recadrage", dst)
 
 def grade_photos():
     for src, dst, width, sat, tint in PHOTOS:
@@ -432,7 +455,7 @@ def build_artworks():
     shutil.rmtree(tmp, ignore_errors=True)
 
 # ---------------------------------------------------------------------------
-# 4. Texture de fond (motif croix) + monogramme
+# 4. Texture de fond (motif croix)
 # ---------------------------------------------------------------------------
 TEXTURE = """<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 240 240">
   <defs>
@@ -446,21 +469,14 @@ TEXTURE = """<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" vi
 </svg>
 """
 
-MONOGRAM = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <circle cx="50" cy="50" r="48" fill="#06322B"/>
-  <path d="M41 20 h18 v21 h21 v18 h-21 v21 h-18 v-21 h-21 v-18 h21 z" fill="#5FD6AE"/>
-</svg>
-"""
 
 def build_svgs():
     with open(os.path.join(OUT, "img-texture.svg"), "w", encoding="utf-8") as f:
         f.write(TEXTURE)
-    with open(os.path.join(OUT, "monogram.svg"), "w", encoding="utf-8") as f:
-        f.write(MONOGRAM)
-    print("  texture + monogramme")
+    print("  texture")
 
 def main():
-    print("Photographies…");  grade_photos()
+    print("Photographies…");  grade_photos(); crop_photos()
     print("Illustrations…");  build_artworks()
     print("SVG…");            build_svgs()
     print("Terminé.")

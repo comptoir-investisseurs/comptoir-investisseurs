@@ -220,6 +220,16 @@ photographies du dépôt étalonnées dans la palette, illustrations de l'univer
 (comptoir, croix verte, mortier, molécule, façade…) composées en SVG et rendues via
 Chromium, logo, favicons, image de partage et texture de fond.
 
+La photographie d'officine (`Pharmacienne-officine.jpg`, à la racine) sert de hero sur
+l'accueil ; le script en tire aussi trois recadrages — rayonnages, geste, portrait — qui
+alimentent les pages liées au métier (accueil, Votre situation, Vous venez de vendre,
+immobilier de santé). `hero-officine.jpg` est l'ancien hero illustré, conservé comme
+variante : pour le remettre, changez le `src` du hero dans `build_home()`.
+
+Pour ajouter d'autres photos : déposez-les à la racine du dépôt, ajoutez une ligne dans
+`PHOTOS` (source, nom de sortie, largeur, saturation, intensité du virage vert) ou dans
+`CROPS` (source, nom de sortie, géométrie de recadrage), puis relancez le script.
+
 ### Contenu et prudence rédactionnelle
 
 Les pages décrivent les régimes fiscaux **par leur logique et leurs références d'articles**,

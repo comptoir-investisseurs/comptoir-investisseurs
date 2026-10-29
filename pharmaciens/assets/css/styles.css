@@ -628,6 +628,14 @@ body{ animation:pageIn .7s var(--ease) both; }
 .cross-rule svg{ width:18px; height:18px; }
 .cross-rule span{ font-size:.74rem; letter-spacing:.28em; text-transform:uppercase; font-weight:500; }
 
+/* Hero photographique : la photo d'officine est claire à droite, là où se pose le
+   panneau de texte. On remplace le voile d'origine (dégradé vers la gauche) par un
+   voile qui s'assombrit vers la droite, et on densifie le panneau. */
+.home .hero__bg::after{
+  background:linear-gradient(90deg,rgba(4,40,34,.30) 0%,rgba(4,40,34,.42) 40%,rgba(4,40,34,.72) 100%);
+}
+.home .hero__panel{ background:rgba(6,50,43,.78); }
+
 /* Texture : motif de croix répété plutôt qu'étiré plein cadre */
 .page-hero::before,.cta-band::before{
   background:url('../img/img-texture.svg') repeat; background-size:180px 180px;
@@ -648,8 +656,8 @@ body{ animation:pageIn .7s var(--ease) both; }
 }
 @media (max-width:700px){
   .endorse{ font-size:.55rem; letter-spacing:.16em; }
-  /* Garder la croix d'officine visible dans le cadrage mobile du hero */
-  .hero__bg img{ object-position:22% center; }
+  /* Cadrage mobile du hero : recentrer sur la pharmacienne et ses rayonnages */
+  .hero__bg img{ object-position:34% center; }
   .step{ grid-template-columns:1fr; gap:10px; }
   .figures{ gap:22px; }
 }
