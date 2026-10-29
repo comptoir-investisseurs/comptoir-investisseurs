@@ -33,6 +33,8 @@ jobs:
             --exclude '.github' \
             --exclude '_site' \
             --exclude 'build.py' \
+            --exclude 'build-pharmaciens.py' \
+            --exclude 'build-pharmaciens-assets.py' \
             --exclude '*.sql' \
             --exclude 'SECURITY-AUDIT.md' \
             --exclude 'bilan-patrimonial.html' \

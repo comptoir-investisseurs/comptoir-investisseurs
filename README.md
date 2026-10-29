@@ -161,6 +161,73 @@ relancez `python3 build.py`. Le logo et le hero sont aussi paramétrables via le
 constantes `BRAND_LOGO`, `BRAND_LOGO_LIGHT` et `HERO_IMG` en haut de `build.py`.
 Pensez à optimiser les photos pour le web (largeur ~1100–1920 px, JPEG qualité ~80).
 
+## Officine & Patrimoine — site pharmaciens (`pharmaciens/`)
+
+Marque de La Financière de Rochechouart dédiée aux **pharmaciens titulaires qui viennent
+de céder leur officine**. Même maison et mêmes solutions, un site dédié avec sa propre
+identité : palette « vert officine » (croix verte de pharmacie, blanc menthé) et visuels
+propres à l'univers de l'officine. Le site est **calqué sur le site LFDR** : même design
+system, mêmes composants, mêmes mentions légales — adaptées pour préciser que la marque
+n'est pas une personne morale distincte.
+
+**40 pages**, générées par `build-pharmaciens.py` dans `pharmaciens/` :
+
+- **Accueil** — `pharmaciens/index.html` : hero « Vous venez de céder votre officine »,
+  méthode en quatre rendez-vous, situations, solutions.
+- **Votre situation** — `votre-situation.html` + 9 pages : vous venez de vendre ·
+  que faire du produit de la cession · fiscalité de la cession · apport-cession et
+  holding · retraite · revenus complémentaires · transmission · murs de l'officine ·
+  expatriation.
+- **Nos solutions** — `nos-solutions.html` + 6 pages chapeau et 19 sous-pages :
+  placements financiers (assurance-vie, contrat luxembourgeois, capitalisation,
+  compte-titres/PEA, produits structurés, obligataire) · trésorerie de holding ·
+  private equity · immobilier (SCPI, immobilier de santé, nue-propriété, club deals) ·
+  structuration (holding/SPFPL, SCI, donation avant cession) · family office.
+- **Le guide de la cession d'officine** — `guide-cession-officine.html` : page de
+  référence (étapes, fiscalité comparée fonds/titres, erreurs fréquentes, glossaire, FAQ).
+- `contact.html` et `mentions-legales.html` (marque adossée à LFDR).
+
+### Référencement
+
+Chaque page porte un `<title>` unique, une méta-description de moins de 160 caractères,
+des mots-clés, les balises Open Graph / Twitter, un lien canonique et des données
+structurées JSON-LD (`FinancialService`, `BreadcrumbList`, `FAQPage` sur les pages à
+questions). S'y ajoutent `pharmaciens/sitemap.xml`, `pharmaciens/robots.txt`, un maillage
+interne dense (blocs « À explorer aussi », index complet dans le guide) et des nuages de
+**recherches fréquentes** en longue traîne (« que faire après la vente de son officine »,
+« placer le produit de la cession », « apport-cession pharmacien », « retraite CAVP »…).
+L'adresse de production est définie par `SITE_URL` en tête de `build-pharmaciens.py` :
+**à mettre à jour avant mise en ligne** (elle alimente les liens canoniques, le plan du
+site et les métadonnées de partage).
+
+### Régénérer
+
+```bash
+python3 build-pharmaciens.py            # pages + feuille de style
+python3 build-pharmaciens-assets.py     # visuels (seulement si palette ou photos changent)
+```
+
+`build-pharmaciens.py` dérive `pharmaciens/assets/css/styles.css` de la charte LFDR en
+substituant la palette (table `HEX_MAP` / `RGB_MAP`), puis ajoute les composants propres
+au site (encadrés, étapes numérotées, chiffres-clés, nuages de mots-clés). Le script
+d'interactions est partagé avec le site principal (`../assets/js/main.js`) ; les polices
+sont en revanche recopiées dans `pharmaciens/assets/webfonts/` (avec la feuille
+`typographie.css`), car le workflow GitHub Pages exclut `assets/fonts` — un motif rsync
+qui s'appliquerait aussi à un sous-dossier portant le même nom.
+
+`build-pharmaciens-assets.py` produit les visuels dans `pharmaciens/assets/img/` :
+photographies du dépôt étalonnées dans la palette, illustrations de l'univers officine
+(comptoir, croix verte, mortier, molécule, façade…) composées en SVG et rendues via
+Chromium, logo, favicons, image de partage et texture de fond.
+
+### Contenu et prudence rédactionnelle
+
+Les pages décrivent les régimes fiscaux **par leur logique et leurs références d'articles**,
+sans reproduire seuils, taux ni montants : ceux-ci changent à chaque loi de finances et
+seraient périmés avant d'être lus. Chaque page renvoie vers un chiffrage à réaliser avec
+l'expert-comptable, l'avocat fiscaliste et le notaire du client. Le pied de page et les
+mentions légales portent les avertissements correspondants.
+
 ## Personnaliser le design
 
 Tout est centralisé dans `assets/css/styles.css` via des variables CSS (`:root`) :
@@ -178,9 +245,17 @@ si besoin ; pour GitHub Pages, servez la racine du dépôt.
 ## Structure
 
 ```
-index.html, vos-besoins.html, …      Pages générées
+index.html, vos-besoins.html, …      Pages générées (site LFDR)
 assets/css/styles.css                Design system
 assets/js/main.js                    Interactions (menu, reveals, transitions, formulaire)
 assets/img/*.svg                     Logo, hero et visuels (remplaçables)
-build.py                             Générateur du site
+build.py                             Générateur du site LFDR
+
+pharmaciens/                         Site « Officine & Patrimoine » (marque LFDR)
+  index.html, votre-situation.html…  40 pages générées
+  assets/css/styles.css              Charte LFDR en palette « vert officine »
+  assets/img/                        Visuels de la marque
+  sitemap.xml, robots.txt            Référencement
+build-pharmaciens.py                 Générateur du site pharmaciens
+build-pharmaciens-assets.py          Générateur des visuels du site pharmaciens
 ```
