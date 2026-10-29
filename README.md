@@ -87,10 +87,19 @@ animations modernes (révélations au défilement, transitions de page, effets d
   | `To` | `contact@lfd-rochechouart.com` | où la demande arrive |
   | `From` | `no-reply@lafinancierederochechouart.com` | émetteur technique — **doit** être sur le domaine hébergé par Hostinger, sinon SPF/DKIM échoue et l'email part en spam |
   | `Reply-To` | l'adresse du prospect | « Répondre » écrit au prospect, pas au site |
-  Pensez à créer `no-reply@lafinancierederochechouart.com` (boîte ou alias) dans hPanel, pour
-  que les rebonds aient une destination. Pour changer une de ces valeurs ou passer par SMTP,
-  déposez un `contact-secrets.php` à côté (ignoré par git, exclu de GitHub Pages) qui
-  redéfinit `$CONTACT_TO`, `$CONTACT_FROM` ou `$CONTACT_FROM_NAME`.
+  **Rien à créer pour que ça marche** : un `From` n'a pas besoin d'être une boîte existante,
+  seul son domaine compte pour le SPF — c'est la convention habituelle des adresses
+  `no-reply@`. Seul effet de bord : un éventuel message de rebond n'a pas de destination, donc
+  un échec d'envoi passe inaperçu. Le risque est couvert par l'ordre des opérations : le lead
+  est écrit dans Supabase **avant** l'envoi, donc même une notification perdue laisse la fiche
+  dans le CRM. Créer l'alias dans hPanel reste un confort, pas un prérequis.
+  À noter : si `lfd-rochechouart.com` est lui aussi hébergé sur le même compte Hostinger
+  (vérifiable dans hPanel > Emails), son SPF autorise également Hostinger — on peut alors
+  mettre `$CONTACT_FROM = 'contact@lfd-rochechouart.com'`, ce qui est préférable : l'email
+  semble venir du cabinet, et là non plus il n'y a rien à créer.
+  Pour changer une de ces valeurs ou passer par SMTP, déposez un `contact-secrets.php` à côté
+  (ignoré par git, exclu de GitHub Pages) qui redéfinit `$CONTACT_TO`, `$CONTACT_FROM` ou
+  `$CONTACT_FROM_NAME`.
   ⚠️ `contact.php` doit être déposé dans le même dossier que les HTML sur Hostinger
   (`public_html/`). GitHub Pages n'exécutant pas PHP, il en est exclu : sur Pages le
   formulaire enregistre le lead dans le CRM mais n'envoie pas d'email.

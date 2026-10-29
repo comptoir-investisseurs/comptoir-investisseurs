@@ -18,10 +18,13 @@
 // (cf. assets/js/bilan.js — le site et l'email sont sur deux domaines).
 $CONTACT_TO   = 'contact@lfd-rochechouart.com';
 
-// Expediteur : OBLIGATOIREMENT une adresse du domaine heberge par Hostinger,
-// c'est-a-dire celui du site (lafinancierederochechouart.com). Une adresse
-// d'un autre domaine ferait echouer SPF/DKIM et partirait en spam, meme si la
-// boite existe. Ne mettez jamais l'adresse du visiteur ici : elle va dans
+// Expediteur : son DOMAINE doit etre couvert par un SPF autorisant Hostinger,
+// sinon l'email part en spam. L'adresse elle-meme n'a pas besoin d'exister
+// (convention des « no-reply ») ; seul un message de rebond serait alors perdu,
+// ce que rattrape l'ordre des operations : le lead est deja dans Supabase.
+// Si lfd-rochechouart.com est heberge sur le meme compte Hostinger (hPanel >
+// Emails), preferez-y 'contact@lfd-rochechouart.com' : l'email semblera venir
+// du cabinet. Ne mettez jamais l'adresse du visiteur ici : elle va dans
 // Reply-To, plus bas, pour que « Repondre » ecrive bien au prospect.
 $CONTACT_FROM = 'no-reply@lafinancierederochechouart.com';
 $CONTACT_FROM_NAME = 'Site La Financiere de Rochechouart';
