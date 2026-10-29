@@ -154,7 +154,15 @@ Photographies (`assets/img/`) :
 | `serenite.jpg` | S'expatrier à l'étranger |
 
 Graphiques conservés : `img-markets.svg` (marchés), `img-luxembourg.svg`
-(triangle de sécurité), `img-texture.svg` (texture de fond), `monogram.svg` (favicon).
+(triangle de sécurité), `img-texture.svg` (texture de fond).
+
+**Favicons** : `favicon.png`, `favicon-16.png`, `favicon-32.png` et `apple-touch-icon.png`
+reprennent la croix d'officine, marque partagée avec le site pharmaciens. Ils sont produits
+par `build-pharmaciens-assets.py`, qui les écrit dans les deux sites à la fois (voir la
+section « Logo » plus bas). Les pages y pointent avec un paramètre de version
+(`?v=3`) : après un changement de favicon, incrémentez-le dans le gabarit `LAYOUT` de
+`build.py`, puis relancez `python3 build.py` — sans quoi les navigateurs servent l'ancienne
+icône depuis leur cache.
 
 Pour remplacer une image, déposez le fichier dans `assets/img/` (même nom) puis
 relancez `python3 build.py`. Le logo et le hero sont aussi paramétrables via les

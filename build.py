@@ -243,7 +243,10 @@ LAYOUT = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>__TITLE__ · La Financière de Rochechouart</title>
 <meta name="description" content="__DESC__">
-<link rel="icon" href="__FAVICON__">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png?v=3">
+<link rel="icon" href="assets/img/favicon.png?v=3">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -274,7 +277,6 @@ def page(slug, title, desc, body, home=False):
     out = (LAYOUT
            .replace("__TITLE__", html.escape(title))
            .replace("__DESC__", html.escape(desc))
-           .replace("__FAVICON__", LOGO_MARK)
            .replace("__BODYCLASS__", ' class="home"' if home else "")
            .replace("__HEADER__", render_header())
            .replace("__FOOTER__", render_footer())

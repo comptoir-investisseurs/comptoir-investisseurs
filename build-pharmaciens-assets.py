@@ -504,6 +504,18 @@ def build_artworks():
         subprocess.run(["convert", icon, "-resize", "%dx%d" % (size, size),
                         os.path.join(OUT, dst)], check=True)
     print("  favicons")
+
+    # La marque sert aussi de favicon au site principal (La Financière de
+    # Rochechouart), à la demande du client. Mêmes images, aux tailles que ce
+    # site utilise déjà. Les pages y pointent avec un paramètre de version
+    # (?v=) qu'il faut incrémenter pour forcer le rafraîchissement des caches.
+    main_img = os.path.join(ROOT, "assets", "img")
+    if os.path.isdir(main_img):
+        for size, dst in ((32, "favicon-32.png"), (16, "favicon-16.png"),
+                          (180, "apple-touch-icon.png"), (512, "favicon.png")):
+            subprocess.run(["convert", icon, "-resize", "%dx%d" % (size, size),
+                            os.path.join(main_img, dst)], check=True)
+        print("  favicons du site principal")
     subprocess.run(["convert", os.path.join(tmp, "og.png"), "-strip", "-quality", "88",
                     os.path.join(OUT, "og-officine-patrimoine.jpg")], check=True)
     print("  og image")
