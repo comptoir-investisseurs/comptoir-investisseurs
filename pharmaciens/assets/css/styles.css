@@ -633,9 +633,9 @@ body{ animation:pageIn .7s var(--ease) both; }
 .stats--words .stat__num{ font-size:clamp(1.15rem,1.7vw,1.6rem); letter-spacing:.01em; }
 .stats--words .stat__lbl{ margin-top:14px; }
 
-/* En-tête : la marque porte deux lignes, on resserre pour garder le bouton en place */
-.site-header .brand__logo{ height:38px; }
-.site-header.is-solid .brand__logo{ height:34px; }
+/* En-tête : la navigation porte cinq entrées, on resserre un peu les écarts */
+.site-header .brand__logo{ height:44px; }
+.site-header.is-solid .brand__logo{ height:38px; }
 .nav{ gap:clamp(14px,1.8vw,30px); }
 
 @media (max-width:700px){

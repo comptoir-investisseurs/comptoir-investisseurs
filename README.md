@@ -218,6 +218,23 @@ sont en revanche recopiées dans `pharmaciens/assets/webfonts/` (avec la feuille
 `typographie.css`), car le workflow GitHub Pages exclut `assets/fonts` — un motif rsync
 qui s'appliquerait aussi à un sous-dossier portant le même nom.
 
+### Logo
+
+La marque (croix d'officine formée de deux lobes) vient de `Marque-source.webp`, à la
+racine : un aplat de deux verts sur fond blanc. `recolor_mark()` la relit comme un mélange
+entre le blanc du fond et l'un des deux verts, en déduit l'opacité de chaque pixel — ce qui
+préserve l'antialiasing — et la repeint dans la palette du site. Trois déclinaisons, réglées
+en tête du script :
+
+| Constante | Usage | Couleurs |
+|---|---|---|
+| `MARK_DARK` | fonds clairs (`logo.png`, `marque.png`) | vert profond + sauge |
+| `MARK_LIGHT` | fonds sombres (`logo-light.png`, `marque-light.png`, image de partage) | vert pharmacie + menthe |
+| `MARK_ICON` | favicons | sauge + menthe, plus contrastées pour rester lisibles à 16 px |
+
+Pour changer de marque, remplacez `Marque-source.webp` et ajustez les deux verts sources
+(`_SRC_DARK`, `_SRC_BRIGHT`) s'ils diffèrent, puis relancez le script.
+
 `build-pharmaciens-assets.py` produit les visuels dans `pharmaciens/assets/img/` :
 photographies du dépôt étalonnées dans la palette, illustrations de l'univers officine
 (comptoir, croix verte, mortier, molécule, façade…) composées en SVG et rendues via

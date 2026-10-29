@@ -353,43 +353,80 @@ ARTWORKS = {
 }
 
 # ---------------------------------------------------------------------------
+# Marque : recoloration dans la palette du site
+# ---------------------------------------------------------------------------
+# Le fichier source (Marque-source.webp, à la racine) est un aplat de deux verts
+# sur fond blanc. On le relit comme un mélange entre le blanc du fond et l'un des
+# deux verts : on en déduit l'opacité de chaque pixel — ce qui préserve
+# l'antialiasing — et on repeint avec les couleurs du site.
+MARK_SRC    = "Marque-source.webp"
+MARK_DARK   = (DEEP,   "#4FA98B")   # sur fond clair : vert profond + sauge
+MARK_LIGHT  = (ACCENT, MINT)        # sur fond sombre : vert pharmacie + menthe
+# Favicon : à 16 px il faut davantage d'écart avec le fond, d'où un couple plus clair.
+MARK_ICON   = ("#4FA98B", MINT)
+
+_SRC_DARK   = (1, 86, 57)
+_SRC_BRIGHT = (62, 167, 68)
+
+def _hexc(h):
+    h = h.lstrip("#")
+    return [int(h[i:i+2], 16) for i in (0, 2, 4)]
+
+def recolor_mark(dst, dark_hex, bright_hex, size=512):
+    import numpy as np
+    from PIL import Image
+    src = os.path.join(ROOT, MARK_SRC)
+    if not os.path.exists(src):
+        print("  ! marque source absente :", MARK_SRC); return False
+    im = Image.open(src).convert("RGB").resize((size, size), Image.LANCZOS)
+    p = np.asarray(im, dtype=float)
+    white = np.array([255.0, 255.0, 255.0])
+    out_rgb = np.zeros(p.shape); alpha = np.zeros(p.shape[:2]); best = None
+    for source, target in ((_SRC_DARK, _hexc(dark_hex)), (_SRC_BRIGHT, _hexc(bright_hex))):
+        source = np.array(source, dtype=float)
+        d = white - source
+        t = np.clip(((white - p) @ d) / float(d @ d), 0.0, 1.0)
+        res = np.linalg.norm(p - (white + t[..., None] * (source - white)), axis=-1)
+        if best is None:
+            best, alpha = res, t
+            out_rgb = np.broadcast_to(np.array(target, dtype=float), p.shape).copy()
+        else:
+            take = res < best
+            best = np.where(take, res, best)
+            alpha = np.where(take, t, alpha)
+            out_rgb[take] = target
+    Image.fromarray(np.dstack([out_rgb, alpha * 255.0]).astype("uint8"), "RGBA").save(dst)
+    return True
+
+# ---------------------------------------------------------------------------
 # 3. Logo, favicons, image de partage
 # ---------------------------------------------------------------------------
-def logo_html(dark_text=True, w=1500, h=560):
-    """Marque : pastille croix verte + bloc-nom sur deux lignes.
-    La mention « une marque de La Financière de Rochechouart » est portée par le
-    HTML du site (illisible à la taille d'affichage du logo)."""
-    ink  = DEEP if dark_text else CREAM
-    disc = ACCENT if dark_text else MINT
-    xcol = "#FFFFFF" if dark_text else DEEP
-    return ("<div style=\"width:%dpx;height:%dpx;display:flex;align-items:center;gap:44px;"
+def logo_html(mark_png, dark_text=True, w=1560, h=560):
+    """Marque (croix à deux verts) + bloc-nom sur deux lignes."""
+    ink = DEEP if dark_text else CREAM
+    return ("<div style=\"width:%dpx;height:%dpx;display:flex;align-items:center;gap:40px;"
             "padding:0 20px;box-sizing:border-box\">"
-            "<svg width='240' height='240' viewBox='0 0 100 100'>"
-            "<circle cx='50' cy='50' r='48' fill='%s'/>"
-            "<path d='M43 24 h14 v19 h19 v14 h-19 v19 h-14 v-19 h-19 v-14 h19 z' fill='%s'/>"
-            "</svg>"
+            "<img src='file://%s' width='270' height='270' alt=''>"
             "<div style=\"font-family:'Cormorant Garamond',serif;color:%s;line-height:.95\">"
             "<div style='font-weight:600;font-size:150px;letter-spacing:.005em'>Officine</div>"
             "<div style='font-weight:500;font-size:126px;letter-spacing:.005em'>&amp; Patrimoine</div>"
-            "</div></div>" % (w, h, disc, xcol, ink))
+            "</div></div>" % (w, h, mark_png, ink))
 
-def favicon_html(size=512):
+def favicon_html(mark_png, size=512):
+    pad = int(size * 0.08)
     return ("<div style='width:%dpx;height:%dpx;background:%s;display:flex;align-items:center;"
             "justify-content:center'>"
-            "<svg width='%d' height='%d' viewBox='0 0 100 100'>"
-            "<path d='M41 18 h18 v23 h23 v18 h-23 v23 h-18 v-23 h-23 v-18 h23 z' fill='%s'/>"
-            "</svg></div>" % (size, size, DEEP, size, size, MINT_2))
+            "<img src='file://%s' width='%d' height='%d' alt=''></div>"
+            % (size, size, DEEP, mark_png, size - 2 * pad, size - 2 * pad))
 
-def og_html():
+def og_html(mark_png):
     art = ("<svg width='1200' height='630' viewBox='0 0 1200 630' style='position:absolute;inset:0'>"
            + DEFS
            + "<rect width='1200' height='630' fill='url(#bg)'/>"
              "<ellipse cx='960' cy='300' rx='460' ry='420' fill='url(#glow)'/>"
-           + ("<g transform='translate(980,315)'>"
-              "<g filter='url(#blur)' opacity='.5'><path d='%s' fill='%s' transform='scale(.9)'/></g>"
-              "<path d='%s' fill='#8FEBC8' fill-opacity='.9' transform='scale(.9)'/></g>"
-              % (cross(1.0), MINT_2, cross(1.0)))
-           + "</svg>")
+           + "</svg>"
+           + "<img src='file://%s' style='position:absolute;left:800px;top:155px;width:320px;"
+             "height:320px' alt=''>" % mark_png)
     texte = ("<div style=\"position:absolute;left:74px;top:140px;width:620px;color:%s;"
              "font-family:'Cormorant Garamond',serif\">"
              "<div style=\"font-family:'Jost',sans-serif;font-size:19px;letter-spacing:.26em;"
@@ -428,14 +465,24 @@ def build_artworks():
         png = os.path.join(tmp, name.replace(".jpg", ".png"))
         jobs.append({"html": doc(w, h, "<div style='position:relative;width:%dpx;height:%dpx'>%s</div>" % (w, h, svg)),
                      "png": png, "w": w, "h": h})
+    # Marque recolorée : version foncée (fonds clairs) et claire (fonds sombres)
+    mark_dark  = os.path.join(tmp, "marque.png")
+    mark_light = os.path.join(tmp, "marque-light.png")
+    mark_icon  = os.path.join(tmp, "marque-icon.png")
+    recolor_mark(mark_dark,  *MARK_DARK)
+    recolor_mark(mark_light, *MARK_LIGHT)
+    recolor_mark(mark_icon,  *MARK_ICON)
+    for src, dst in ((mark_dark, "marque.png"), (mark_light, "marque-light.png")):
+        shutil.copyfile(src, os.path.join(OUT, dst))
+
     # logos (fond transparent)
-    jobs.append({"html": doc(1500, 560, logo_html(True), bg="transparent"),
-                 "png": os.path.join(tmp, "logo.png"), "w": 1500, "h": 560, "alpha": True})
-    jobs.append({"html": doc(1500, 560, logo_html(False), bg="transparent"),
-                 "png": os.path.join(tmp, "logo-light.png"), "w": 1500, "h": 560, "alpha": True})
-    jobs.append({"html": doc(512, 512, favicon_html(512)), "png": os.path.join(tmp, "icon.png"),
-                 "w": 512, "h": 512})
-    jobs.append({"html": doc(1200, 630, og_html()), "png": os.path.join(tmp, "og.png"),
+    jobs.append({"html": doc(1560, 560, logo_html(mark_dark, True), bg="transparent"),
+                 "png": os.path.join(tmp, "logo.png"), "w": 1560, "h": 560, "alpha": True})
+    jobs.append({"html": doc(1560, 560, logo_html(mark_light, False), bg="transparent"),
+                 "png": os.path.join(tmp, "logo-light.png"), "w": 1560, "h": 560, "alpha": True})
+    jobs.append({"html": doc(512, 512, favicon_html(mark_icon, 512)),
+                 "png": os.path.join(tmp, "icon.png"), "w": 512, "h": 512})
+    jobs.append({"html": doc(1200, 630, og_html(mark_light)), "png": os.path.join(tmp, "og.png"),
                  "w": 1200, "h": 630})
     render(jobs)
 
