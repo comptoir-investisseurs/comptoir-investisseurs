@@ -147,36 +147,7 @@
   var y = document.getElementById('year');
   if (y) y.textContent = new Date().getFullYear();
 
-  /* ---------- Contact form → FormSubmit (standard POST) ---------- */
-  var form = document.getElementById('contact-form');
-  if (form) {
-    var status = form.querySelector('.form__status');
-    if (location.search.indexOf('sent=1') !== -1) {
-      status.classList.add('is-ok');
-      status.textContent = 'Merci ! Votre message a bien été envoyé. Nous vous répondons sous 48 heures ouvrées.';
-      if (window.history && window.history.replaceState) {
-        window.history.replaceState({}, '', location.pathname);
-      }
-    }
-    form.addEventListener('submit', function (e) {
-      var nameEl    = form.querySelector('[name=name]');
-      var emailEl   = form.querySelector('[name=email]');
-      var subjectEl = form.querySelector('[name=subject]');
-      var msgEl     = form.querySelector('[name=message]');
-      status.className = 'form__status';
-      var emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((emailEl.value || '').trim());
-      if (!nameEl.value.trim() || !emailOk || !msgEl.value.trim()) {
-        e.preventDefault();
-        status.classList.add('is-err');
-        status.textContent = 'Merci de renseigner votre nom, un email valide et votre message.';
-        return;
-      }
-      var replyto = form.querySelector('[name=_replyto]');
-      if (replyto) replyto.value = emailEl.value.trim();
-      var subj = form.querySelector('[name=_subject]');
-      if (subj) subj.value = 'Demande de contact – ' + (subjectEl ? subjectEl.value : nameEl.value.trim());
-      var next = form.querySelector('[name=_next]');
-      if (next) next.value = location.href.split('?')[0] + '?sent=1';
-    });
-  }
+  /* ---------- Contact form ----------
+     Traité par assets/js/contact.js, chargé uniquement sur contact.html
+     (enregistrement Supabase + notification contact.php, repli mailto:). */
 })();
