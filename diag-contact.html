@@ -63,16 +63,32 @@ document.getElementById('go').addEventListener('click', function () {
   if (typeof SUPABASE_URL === 'undefined') {
     card('3. Enregistrement Supabase', false, 'supabase-config.js absent ou non chargé.');
   } else {
+    // On demande la fiche en retour : cela montre ce qui est REELLEMENT stocke
+    // (notamment 'stage', qui decide de l'onglet dans lequel elle apparait).
     fetch(SUPABASE_URL + '/rest/v1/clients', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY,
-                 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal' },
+                 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=representation' },
       body: JSON.stringify(payload)
     }).then(function (r) {
       return r.text().then(function (t) {
-        card('3. Enregistrement Supabase', r.ok,
-          'HTTP ' + r.status + (r.ok ? ' — fiche « ' + tag + ' » créée, visible dans « À rappeler »'
-                                     : '\nRéponse : ' + (t || '(vide)')));
+        if (!r.ok) { card('3. Enregistrement Supabase', false, 'HTTP ' + r.status + '\nRéponse : ' + (t || '(vide)')); return; }
+        var row = null;
+        try { row = JSON.parse(t)[0]; } catch (e) {}
+        if (!row) {
+          card('3. Enregistrement Supabase', true,
+            'HTTP ' + r.status + ' — fiche « ' + tag + ' » créée.\n'
+            + 'Relecture impossible (la politique Supabase interdit la lecture au public) :\n'
+            + 'regardez l’onglet Pipeline du CRM pour voir où elle est tombée.');
+          return;
+        }
+        var stage = row.stage, vide = (stage === null || stage === '');
+        card('3. Enregistrement Supabase — valeurs stockées', vide,
+          'type   = ' + JSON.stringify(row.type) + '\n'
+          + 'stage  = ' + JSON.stringify(stage) + '\n\n'
+          + (vide ? 'stage est vide : la fiche doit apparaître dans « À rappeler ».'
+                  : 'PROBLÈME : stage vaut ' + JSON.stringify(stage) + ', donc la fiche part dans '
+                    + 'l’onglet Pipeline au lieu de « À rappeler ».'));
       });
     }).catch(function (e) { card('3. Enregistrement Supabase', false, 'Requête impossible : ' + e); });
   }

@@ -107,7 +107,11 @@
       // dans aucun SQL du depot, et une colonne inconnue ferait echouer l'insert
       // (400 PostgREST). admin.js traite une fiche sans 'personne' comme une
       // personne physique (isMorale -> faux), ce qui est le cas ici.
-      stage: null,                       // pas encore dans le pipeline → onglet « À rappeler »
+      // Chaine vide plutot que null : la colonne stage porte DEFAULT 'Nouveau',
+      // et 'Nouveau' est traduit en R0 par admin.js, ce qui enverrait la fiche
+      // dans le Pipeline au lieu de « A rappeler ». Une chaine vide n'est
+      // jamais remplacee par le defaut, et admin.js la lit comme « pas d'etape ».
+      stage: '',
       nom: d.nom,
       prenom: d.prenom,
       email: d.email,
