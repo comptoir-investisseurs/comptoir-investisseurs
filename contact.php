@@ -203,11 +203,10 @@ if (!is_array($b)) {
     reply(400, ['error' => 'Requete invalide.']);
 }
 
-// Pot de miel : champ invisible, rempli uniquement par les robots. Le nom
-// evite 'company' et 'organization', que l'autofill des navigateurs remplit.
-if (!empty($b['lfdr_ref'])) {
-    reply(200, ['ok' => true]);
-}
+// Pas de pot de miel : un champ piege renvoyait un faux succes aux visiteurs
+// dont le navigateur le remplissait automatiquement, et faisait disparaitre
+// de vraies demandes sans trace. La validation et la limite de debit
+// ci-dessous suffisent pour un formulaire de contact.
 
 /* ---- Garde-fou anti-abus : 5 envois par IP et par quart d'heure ---------
    Compteur dans le dossier temporaire du serveur, purgé tout seul. */

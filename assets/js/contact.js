@@ -60,7 +60,7 @@
 
   /* Notification email au cabinet — best effort, ne bloque jamais le visiteur. */
   function notify(d) {
-    if (typeof CONTACT_ENDPOINT === 'undefined' || !CONTACT_ENDPOINT) return Promise.resolve();
+    if (typeof CONTACT_ENDPOINT === 'undefined' || !CONTACT_ENDPOINT) return Promise.resolve(false);
     return fetch(CONTACT_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -68,26 +68,18 @@
     }).then(function (r) {
       if (r && !r.ok) {
         console.warn('[contact] notification refusee par contact.php : HTTP ' + r.status);
-        return r.text().then(function (t) { console.warn('[contact] reponse : ' + t); });
+        return r.text().then(function (t) { console.warn('[contact] reponse : ' + t); return false; });
       }
       console.info('[contact] notification envoyee.');
+      return true;
     }).catch(function (err) {
       console.warn('[contact] contact.php injoignable :', err);
+      return false;
     });
   }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-
-    /* Pot de miel anti-spam. Le champ ne s'appelle NI company NI organization :
-       Chrome remplit automatiquement ces noms-la depuis le profil de
-       l'utilisateur, et un visiteur reel serait alors pris pour un robot. */
-    if (val('lfdr_ref')) {
-      console.warn('Soumission ignoree : pot de miel rempli.');
-      setStatus('ok', 'Merci, votre demande a bien été transmise.');
-      form.reset();
-      return;
-    }
 
     var d = {
       prenom: val('prenom'),
@@ -126,12 +118,12 @@
       consentement_rgpd: true
     };
 
-    // La notification part tout de suite, en parallele et sans condition : si
-    // l'enregistrement Supabase echoue, le cabinet est averti malgre tout.
-    // Les deux canaux sont ainsi independants, aucun ne fait tomber l'autre.
-    notify(d);
+    // Les deux canaux partent en parallele et sont independants : aucun ne
+    // conditionne l'autre. Le message de succes n'est affiche que si l'un au
+    // moins a reellement abouti, pour qu'un echec ne passe jamais pour un envoi.
+    var pMail = notify(d);
 
-    fetch(SUPABASE_URL + '/rest/v1/clients', {
+    var pBase = fetch(SUPABASE_URL + '/rest/v1/clients', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -140,18 +132,26 @@
         'Prefer': 'return=minimal'
       },
       body: JSON.stringify(payload)
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        // La demande est sauvegardée : le visiteur peut être rassuré tout de suite.
+    }).then(function (res) {
+      if (res.ok) { console.info('[contact] fiche enregistree dans le CRM.'); return true; }
+      return res.text().then(function (t) {
+        console.warn('[contact] Supabase a refuse la fiche : HTTP ' + res.status + ' ' + t);
+        return false;
+      });
+    }).catch(function (err) {
+      console.warn('[contact] Supabase injoignable :', err);
+      return false;
+    });
+
+    Promise.all([pBase, pMail]).then(function (r) {
+      busy(false);
+      if (r[0] || r[1]) {
         setStatus('ok', 'Merci, votre demande a bien été transmise. Nous vous répondons sous 48 heures ouvrées.');
         form.reset();
-        busy(false);
-      })
-      .catch(function (err) {
-        console.error('Enregistrement de la demande impossible :', err);
-        busy(false);
+      } else {
+        // Aucun canal n'a abouti : on ne ment pas au visiteur.
         mailtoFallback(d);
-      });
+      }
+    });
   });
 })();
