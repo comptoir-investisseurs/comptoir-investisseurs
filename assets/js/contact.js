@@ -98,7 +98,10 @@
 
     var payload = {
       type: 'prospect',
-      personne: 'physique',
+      // 'personne' n'est volontairement pas envoye : la colonne n'est declaree
+      // dans aucun SQL du depot, et une colonne inconnue ferait echouer l'insert
+      // (400 PostgREST). admin.js traite une fiche sans 'personne' comme une
+      // personne physique (isMorale -> faux), ce qui est le cas ici.
       stage: null,                       // pas encore dans le pipeline → onglet « À rappeler »
       nom: d.nom,
       prenom: d.prenom,
