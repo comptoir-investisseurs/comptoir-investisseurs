@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnostic du formulaire de contact</title>
+<style>
+  :root { --ok:#1b7f3b; --ko:#b3261e; --bg:#faf8f4; --fg:#1d1d1b; --line:#e3ded4; }
+  body { font:15px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:var(--bg); color:var(--fg); margin:0; padding:24px; }
+  h1 { font:600 20px/1.3 system-ui,sans-serif; margin:0 0 4px; }
+  p.sub { color:#6b6559; margin:0 0 20px; font:14px/1.5 system-ui,sans-serif; }
+  .t { border:1px solid var(--line); border-radius:10px; background:#fff; padding:14px 16px; margin-bottom:12px; }
+  .t h2 { font:600 14px/1.3 system-ui,sans-serif; margin:0 0 8px; display:flex; gap:8px; align-items:center; }
+  .badge { font:700 11px/1 system-ui,sans-serif; padding:4px 8px; border-radius:99px; color:#fff; background:#999; }
+  .ok .badge { background:var(--ok);} .ko .badge { background:var(--ko);}
+  pre { margin:6px 0 0; padding:10px; background:#f5f2ec; border-radius:6px; white-space:pre-wrap; word-break:break-word; font-size:13px; }
+  button { font:600 15px system-ui,sans-serif; padding:12px 22px; border:0; border-radius:8px; background:#14341f; color:#fff; cursor:pointer; }
+</style>
+</head>
+<body>
+<h1>Diagnostic du formulaire de contact</h1>
+<p class="sub">Exécute la chaîne complète et affiche chaque réponse. Faites une capture d’écran de cette page entière.</p>
+<button id="go">Lancer le diagnostic</button>
+<div id="out" style="margin-top:18px"></div>
+
+<script src="assets/js/supabase-config.js?v=diag"></script>
+<script src="assets/js/contact-config.js?v=diag"></script>
+<script>
+var out = document.getElementById('out');
+function card(titre, ok, corps) {
+  var d = document.createElement('div');
+  d.className = 't ' + (ok ? 'ok' : 'ko');
+  d.innerHTML = '<h2><span class="badge">' + (ok ? 'OK' : 'ÉCHEC') + '</span>' + titre + '</h2>'
+              + '<pre>' + String(corps).replace(/[<&]/g, function (c) { return c === '<' ? '&lt;' : '&amp;'; }) + '</pre>';
+  out.appendChild(d);
+}
+
+document.getElementById('go').addEventListener('click', function () {
+  out.innerHTML = '';
+  var tag = 'DIAGNOSTIC-' + new Date().toISOString().slice(11, 19);
+
+  /* 1. Quelle version des fichiers est réellement en ligne ? */
+  fetch('assets/js/contact.js?cb=' + Date.now()).then(function (r) { return r.text(); }).then(function (t) {
+    var v2 = t.indexOf('lfdr_ref') !== -1;
+    card('1. Version de assets/js/contact.js', v2,
+      v2 ? 'À JOUR (contient lfdr_ref)' : 'ANCIENNE VERSION EN LIGNE — contient encore le piège « company ».\nLe fichier n’a pas été remplacé, ou un cache le sert encore.');
+  }).catch(function (e) { card('1. Version de assets/js/contact.js', false, 'Fichier introuvable : ' + e); });
+
+  fetch('contact.html?cb=' + Date.now()).then(function (r) { return r.text(); }).then(function (t) {
+    var v2 = t.indexOf('lfdr_ref') !== -1, fs = t.indexOf('formsubmit') !== -1;
+    card('2. Version de contact.html', v2 && !fs,
+      (v2 ? 'À JOUR (champ lfdr_ref présent)' : 'ANCIENNE VERSION — pas de lfdr_ref')
+      + '\n' + (fs ? 'ALERTE : la page appelle encore formsubmit.co' : 'FormSubmit absent : correct'));
+  }).catch(function (e) { card('2. Version de contact.html', false, 'Erreur : ' + e); });
+
+  /* 2. Supabase répond-il à un insert identique à celui du formulaire ? */
+  var payload = {
+    type: 'prospect', stage: null, nom: 'DIAGNOSTIC', prenom: tag,
+    email: 'diagnostic@lfd-rochechouart.com', telephone: '0000000000',
+    comment_connu: 'Lead site', commentaires: 'Fiche de diagnostic — supprimable.',
+    next_action: 'Supprimer cette fiche de test', consentement_rgpd: true
+  };
+  if (typeof SUPABASE_URL === 'undefined') {
+    card('3. Enregistrement Supabase', false, 'supabase-config.js absent ou non chargé.');
+  } else {
+    fetch(SUPABASE_URL + '/rest/v1/clients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY,
+                 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal' },
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        card('3. Enregistrement Supabase', r.ok,
+          'HTTP ' + r.status + (r.ok ? ' — fiche « ' + tag + ' » créée, visible dans « À rappeler »'
+                                     : '\nRéponse : ' + (t || '(vide)')));
+      });
+    }).catch(function (e) { card('3. Enregistrement Supabase', false, 'Requête impossible : ' + e); });
+  }
+
+  /* 3. contact.php accepte-t-il la notification ? */
+  var ep = (typeof CONTACT_ENDPOINT !== 'undefined' && CONTACT_ENDPOINT) ? CONTACT_ENDPOINT : 'contact.php';
+  fetch(ep, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prenom: tag, nom: 'DIAGNOSTIC', email: 'diagnostic@lfd-rochechouart.com',
+                           telephone: '', objet: 'Diagnostic', message: 'Message de diagnostic.' })
+  }).then(function (r) {
+    return r.text().then(function (t) {
+      card('4. Notification par ' + ep, r.ok, 'HTTP ' + r.status + '\nRéponse : ' + (t || '(vide)'));
+    });
+  }).catch(function (e) { card('4. Notification par ' + ep, false, 'Requête impossible : ' + e); });
+
+  /* 4. L'envoi d'email lui-même */
+  fetch('contact.php?selftest=1&cb=' + Date.now()).then(function (r) {
+    return r.text().then(function (t) { card('5. Auto-test d’envoi d’email', r.ok, 'HTTP ' + r.status + '\n' + t); });
+  }).catch(function (e) { card('5. Auto-test d’envoi d’email', false, 'Requête impossible : ' + e); });
+});
+</script>
+</body>
+</html>
