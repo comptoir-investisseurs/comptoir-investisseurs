@@ -131,7 +131,9 @@ function reply($code, $payload) {
    simplement dans un navigateur quand une notification n'arrive pas. */
 if (isset($_GET['selftest'])) {
     $ip_t = $_SERVER['REMOTE_ADDR'] ?? 'inconnu';
-    $b_t = sys_get_temp_dir() . '/lfdr-contact-' . sha1($ip_t) . '.json';
+    // Compteur DISTINCT de celui du formulaire : diagnostiquer ne doit jamais
+    // empecher un visiteur d'envoyer sa demande.
+    $b_t = sys_get_temp_dir() . '/lfdr-selftest-' . sha1($ip_t) . '.json';
     $h_t = is_file($b_t) ? (json_decode((string) @file_get_contents($b_t), true) ?: []) : [];
     $h_t = array_values(array_filter($h_t, static fn($t) => time() - $t < 900));
     if (count($h_t) >= 5) {
@@ -201,8 +203,9 @@ if (!is_array($b)) {
     reply(400, ['error' => 'Requete invalide.']);
 }
 
-// Pot de miel : champ invisible, rempli uniquement par les robots.
-if (!empty($b['company'])) {
+// Pot de miel : champ invisible, rempli uniquement par les robots. Le nom
+// evite 'company' et 'organization', que l'autofill des navigateurs remplit.
+if (!empty($b['lfdr_ref'])) {
     reply(200, ['ok' => true]);
 }
 

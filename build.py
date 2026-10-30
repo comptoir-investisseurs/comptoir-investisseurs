@@ -3004,7 +3004,7 @@ def build_contact():
         '</div>'
         '<div class="field"><label for="f-message">Votre message</label><textarea id="f-message" name="message" required></textarea></div>'
         '<div aria-hidden="true" style="position:absolute;left:-9999px" tabindex="-1">'
-          '<label for="f-company">Société</label><input id="f-company" name="company" type="text" autocomplete="off">'
+          '<input id="f-lfdr-ref" name="lfdr_ref" type="text" autocomplete="off" tabindex="-1">'
         '</div>'
         '<div class="form__status" role="status" aria-live="polite"></div>'
         '<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">'

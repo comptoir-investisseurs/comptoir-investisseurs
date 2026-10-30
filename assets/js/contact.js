@@ -65,16 +65,29 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(d)
+    }).then(function (r) {
+      if (r && !r.ok) {
+        console.warn('[contact] notification refusee par contact.php : HTTP ' + r.status);
+        return r.text().then(function (t) { console.warn('[contact] reponse : ' + t); });
+      }
+      console.info('[contact] notification envoyee.');
     }).catch(function (err) {
-      console.warn('Notification email indisponible :', err);
+      console.warn('[contact] contact.php injoignable :', err);
     });
   }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    /* Pot de miel anti-spam : rempli uniquement par les robots. */
-    if (val('company')) { setStatus('ok', 'Merci, votre demande a bien été transmise.'); form.reset(); return; }
+    /* Pot de miel anti-spam. Le champ ne s'appelle NI company NI organization :
+       Chrome remplit automatiquement ces noms-la depuis le profil de
+       l'utilisateur, et un visiteur reel serait alors pris pour un robot. */
+    if (val('lfdr_ref')) {
+      console.warn('Soumission ignoree : pot de miel rempli.');
+      setStatus('ok', 'Merci, votre demande a bien été transmise.');
+      form.reset();
+      return;
+    }
 
     var d = {
       prenom: val('prenom'),
