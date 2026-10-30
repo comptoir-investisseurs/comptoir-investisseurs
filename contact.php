@@ -152,21 +152,38 @@ if (isset($_GET['selftest'])) {
          . 'Voie : ' . $voie . "\n" . 'Expediteur : ' . $CONTACT_FROM . "\n"
          . 'Destinataire : ' . $CONTACT_TO . "\n";
     $det = '';
+    $essais = [];
     if ($SMTP_HOST !== '') {
         $ok_t = smtp_send($SMTP_HOST, $SMTP_PORT, $SMTP_SECURE, $SMTP_USER, $SMTP_PASS,
                           $CONTACT_FROM, $CONTACT_TO, $hdr, $suj, $txt, $det);
+        $essais[] = ['voie' => 'smtp', 'expediteur' => $CONTACT_FROM,
+                     'accepte' => (bool) $ok_t, 'reponse' => $det ?: 'accepte'];
     } else {
-        $ok_t = @mail($CONTACT_TO, $suj, $txt, $hdr, '-f' . $CONTACT_FROM);
-        if (!$ok_t) $det = 'mail() a renvoye false : la fonction est bridee par l\'hebergeur, '
-                         . 'ou l\'expediteur ' . $CONTACT_FROM . ' est refuse.';
+        // mail() refuse souvent un expediteur dont le domaine n'a pas de service
+        // mail sur le compte. On essaie donc successivement les expediteurs
+        // plausibles, et on rapporte lequel passe : cela evite un aller-retour.
+        $candidats = array_values(array_unique([$CONTACT_FROM, $CONTACT_TO]));
+        $ok_t = false;
+        foreach ($candidats as $exp) {
+            $h = str_replace('<' . $CONTACT_FROM . '>', '<' . $exp . '>', $hdr);
+            $r = @mail($CONTACT_TO, $suj, $txt, $h, '-f' . $exp);
+            $essais[] = ['voie' => 'mail()', 'expediteur' => $exp, 'accepte' => (bool) $r,
+                         'reponse' => $r ? 'accepte' : 'mail() a renvoye false'];
+            if ($r) { $ok_t = true; $CONTACT_FROM = $exp; break; }
+        }
+        if (!$ok_t) {
+            $det = 'mail() refuse tous les expediteurs testes : la fonction est bridee par '
+                 . 'l\'hebergeur. Passez par SMTP (contact-secrets.php).';
+        }
     }
     reply($ok_t ? 200 : 502, [
         'envoi_accepte'  => (bool) $ok_t,
         'voie'           => $voie,
-        'expediteur'     => $CONTACT_FROM,
+        'expediteur_qui_passe' => $ok_t ? $CONTACT_FROM : null,
         'destinataire'   => $CONTACT_TO,
         'smtp_configure' => $SMTP_HOST !== '' ? $SMTP_HOST . ':' . $SMTP_PORT . ' (' . ($SMTP_SECURE ?: 'aucun') . ')' : 'non',
-        'detail'         => $det ?: ($ok_t ? 'Message remis au serveur. S\'il n\'arrive pas, regardez les spams.' : ''),
+        'essais'         => $essais,
+        'detail'         => $det ?: ($ok_t ? 'Message remis au serveur. Si rien n\'arrive, regardez les spams.' : ''),
         'php_version'    => PHP_VERSION,
     ]);
 }
@@ -250,10 +267,16 @@ if ($SMTP_HOST !== '') {
                         $sujet_mime, $corps, $detail);
     $voie = 'smtp';
 } else {
-    $envoye = @mail($CONTACT_TO, $sujet_mime, $corps, implode("\r\n", $headers), '-f' . $CONTACT_FROM);
     $voie = 'mail()';
+    $envoye = false;
+    // Meme repli que l'auto-test : si l'hebergeur refuse l'expediteur configure,
+    // on retente avec l'adresse du cabinet avant d'abandonner.
+    foreach (array_values(array_unique([$CONTACT_FROM, $CONTACT_TO])) as $exp) {
+        $h = str_replace('<' . $CONTACT_FROM . '>', '<' . $exp . '>', implode("\r\n", $headers));
+        if (@mail($CONTACT_TO, $sujet_mime, $corps, $h, '-f' . $exp)) { $envoye = true; break; }
+    }
     if (!$envoye) {
-        $detail = 'mail() a renvoye false (fonction bridee par l\'hebergeur, ou expediteur refuse)';
+        $detail = 'mail() refuse tous les expediteurs testes (fonction bridee par l\'hebergeur)';
     }
 }
 
