@@ -6,3 +6,6 @@ supabase-invitations.sql
 
 # Dépendances installées localement (Render les réinstalle lui-même)
 server/node_modules
+
+# Identifiants SMTP du formulaire de contact — NE JAMAIS committer
+contact-secrets.php
