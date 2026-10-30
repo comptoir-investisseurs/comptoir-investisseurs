@@ -113,6 +113,11 @@
       consentement_rgpd: true
     };
 
+    // La notification part tout de suite, en parallele et sans condition : si
+    // l'enregistrement Supabase echoue, le cabinet est averti malgre tout.
+    // Les deux canaux sont ainsi independants, aucun ne fait tomber l'autre.
+    notify(d);
+
     fetch(SUPABASE_URL + '/rest/v1/clients', {
       method: 'POST',
       headers: {
@@ -129,7 +134,6 @@
         setStatus('ok', 'Merci, votre demande a bien été transmise. Nous vous répondons sous 48 heures ouvrées.');
         form.reset();
         busy(false);
-        return notify(d);
       })
       .catch(function (err) {
         console.error('Enregistrement de la demande impossible :', err);
