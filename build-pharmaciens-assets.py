@@ -37,7 +37,6 @@ PHOTOS = [
     # Hero de l'accueil : pharmacienne dans son officine (photo fournie par le client).
     # Étalonnage léger pour préserver les carnations.
     ("Pharmacienne-officine.jpg", "officine-pharmacienne.jpg", 1900, 93, 6),
-    ("Pharmacie-armoire.jpg",     "armoire-pharmacie.jpg",      1700, 92, 7),
     ("Pharmacie-pilulier.jpg",    "pilulier.jpg",               1700, 90, 8),
     ("Family.jpg",               "famille-champ.jpg",     1800, 88, 10),
     ("A woman and her kid.jpg",  "transmission.jpg",      1800, 88, 10),
@@ -57,6 +56,7 @@ PHOTOS = [
     ("assets/img/retraite.jpg",      "retraite.jpg",      1800, 90, 9),
     ("assets/img/paris-courtyard.jpg", "cour.jpg",        1600, 88, 10),
     ("assets/img/coupole-sculptee.jpg", "coupole.jpg",     1600, 88, 10),
+    ("assets/img/coupole-lafayette.jpg", "verriere.jpg",   1600, 88, 10),
     ("assets/img/escalier.jpg",      "escalier.jpg",       1600, 88, 10),
     ("assets/img/salon-lumiere.jpg", "salon.jpg",          1600, 88, 10),
     ("assets/img/plafond-baroque.jpg", "plafond.jpg",      1600, 88, 10),
@@ -69,7 +69,7 @@ PHOTOS = [
 # le geste, le portrait) tirée d'une même prise de vue, pour les pages qui doivent
 # montrer le métier plutôt qu'une image financière.
 CROPS = [
-    ("Pharmacienne-officine.jpg", "officine-conseil.jpg",   "760x608+200+180"),
+    ("Pharmacie-armoire.jpg",     "armoire-flacons.jpg",    "1150x920+760+300"),
     ("Pharmacienne-officine.jpg", "officine-geste.jpg",      "600x480+820+140"),
     ("Pharmacienne-officine.jpg", "officine-portrait.jpg",   "700x560+180+230"),
     # Intérieur de commerce : on garde la partie en flou, sans texte ni enseigne.

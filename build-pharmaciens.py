@@ -1618,7 +1618,7 @@ SOLUTIONS = {
   desc="Assurance-vie après la vente d'une pharmacie : rachats programmés, fiscalité après 8 ans, allocation libre et clause bénéficiaire.",
   kw="assurance-vie pharmacien, assurance vie après cession entreprise, rachats partiels programmés, "
      "fiscalité assurance vie 8 ans, clause bénéficiaire, fonds en euros, unités de compte architecture ouverte",
-  img="armoire-pharmacie.jpg", alt="Armoire à pharmacie, flacons alignés derrière une vitre",
+  img="verriere.jpg", alt="Verrière en coupole, image d’une enveloppe unique",
   eyebrow="Placements financiers", subtitle="Trois fonctions dans un seul contrat",
   paras=[
     "L’assurance-vie remplit simultanément trois rôles qu’aucune autre enveloppe ne cumule : faire travailler "
@@ -3059,7 +3059,7 @@ def build_home():
       eux : notre métier commence là où le leur s’arrête, à la question du capital.</p>
       <a class="link-arrow" href="votre-situation.html">Découvrir notre accompagnement __ARROW__</a>
     </div>
-    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/officine-conseil.jpg" alt="Pharmacienne titulaire dans son officine, saisissant une boîte sur un rayonnage"></div></div>
+    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/armoire-flacons.jpg" alt="Flacons alignés dans une armoire à pharmacie"></div></div>
   </div>
 </section>
 """.replace("__ARROW__", arrow())
