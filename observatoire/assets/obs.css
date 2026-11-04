@@ -359,7 +359,8 @@ hr{ border:0; border-top:1px solid var(--line); margin:0; }
 /* Fil d'Ariane */
 .crumb{ font-size:.73rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.52); margin-bottom:20px; }
 .crumb a:hover{ color:var(--gold-soft); }
-.crumb span{ color:rgba(255,255,255,.3); padding-inline:8px; }
+.crumb span[aria-hidden]{ color:rgba(255,255,255,.3); padding-inline:8px; }
+.crumb [aria-current]{ color:rgba(255,255,255,.78); }
 
 /* ---------- Bandeau de chiffres ---------- */
 .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); border-top:1px solid var(--line); }
@@ -555,7 +556,7 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
 .ftr__top{ display:grid; gap:34px; grid-template-columns:1.5fr repeat(3,1fr); padding-block:clamp(44px,5.5vw,70px); }
 @media (max-width:900px){ .ftr__top{ grid-template-columns:1fr 1fr; } }
 @media (max-width:560px){ .ftr__top{ grid-template-columns:1fr; } }
-.ftr h4{ color:#fff; font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; font-family:var(--sans); font-weight:500; margin-bottom:16px; }
+.ftr h4,.ftr__h{ color:#fff; font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; font-family:var(--sans); font-weight:500; margin:0 0 16px; line-height:1.4; }
 .ftr ul{ list-style:none; margin:0; padding:0; }
 .ftr li{ margin-bottom:9px; }
 .ftr a:hover{ color:var(--gold-soft); }
@@ -695,3 +696,55 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
 .dz-note strong{ color:rgba(255,255,255,.76); font-weight:400; }
 .dz-note a{ color:var(--gold-soft); border-bottom:1px solid rgba(194,160,98,.4); }
 .section--navy .eyebrow{ color:var(--gold-soft); }
+
+/* =========================================================================
+   Accessibilité — lien d'évitement
+   ========================================================================= */
+.skip{
+  position:absolute; left:-9999px; top:0; z-index:200;
+  background:var(--navy); color:#fff; padding:12px 20px; font-size:.84rem;
+  letter-spacing:.08em; text-decoration:none;
+}
+.skip:focus{ left:12px; top:12px; outline:2px solid var(--gold-soft); outline-offset:2px; }
+
+/* =========================================================================
+   Pages guides
+   ========================================================================= */
+.bref{
+  border:1px solid var(--gold-soft); background:#FDFBF6;
+  padding:24px 28px; margin-bottom:34px;
+}
+.bref__t{
+  font-size:.70rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--gold); margin:0 0 14px;
+}
+.bref ul{ margin:0; padding-left:20px; }
+.bref li{ margin-bottom:8px; font-size:.95rem; }
+.bref li:last-child{ margin-bottom:0; }
+.bref li::marker{ color:var(--gold); }
+
+.faq{ border-top:1px solid var(--line); margin-top:8px; }
+.faq__i{ border-bottom:1px solid var(--line); padding:22px 0; }
+.faq__q{
+  font-family:var(--serif); font-size:1.18rem; color:var(--ink);
+  margin:0 0 9px; line-height:1.3;
+}
+.faq__r{ margin:0; font-size:.95rem; }
+
+.maj{
+  margin-top:40px; padding:16px 20px; background:var(--mist);
+  border-left:2px solid var(--gold); font-size:.84rem; color:var(--muted);
+}
+.maj a{ color:var(--gold); border-bottom:1px solid var(--gold-pale); }
+.maj a:hover{ border-bottom-color:var(--gold); }
+
+.guide-cta{
+  margin-top:44px; padding:30px clamp(22px,3vw,34px);
+  border:1px solid var(--line-strong); background:var(--ivory);
+  display:grid; gap:22px; grid-template-columns:1.3fr auto; align-items:center;
+}
+.guide-cta h2{ margin:0; }
+@media (max-width:760px){ .guide-cta{ grid-template-columns:1fr; } }
+
+/* Les guides reprennent la largeur de lecture de .prose */
+.prose h2[id]{ scroll-margin-top:100px; }

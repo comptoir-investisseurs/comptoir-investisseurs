@@ -1,0 +1,5 @@
+# Le Comptoir des Structurés
+User-agent: *
+Allow: /
+
+Sitemap: https://www.lafinancierederochechouart.com/observatoire/sitemap.xml

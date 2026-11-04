@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autocall : Fonctionnement du Remboursement Anticipé</title>
+<meta name="description" content="Comment fonctionne un autocall : seuil de rappel, dates de constatation, période de non-rappel, trigger dégressif. Exemples chiffrés et risque de réinvestissement.">
+<link rel="canonical" href="https://www.lafinancierederochechouart.com/observatoire/guides/autocall/">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+<meta name="theme-color" content="#101C2B">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Le Comptoir des Structurés">
+<meta property="og:title" content="Autocall : Fonctionnement du Remboursement Anticipé">
+<meta property="og:description" content="Comment fonctionne un autocall : seuil de rappel, dates de constatation, période de non-rappel, trigger dégressif. Exemples chiffrés et risque de réinvestissement.">
+<meta property="og:url" content="https://www.lafinancierederochechouart.com/observatoire/guides/autocall/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Autocall : Fonctionnement du Remboursement Anticipé">
+<meta name="twitter:description" content="Comment fonctionne un autocall : seuil de rappel, dates de constatation, période de non-rappel, trigger dégressif. Exemples chiffrés et risque de réinvestissement.">
+<link rel="icon" type="image/png" sizes="32x32" href="../../../assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../../assets/img/favicon-16.png">
+<link rel="apple-touch-icon" href="../../../assets/img/apple-touch-icon.png">
+<link rel="preload" href="../../assets/fonts/CormorantGaramond-500-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../assets/fonts/Jost-300-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/obs.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.lafinancierederochechouart.com/#organization","name":"La Financière de Rochechouart","url":"https://www.lafinancierederochechouart.com","email":"contact@lfd-rochechouart.com","address":{"@type":"PostalAddress","streetAddress":"58 rue de Monceau","postalCode":"75008","addressLocality":"Paris","addressCountry":"FR"}},{"@type":"WebSite","@id":"https://www.lafinancierederochechouart.com/observatoire/#website","name":"Le Comptoir des Structurés","url":"https://www.lafinancierederochechouart.com/observatoire/","inLanguage":"fr-FR","publisher":{"@id":"https://www.lafinancierederochechouart.com/#organization"}},{"@type":"Article","headline":"Autocall : le mécanisme de remboursement anticipé","description":"Comment fonctionne un autocall : seuil de rappel, dates de constatation, période de non-rappel, trigger dégressif. Exemples chiffrés et risque de réinvestissement.","inLanguage":"fr-FR","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.lafinancierederochechouart.com/observatoire/guides/autocall/"},"datePublished":"2026-11-04","dateModified":"2026-11-04","author":{"@id":"https://www.lafinancierederochechouart.com/#organization"},"publisher":{"@id":"https://www.lafinancierederochechouart.com/#organization"},"isAccessibleForFree":true},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Qu’est-ce qu’un autocall&nbsp;?","acceptedAnswer":{"@type":"Answer","text":"C’est un mécanisme de remboursement anticipé automatique : à chaque date de constatation, si le sous-jacent dépasse un seuil prédéfini — souvent 100 % de son niveau initial —, le produit est remboursé au nominal majoré du gain prévu, et s’arrête."}},{"@type":"Question","name":"Quelle est la durée réelle d’un autocall&nbsp;?","acceptedAnswer":{"@type":"Answer","text":"Elle est inconnue à la souscription. La maturité affichée est une durée maximale, pas une durée attendue : le produit peut s’arrêter à la première constatation éligible comme aller jusqu’à son terme. Il faut donc pouvoir le porter jusqu’au bout."}},{"@type":"Question","name":"Le remboursement anticipé est-il une bonne nouvelle&nbsp;?","acceptedAnswer":{"@type":"Answer","text":"En général oui, puisqu’il valide le gain prévu. Mais il faut replacer les fonds, souvent dans des conditions moins favorables : c’est le risque de réinvestissement, qui réduit le rendement effectif d’une succession d’autocalls par rapport au coupon facial."}}]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://www.lafinancierederochechouart.com/observatoire/"},{"@type":"ListItem","position":2,"name":"Guides","item":"https://www.lafinancierederochechouart.com/observatoire/guides/"},{"@type":"ListItem","position":3,"name":"Autocall : le mécanisme de remboursement anticipé","item":"https://www.lafinancierederochechouart.com/observatoire/guides/autocall/"}]}]}</script>
+</head>
+<body>
+
+<a class="skip" href="#contenu">Aller au contenu principal</a>
+
+<header class="hdr">
+  <div class="container hdr__in">
+    <a class="brand" href="../../index.html" aria-label="Le Comptoir des Structurés — accueil">
+      <span class="brand__mark" aria-hidden="true">C</span>
+      <span class="brand__txt">
+        <span class="brand__name">Le Comptoir</span>
+        <span class="brand__sub">des structurés</span>
+      </span>
+    </a>
+    <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="../../index.html">Accueil</a>
+      <a href="../../produits.html">Le comparateur</a>
+      <a href="../../comprendre.html">Comprendre</a>
+      <a href="../../guides/" class="is-active" aria-current="page">Guides</a>
+      <a href="../../acteurs.html">Les acteurs</a>
+      <a class="nav__cta" href="../../produits.html#analyse">Faire analyser un produit</a>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<section class="hero hero--page">
+  <div class="hero__grid" aria-hidden="true"></div>
+  <div class="container hero__in">
+    <nav class="crumb" aria-label="Fil d’Ariane"><a href="../../index.html">Accueil</a><span aria-hidden="true">/</span><a href="../../guides/index.html">Guides</a><span aria-hidden="true">/</span><span aria-current="page">Autocall : le mécanisme de remboursement anticipé</span></nav>
+    <h1 class="title-xl">Autocall : le mécanisme de remboursement anticipé</h1>
+    <p class="hero__lede" style="margin-top:22px">L’autocall n’est pas une famille de produits mais un mécanisme : le remboursement anticipé automatique. Il s’ajoute à une structure Phoenix ou Athéna et en change profondément la durée de vie.</p>
+    
+  </div>
+</section>
+
+<section class="section">
+  <div class="container container--narrow">
+
+    <aside class="bref" aria-label="À retenir">
+      <p class="bref__t">À retenir</p>
+      <ul><li>Le rappel est automatique : ni vous ni l’émetteur ne le décidez.</li><li>La durée réelle est inconnue à la souscription.</li><li>Un rappel rapide est favorable, mais crée un risque de réinvestissement.</li><li>Le seuil de rappel peut être fixe ou dégressif.</li></ul>
+    </aside>
+
+    <nav class="toc" aria-label="Sommaire du guide">
+      <p class="toc__t">Sommaire</p>
+      <ol><li><a href="#mecanisme">Le mécanisme, pas à pas</a></li><li><a href="#exemple">Un exemple chiffré</a></li><li><a href="#non-rappel">La période de non-rappel</a></li><li><a href="#trigger">Seuil fixe ou trigger dégressif</a></li><li><a href="#reinvestissement">Le risque de réinvestissement</a></li><li><a href="#faq">Questions fréquentes</a></li></ol>
+    </nav>
+
+    <article class="prose">
+<h2 id="mecanisme">Le mécanisme, pas à pas</h2>
+
+<p>À chaque <strong>date de constatation</strong> — le plus souvent trimestrielle, semestrielle
+ou annuelle — on compare le niveau du sous-jacent à un <strong>seuil de rappel</strong>,
+généralement fixé à 100 % de son niveau initial.</p>
+<p>Si le sous-jacent est au-dessus de ce seuil, le produit est remboursé immédiatement : vous
+recevez le nominal, majoré du gain prévu, et le produit s’arrête. S’il est en dessous, rien ne
+se passe : on attend la constatation suivante.</p>
+<p>Le mot <em>automatique</em> est essentiel. Ce n’est pas une option que l’émetteur exerce à
+sa convenance — contrairement à un <em>callable</em>, où l’option lui appartient et joue donc
+contre vous. Le rappel autocall se déclenche mécaniquement dès que la condition est remplie.</p><h2 id="exemple">Un exemple chiffré</h2>
+
+<p>Prenons un produit à constatation trimestrielle, seuil de rappel à 100 %, coupon de 2,50 %
+par trimestre, maturité maximale dix ans, avec une période de non-rappel de douze mois.</p>
+<table>
+  <thead><tr><th>Trimestre</th><th>Niveau de l’indice</th><th>Événement</th><th>Flux</th></tr></thead>
+  <tbody>
+    <tr><td>T1 à T4</td><td>92 % à 104 %</td><td>Non-rappel : aucun rappel possible</td><td>Coupons si barrière franchie</td></tr>
+    <tr><td>T5</td><td>97 %</td><td>Sous le seuil</td><td>Coupon seul</td></tr>
+    <tr><td>T6</td><td>101 %</td><td><strong>Rappel déclenché</strong></td><td>Nominal + coupon</td></tr>
+  </tbody>
+</table>
+<p>Le produit a vécu dix-huit mois au lieu de dix ans. L’investisseur a encaissé six coupons,
+soit 15 % bruts, et récupère son capital. Du point de vue du rendement annualisé, c’est un bon
+résultat — mais il faut à présent replacer ces fonds.</p><h2 id="non-rappel">La période de non-rappel</h2>
+
+<p>Beaucoup de structures prévoient une durée initiale pendant laquelle aucun rappel ne peut
+intervenir, même si la condition est remplie — fréquemment douze mois.</p>
+<p>Cette clause protège l’investisseur : elle garantit une durée minimale d’exposition, donc
+un minimum de coupons encaissables. Sans elle, un produit souscrit sur un point bas de marché
+peut être rappelé dès le premier trimestre, laissant l’investisseur avec un gain d’un
+trimestre et un problème de réinvestissement immédiat.</p>
+<p>C’est un paramètre à regarder systématiquement, et rarement mis en avant dans les
+brochures.</p><h2 id="trigger">Seuil fixe ou trigger dégressif</h2>
+
+<p>Le seuil de rappel n’est pas toujours constant. Dans une variante dite <em>trigger
+dégressif</em> (ou <em>step-down</em>), il diminue à chaque constatation : 100 % la première
+année, puis 95 %, 90 %, 85 %…</p>
+<p>L’effet est net : la probabilité de remboursement anticipé augmente fortement avec le
+temps. Au bout de six ans, un simple retour à 70 % peut suffire à déclencher le rappel.</p>
+<p>La contrepartie mérite d’être comprise. Le rappel peut alors intervenir <strong>alors que
+le sous-jacent reste très inférieur à son niveau d’origine</strong>. Le produit se termine au
+pair, avec son gain, mais l’investisseur ne profitera pas du rebond éventuel — et il doit
+replacer son capital dans un marché déprimé.</p><h2 id="reinvestissement">Le risque de réinvestissement</h2>
+
+<p>C’est le risque le plus sous-estimé des structures autocall, parce qu’il ne ressemble pas à
+une perte.</p>
+<p>Un produit rappelé rapidement a bien rempli son office. Mais il vous rend votre capital au
+moment précis où le marché a monté — donc où les coupons offerts sur les nouvelles émissions
+sont plus faibles, puisque la volatilité a baissé et que les sous-jacents sont plus chers.</p>
+<p>Un investisseur qui enchaîne les autocalls rappelés au bout d’un an ne capte pas le coupon
+facial année après année : il capte une suite de rendements courts, entrecoupés de périodes
+de trésorerie non rémunérée et de réinvestissements à des conditions dégradées. Le taux de
+rendement interne réel est souvent nettement inférieur au coupon affiché.</p>
+
+      <h2 id="faq">Questions fréquentes</h2>
+      <div class="faq"><div class="faq__i"><h3 class="faq__q">Qu’est-ce qu’un autocall&nbsp;?</h3><p class="faq__r">C’est un mécanisme de remboursement anticipé automatique : à chaque date de constatation, si le sous-jacent dépasse un seuil prédéfini — souvent 100 % de son niveau initial —, le produit est remboursé au nominal majoré du gain prévu, et s’arrête.</p></div><div class="faq__i"><h3 class="faq__q">Quelle est la durée réelle d’un autocall&nbsp;?</h3><p class="faq__r">Elle est inconnue à la souscription. La maturité affichée est une durée maximale, pas une durée attendue : le produit peut s’arrêter à la première constatation éligible comme aller jusqu’à son terme. Il faut donc pouvoir le porter jusqu’au bout.</p></div><div class="faq__i"><h3 class="faq__q">Le remboursement anticipé est-il une bonne nouvelle&nbsp;?</h3><p class="faq__r">En général oui, puisqu’il valide le gain prévu. Mais il faut replacer les fonds, souvent dans des conditions moins favorables : c’est le risque de réinvestissement, qui réduit le rendement effectif d’une succession d’autocalls par rapport au coupon facial.</p></div></div>
+    </article>
+
+    <p class="maj">Mis à jour le <time datetime="2026-11-04">4 novembre 2026</time>.
+    Les ordres de grandeur chiffrés reposent sur les conditions de marché de
+    novembre 2025 et évoluent avec les taux et la volatilité.
+    <a href="../../methodologie.html">Notre méthodologie</a>.</p>
+
+    <div class="guide-cta">
+      <div>
+        <h2 class="title-md" style="font-size:1.5rem">Passer de la théorie au concret</h2>
+        <p class="small" style="margin:10px 0 0">Comparez les structures de référence du
+        marché, ou faites analyser un produit qu’on vous a proposé.</p>
+      </div>
+      <div class="cta__actions">
+        <a class="btn btn--sm" href="../../produits.html">Ouvrir le comparateur</a>
+        <a class="btn btn--sm btn--gold" href="../../produits.html#analyse">Faire analyser un produit</a>
+      </div>
+    </div>
+
+    <h2 class="title-md" style="margin-top:56px">À lire également</h2>
+    <hr class="rule">
+    <div class="cards" style="margin-top:24px">
+        <a class="card linkcard" href="../../guides/phoenix/">
+          <p class="card__k">Guide</p>
+          <h3 class="card__t" style="font-size:1.14rem">Phoenix : le coupon conditionnel expliqué</h3>
+          <p class="small muted" style="margin:0">Le Phoenix verse un coupon à chaque constatation si le sous-jacent reste au-dessus d’une barrière. Fonctionnem…</p>
+        </a>        <a class="card linkcard" href="../../guides/athena/">
+          <p class="card__k">Guide</p>
+          <h3 class="card__t" style="font-size:1.14rem">Athéna : le gain capitalisé versé au rappel</h3>
+          <p class="small muted" style="margin:0">La structure Athéna ne détache aucun coupon : le gain est capitalisé et versé en une fois au rappel ou à l’éch…</p>
+        </a>        <a class="card linkcard" href="../../guides/coupon-memoire/">
+          <p class="card__k">Guide</p>
+          <h3 class="card__t" style="font-size:1.14rem">Le coupon à effet mémoire</h3>
+          <p class="small muted" style="margin:0">L’effet mémoire conserve les coupons non versés et les rattrape à la première constatation favorable. Fonction…</p>
+        </a>        <a class="card linkcard" href="../../guides/produit-structure/">
+          <p class="card__k">Guide</p>
+          <h3 class="card__t" style="font-size:1.14rem">Produit structuré : définition, fonctionnement et risques</h3>
+          <p class="small muted" style="margin:0">Qu’est-ce qu’un produit structuré ? Définition juridique, composition, d’où vient le coupon, familles, risques…</p>
+        </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<section class="cta">
+  <div class="container cta__in">
+    <div>
+      <p class="eyebrow eyebrow--light">Accompagnement</p>
+      <h2 class="title-lg">Un doute sur un produit qu’on vous propose&nbsp;?</h2>
+      <p style="margin:18px 0 0;max-width:560px">
+        Déposez son document d’informations clés : nous en reprenons le sous-jacent, les
+        barrières et le mode de constatation, nous le comparons aux offres du moment à
+        risque équivalent, et nous vous disons ce que nous en pensons.
+      </p>
+    </div>
+    <div class="cta__actions">
+      <a class="btn btn--ghost-light" href="../../produits.html#analyse">Faire analyser un produit</a>
+      <a class="btn btn--ghost-light" href="../../../contact.html">Nous contacter</a>
+    </div>
+  </div>
+</section>
+
+<footer class="ftr">
+  <div class="container">
+    <div class="ftr__top">
+      <div class="ftr__brand">
+        <span class="brand">
+          <span class="brand__mark" aria-hidden="true">C</span>
+          <span class="brand__txt">
+            <span class="brand__name">Le Comptoir</span>
+            <span class="brand__sub">des structurés</span>
+          </span>
+        </span>
+        <p>Un répertoire pédagogique du marché des produits structurés : mécanismes,
+        familles, émetteurs, établissements de place et vocabulaire. Les structures
+        présentées reposent sur des indices de marché publics.</p>
+        <p class="xsmall" style="margin-top:14px">Une publication de
+          <a href="../../../index.html">La Financière de Rochechouart</a>, 58 rue de Monceau, 75008 Paris.</p>
+      </div>
+      <div>
+        <h2 class="ftr__h">Le marché</h2>
+        <ul>
+          <li><a href="../../produits.html">Comparateur de produits structurés</a></li>
+          <li><a href="../../produits.html#analyse">Faire analyser un produit</a></li>
+          <li><a href="../../acteurs.html">Émetteurs et établissements</a></li>
+          <li><a href="../../methodologie.html">Méthodologie de comparaison</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="ftr__h">Guides</h2>
+        <ul>
+          <li><a href="../../guides/">Tous les guides</a></li>
+          <li><a href="../../guides/produit-structure/">Qu’est-ce qu’un produit structuré</a></li>
+          <li><a href="../../guides/autocall/">Autocall</a></li>
+          <li><a href="../../guides/risques-produits-structures/">Risques</a></li>
+          <li><a href="../../guides/fiscalite-produits-structures/">Fiscalité</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="ftr__h">Le Comptoir</h2>
+        <ul>
+          <li><a href="../../comprendre.html">Guide complet</a></li>
+          <li><a href="../../comprendre.html#glossaire">Glossaire</a></li>
+          <li><a href="../../mentions-legales.html">Mentions légales</a></li>
+          <li><a href="../../../contact.html">Nous contacter</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr__risk">
+      <strong style="color:rgba(255,255,255,.72)">Avertissement sur les risques.</strong>
+      Les produits structurés sont des instruments financiers complexes présentant un
+      risque de perte en capital en cours de vie et, pour la plupart d’entre eux, à
+      l’échéance. Ils exposent au risque de défaut de l’émetteur et de son garant : en cas
+      de défaillance, l’investisseur peut perdre tout ou partie de son investissement,
+      indépendamment du comportement du sous-jacent. Le rendement affiché est conditionnel
+      et n’est en aucun cas garanti ; les performances passées et les simulations ne
+      préjugent pas des performances futures. La liquidité en cours de vie dépend du
+      marché secondaire assuré par l’émetteur et peut faire ressortir une valeur
+      sensiblement inférieure au nominal. Les informations publiées ici sont de nature
+      pédagogique et générale : elles ne constituent ni un conseil en investissement, ni
+      une recommandation personnalisée, ni une offre de souscription. Seuls le prospectus
+      et le document d’informations clés (DIC) de l’émetteur font foi.
+    </div>
+    <div class="ftr__bot">
+      <span>© 2026 La Financière de Rochechouart — tous droits réservés.</span>
+      <span>Dernière revue éditoriale : 4 novembre 2026. Hypothèses de marché : novembre 2025.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/data.js"></script>
+<script src="../../assets/obs.js"></script>
+</body>
+</html>

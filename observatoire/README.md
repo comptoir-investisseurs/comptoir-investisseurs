@@ -30,6 +30,28 @@ Le script supprime aussi les pages d’une ancienne arborescence (`familles.html
 `glossaire.html`, `emetteurs.html`, `etablissements.html`), désormais fusionnées en onglets —
 voir la liste `OBSOLETES`.
 
+## ⚠️ Domaine canonique — à vérifier avant mise en ligne
+
+`BASE_URL` et `BASE_PATH`, en tête de `build-observatoire.py`, pilotent les balises
+`canonical`, l'Open Graph, le sitemap et les données structurées. La valeur actuelle
+(`https://www.lafinancierederochechouart.com` + `/observatoire`) est **déduite de
+`contact.php`**, pas confirmée. Si le domaine réel diffère, ou si le site répond sans
+`www`, corrigez ces deux lignes et relancez le script. Un canonical erroné nuit davantage
+que son absence.
+
+## ⚠️ Fraîcheur des données financières
+
+Deux constantes distinctes, à ne pas confondre :
+
+- `MAJ_ISO` — date de la dernière revue éditoriale, affichée sur chaque guide ;
+- `MARCHE_REF` — période de marché des niveaux de coupon des gabarits ;
+- `ANNEE_RATINGS` — date de relevé des notations de crédit.
+
+Les coupons (`novembre 2025`) et les notations (`octobre 2025`) **datent d'un an**. Ils
+restent cohérents entre eux et sont explicitement datés sur le site, mais doivent être
+recalés avant toute exploitation commerciale : les coupons suivent les taux et la
+volatilité, les notations sont révisées sans préavis.
+
 ## Les quatre onglets
 
 | Fichier | Onglet | Contenu |
@@ -131,6 +153,36 @@ produits.html?enveloppe=PER
 ```
 
 Alias courts acceptés : `fam`, `emet`, `sj`, `env`, `dev`.
+
+## SEO
+
+- **Titres et métadonnées** : uniques sur les 22 pages, titles de 45 à 64 caractères,
+  descriptions de 112 à 163. Un seul `<h1>` par page.
+- **Guides** : 14 pages autonomes sous `guides/<slug>/index.html`, plus un index. Chacune
+  a son `À retenir`, son sommaire, ses exemples chiffrés, sa date de mise à jour, ses
+  liens vers le comparateur et le service d'analyse, et ses guides connexes.
+- **Comparateur pré-rendu** : les 24 lignes et leurs détails sont désormais écrits dans le
+  HTML par `rows_prerendered()` / `cards_prerendered()`, en balisage identique à celui que
+  produit `obs.js`. Sans JavaScript, un robot lit 6 800 mots au lieu d'un `<tbody>` vide ;
+  avec JavaScript, `render()` réécrit un contenu identique, sans décalage visuel.
+- **Données structurées** : `Organization` et `WebSite` sur toutes les pages,
+  `BreadcrumbList` sur les pages profondes, `Article` sur les guides, la méthodologie et
+  le guide pilier, `FAQPage` là où une FAQ existe. Aucun `author` nommé, aucune note ni
+  avis : seules des informations réellement visibles sur la page.
+- **Fichiers générés** : `sitemap.xml` (21 URL), `robots.txt`, `.htaccess` (redirections
+  301 des anciennes URL, compression, cache, `ErrorDocument`), `404.html` en `noindex`.
+- **Performance** : polices préchargées, scripts en fin de `body`, cache long sur les
+  woff2. `produits.html` pèse 163 Ko non compressé du fait du pré-rendu — environ 25 Ko
+  une fois gzippé par Apache (`mod_deflate` activé dans le `.htaccess`).
+
+### À faire manuellement
+
+1. **robots.txt racine** : ajouter `Sitemap: https://VOTRE-DOMAINE/observatoire/sitemap.xml`
+   dans `public_html/robots.txt`. Le `robots.txt` d'un sous-dossier n'est pas lu.
+2. **Google Search Console** : soumettre le sitemap, demander l'indexation de
+   `/observatoire/` et `/observatoire/guides/`.
+3. Vérifier que `.htaccess` a bien été extrait (les gestionnaires de fichiers masquent les
+   fichiers commençant par un point).
 
 ## Points techniques
 
