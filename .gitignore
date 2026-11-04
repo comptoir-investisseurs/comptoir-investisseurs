@@ -7,3 +7,6 @@ contact-secrets.php
 
 # Dépendances installées localement (Render les réinstalle lui-même)
 server/node_modules
+
+# Dossier de publication construit par render-build.sh
+_site

@@ -1,0 +1,38 @@
+# =========================================================================
+#  Render — Blueprint du site statique
+#  -------------------------------------------------------------------------
+#  Publie le site vitrine, « Le Comptoir des Structurés » compris
+#  (accessible sous /observatoire/). La construction est faite par
+#  render-build.sh, qui applique le même périmètre d'exclusion que
+#  .github/workflows/pages.yml : ni code source, ni secrets, ni outils
+#  internes ne sont publiés.
+#
+#  NOTE — le relais de cours (dossier server/, lfdr-quotes-proxy) est un
+#  service Render distinct, créé séparément. Il n'est volontairement pas
+#  décrit ici pour ne pas interférer avec sa configuration existante.
+# =========================================================================
+services:
+  - type: web
+    name: comptoir-des-structures
+    runtime: static
+    buildCommand: ./render-build.sh
+    staticPublishPath: ./_site
+    pullRequestPreviewsEnabled: false
+    headers:
+      # Hôte secondaire : on évite un doublon indexable du site principal.
+      # À retirer le jour où un nom de domaine propre pointe vers ce service.
+      - path: /*
+        name: X-Robots-Tag
+        value: noindex, nofollow
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /observatoire/assets/fonts/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
