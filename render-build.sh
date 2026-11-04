@@ -30,6 +30,7 @@ for p in \
   render-build.sh \
   render.yaml \
   SECURITY-AUDIT.md \
+  contact.php \
   contact-secrets.php \
   bilan-patrimonial.html \
   Demarrer-bilan-patrimonial.bat \
@@ -63,5 +64,6 @@ n=$(ls "$OUT/observatoire/assets/fonts"/*.woff2 2>/dev/null | wc -l)
 test "$n" -ge 20 || { echo "ERREUR : polices du Comptoir absentes ($n trouvée(s))"; exit 1; }
 test ! -f "$OUT/SECURITY-AUDIT.md" || { echo "ERREUR : audit de sécurité présent dans la publication"; exit 1; }
 test -z "$(ls "$OUT"/*.sql 2>/dev/null)" || { echo "ERREUR : fichiers SQL présents dans la publication"; exit 1; }
+test ! -f "$OUT/contact.php" || { echo "ERREUR : contact.php présent (non exécutable sur un hôte statique)"; exit 1; }
 
 echo "→ Publication prête : $(du -sh "$OUT" | cut -f1)"
