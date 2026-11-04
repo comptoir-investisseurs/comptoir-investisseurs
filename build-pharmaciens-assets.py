@@ -49,7 +49,6 @@ PHOTOS = [
     ("Building USA.jpg",         "gratte-ciel.jpg",       1600, 86, 11),
     ("assets/img/foret-aerien.jpg",  "foret.jpg",         1800, 92, 8),
     ("assets/img/plage-ocean.jpg",   "ocean.jpg",         1800, 92, 8),
-    ("assets/img/serenite.jpg",      "serenite.jpg",      1800, 90, 9),
     ("assets/img/echiquier.jpg",     "strategie.jpg",     1600, 88, 10),
     ("assets/img/bateau-mer.jpg",    "large.jpg",         1600, 90, 9),
     ("assets/img/haussmann.jpg",     "pierre.jpg",        1600, 88, 10),
@@ -63,7 +62,7 @@ PHOTOS = [
 # le geste, le portrait) tirée d'une même prise de vue, pour les pages qui doivent
 # montrer le métier plutôt qu'une image financière.
 CROPS = [
-    ("Pharmacienne-officine.jpg", "officine-rayonnages.jpg", "636x509+820+330"),
+    ("Pharmacienne-officine.jpg", "officine-conseil.jpg",   "760x608+200+180"),
     ("Pharmacienne-officine.jpg", "officine-geste.jpg",      "600x480+820+140"),
     ("Pharmacienne-officine.jpg", "officine-portrait.jpg",   "700x560+180+230"),
     # Intérieur de commerce : on garde la partie en flou, sans texte ni enseigne.

@@ -3058,7 +3058,7 @@ def build_home():
       eux : notre métier commence là où le leur s’arrête, à la question du capital.</p>
       <a class="link-arrow" href="votre-situation.html">Découvrir notre accompagnement __ARROW__</a>
     </div>
-    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/officine-rayonnages.jpg" alt="Rayonnages d’officine garnis de boîtes de médicaments"></div></div>
+    <div class="split__media" data-reveal data-delay="1"><div class="media-frame"><img src="assets/img/officine-conseil.jpg" alt="Pharmacienne titulaire dans son officine, saisissant une boîte sur un rayonnage"></div></div>
   </div>
 </section>
 """.replace("__ARROW__", arrow())
