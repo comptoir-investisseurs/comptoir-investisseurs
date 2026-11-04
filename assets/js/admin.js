@@ -280,6 +280,14 @@
     else if(activeTab==='clients') renderClients();
     else if(activeTab==='rappeler') renderRappeler();
     else if(activeTab==='activites') renderActivities();
+    else if(activeTab==='reporting') renderReporting();
+  }
+  // L'outil de reporting est une page à part : on ne charge son cadre qu'au
+  // premier affichage de l'onglet, et on le garde ensuite (un rechargement
+  // perdrait le relevé déjà déposé).
+  function renderReporting(){
+    const f = document.getElementById('reporting-frame');
+    if(f && !f.getAttribute('src')) f.setAttribute('src', 'reporting.html');
   }
 
   // ---------- PIPELINE (KANBAN) — réservé aux prospects ----------
@@ -596,6 +604,7 @@
       stageBar = `<div class="contact-outcome-bar">
         <button type="button" class="btn contact-outcome-btn contact-outcome-btn--lose" id="btn-to-prospect">↩ Remettre en prospect</button>
         <a href="cockpit.html?client=${encodeURIComponent(id)}" target="_blank" rel="noopener" class="btn contact-outcome-btn" style="border-color:var(--gold);background:#fdf6e8;color:#96732f;text-decoration:none;text-align:center">Ouvrir le Cockpit client ↗</a>
+        <a href="reporting.html" target="_blank" rel="noopener" class="btn contact-outcome-btn" style="border-color:var(--gold);background:#fdf6e8;color:#96732f;text-decoration:none;text-align:center">Reporting du portefeuille ↗</a>
       </div>`;
     }
     const personneSwitch = `<div class="detail-section"><h4>Type de personne</h4><div class="edit-grid">

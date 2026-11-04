@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reporting client : La Financière de Rochechouart</title>
+<meta name="description" content="Outil interne : reprise du relevé d'un partenaire et édition d'un reporting uniformisé à la charte de la maison.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png?v=2">
+<link rel="icon" href="assets/img/favicon.png?v=2">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png?v=2">
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/reporting.css?v=1">
+</head>
+<body class="rp-body">
+
+<!-- ======================================================================
+     ÉCRAN 1 : DÉPÔT DU RELEVÉ
+     ====================================================================== -->
+<section id="rp-home" class="rp-home">
+  <div class="rp-home__inner">
+
+    <div class="rp-home__head">
+      <div>
+        <h1>Reporting client</h1>
+        <p>Déposez le relevé de portefeuille d'un partenaire : il ressort dans la mise en page
+           de la maison, au même format que la synthèse du bilan patrimonial, prêt à être
+           téléchargé en PDF.</p>
+      </div>
+      <div class="rp-home__tools">
+        <a href="admin.html" class="rp-tool" target="_top">CRM ↗</a>
+        <a href="bilan-patrimonial.html" class="rp-tool" target="_top">Bilan patrimonial ↗</a>
+      </div>
+    </div>
+
+    <div class="rp-grid">
+
+      <!-- zone de dépôt -->
+      <div class="rp-drop" id="rp-drop">
+        <svg class="rp-drop__icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 9l5-5 5 5"/><path d="M12 4v12"/>
+        </svg>
+        <div class="rp-drop__t">Glissez le relevé ici</div>
+        <p class="rp-drop__s">Relevé de portefeuille UTMOST, UBS, Intencial, Generali, Spirica…
+          en PDF, ou un modèle normalisé en&nbsp;.json.</p>
+        <label class="rp-btn rp-btn--gold rp-file">Choisir un fichier<input type="file" id="rp-file" accept=".pdf,.json,application/pdf,application/json"></label>
+        <div class="rp-drop__or">ou</div>
+        <button type="button" class="rp-tool" id="rp-demo">Voir le modèle sur un relevé réel</button>
+        <p class="rp-err" id="rp-err" role="status"></p>
+      </div>
+
+      <!-- partenaires & marche à suivre -->
+      <div class="rp-panel">
+        <h2>Une seule mise en page</h2>
+        <p>Quel que soit l'émetteur du relevé, le document sorti est le même : couverture,
+          synthèse, performance, allocation, détail ligne à ligne, contributeurs, mentions.</p>
+
+        <div class="rp-src">
+          <div class="rp-src__row"><i></i>UTMOST Wealth Solutions <span>modèle lu</span></div>
+          <div class="rp-src__row is-soon"><i></i>UBS <span>à venir</span></div>
+          <div class="rp-src__row is-soon"><i></i>Intencial Patrimoine <span>à venir</span></div>
+          <div class="rp-src__row is-soon"><i></i>Generali · Spirica · Cardif <span>à venir</span></div>
+        </div>
+
+        <h2>Ce que fait l'outil</h2>
+        <ol class="rp-steps">
+          <li>Il reprend les valorisations, quantités, prix moyens et performances du relevé, sans les recalculer.</li>
+          <li>Il reverse les classes d'actifs du partenaire dans la nomenclature de la maison, et reclasse les lignes laissées sans catégorie.</li>
+          <li>Il édite le deck 16:9 à la charte LFDR, exportable en PDF (297 × 167 mm, une page par diapositive).</li>
+          <li>Il garde la trace du reclassement en annexe : le relevé de l'assureur reste la référence.</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     ÉCRAN 2 : LE REPORTING
+     ====================================================================== -->
+<section id="rp-view" class="rp-view">
+  <header class="rp-bar no-print">
+    <div class="rp-bar__left">
+      <img src="assets/img/logo-light.png" alt="La Financière de Rochechouart">
+      <div class="rp-bar__client" id="rp-bar-client"></div>
+    </div>
+    <div class="rp-bar__right">
+      <button type="button" class="rp-tool" id="rp-back">← Autre relevé</button>
+      <button type="button" class="rp-tool" id="rp-print">Imprimer</button>
+      <button type="button" class="rp-btn rp-btn--gold" id="rp-pdf">Télécharger le PDF</button>
+    </div>
+  </header>
+  <div class="rp-deck" id="rp-deck"></div>
+</section>
+
+<div class="rp-toast" id="rp-toast"></div>
+
+<script src="assets/vendor/jspdf.umd.min.js" defer></script>
+<script src="assets/vendor/html2canvas.min.js" defer></script>
+<script src="assets/js/reporting.js?v=1"></script>
+</body>
+</html>

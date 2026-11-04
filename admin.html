@@ -78,6 +78,7 @@
       <button class="dash-tab" data-tab="clients">Clients <span class="count" id="tab-count-clients">0</span></button>
       <button class="dash-tab" data-tab="rappeler">À rappeler <span class="count" id="tab-count-rappeler">0</span></button>
       <button class="dash-tab" data-tab="activites">Activités <span class="count" id="tab-count-activites">0</span></button>
+      <button class="dash-tab" data-tab="reporting">Reporting</button>
     </div>
 
     <!-- ===== VIEW: PIPELINE ===== -->
@@ -126,6 +127,21 @@
     <!-- ===== VIEW: ACTIVITES ===== -->
     <div class="dash-view" id="view-activites">
       <div id="activities-feed"></div>
+    </div>
+
+    <!-- ===== VIEW: REPORTING =====
+         L'outil vit dans sa propre page (reporting.html) : il a sa charte, ses
+         polices auto-hébergées et sa chaîne d'export PDF. On l'affiche ici dans
+         un cadre plutôt que de le dupliquer — le cadre n'est chargé qu'au
+         premier passage sur l'onglet. -->
+    <div class="dash-view" id="view-reporting">
+      <div class="dash-toolbar">
+        <span class="dash-toolbar__lbl" style="font-size:.82rem;color:#6b7169">
+          Déposez le relevé d'un partenaire : il ressort au format de la maison, prêt à télécharger en PDF.
+        </span>
+        <a href="reporting.html" target="_blank" rel="noopener" class="dash-btn-export" style="margin-left:auto;text-decoration:none">Ouvrir en pleine page ↗</a>
+      </div>
+      <iframe id="reporting-frame" title="Reporting client" style="width:100%;height:78vh;min-height:560px;border:1px solid rgba(0,27,0,.12);border-radius:12px;background:#001B00"></iframe>
     </div>
 
   </div>

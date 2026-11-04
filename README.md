@@ -103,6 +103,40 @@ animations modernes (révélations au défilement, transitions de page, effets d
   ⚠️ `contact.php` doit être déposé dans le même dossier que les HTML sur Hostinger
   (`public_html/`). GitHub Pages n'exécutant pas PHP, il en est exclu : sur Pages le
   formulaire enregistre le lead dans le CRM mais n'envoie pas d'email.
+- **Reporting client (outil conseiller)** — `reporting.html` : reprise du relevé de
+  portefeuille d'un partenaire (UTMOST, UBS, Intencial, Generali, Spirica…) et édition
+  d'un **reporting uniformisé à la charte LFDR**, au même format que la synthèse du bilan
+  patrimonial (deck 16:9, export PDF 297 × 167 mm, une page par diapositive). Accessible
+  depuis le CRM, onglet **« Reporting »** (l'outil s'y affiche dans un cadre, chargé au
+  premier passage sur l'onglet), depuis la fiche d'un client (« Reporting du portefeuille »),
+  ou directement en pleine page.
+  **Le document produit** : couverture · synthèse (valorisation, performance, +/- values,
+  liquidités, répartition, trois constats chiffrés) · performance (cascade valorisation de
+  référence → apports/retraits → performance → valorisation du jour) · allocation (classes
+  d'actifs et zones géographiques) · détail ligne à ligne groupé par classe puis par zone,
+  paginé automatiquement · contributeurs (meilleures et moins bonnes lignes) · informations
+  contractuelles et mentions.
+  **Principe** : un **modèle normalisé** unique au centre —
+  `relevé du partenaire → (lecture) → modèle normalisé → (rendu) → deck LFDR`. Le rendu ne
+  sait pas de quel partenaire viennent les données : ajouter un partenaire revient à écrire
+  une lecture qui remplit le modèle, sans toucher à la mise en page. Les valorisations,
+  quantités, prix moyens et performances du relevé sont repris **sans être recalculés** ;
+  seules la présentation et la nomenclature des classes d'actifs sont celles de la maison.
+  Les lignes que l'assureur laisse « non renseigné » (produits structurés, ETF obligataires
+  à échéance, fonds long/short…) sont reclassées d'après leur libellé, et la dernière page
+  garde la **trace du reclassement** : le relevé de l'assureur reste la référence.
+  Fichiers : `assets/js/reporting.js` (modèle, normalisation, graphiques, deck, export PDF)
+  et `assets/css/reporting.css`. La taxonomie (classes d'actifs, zones, couleurs) et les
+  correspondances partenaire → LFDR sont en tête de `reporting.js` (`CLASSES`, `ZONES`,
+  `MAP_CLASSE`, `MAP_ZONE`, `RECLASS`).
+  ⚠️ **Outil réservé au réseau interne**, comme le bilan patrimonial : `reporting.html`,
+  `assets/js/reporting.js` et `assets/css/reporting.css` sont exclus du déploiement GitHub
+  Pages (`.github/workflows/pages.yml`).
+  **État d'avancement** : la direction artistique et la chaîne de rendu sont en place et
+  s'exercent sur un relevé UTMOST réel (bouton « Voir le modèle sur un relevé réel »). Le
+  dépôt accepte aujourd'hui un modèle normalisé `.json` ; **la lecture automatique des PDF
+  partenaires (pdf.js) reste à écrire** — c'est l'étape suivante, un format de relevé à la
+  fois, en commençant par UTMOST.
 - **Suivi des produits structurés** — `structures.html` : book, fiches produit, calendrier de
   coupons/autocalls et cours réels des sous-jacents (Yahoo Finance). Les cours passent par
   `server/` (petit relais Node/Express, à déployer séparément sur Render en tant que **Web

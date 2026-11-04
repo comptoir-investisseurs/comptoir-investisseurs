@@ -38,6 +38,9 @@ jobs:
             --exclude 'contact.php' \
             --exclude 'contact-secrets.php' \
             --exclude 'bilan-patrimonial.html' \
+            --exclude 'reporting.html' \
+            --exclude 'assets/js/reporting.js' \
+            --exclude 'assets/css/reporting.css' \
             --exclude 'assets/js/bilan.js' \
             --exclude 'assets/js/drive.js' \
             --exclude 'assets/js/drive-config.js' \
