@@ -264,6 +264,19 @@ Pour ajouter d'autres photos : déposez-les à la racine du dépôt, ajoutez une
 `PHOTOS` (source, nom de sortie, largeur, saturation, intensité du virage vert) ou dans
 `CROPS` (source, nom de sortie, géométrie de recadrage), puis relancez le script.
 
+**Chaque page porte une image différente** : 39 visuels pour 39 emplacements, aucun
+doublon. Pour le vérifier après une modification :
+
+```bash
+cd pharmaciens && grep -oh '<img src="assets/img/[a-z0-9._-]*"' *.html | sort | uniq -c | sort -rn | head
+```
+
+Les visuels de l'univers officine (photographies et recadrages) vont aux pages qui parlent
+du métier et de la cession ; les pages de placement et de structuration reprennent la
+photographie d'architecture du site LFDR. Trois photos du dépôt restent disponibles pour
+de futurs arbitrages : `coupole-lafayette.jpg`, `opera-garnier.jpg` et
+`detail-raffinement.jpg`.
+
 ### Contenu et prudence rédactionnelle
 
 Les pages décrivent les régimes fiscaux **par leur logique et leurs références d'articles**,

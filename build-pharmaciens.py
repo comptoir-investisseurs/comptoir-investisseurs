@@ -2029,7 +2029,7 @@ SOLUTIONS.update({
   desc="Contrat de capitalisation pour une holding de pharmacien : fonctionnement, imposition forfaitaire annuelle et trésorerie longue.",
   kw="contrat de capitalisation personne morale, trésorerie holding placement, capitalisation société IS, "
      "placer la trésorerie d'une holding, imposition forfaitaire TME, trésorerie longue société",
-  img="piliers.jpg", alt="Colonnes, image de la structure sociétaire",
+  img="coupole.jpg", alt="Coupole sculptée, image d’une réserve bien tenue",
   eyebrow="Trésorerie", subtitle="Faire travailler la trésorerie d’une société",
   paras=[
     "Une holding issue d’un apport-cession, ou une société patrimoniale constituée après la vente, détient "
@@ -2119,7 +2119,7 @@ SOLUTIONS.update({
   desc="Fonds de private equity après cession : millésimes, appels de fonds, sélection des gérants et éligibilité au remploi.",
   kw="private equity pharmacien, FPCI, FCPR, capital investissement, millésimes, appels de fonds, "
      "investissement non coté, remploi apport cession éligible",
-  img="foret.jpg", alt="Forêt vue du ciel, image de la croissance longue",
+  img="vendome.jpg", alt="Place Vendôme, image du capital investi",
   eyebrow="Non coté", subtitle="Du capital patient, correctement dosé",
   paras=[
     "Le private equity consiste à financer des entreprises non cotées, en croissance ou en transmission, via "
@@ -2251,7 +2251,7 @@ SOLUTIONS.update({
   desc="SCPI après la vente d'une pharmacie : revenus trimestriels, mutualisation, fiscalité des revenus fonciers et modes de détention.",
   kw="SCPI pharmacien, SCPI après cession, revenus fonciers SCPI, SCPI en assurance vie, SCPI nue-propriété, "
      "SCPI européennes, rendement SCPI, parts de SCPI à crédit",
-  img="pierre.jpg", alt="Immeubles haussmanniens, image de l’immobilier collectif",
+  img="colonnade.jpg", alt="Colonnade du Palais-Royal, image de la mutualisation",
   eyebrow="Immobilier", subtitle="L’immobilier, sans les contraintes",
   paras=[
     "Une société civile de placement immobilier collecte l’épargne de nombreux associés pour acquérir et "
@@ -2454,7 +2454,7 @@ SOLUTIONS.update({
        "distributions, transmission des titres.",
   kw="SPFPL pharmacien, holding patrimoniale, société de participations financières professions libérales, "
      "holding après cession officine, régime mère-fille, distribution dividendes holding",
-  img="piliers.jpg", alt="Colonnes classiques, image de la structure",
+  img="escalier.jpg", alt="Escalier d’honneur, image des étages d’une structure",
   eyebrow="Structuration", subtitle="La bonne structure dépend de ce que vous conservez",
   paras=[
     "La société de participations financières de professions libérales est conçue pour détenir des "
@@ -2512,7 +2512,7 @@ SOLUTIONS.update({
   desc="SCI patrimoniale : détention des murs d'officine, choix entre impôt sur le revenu et impôt sur les sociétés, transmission des parts.",
   kw="SCI murs de pharmacie, SCI à l'IR ou à l'IS, SCI familiale transmission, parts de SCI donation, "
      "société civile immobilière pharmacien",
-  img="pierre.jpg", alt="Immeubles en pierre de taille",
+  img="demeure.jpg", alt="Demeure familiale entourée d’arbres",
   eyebrow="Structuration", subtitle="Détenir, transmettre, gouverner",
   paras=[
     "La société civile immobilière sert trois objectifs : détenir un bien à plusieurs sans indivision, "
@@ -2930,7 +2930,8 @@ def build_structuration():
       "cession.",
       "structuration juridique pharmacien, holding ou direct, SPFPL, SCI patrimoniale, donation avant cession, "
       "optimisation fiscale cession officine",
-      "ordonnance.jpg", "Document juridique stylisé", "Structuration", "La structure précède l’investissement",
+      "plafond.jpg", "Plafond baroque, image d’une structure ouvragée", "Structuration",
+      "La structure précède l’investissement",
       ["Beaucoup de pharmaciens nous consultent après avoir placé leur capital, en cherchant à l’optimiser. "
        "L’ordre est inversé : c’est la structure de détention qui détermine l’efficacité d’un placement, "
        "pas l’inverse.",
@@ -3156,7 +3157,7 @@ def build_home():
         'rendez-vous qui comptent.</p>'
         '<a class="link-arrow" href="guide-cession-officine.html">Lire le guide %s</a></div>'
         '<div class="split__media" data-reveal data-delay="1"><div class="media-frame">'
-        '<img src="assets/img/ordonnance.jpg" alt="Document de cession stylisé"></div></div></div>' % arrow())
+        '<img src="assets/img/salon.jpg" alt="Salon baigné de lumière"></div></div></div>' % arrow())
 
     body += section('<div class="quote" data-reveal><p>« Le jour de la signature, un pharmacien cesse d’être '
                     'chef d’entreprise pour devenir investisseur. Personne ne l’a formé à ce métier-là. »</p>'

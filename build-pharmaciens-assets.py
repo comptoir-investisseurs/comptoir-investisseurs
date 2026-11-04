@@ -56,6 +56,13 @@ PHOTOS = [
     ("assets/img/interieur-coupole.jpg", "architecture.jpg", 1600, 88, 10),
     ("assets/img/retraite.jpg",      "retraite.jpg",      1800, 90, 9),
     ("assets/img/paris-courtyard.jpg", "cour.jpg",        1600, 88, 10),
+    ("assets/img/coupole-sculptee.jpg", "coupole.jpg",     1600, 88, 10),
+    ("assets/img/escalier.jpg",      "escalier.jpg",       1600, 88, 10),
+    ("assets/img/salon-lumiere.jpg", "salon.jpg",          1600, 88, 10),
+    ("assets/img/plafond-baroque.jpg", "plafond.jpg",      1600, 88, 10),
+    ("assets/img/paris-colonnade.jpg", "colonnade.jpg",    1600, 88, 10),
+    ("assets/img/mansion.jpg",       "demeure.jpg",        1600, 88, 10),
+    ("assets/img/place-vendome.jpg", "vendome.jpg",        1600, 88, 10),
 ]
 
 # Recadrages de la photo d'officine : une série éditoriale cohérente (les rayonnages,
