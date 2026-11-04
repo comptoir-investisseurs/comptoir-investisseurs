@@ -353,6 +353,271 @@
     dirRender();
   }
 
+  /* =======================================================================
+     ONGLETS — Comprendre, Les acteurs
+     ======================================================================= */
+  var tabBtns = Array.prototype.slice.call(document.querySelectorAll('.tabs__b'));
+  if (tabBtns.length) {
+    var panes = Array.prototype.slice.call(document.querySelectorAll('.tabs__p'));
+
+    function showTab(id, scrollTo) {
+      var found = false;
+      tabBtns.forEach(function (b) {
+        var on = b.getAttribute('data-tab') === id;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+        if (on) found = true;
+      });
+      if (!found) return false;
+      panes.forEach(function (p) {
+        var on = p.id === id;
+        p.hidden = !on;
+        p.classList.toggle('is-active', on);
+      });
+      if (scrollTo) {
+        var t = document.getElementById(scrollTo);
+        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return true;
+    }
+
+    tabBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-tab');
+        showTab(id);
+        history.replaceState(null, '', '#' + id);
+        document.querySelector('.tabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    /* Navigation au clavier entre onglets (flèches), conforme au motif ARIA. */
+    tabBtns.forEach(function (b, i) {
+      b.addEventListener('keydown', function (ev) {
+        var d = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        ev.preventDefault();
+        var n = tabBtns[(i + d + tabBtns.length) % tabBtns.length];
+        n.focus();
+        n.click();
+      });
+    });
+
+    /* Le panneau à ouvrir se déduit de l'ancre : soit l'id d'un panneau,
+       soit celui d'un élément contenu dans un panneau. */
+    function openFromHash() {
+      var h = decodeURIComponent((location.hash || '').replace('#', ''));
+      if (!h) return;
+      if (showTab(h)) return;
+      var el = document.getElementById(h);
+      if (!el) return;
+      var pane = el.closest('.tabs__p');
+      if (pane) {
+        showTab(pane.id);
+        setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+      }
+    }
+    openFromHash();
+    window.addEventListener('hashchange', openFromHash);
+
+    /* Liens internes pointant vers un autre panneau. */
+    document.addEventListener('click', function (ev) {
+      var a = ev.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      if (!id) return;
+      var el = document.getElementById(id);
+      if (!el) return;
+      var pane = el.closest('.tabs__p');
+      if (!pane || pane.hidden === false) return;
+      ev.preventDefault();
+      showTab(pane.id);
+      history.replaceState(null, '', '#' + id);
+      setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+    });
+  }
+
+  /* =======================================================================
+     ANNUAIRE SECONDAIRE — établissements (second filtre de la même page)
+     ======================================================================= */
+  var d2q = document.getElementById('dir2-q');
+  var d2cat = document.getElementById('dir2-cat');
+  if (d2q || d2cat) {
+    var it2 = Array.prototype.slice.call(document.querySelectorAll('[data-dir2]'));
+    var c2 = document.getElementById('dir2-count');
+    var sec2 = Array.prototype.slice.call(document.querySelectorAll('[data-dir2-section]'));
+    function dir2Render() {
+      var q = norm(d2q ? d2q.value : '').split(/\s+/).filter(Boolean);
+      var c = d2cat ? d2cat.value : '';
+      var n = 0;
+      it2.forEach(function (el) {
+        var hay = norm(el.getAttribute('data-s') || el.textContent);
+        var ok = q.every(function (t) { return hay.indexOf(t) >= 0; }) && (!c || el.getAttribute('data-cat2') === c);
+        el.style.display = ok ? '' : 'none';
+        if (ok) n++;
+      });
+      sec2.forEach(function (s) {
+        var any = Array.prototype.slice.call(s.querySelectorAll('[data-dir2]')).some(function (e) { return e.style.display !== 'none'; });
+        s.style.display = any ? '' : 'none';
+      });
+      if (c2) c2.innerHTML = '<b>' + n + '</b> établissement' + (n > 1 ? 's' : '');
+    }
+    if (d2q) d2q.addEventListener('input', dir2Render);
+    if (d2cat) d2cat.addEventListener('change', dir2Render);
+    var r2 = document.getElementById('dir2-reset');
+    if (r2) r2.addEventListener('click', function () { if (d2q) d2q.value = ''; if (d2cat) d2cat.value = ''; dir2Render(); });
+    dir2Render();
+  }
+
+  /* =======================================================================
+     DÉPÔT DE DOCUMENT — « faire analyser un produit »
+     Les fichiers ne sont jamais téléversés : seule la demande est transmise
+     à contact.php, puis un brouillon d'email s'ouvre pour les pièces jointes.
+     ======================================================================= */
+  var dz = document.getElementById('dz');
+  if (dz) {
+    var MAX_MO = 10, MAX_N = 3;
+    var OK_EXT = ['pdf', 'png', 'jpg', 'jpeg'];
+    var input = document.getElementById('dz-input');
+    var list = document.getElementById('dz-files');
+    var form = document.getElementById('dz-form');
+    var statusEl = document.getElementById('dz-status');
+    var sendBtn = document.getElementById('dz-send');
+    var files = [];
+
+    function say(kind, msg) {
+      statusEl.className = 'dz-status ' + (kind || '');
+      statusEl.textContent = msg || '';
+    }
+    function ko(msg) {
+      dz.classList.add('is-bad');
+      setTimeout(function () { dz.classList.remove('is-bad'); }, 1600);
+      say('err', msg);
+    }
+    function size(b) {
+      return b < 1024 * 1024 ? Math.max(1, Math.round(b / 1024)) + ' Ko'
+                             : (b / 1048576).toFixed(1).replace('.', ',') + ' Mo';
+    }
+    function ext(name) { return (name.split('.').pop() || '').toLowerCase(); }
+
+    function paint() {
+      list.innerHTML = files.map(function (f, i) {
+        return '<li class="dz-file">' +
+          '<span class="dz-file__i" aria-hidden="true">' + esc(ext(f.name).toUpperCase().slice(0, 4)) + '</span>' +
+          '<span class="dz-file__n" title="' + esc(f.name) + '">' + esc(f.name) + '</span>' +
+          '<span class="dz-file__s">' + size(f.size) + '</span>' +
+          '<button class="dz-file__x" type="button" data-rm="' + i + '" aria-label="Retirer ' + esc(f.name) + '">×</button>' +
+          '</li>';
+      }).join('');
+    }
+
+    function add(fileList) {
+      var rejected = [];
+      Array.prototype.slice.call(fileList).forEach(function (f) {
+        /* Format et taille d'abord : sinon un fichier invalide arrivant sur une
+           liste déjà pleine serait rejeté pour la mauvaise raison. */
+        if (OK_EXT.indexOf(ext(f.name)) < 0) { rejected.push(f.name + ' (format non accepté)'); return; }
+        if (f.size > MAX_MO * 1048576) { rejected.push(f.name + ' (plus de ' + MAX_MO + ' Mo)'); return; }
+        if (files.some(function (x) { return x.name === f.name && x.size === f.size; })) return;
+        if (files.length >= MAX_N) { rejected.push(f.name + ' (maximum ' + MAX_N + ' fichiers)'); return; }
+        files.push(f);
+      });
+      paint();
+      if (rejected.length) ko('Non retenu : ' + rejected.join(', ') + '.');
+      else if (files.length) say('ok', files.length + ' document' + (files.length > 1 ? 's' : '') + ' prêt' + (files.length > 1 ? 's' : '') + ' à être joint' + (files.length > 1 ? 's' : '') + '.');
+      else say('', '');
+    }
+
+    list.addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-rm]');
+      if (!b) return;
+      files.splice(parseInt(b.getAttribute('data-rm'), 10), 1);
+      paint();
+      say('', '');
+    });
+
+    dz.addEventListener('click', function () { input.click(); });
+    dz.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); input.click(); }
+    });
+    input.addEventListener('change', function () { add(input.files); input.value = ''; });
+
+    ['dragenter', 'dragover'].forEach(function (t) {
+      dz.addEventListener(t, function (ev) { ev.preventDefault(); dz.classList.add('is-over'); });
+    });
+    ['dragleave', 'drop'].forEach(function (t) {
+      dz.addEventListener(t, function (ev) { ev.preventDefault(); dz.classList.remove('is-over'); });
+    });
+    dz.addEventListener('drop', function (ev) {
+      if (ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files.length) add(ev.dataTransfer.files);
+    });
+    /* Un fichier lâché à côté de la zone ne doit pas remplacer la page. */
+    ['dragover', 'drop'].forEach(function (t) {
+      window.addEventListener(t, function (ev) { if (!dz.contains(ev.target)) ev.preventDefault(); });
+    });
+
+    function val(id) { return (document.getElementById(id).value || '').trim(); }
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (val('dz-company')) return;           // pot de miel
+
+      var d = {
+        prenom: val('dz-prenom'), nom: val('dz-nom'), email: val('dz-email'),
+        telephone: val('dz-tel'), objet: 'Analyse d’un produit structuré',
+        message: val('dz-msg')
+      };
+      var bad = [];
+      if (!d.prenom) bad.push('dz-prenom');
+      if (!d.nom) bad.push('dz-nom');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) bad.push('dz-email');
+      ['dz-prenom', 'dz-nom', 'dz-email'].forEach(function (id) {
+        document.getElementById(id).setAttribute('aria-invalid', bad.indexOf(id) >= 0 ? 'true' : 'false');
+      });
+      if (bad.length) {
+        say('err', 'Renseignez vos nom et prénom ainsi qu’un email valide.');
+        document.getElementById(bad[0]).focus();
+        return;
+      }
+      if (!files.length) { ko('Ajoutez au moins un document à analyser.'); return; }
+
+      var docs = files.map(function (f) { return '— ' + f.name + ' (' + size(f.size) + ')'; }).join('\n');
+      d.message = 'Documents à analyser :\n' + docs +
+                  '\n\n' + (d.message || '(aucune précision)') +
+                  '\n\nLes fichiers suivent par email ; ils ne transitent pas par le site.';
+
+      sendBtn.disabled = true;
+      say('', 'Envoi en cours…');
+
+      var corps = 'Bonjour,\n\nJe souhaite un avis sur le produit structuré dont la documentation est jointe.\n\n' +
+                  'Nom : ' + d.prenom + ' ' + d.nom + '\n' +
+                  'Email : ' + d.email + '\n' +
+                  (d.telephone ? 'Téléphone : ' + d.telephone + '\n' : '') +
+                  '\nDocuments :\n' + docs +
+                  '\n\n' + (val('dz-msg') || '') +
+                  '\n\n--- Pensez à joindre les fichiers à cet email avant de l’envoyer. ---\n';
+      var mailto = 'mailto:' + (window.OBS_EMAIL || 'contact@lfd-rochechouart.com') +
+                   '?subject=' + encodeURIComponent('Analyse d’un produit structuré — ' + d.prenom + ' ' + d.nom) +
+                   '&body=' + encodeURIComponent(corps);
+
+      function finish(kind, msg) {
+        sendBtn.disabled = false;
+        say(kind, msg);
+        window.location.href = mailto;
+      }
+
+      fetch('../contact.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(d)
+      }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        finish('ok', 'Demande transmise. Votre messagerie s’ouvre : joignez-y les documents puis envoyez.');
+      }).catch(function () {
+        finish('err', 'Notification automatique indisponible. Votre messagerie s’ouvre : joignez les documents et envoyez le message, nous le recevrons.');
+      });
+    });
+  }
+
   /* ----------------------- Année courante ----------------------- */
   document.querySelectorAll('[data-year]').forEach(function (el) {
     el.textContent = new Date().getFullYear();

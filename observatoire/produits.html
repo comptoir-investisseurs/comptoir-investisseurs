@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Comparateur de produits structurés — L’Observatoire des Produits Structurés</title>
-<meta name="description" content="Comparez 24 gabarits de structures du marché français : coupon, barrière de coupon, barrière de capital, maturité, émetteur et scénarios détaillés.">
+<title>Comparateur de produits structurés — Le Comptoir des Structurés</title>
+<meta name="description" content="Comparez 24 gabarits de structures sur indices publics, sans décrément : coupon, barrière de coupon, barrière de capital, maturité, émetteur et scénarios.">
 <meta name="theme-color" content="#101C2B">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
-<meta property="og:site_name" content="L’Observatoire des Produits Structurés">
-<meta property="og:title" content="Comparateur de produits structurés — L’Observatoire des Produits Structurés">
-<meta property="og:description" content="Comparez 24 gabarits de structures du marché français : coupon, barrière de coupon, barrière de capital, maturité, émetteur et scénarios détaillés.">
+<meta property="og:site_name" content="Le Comptoir des Structurés">
+<meta property="og:title" content="Comparateur de produits structurés — Le Comptoir des Structurés">
+<meta property="og:description" content="Comparez 24 gabarits de structures sur indices publics, sans décrément : coupon, barrière de coupon, barrière de capital, maturité, émetteur et scénarios.">
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
 <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
@@ -20,11 +20,11 @@
 
 <header class="hdr">
   <div class="container hdr__in">
-    <a class="brand" href="index.html" aria-label="L’Observatoire des Produits Structurés — accueil">
-      <span class="brand__mark" aria-hidden="true">O</span>
+    <a class="brand" href="index.html" aria-label="Le Comptoir des Structurés — accueil">
+      <span class="brand__mark" aria-hidden="true">C</span>
       <span class="brand__txt">
-        <span class="brand__name">L’Observatoire</span>
-        <span class="brand__sub">Produits structurés</span>
+        <span class="brand__name">Le Comptoir</span>
+        <span class="brand__sub">des structurés</span>
       </span>
     </a>
     <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
@@ -33,12 +33,9 @@
     <nav class="nav" aria-label="Navigation principale">
       <a href="index.html">Accueil</a>
       <a href="produits.html" class="is-active">Le comparateur</a>
-      <a href="familles.html">Familles de produits</a>
-      <a href="emetteurs.html">Émetteurs</a>
-      <a href="etablissements.html">Établissements</a>
       <a href="comprendre.html">Comprendre</a>
-      <a href="glossaire.html">Glossaire</a>
-      <a class="nav__cta" href="../contact.html">Nous consulter</a>
+      <a href="acteurs.html">Les acteurs</a>
+      <a class="nav__cta" href="produits.html#analyse">Faire analyser un produit</a>
     </nav>
   </div>
 </header>
@@ -48,10 +45,10 @@
 <section class="hero hero--page">
   <div class="hero__grid" aria-hidden="true"></div>
   <div class="container hero__in">
-    <p class="crumb"><a href="index.html">L’Observatoire</a><span>/</span>Le comparateur</p>
+    <p class="crumb"><a href="index.html">Le Comptoir</a><span>/</span>Le comparateur</p>
     <h1 class="title-xl">Le comparateur</h1>
-    <p class="hero__lede" style="margin-top:22px">Vingt-quatre gabarits de structures représentatifs du marché français, filtrables et triables selon les paramètres qui déterminent réellement le profil de risque. Cliquez sur une ligne pour en déplier le mécanisme, les scénarios et les points de vigilance.</p>
-    
+    <p class="hero__lede" style="margin-top:22px">24 gabarits de structures sur sous-jacents publics — aucun indice décrément. Filtrables et triables selon les paramètres qui déterminent réellement le profil de risque. Cliquez sur une ligne pour en déplier le mécanisme, les scénarios et les points de vigilance.</p>
+    <div class="hero__actions"><a class="btn btn--ghost-light" href="#analyse">Faire analyser mon produit</a></div>
   </div>
 </section>
 
@@ -65,9 +62,11 @@
         qu’elle se traite couramment sur le marché, avec un niveau de coupon cohérent avec les
         conditions observées en novembre 2025. Aucun code ISIN n’est publié : les conditions
         définitives d’une émission ne sont arrêtées qu’à sa date de strike.</p>
-        <p>Les niveaux de coupon évoluent en permanence avec les taux et la volatilité.
-        Pour connaître les offres réellement ouvertes à un instant donné,
-        <a class="card__more" href="../contact.html" style="border:0;padding:0">consultez-nous</a>.</p>
+        <p>Les niveaux de coupon évoluent en permanence avec les taux et la volatilité. Pour
+        connaître les offres réellement ouvertes à un instant donné,
+        <a class="card__more" href="../contact.html" style="border:0;padding:0">consultez-nous</a>
+        — ou <a class="card__more" href="#analyse" style="border:0;padding:0">déposez la
+        documentation d’un produit</a> qu’on vous a proposé.</p>
       </div>
     </div>
 
@@ -75,7 +74,7 @@
       <div class="filters__row">
         <div class="field" style="grid-column:span 2">
           <label for="f-q">Recherche libre</label>
-          <input type="search" id="f-q" placeholder="Phoenix, worst-of, décrément, dollar…" autocomplete="off">
+          <input type="search" id="f-q" placeholder="Phoenix, worst-of, CAC 40, dollar…" autocomplete="off">
         </div>
         <div class="field"><label for="f-fam">Famille</label><select id="f-fam"></select></div>
         <div class="field"><label for="f-emet">Émetteur</label><select id="f-emet"></select></div>
@@ -85,10 +84,10 @@
         <div class="field"><label for="f-cpn">Coupon minimum</label>
           <select id="f-cpn">
             <option value="">Indifférent</option>
-            <option value="0.06">6 % et plus</option>
             <option value="0.08">8 % et plus</option>
             <option value="0.10">10 % et plus</option>
             <option value="0.12">12 % et plus</option>
+            <option value="0.14">14 % et plus</option>
           </select></div>
         <div class="field"><label for="f-cap">Barrière de capital</label>
           <select id="f-cap">
@@ -147,7 +146,7 @@
         <h3 class="card__t" style="font-size:1.1rem">Le coupon n’est pas un rendement</h3>
         <p class="small muted">C’est un maximum conditionnel. Le rendement réellement perçu
         dépend du nombre de constatations réussies et de la date de rappel. Deux produits à
-        9 % n’ont pas la même espérance de gain si leurs barrières diffèrent.</p>
+        11 % n’ont pas la même espérance de gain si leurs barrières diffèrent.</p>
       </div>
       <div class="cell">
         <h3 class="card__t" style="font-size:1.1rem">La maturité est un plafond</h3>
@@ -165,22 +164,88 @@
   </div>
 </section>
 
+<section class="section section--navy" id="analyse" style="scroll-margin-top:90px">
+  <div class="container container--mid">
+    <p class="eyebrow eyebrow--light">Avis sur votre produit</p>
+    <h2 class="title-lg">Déposez la documentation,<br>nous vous disons ce que nous en pensons</h2>
+    <p style="max-width:660px;margin-top:18px">
+      Vous avez reçu une proposition et vous voulez un second regard&nbsp;? Déposez le document
+      d’informations clés (DIC) ou la brochure. Nous en reprenons le sous-jacent, les barrières
+      et leur mode de constatation, nous vérifions la signature de l’émetteur, nous comparons
+      aux offres du moment à risque équivalent — et nous vous répondons sous deux jours ouvrés.
+    </p>
+
+    <form class="dz-form" id="dz-form" novalidate>
+      <div class="dz" id="dz" tabindex="0" role="button"
+           aria-label="Déposer un document : glissez un fichier ici ou appuyez sur Entrée pour parcourir vos fichiers">
+        <input type="file" id="dz-input" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" multiple hidden>
+        <svg class="dz__i" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 32V12m0 0l-8 8m8-8l8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 30v4a4 4 0 004 4h24a4 4 0 004-4v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <p class="dz__t">Glissez le DIC ou la brochure ici</p>
+        <p class="dz__s">ou <span class="dz__link">parcourez vos fichiers</span> — PDF, PNG ou JPEG, 10 Mo maximum, 3 fichiers au plus</p>
+      </div>
+      <ul class="dz-files" id="dz-files" aria-live="polite"></ul>
+
+      <div class="dz-grid">
+        <div class="field"><label for="dz-prenom">Prénom *</label>
+          <input type="text" id="dz-prenom" name="prenom" autocomplete="given-name" required></div>
+        <div class="field"><label for="dz-nom">Nom *</label>
+          <input type="text" id="dz-nom" name="nom" autocomplete="family-name" required></div>
+        <div class="field"><label for="dz-email">Email *</label>
+          <input type="email" id="dz-email" name="email" autocomplete="email" required></div>
+        <div class="field"><label for="dz-tel">Téléphone</label>
+          <input type="text" id="dz-tel" name="telephone" autocomplete="tel"></div>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label for="dz-msg">Votre question</label>
+        <textarea id="dz-msg" name="message" rows="3"
+          placeholder="Montant envisagé, enveloppe (assurance-vie, compte-titres…), ce qui vous fait hésiter."></textarea>
+      </div>
+      <div class="dz-hp" aria-hidden="true">
+        <label for="dz-company">Société</label>
+        <input type="text" id="dz-company" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="dz-foot">
+        <button class="btn btn--gold" type="submit" id="dz-send">Demander une analyse</button>
+        <p class="dz-status" id="dz-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <p class="dz-note">
+        <strong>Vos fichiers ne quittent pas votre ordinateur à cette étape.</strong> Ce
+        formulaire nous transmet votre demande et la liste des documents ; un brouillon
+        d’email s’ouvre ensuite pour que vous y joigniez les fichiers — un lien de messagerie
+        ne pouvant pas attacher de pièce automatiquement. Si votre messagerie ne s’ouvre pas,
+        écrivez-nous directement à
+        <a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a>.
+      </p>
+      <p class="dz-note xsmall">
+        Cette analyse est une lecture documentaire à visée pédagogique. Elle ne constitue pas
+        un conseil en investissement personnalisé, lequel suppose un examen préalable de votre
+        situation, de vos objectifs et de vos connaissances.
+      </p>
+    </form>
+  </div>
+</section>
+
 </main>
 
 <section class="cta">
   <div class="container cta__in">
     <div>
       <p class="eyebrow eyebrow--light">Accompagnement</p>
-      <h2 class="title-lg">Faire étudier un produit avant d’y souscrire</h2>
+      <h2 class="title-lg">Un doute sur un produit qu’on vous propose&nbsp;?</h2>
       <p style="margin:18px 0 0;max-width:560px">
-        Lecture du document d’informations clés, analyse du sous-jacent et des barrières,
-        comparaison avec les offres concurrentes du moment et vérification de la cohérence
-        avec votre allocation : notre équipe réalise cette revue à vos côtés.
+        Déposez son document d’informations clés : nous en reprenons le sous-jacent, les
+        barrières et le mode de constatation, nous le comparons aux offres du moment à
+        risque équivalent, et nous vous disons ce que nous en pensons.
       </p>
     </div>
     <div class="cta__actions">
-      <a class="btn btn--ghost-light" href="../contact.html">Prendre rendez-vous</a>
-      <a class="btn btn--ghost-light" href="methodologie.html">Notre méthodologie</a>
+      <a class="btn btn--ghost-light" href="produits.html#analyse">Faire analyser un produit</a>
+      <a class="btn btn--ghost-light" href="../contact.html">Nous contacter</a>
     </div>
   </div>
 </section>
@@ -190,15 +255,15 @@
     <div class="ftr__top">
       <div class="ftr__brand">
         <span class="brand">
-          <span class="brand__mark" aria-hidden="true">O</span>
+          <span class="brand__mark" aria-hidden="true">C</span>
           <span class="brand__txt">
-            <span class="brand__name">L’Observatoire</span>
-            <span class="brand__sub">Produits structurés</span>
+            <span class="brand__name">Le Comptoir</span>
+            <span class="brand__sub">des structurés</span>
           </span>
         </span>
-        <p>Référence indépendante du marché français. Un observatoire pédagogique du marché des produits
-        structurés : familles, émetteurs, établissements de place et vocabulaire,
-        réunis en un seul endroit.</p>
+        <p>Un répertoire pédagogique du marché des produits structurés : structures,
+        émetteurs, établissements de place et vocabulaire. Nous ne retenons que des
+        sous-jacents de marché, sans indice décrément.</p>
         <p class="xsmall" style="margin-top:14px">Une publication de
           <a href="../index.html">La Financière de Rochechouart</a>.</p>
       </div>
@@ -206,22 +271,22 @@
         <h4>Le marché</h4>
         <ul>
           <li><a href="produits.html">Le comparateur</a></li>
-          <li><a href="familles.html">Familles de produits</a></li>
-          <li><a href="emetteurs.html">Émetteurs</a></li>
-          <li><a href="etablissements.html">Établissements</a></li>
+          <li><a href="produits.html#analyse">Faire analyser un produit</a></li>
+          <li><a href="acteurs.html">Les acteurs</a></li>
+          <li><a href="acteurs.html#emetteurs">Les émetteurs</a></li>
         </ul>
       </div>
       <div>
         <h4>Comprendre</h4>
         <ul>
-          <li><a href="comprendre.html">Guide du produit structuré</a></li>
+          <li><a href="comprendre.html">Le guide</a></li>
+          <li><a href="comprendre.html#familles">Les familles de produits</a></li>
+          <li><a href="comprendre.html#glossaire">Le glossaire</a></li>
           <li><a href="comprendre.html#risques">Les risques</a></li>
-          <li><a href="comprendre.html#fiscalite">Fiscalité &amp; enveloppes</a></li>
-          <li><a href="glossaire.html">Glossaire</a></li>
         </ul>
       </div>
       <div>
-        <h4>L’Observatoire</h4>
+        <h4>Le Comptoir</h4>
         <ul>
           <li><a href="methodologie.html">Méthodologie</a></li>
           <li><a href="mentions-legales.html">Mentions légales</a></li>

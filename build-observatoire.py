@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Générateur statique — « L'Observatoire des Produits Structurés ».
+Générateur statique — « Le Comptoir des Structurés ».
 
     python3 build-observatoire.py
 
@@ -16,9 +16,10 @@ import os, html, json, datetime, urllib.parse
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, "observatoire")
 
-SITE = "L’Observatoire des Produits Structurés"
-SITE_SHORT = "L’Observatoire"
-TAGLINE = "Référence indépendante du marché français"
+SITE = "Le Comptoir des Structurés"
+SITE_SHORT = "Le Comptoir"
+MARK = "C"
+TAGLINE = "Le marché des produits structurés, sans indice décrément"
 EDITEUR = "La Financière de Rochechouart"
 EMAIL = "contact@lfd-rochechouart.com"
 ADDRESS = "58 rue de Monceau, 75008 Paris"
@@ -26,13 +27,10 @@ MAJ = "novembre 2025"           # date de dernière revue éditoriale
 ANNEE_RATINGS = "octobre 2025"  # date de référence des notations citées
 
 NAV = [
-    ("index.html",        "Accueil"),
-    ("produits.html",     "Le comparateur"),
-    ("familles.html",     "Familles de produits"),
-    ("emetteurs.html",    "Émetteurs"),
-    ("etablissements.html", "Établissements"),
-    ("comprendre.html",   "Comprendre"),
-    ("glossaire.html",    "Glossaire"),
+    ("index.html",      "Accueil"),
+    ("produits.html",   "Le comparateur"),
+    ("comprendre.html", "Comprendre"),
+    ("acteurs.html",    "Les acteurs"),
 ]
 
 def e(s):
@@ -46,7 +44,7 @@ def layout(filename, title, description, body, extra_js=""):
     for href, label in NAV:
         cls = ' class="is-active"' if href == filename else ""
         nav.append(f'<a href="{href}"{cls}>{e(label)}</a>')
-    nav.append('<a class="nav__cta" href="../contact.html">Nous consulter</a>')
+    nav.append('<a class="nav__cta" href="produits.html#analyse">Faire analyser un produit</a>')
     nav_html = "\n      ".join(nav)
 
     full_title = title if title.startswith(SITE) else f"{title} — {SITE}"
@@ -74,10 +72,10 @@ def layout(filename, title, description, body, extra_js=""):
 <header class="hdr">
   <div class="container hdr__in">
     <a class="brand" href="index.html" aria-label="{e(SITE)} — accueil">
-      <span class="brand__mark" aria-hidden="true">O</span>
+      <span class="brand__mark" aria-hidden="true">{MARK}</span>
       <span class="brand__txt">
         <span class="brand__name">{e(SITE_SHORT)}</span>
-        <span class="brand__sub">Produits structurés</span>
+        <span class="brand__sub">des structurés</span>
       </span>
     </a>
     <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
@@ -97,16 +95,16 @@ def layout(filename, title, description, body, extra_js=""):
   <div class="container cta__in">
     <div>
       <p class="eyebrow eyebrow--light">Accompagnement</p>
-      <h2 class="title-lg">Faire étudier un produit avant d’y souscrire</h2>
+      <h2 class="title-lg">Un doute sur un produit qu’on vous propose&nbsp;?</h2>
       <p style="margin:18px 0 0;max-width:560px">
-        Lecture du document d’informations clés, analyse du sous-jacent et des barrières,
-        comparaison avec les offres concurrentes du moment et vérification de la cohérence
-        avec votre allocation : notre équipe réalise cette revue à vos côtés.
+        Déposez son document d’informations clés : nous en reprenons le sous-jacent, les
+        barrières et le mode de constatation, nous le comparons aux offres du moment à
+        risque équivalent, et nous vous disons ce que nous en pensons.
       </p>
     </div>
     <div class="cta__actions">
-      <a class="btn btn--ghost-light" href="../contact.html">Prendre rendez-vous</a>
-      <a class="btn btn--ghost-light" href="methodologie.html">Notre méthodologie</a>
+      <a class="btn btn--ghost-light" href="produits.html#analyse">Faire analyser un produit</a>
+      <a class="btn btn--ghost-light" href="../contact.html">Nous contacter</a>
     </div>
   </div>
 </section>
@@ -116,15 +114,15 @@ def layout(filename, title, description, body, extra_js=""):
     <div class="ftr__top">
       <div class="ftr__brand">
         <span class="brand">
-          <span class="brand__mark" aria-hidden="true">O</span>
+          <span class="brand__mark" aria-hidden="true">{MARK}</span>
           <span class="brand__txt">
             <span class="brand__name">{e(SITE_SHORT)}</span>
-            <span class="brand__sub">Produits structurés</span>
+            <span class="brand__sub">des structurés</span>
           </span>
         </span>
-        <p>{e(TAGLINE)}. Un observatoire pédagogique du marché des produits
-        structurés : familles, émetteurs, établissements de place et vocabulaire,
-        réunis en un seul endroit.</p>
+        <p>Un répertoire pédagogique du marché des produits structurés : structures,
+        émetteurs, établissements de place et vocabulaire. Nous ne retenons que des
+        sous-jacents de marché, sans indice décrément.</p>
         <p class="xsmall" style="margin-top:14px">Une publication de
           <a href="../index.html">{e(EDITEUR)}</a>.</p>
       </div>
@@ -132,22 +130,22 @@ def layout(filename, title, description, body, extra_js=""):
         <h4>Le marché</h4>
         <ul>
           <li><a href="produits.html">Le comparateur</a></li>
-          <li><a href="familles.html">Familles de produits</a></li>
-          <li><a href="emetteurs.html">Émetteurs</a></li>
-          <li><a href="etablissements.html">Établissements</a></li>
+          <li><a href="produits.html#analyse">Faire analyser un produit</a></li>
+          <li><a href="acteurs.html">Les acteurs</a></li>
+          <li><a href="acteurs.html#emetteurs">Les émetteurs</a></li>
         </ul>
       </div>
       <div>
         <h4>Comprendre</h4>
         <ul>
-          <li><a href="comprendre.html">Guide du produit structuré</a></li>
+          <li><a href="comprendre.html">Le guide</a></li>
+          <li><a href="comprendre.html#familles">Les familles de produits</a></li>
+          <li><a href="comprendre.html#glossaire">Le glossaire</a></li>
           <li><a href="comprendre.html#risques">Les risques</a></li>
-          <li><a href="comprendre.html#fiscalite">Fiscalité &amp; enveloppes</a></li>
-          <li><a href="glossaire.html">Glossaire</a></li>
         </ul>
       </div>
       <div>
-        <h4>L’Observatoire</h4>
+        <h4>{e(SITE_SHORT)}</h4>
         <ul>
           <li><a href="methodologie.html">Méthodologie</a></li>
           <li><a href="mentions-legales.html">Mentions légales</a></li>
@@ -317,20 +315,22 @@ FAMILLES = [
          "Documentation plus technique, donc plus difficile à comparer"],
  ),
  dict(
-  slug="indice-decrement", nom="Produit sur indice décrément", profil="Sous-jacent synthétique",
-  filtre=("sous-jacent", "Indice décrément"),
-  resume="Le sous-jacent n’est pas un indice de marché classique mais un indice construit, auquel on retranche un dividende forfaitaire chaque année. C’est le socle de la majorité des structures distribuées en France.",
+  slug="indice-decrement", nom="Indice décrément", profil="Ce que nous ne retenons pas",
+  exclu=True,
+  resume="Le sous-jacent n’est pas un indice de marché mais un indice construit par l’émetteur, auquel on retranche un dividende forfaitaire chaque année. C’est le socle de la majorité des structures distribuées en France — et la raison pour laquelle nous n’en référençons aucune.",
   mecanisme=[
     "Un indice décrément reproduit un panier d’actions en réinvestissant les dividendes réels, puis en déduisant un prélèvement fixe : soit un pourcentage annuel (par exemple 5 % par an), soit un montant en points d’indice (par exemple 50 points par an).",
-    "L’émetteur connaît ainsi à l’avance le flux de dividendes, ce qui lui permet d’offrir des coupons et des barrières plus généreux. La contrepartie est mécanique : si les dividendes réels du panier sont inférieurs au décrément, l’indice progresse structurellement moins vite que l’indice de référence classique. Le décrément en points est particulièrement pénalisant lorsque l’indice baisse, puisque le prélèvement reste constant en valeur absolue.",
+    "L’émetteur connaît ainsi à l’avance le flux de dividendes, ce qui lui permet d’afficher des coupons et des barrières plus généreux. La contrepartie est mécanique : si les dividendes réels du panier sont inférieurs au décrément, l’indice progresse structurellement moins vite que l’indice de référence classique. Le décrément en points est particulièrement pénalisant lorsque l’indice baisse, puisque le prélèvement reste constant en valeur absolue au moment même où l’investisseur a besoin que l’indice se maintienne au-dessus de ses barrières.",
+    "<strong>Notre position.</strong> Le gain de coupon ne compense pas, à nos yeux, la perte de lisibilité : l’investisseur ne peut pas suivre son sous-jacent dans la presse, l’historique présenté est le plus souvent reconstitué, et l’écart avec l’indice de référence se creuse année après année. Nous ne retenons donc que des indices publics, dont la méthodologie est consultable et la cotation vérifiable chaque jour.",
   ],
-  pour="Investisseur qui comprend que le niveau de coupon affiché est financé par la mécanique de décrément et qui l’accepte en connaissance de cause.",
-  plus=["Permet des coupons et des barrières nettement plus attractifs",
+  pour="Personne, selon nous — du moins tant qu’une structure équivalente existe sur indice public. Cette fiche est là pour reconnaître un décrément dans une documentation et en mesurer le coût.",
+  plus=["Permet d’afficher des coupons et des barrières plus attractifs",
         "Volatilité souvent inférieure à celle d’un mono sous-jacent action",
         "Diversification sectorielle ou géographique dans un seul sous-jacent"],
-  moins=["Écart de performance croissant avec l’indice classique au fil du temps",
+  moins=["Écart de performance croissant avec l’indice de référence au fil du temps",
          "Décrément exprimé en points : effet d’autant plus lourd que l’indice baisse",
-         "Indices souvent jeunes : historiques réels courts, le reste étant du backtest"],
+         "Indices souvent jeunes : historiques réels courts, le reste étant du backtest",
+         "Cotation et méthodologie difficilement vérifiables par l’investisseur"],
  ),
  dict(
   slug="twin-win", nom="Twin Win", profil="Double sens",
@@ -623,16 +623,19 @@ ETABLISSEMENTS = [
 # ==========================================================================
 #  DONNÉES — CATALOGUE DE STRUCTURES
 # ==========================================================================
-# IMPORTANT — Nature des données.
-# Ce catalogue recense des GABARITS DE STRUCTURES représentatifs de ce qui se
-# traite sur le marché français : chaque entrée décrit une combinaison
-# famille / sous-jacent / barrières / maturité et un niveau de coupon
-# cohérent avec les conditions de marché de la période indiquée par MAJ.
-# Ce ne sont PAS des souches réelles en cours de commercialisation : aucun
-# code ISIN n'est publié et les conditions définitives d'une émission ne sont
-# connues qu'au moment du strike, dans le DIC et le prospectus de l'émetteur.
-# Pour publier des offres réellement ouvertes, remplacer ce bloc par les
-# termsheets du moment (voir README du dossier observatoire/).
+# PARTI PRIS ÉDITORIAL — aucun indice décrément.
+# Toutes les structures retenues reposent sur des indices de marché publics
+# (CAC 40, EURO STOXX 50, S&P 500…) ou sur des actions, à l'exclusion des
+# indices propriétaires à prélèvement forfaitaire. Le coupon est financé par
+# les dividendes non réinvestis de l'indice de référence, mécanisme vérifiable
+# par l'investisseur, et non par un décrément contractuel.
+#
+# NATURE DES DONNÉES — ce sont des GABARITS DE STRUCTURES représentatifs de ce
+# qui se traite sur le marché français : chaque entrée décrit une combinaison
+# famille / sous-jacent / barrières / maturité et un niveau de coupon cohérent
+# avec les conditions de marché de la période indiquée par MAJ. Ce ne sont PAS
+# des souches en cours de commercialisation : aucun code ISIN n'est publié et
+# les conditions définitives ne sont arrêtées qu'à la date de strike.
 
 def P(nom, famille, emetteur, rating, sj, sj_type, coupon, freq, bc, bk, ac,
       maturite, note, mecanisme, sc_fav, sc_med, sc_def, attention,
@@ -650,129 +653,133 @@ def P(nom, famille, emetteur, rating, sj, sj_type, coupon, freq, bc, bk, ac,
                 attention=list(attention), tags=list(tags), format=format)
 
 AV, CTO, PER, PEA = "Assurance-vie", "Compte-titres", "PER", "PEA"
+IDX, SEC, WOF, ACT = "Indice actions", "Indice sectoriel", "Panier Worst-of", "Action"
+TAUX, CRED, GEO, THE, ESG = "Taux", "Crédit", "Indice géographique", "Indice thématique", "Indice ESG"
 
 PRODUITS = [
- P("Phoenix Mémoire 10 ans — grand indice européen décrément", "Phoenix à coupon mémoire",
-   "BNP Paribas", "A+ / Aa3 / A+", "Indice européen décrément 50 pts", "Indice décrément",
-   0.082, "Trimestrielle", 0.60, 0.60, 1.00, 10, 5, decrement=None, non_call=12, memoire=True,
+ P("Phoenix Mémoire 10 ans — EURO STOXX 50", "Phoenix à coupon mémoire",
+   "BNP Paribas", "A+ / Aa3 / A+", "EURO STOXX 50", IDX,
+   0.100, "Trimestrielle", 0.60, 0.60, 1.00, 10, 5, non_call=12, memoire=True,
    enveloppes=(AV, CTO, PER),
-   mecanisme="Constatation trimestrielle. Coupon de 2,05 % par trimestre versé si l’indice clôture au-dessus de 60 % de son niveau initial, avec effet mémoire intégral. Rappel automatique au nominal majoré des coupons dès que l’indice atteint 100 % de son niveau initial, à partir du 4e trimestre. À l’échéance, capital remboursé intégralement si l’indice est au-dessus de 60 %.",
-   sc_fav="Rappel dès la fin de la première année : 8,20 % de gain, capital restitué, produit clôturé.",
+   mecanisme="Constatation trimestrielle sur l’EURO STOXX 50, indice public dividendes non réinvestis. Coupon de 2,50 % par trimestre versé si l’indice clôture au-dessus de 60 % de son niveau initial, avec effet mémoire intégral. Rappel automatique au nominal majoré des coupons dès que l’indice atteint 100 % de son niveau initial, à partir du 4e trimestre. À l’échéance, capital remboursé intégralement si l’indice est au-dessus de 60 %.",
+   sc_fav="Rappel dès la fin de la première année : 10,00 % de gain, capital restitué, produit clôturé.",
    sc_med="Aucun rappel, indice à 85 % à l’échéance : coupons encaissés sur toute la période, capital remboursé à 100 %.",
    sc_def="Indice à 45 % à l’échéance : perte de 55 % du capital, sans amortisseur, coupons déjà perçus conservés.",
    attention=["La barrière de 60 % est constatée uniquement à l’échéance, ce qui autorise de longs passages sous ce seuil sans conséquence définitive.",
-              "Le décrément de 50 points par an pèse d’autant plus lourd que l’indice baisse : exprimé en pourcentage, le prélèvement augmente mécaniquement.",
-              "Sur 10 ans, un gain plafonné à 8,20 % par an prive l’investisseur d’un marché actions franchement haussier."],
-   tags=("mémoire", "défensif", "indice maison")),
+              "Le coupon est financé par les dividendes de l’indice, que l’investisseur ne perçoit pas : sur dix ans, c’est un renoncement substantiel.",
+              "Sur 10 ans, un gain plafonné à 10 % par an prive l’investisseur d’un marché actions franchement haussier."],
+   tags=("mémoire", "défensif", "indice public", "sans décrément")),
 
- P("Autocall Phoenix 12 ans — indice européen décrément 5 %", "Autocall Phoenix",
-   "Société Générale", "A / A1 / A-", "Indice européen décrément 5 %", "Indice décrément",
-   0.091, "Trimestrielle", 0.70, 0.50, 1.00, 12, 4, non_call=12, memoire=True,
+ P("Autocall Phoenix 12 ans — EURO STOXX 50", "Autocall Phoenix",
+   "Société Générale", "A / A1 / A-", "EURO STOXX 50", IDX,
+   0.112, "Trimestrielle", 0.70, 0.50, 1.00, 12, 4, non_call=12, memoire=True,
    enveloppes=(AV, CTO, PER),
-   mecanisme="Coupon trimestriel de 2,275 % versé si l’indice est au-dessus de 70 % de son niveau initial, avec mémoire. Rappel au pair dès franchissement de 100 % à partir de la cinquième constatation. Barrière de capital très profonde à 50 % constatée à la seule date d’échéance.",
-   sc_fav="Rappel au bout de 18 mois : environ 13,65 % de gain cumulé puis restitution du capital.",
+   mecanisme="Coupon trimestriel de 2,80 % versé si l’indice est au-dessus de 70 % de son niveau initial, avec mémoire. Rappel au pair dès franchissement de 100 % à partir de la cinquième constatation. Barrière de capital très profonde à 50 %, constatée à la seule date d’échéance.",
+   sc_fav="Rappel au bout de 18 mois : environ 16,80 % de gain cumulé puis restitution du capital.",
    sc_med="Indice à 75 % à l’échéance : la totalité des coupons a été versée, le capital est remboursé à 100 %.",
    sc_def="Indice à 40 % à l’échéance : perte de 60 % du capital.",
    attention=["Maturité de 12 ans : il faut accepter une immobilisation potentiellement très longue du capital.",
               "La barrière de coupon à 70 % est plus haute que celle des structures à 60 % : les coupons sont interrompus plus tôt en cas de baisse.",
-              "Un décrément de 5 % par an représente un handicap de performance considérable sur 12 ans face à l’indice de référence."],
-   tags=("barrière profonde", "mémoire", "long terme")),
+              "Le coupon élevé traduit la profondeur de la barrière de capital et la longueur de la maturité, non une générosité particulière."],
+   tags=("barrière profonde", "mémoire", "long terme", "sans décrément")),
 
- P("Athéna 8 ans — CAC 40 décrément", "Athéna",
-   "Crédit Agricole CIB", "A+ / Aa3 / A+", "CAC 40 décrément 50 pts", "Indice décrément",
-   0.095, "Annuelle (capitalisé)", None, 0.60, 1.00, 8, 4, non_call=12,
+ P("Athéna 8 ans — CAC 40", "Athéna",
+   "Crédit Agricole CIB", "A+ / Aa3 / A+", "CAC 40", IDX,
+   0.118, "Annuelle (capitalisé)", None, 0.60, 1.00, 8, 4, non_call=12,
    enveloppes=(AV, CTO, PER),
-   mecanisme="Aucun coupon détaché en cours de vie. À chaque constatation annuelle, si l’indice est au-dessus de son niveau initial, le produit est remboursé au nominal majoré de 9,50 % par année écoulée. À l’échéance, remboursement intégral majoré du gain capitalisé si l’indice est au-dessus de 60 %.",
-   sc_fav="Rappel à la deuxième constatation : 19 % de gain versé en une fois.",
-   sc_med="Rappel à la septième année : 66,5 % de gain cumulé, soit une performance annualisée proche de 7,6 %.",
+   mecanisme="Aucun coupon détaché en cours de vie. À chaque constatation annuelle, si le CAC 40 est au-dessus de son niveau initial, le produit est remboursé au nominal majoré de 11,80 % par année écoulée. À l’échéance, remboursement intégral majoré du gain capitalisé si l’indice est au-dessus de 60 %.",
+   sc_fav="Rappel à la deuxième constatation : 23,60 % de gain versé en une fois.",
+   sc_med="Rappel à la septième année : 82,6 % de gain cumulé, soit une performance annualisée proche de 9,0 %.",
    sc_def="Indice à 50 % à l’échéance : perte de 50 % du capital, aucun gain n’ayant jamais été versé.",
    attention=["Structure sans aucun revenu intermédiaire : si l’indice reste durablement sous 100 %, rien n’est perçu avant l’échéance.",
               "Logique tout ou rien à l’arrivée : le passage sous 60 % anéantit huit années de rendement potentiel.",
-              "La capitalisation ne joue qu’en cas de rappel ou de constatation finale favorable."],
-   tags=("capitalisation", "sans coupon", "indice français")),
+              "Le CAC 40 publié est un indice dividendes non réinvestis : c’est ce flux abandonné qui finance le taux de capitalisation."],
+   tags=("capitalisation", "sans coupon", "indice français", "sans décrément")),
 
- P("Phoenix Airbag 10 ans — indice européen décrément", "Airbag &amp; Bonus",
-   "Natixis", "A / A1 / A+", "Indice européen décrément 50 pts", "Indice décrément",
-   0.074, "Trimestrielle", 0.60, 0.60, 1.00, 10, 5, non_call=12, memoire=True,
+ P("Phoenix Airbag 10 ans — EURO STOXX 50", "Airbag &amp; Bonus",
+   "Natixis", "A / A1 / A+", "EURO STOXX 50", IDX,
+   0.092, "Trimestrielle", 0.60, 0.60, 1.00, 10, 5, non_call=12, memoire=True,
    enveloppes=(AV, CTO, PER),
    mecanisme="Phoenix mémoire classique assorti d’un mécanisme airbag : si l’indice termine sous 60 %, la perte n’est pas calculée depuis le niveau initial mais depuis la barrière. La baisse constatée est divisée par 0,60, ce qui supprime l’effet de seuil.",
-   sc_fav="Rappel à la première année : 7,40 % de gain, capital restitué.",
+   sc_fav="Rappel à la première année : 9,20 % de gain, capital restitué.",
    sc_med="Indice à 70 % à l’échéance : coupons intégralement versés, capital remboursé à 100 %.",
    sc_def="Indice à 55 % à l’échéance : perte limitée à environ 8,3 % grâce à l’airbag, contre 45 % sur une barrière sèche.",
-   attention=["Le coupon est inférieur d’environ un point à une structure identique sans airbag : c’est le prix de l’amortisseur.",
+   attention=["Le coupon est inférieur d’environ deux points à une structure identique sans airbag : c’est le prix de l’amortisseur.",
               "L’airbag atténue la perte mais ne l’élimine pas : une chute de l’indice à 30 % entraîne encore une perte de 50 %.",
               "Vérifier dans le DIC la formule exacte de l’airbag, les modalités variant d’un émetteur à l’autre."],
-   tags=("airbag", "mémoire", "protection renforcée")),
+   tags=("airbag", "mémoire", "protection renforcée", "sans décrément")),
 
- P("Phoenix 6 ans — EuroStoxx Banks", "Autocall Phoenix",
-   "J.P. Morgan", "A- / A1 / AA-", "Indice sectoriel bancaire européen", "Indice sectoriel",
-   0.108, "Semestrielle", 0.65, 0.55, 1.00, 6, 3, non_call=6, memoire=True, sri=6,
+ P("Phoenix 6 ans — EURO STOXX Banks", "Autocall Phoenix",
+   "J.P. Morgan", "A- / A1 / AA-", "EURO STOXX Banks", SEC,
+   0.132, "Semestrielle", 0.65, 0.55, 1.00, 6, 3, non_call=6, memoire=True, sri=6,
    enveloppes=(AV, CTO),
-   mecanisme="Coupon semestriel de 5,40 % conditionné à un indice au-dessus de 65 %, avec mémoire. Rappel possible dès la première constatation semestrielle. Barrière de capital à 55 % à l’échéance.",
-   sc_fav="Rappel à six mois : 5,40 % de gain sur une immobilisation d’un semestre.",
-   sc_med="Rappel en quatrième année : environ 43 % de gain cumulé.",
+   mecanisme="Coupon semestriel de 6,60 % conditionné à un indice au-dessus de 65 %, avec mémoire. Rappel possible dès la première constatation semestrielle. Barrière de capital à 55 % à l’échéance.",
+   sc_fav="Rappel à six mois : 6,60 % de gain sur une immobilisation d’un semestre.",
+   sc_med="Rappel en quatrième année : environ 52,8 % de gain cumulé.",
    sc_def="Indice à 40 % à l’échéance : perte de 60 % du capital.",
    attention=["Un indice sectoriel bancaire est beaucoup plus volatil qu’un indice diversifié : le coupon élevé rémunère ce risque réel.",
               "Forte sensibilité au cycle de taux et au risque systémique du secteur financier.",
               "Concentration sectorielle à mettre en regard du reste du portefeuille, souvent déjà exposé aux financières."],
-   tags=("sectoriel", "coupon élevé", "volatilité")),
+   tags=("sectoriel", "coupon élevé", "volatilité", "sans décrément")),
 
- P("Phoenix 8 ans — panier Worst-of 3 indices mondiaux", "Autocall Phoenix",
-   "Goldman Sachs", "BBB+ / A2 / A", "Worst-of 3 indices (Europe, États-Unis, Japon)", "Panier Worst-of",
-   0.118, "Trimestrielle", 0.65, 0.55, 1.00, 8, 3, non_call=12, memoire=True, sri=6,
+ P("Phoenix 8 ans — Worst-of EURO STOXX 50 / S&amp;P 500 / Nikkei 225", "Autocall Phoenix",
+   "Goldman Sachs", "BBB+ / A2 / A", "Worst-of 3 indices mondiaux", WOF,
+   0.142, "Trimestrielle", 0.65, 0.55, 1.00, 8, 3, non_call=12, memoire=True, sri=6,
    enveloppes=(AV, CTO),
-   mecanisme="Toutes les conditions sont appréciées sur le moins performant des trois indices du panier. Coupon trimestriel de 2,95 % si ce plus mauvais indice est au-dessus de 65 %, avec mémoire. Rappel lorsque les trois indices sont simultanément au-dessus de 100 %.",
-   sc_fav="Les trois indices progressent de concert : rappel au bout d’un an, 11,80 % de gain.",
+   sj_detail="EURO STOXX 50, S&amp;P 500 et Nikkei 225 — conditions appréciées sur le moins performant",
+   mecanisme="Toutes les conditions sont appréciées sur le moins performant des trois indices du panier. Coupon trimestriel de 3,55 % si ce plus mauvais indice est au-dessus de 65 %, avec mémoire. Rappel lorsque les trois indices sont simultanément au-dessus de 100 %.",
+   sc_fav="Les trois indices progressent de concert : rappel au bout d’un an, 14,20 % de gain.",
    sc_med="Deux indices montent, le troisième stagne à 80 % : coupons versés mais aucun rappel avant l’échéance.",
    sc_def="Un seul indice chute à 45 % : perte de 55 % du capital, quelle que soit la performance des deux autres.",
    attention=["Le mécanisme Worst-of est le plus mal compris du marché : la diversification apparente du panier augmente en réalité le risque, puisque seul le plus mauvais compte.",
-              "Plus le panier compte de composantes, plus la probabilité qu’au moins une sous-performe est élevée.",
+              "Un panier multidevises ajoute un décalage de change entre les trois composantes, même pour un produit libellé en euro.",
               "Le coupon très élevé est la contrepartie directe de cette asymétrie, non le signe d’une bonne affaire."],
-   tags=("worst-of", "coupon élevé", "complexe")),
+   tags=("worst-of", "coupon élevé", "complexe", "sans décrément")),
 
- P("Reverse Convertible 3 ans — grande valeur européenne", "Reverse Convertible",
-   "UniCredit", "BBB+ / Baa1 / BBB+", "Action européenne de premier rang", "Action",
-   0.126, "Trimestrielle", None, 0.80, None, 3, 2, sri=7,
+ P("Reverse Convertible 3 ans — action du CAC 40", "Reverse Convertible",
+   "UniCredit", "BBB+ / Baa1 / BBB+", "Action française de premier rang", ACT,
+   0.148, "Trimestrielle", None, 0.80, None, 3, 2, sri=7,
    enveloppes=(CTO,),
-   mecanisme="Coupon trimestriel de 3,15 % versé sans aucune condition de barrière, quelle que soit l’évolution de l’action. À l’échéance, remboursement au pair si l’action est au-dessus de 80 % de son niveau initial ; en dessous, l’investisseur subit la baisse constatée depuis le niveau initial.",
-   sc_fav="Action stable ou en hausse : 37,80 % de coupons sur trois ans, capital restitué.",
+   sj_detail="Action de grande capitalisation cotée au CAC 40, choisie au moment de la structuration",
+   mecanisme="Coupon trimestriel de 3,70 % versé sans aucune condition de barrière, quelle que soit l’évolution de l’action. À l’échéance, remboursement au pair si l’action est au-dessus de 80 % de son niveau initial ; en dessous, l’investisseur subit la baisse constatée depuis le niveau initial.",
+   sc_fav="Action stable ou en hausse : 44,40 % de coupons sur trois ans, capital restitué.",
    sc_med="Action à 85 % à l’échéance : coupons encaissés, capital remboursé à 100 %.",
    sc_def="Action à 50 % à l’échéance : perte de 50 % du capital, partiellement compensée par les coupons perçus.",
    attention=["Protection faible : une barrière à 80 % laisse très peu de marge sur un mono sous-jacent action.",
               "Risque spécifique d’entreprise : un profit warning ou un litige peut faire chuter l’action indépendamment du marché.",
               "Aucun rappel anticipé : le capital reste exposé jusqu’à l’échéance.",
               "Notation de l’émetteur en catégorie BBB : le risque de crédit s’ajoute au risque actions."],
-   tags=("coupon garanti", "mono sous-jacent", "risque élevé")),
+   tags=("coupon garanti", "mono sous-jacent", "risque élevé", "sans décrément")),
 
- P("Capital garanti 6 ans — participation indice européen", "Capital protégé ou garanti",
-   "Crédit Agricole CIB", "A+ / Aa3 / A+", "Indice européen large", "Indice classique",
+ P("Capital garanti 6 ans — participation EURO STOXX 50", "Capital protégé ou garanti",
+   "Crédit Agricole CIB", "A+ / Aa3 / A+", "EURO STOXX 50", IDX,
    None, "Aucun coupon", None, None, None, 6, 4, sri=2,
    enveloppes=(AV, CTO, PER),
    frais="Frais de structuration intégrés au prix d’émission, détaillés dans le DIC",
-   mecanisme="Remboursement de 100 % du nominal à l’échéance quelle que soit l’évolution de l’indice, sous réserve de la solvabilité de l’émetteur. S’y ajoute 60 % de la performance positive de l’indice, mesurée en moyenne sur les douze derniers mois, dans la limite d’un plafond de gain de 30 %.",
-   sc_fav="Indice en hausse de 60 % : gain plafonné à 30 %, soit 4,5 % par an.",
-   sc_med="Indice en hausse de 20 % : gain de 12 %, soit environ 1,9 % par an.",
+   mecanisme="Remboursement de 100 % du nominal à l’échéance quelle que soit l’évolution de l’indice, sous réserve de la solvabilité de l’émetteur. S’y ajoute 70 % de la performance positive de l’EURO STOXX 50, mesurée en moyenne sur les douze derniers mois, dans la limite d’un plafond de gain de 40 %.",
+   sc_fav="Indice en hausse de 60 % : gain plafonné à 40 %, soit 5,8 % par an.",
+   sc_med="Indice en hausse de 20 % : gain de 14 %, soit environ 2,2 % par an.",
    sc_def="Indice en baisse de 40 % : capital remboursé à 100 %, aucun gain, coût d’opportunité de six ans.",
    attention=["La garantie ne vaut qu’à l’échéance : une sortie anticipée se fait au prix de marché, qui peut être inférieur au nominal.",
               "La garantie porte sur l’engagement de l’émetteur, pas sur un dépôt : un défaut de celui-ci la rend inopérante.",
               "La moyenne des douze derniers mois réduit la performance restituée en cas de marché haussier jusqu’à l’échéance."],
-   tags=("capital garanti", "trésorerie", "prudent")),
+   tags=("capital garanti", "trésorerie", "prudent", "sans décrément")),
 
- P("Participation 5 ans — call spread indice européen", "Produit de participation",
-   "BNP Paribas", "A+ / Aa3 / A+", "Indice européen large", "Indice classique",
+ P("Participation 5 ans — call spread EURO STOXX 50", "Produit de participation",
+   "BNP Paribas", "A+ / Aa3 / A+", "EURO STOXX 50", IDX,
    None, "Aucun coupon", None, 0.80, None, 5, 4, sri=4,
    enveloppes=(AV, CTO, PER),
-   mecanisme="Aucun coupon. À l’échéance, l’investisseur reçoit 150 % de la performance positive de l’indice, plafonnée à 45 % de gain. Le capital est remboursé intégralement tant que l’indice n’a pas baissé de plus de 20 % ; en dessous, la perte est égale à la baisse constatée.",
-   sc_fav="Indice en hausse de 30 % : gain de 45 % atteint, soit 7,7 % par an.",
-   sc_med="Indice en hausse de 10 % : gain de 15 %, soit environ 2,8 % par an.",
+   mecanisme="Aucun coupon. À l’échéance, l’investisseur reçoit 170 % de la performance positive de l’indice, plafonnée à 55 % de gain. Le capital est remboursé intégralement tant que l’indice n’a pas baissé de plus de 20 % ; en dessous, la perte est égale à la baisse constatée.",
+   sc_fav="Indice en hausse de 35 % : gain de 55 % atteint, soit 9,2 % par an.",
+   sc_med="Indice en hausse de 10 % : gain de 17 %, soit environ 3,2 % par an.",
    sc_def="Indice en baisse de 35 % : perte de 35 % du capital.",
-   attention=["Le levier de 150 % ne joue que dans la fourchette de gain : au-delà du plafond, il n’apporte plus rien.",
+   attention=["Le levier de 170 % ne joue que dans la fourchette de gain : au-delà du plafond, il n’apporte plus rien.",
               "Protection de 20 % seulement : plus faible que celle des structures de rendement à barrière.",
               "Les dividendes de l’indice ne sont pas reversés, ce qui constitue un manque à gagner significatif sur cinq ans."],
-   tags=("participation", "levier", "croissance")),
+   tags=("participation", "levier", "croissance", "sans décrément")),
 
- P("Participation Lock-in 8 ans — indice mondial", "Produit de participation",
-   "Morgan Stanley", "A- / A1 / A", "Indice mondial actions", "Indice classique",
+ P("Participation Lock-in 8 ans — MSCI World", "Produit de participation",
+   "Morgan Stanley", "A- / A1 / A", "MSCI World", IDX,
    None, "Annuelle (cliquet)", None, 0.70, None, 8, 4, sri=4,
    enveloppes=(AV, CTO),
    mecanisme="Mécanisme de cliquet : chaque fois que l’indice franchit un palier de 10 % à une date de constatation annuelle, ce niveau de gain est définitivement acquis. À l’échéance, l’investisseur reçoit le plus élevé entre le dernier palier verrouillé et la performance finale, sous réserve d’un indice au-dessus de 70 % pour le remboursement du capital.",
@@ -782,195 +789,196 @@ PRODUITS = [
    attention=["L’intérêt du cliquet dépend entièrement du parcours : un marché régulièrement haussier n’en tire aucun avantage particulier.",
               "Les paliers sont constatés à dates fixes : un pic atteint entre deux constatations ne compte pas.",
               "Maturité longue pour une structure sans aucun revenu intermédiaire."],
-   tags=("lock-in", "cliquet", "croissance")),
+   tags=("lock-in", "cliquet", "croissance", "sans décrément")),
 
- P("Phoenix 10 ans — thématique énergies &amp; infrastructures", "Phoenix à coupon mémoire",
-   "Barclays", "BBB+ / Baa1 / A", "Indice thématique infrastructures décrément", "Indice thématique",
-   0.098, "Trimestrielle", 0.60, 0.55, 1.00, 10, 3, non_call=12, memoire=True,
+ P("Phoenix 10 ans — STOXX Europe 600 Oil &amp; Gas", "Phoenix à coupon mémoire",
+   "Barclays", "BBB+ / Baa1 / A", "STOXX Europe 600 Oil &amp; Gas", SEC,
+   0.118, "Trimestrielle", 0.60, 0.55, 1.00, 10, 3, non_call=12, memoire=True,
    enveloppes=(AV, CTO),
-   mecanisme="Coupon trimestriel de 2,45 % conditionné à un indice thématique au-dessus de 60 %, avec mémoire. Rappel au pair dès 100 %. Barrière de capital à 55 % à l’échéance.",
-   sc_fav="Rappel à 18 mois : 14,70 % de gain cumulé.",
+   mecanisme="Coupon trimestriel de 2,95 % conditionné à un indice sectoriel au-dessus de 60 %, avec mémoire. Rappel au pair dès 100 %. Barrière de capital à 55 % à l’échéance.",
+   sc_fav="Rappel à 18 mois : 17,70 % de gain cumulé.",
    sc_med="Indice à 80 % à l’échéance : coupons versés, capital remboursé intégralement.",
    sc_def="Indice à 45 % à l’échéance : perte de 55 % du capital.",
-   attention=["Les indices thématiques affichent des historiques très courts : la performance antérieure à leur lancement est reconstituée par calcul, non observée.",
-              "Concentration sectorielle élevée, donc volatilité supérieure à celle d’un indice diversifié.",
+   attention=["Secteur cyclique dont les cours dépendent largement du prix des matières premières : volatilité élevée.",
+              "Le rendement du dividende du secteur est structurellement fort, ce qui explique en grande partie le niveau de coupon offert.",
               "Notation de l’émetteur la plus basse du panel des grandes signatures : à doser dans l’allocation."],
-   tags=("thématique", "mémoire", "historique court")),
+   tags=("sectoriel", "mémoire", "cyclique", "sans décrément")),
 
- P("Athéna Trigger dégressif 10 ans — indice européen décrément", "Athéna",
-   "Société Générale", "A / A1 / A-", "Indice européen décrément 50 pts", "Indice décrément",
-   0.088, "Semestrielle (capitalisé)", None, 0.60, 1.00, 10, 4,
+ P("Athéna Trigger dégressif 10 ans — CAC 40", "Athéna",
+   "Société Générale", "A / A1 / A-", "CAC 40", IDX,
+   0.105, "Semestrielle (capitalisé)", None, 0.60, 1.00, 10, 4,
    decrement=0.05, non_call=12,
    enveloppes=(AV, CTO, PER),
-   mecanisme="Seuil de rappel dégressif : fixé à 100 % lors de la première constatation, il baisse de 5 points à chaque constatation semestrielle suivante, jusqu’à 55 % en fin de vie. Le gain capitalisé de 8,80 % par an est versé au moment du rappel.",
-   sc_fav="Rappel à un an : 8,80 % de gain versé en une fois.",
-   sc_med="Rappel en sixième année grâce au seuil descendu à 75 % : environ 52,8 % de gain cumulé.",
+   mecanisme="Seuil de rappel dégressif : fixé à 100 % lors de la première constatation, il baisse de 5 points à chaque constatation semestrielle suivante, jusqu’à 55 % en fin de vie. Le gain capitalisé de 10,50 % par an est versé au moment du rappel.",
+   sc_fav="Rappel à un an : 10,50 % de gain versé en une fois.",
+   sc_med="Rappel en sixième année grâce au seuil descendu à 75 % : environ 63 % de gain cumulé.",
    sc_def="Indice à 50 % à l’échéance : perte de 50 % du capital, aucun gain versé.",
-   attention=["Le seuil dégressif augmente nettement la probabilité de rappel : c’est l’atout principal de cette variante.",
-              "En contrepartie, le rappel peut intervenir alors que l’indice est très inférieur à son niveau d’origine, ce qui met fin au produit sans possibilité de rattrapage.",
+   attention=["Le seuil dégressif porte sur le rappel, pas sur le sous-jacent : à ne pas confondre avec un indice décrément, absent de ce catalogue.",
+              "Le seuil dégressif augmente nettement la probabilité de rappel, mais celui-ci peut intervenir alors que l’indice reste très inférieur à son niveau d’origine.",
               "Aucun revenu intermédiaire pendant toute la durée de vie."],
-   tags=("trigger dégressif", "capitalisation", "probabilité de rappel")),
+   tags=("trigger dégressif", "capitalisation", "probabilité de rappel", "sans décrément")),
 
- P("Phoenix 7 ans — indice américain décrément", "Autocall Phoenix",
-   "Bank of America", "A- / A1 / AA-", "Indice américain décrément", "Indice décrément",
-   0.086, "Trimestrielle", 0.65, 0.60, 1.00, 7, 4, devise="USD", non_call=12, memoire=True,
+ P("Phoenix 7 ans — S&amp;P 500", "Autocall Phoenix",
+   "Bank of America", "A- / A1 / AA-", "S&amp;P 500", IDX,
+   0.098, "Trimestrielle", 0.65, 0.60, 1.00, 7, 4, devise="USD", non_call=12, memoire=True,
    enveloppes=(AV, CTO),
-   mecanisme="Structure Phoenix mémoire libellée en dollar. Coupon trimestriel de 2,15 % si l’indice est au-dessus de 65 %, rappel au pair dès 100 %, barrière de capital à 60 % à l’échéance.",
-   sc_fav="Rappel à un an : 8,60 % de gain en dollar, hors effet de change.",
+   mecanisme="Structure Phoenix mémoire libellée en dollar sur le S&amp;P 500. Coupon trimestriel de 2,45 % si l’indice est au-dessus de 65 %, rappel au pair dès 100 %, barrière de capital à 60 % à l’échéance.",
+   sc_fav="Rappel à un an : 9,80 % de gain en dollar, hors effet de change.",
    sc_med="Indice à 90 % à l’échéance : coupons versés, capital remboursé à 100 % en dollar.",
    sc_def="Indice à 50 % à l’échéance : perte de 50 % en dollar, aggravée ou atténuée par le change.",
    attention=["Produit en dollar : le risque de change s’ajoute intégralement au risque de marché et peut en inverser le résultat pour un investisseur en euro.",
               "Une version couverte en euro existe généralement, mais son coût de couverture réduit le coupon.",
-              "Vérifier la devise de l’enveloppe d’accueil pour éviter une double conversion."],
-   tags=("dollar", "risque de change", "mémoire")),
+              "Le rendement du dividende du S&amp;P 500 étant faible, le coupon offert y est structurellement inférieur à celui d’un équivalent européen."],
+   tags=("dollar", "risque de change", "mémoire", "sans décrément")),
 
  P("Produit de taux callable 10 ans — taux fixe", "Produits de taux",
-   "ING", "A+ / A1 / A+", "Taux fixe, option de rappel émetteur", "Taux",
-   0.042, "Annuelle", None, None, None, 10, 4, sri=3,
+   "ING", "A+ / A1 / A+", "Taux fixe, option de rappel émetteur", TAUX,
+   0.050, "Annuelle", None, None, None, 10, 4, sri=3,
    enveloppes=(CTO, AV),
    frais="Frais inclus dans le prix d’émission, détaillés dans le DIC",
-   mecanisme="Coupon annuel fixe de 4,20 % versé sans condition. L’émetteur dispose du droit de rappeler le titre au pair à chaque date anniversaire à partir de la deuxième année. Capital remboursé à 100 % à l’échéance ou au rappel.",
-   sc_fav="Les taux montent, l’émetteur ne rappelle pas : 4,20 % par an pendant dix ans.",
-   sc_med="Rappel en cinquième année après une baisse des taux : 21 % de gain cumulé, puis réinvestissement à des conditions moins favorables.",
-   sc_def="Rappel dès la deuxième année : 8,40 % perçus, et le capital doit être replacé sur un marché devenu moins rémunérateur.",
+   mecanisme="Coupon annuel fixe de 5,00 % versé sans condition. L’émetteur dispose du droit de rappeler le titre au pair à chaque date anniversaire à partir de la deuxième année. Capital remboursé à 100 % à l’échéance ou au rappel.",
+   sc_fav="Les taux montent, l’émetteur ne rappelle pas : 5,00 % par an pendant dix ans.",
+   sc_med="Rappel en cinquième année après une baisse des taux : 25 % de gain cumulé, puis réinvestissement à des conditions moins favorables.",
+   sc_def="Rappel dès la deuxième année : 10 % perçus, et le capital doit être replacé sur un marché devenu moins rémunérateur.",
    attention=["L’option de rappel appartient à l’émetteur et sera exercée dans son intérêt, donc contre celui de l’investisseur.",
               "Le risque principal n’est pas la perte en capital mais le risque de réinvestissement.",
               "La valeur de marché en cours de vie est très sensible aux mouvements de taux."],
-   tags=("taux", "trésorerie", "capital protégé")),
+   tags=("taux", "trésorerie", "capital protégé", "sans décrément")),
 
  P("Range Accrual 5 ans — Euribor 3 mois", "Produits de taux",
-   "Deutsche Bank", "A / A1 / A", "Euribor 3 mois, fourchette 0 % – 4 %", "Taux",
-   0.048, "Trimestrielle (prorata)", None, None, None, 5, 3, sri=3,
+   "Deutsche Bank", "A / A1 / A", "Euribor 3 mois, fourchette 0 % – 4 %", TAUX,
+   0.056, "Trimestrielle (prorata)", None, None, None, 5, 3, sri=3,
    enveloppes=(CTO,),
    frais="Frais inclus dans le prix d’émission, détaillés dans le DIC",
-   mecanisme="Le coupon annuel de 4,80 % est acquis au prorata du nombre de jours pendant lesquels l’Euribor 3 mois reste dans la fourchette définie. Chaque journée hors fourchette ne génère aucun intérêt. Capital remboursé à 100 % à l’échéance.",
-   sc_fav="Euribor dans la fourchette toute l’année : 4,80 % perçus.",
-   sc_med="Euribor hors fourchette un quart du temps : environ 3,60 % perçus.",
+   mecanisme="Le coupon annuel de 5,60 % est acquis au prorata du nombre de jours pendant lesquels l’Euribor 3 mois reste dans la fourchette définie. Chaque journée hors fourchette ne génère aucun intérêt. Capital remboursé à 100 % à l’échéance.",
+   sc_fav="Euribor dans la fourchette toute l’année : 5,60 % perçus.",
+   sc_med="Euribor hors fourchette un quart du temps : environ 4,20 % perçus.",
    sc_def="Euribor durablement au-dessus de 4 % : coupon proche de zéro, capital néanmoins remboursé.",
    attention=["Le rendement dépend d’un pari sur la trajectoire des taux courts, pas sur les actions.",
               "Aucune perte en capital à l’échéance, mais un rendement potentiellement nul sur cinq ans.",
               "Structure peu adaptée si l’investisseur n’a pas de vue construite sur la politique monétaire."],
-   tags=("taux", "range accrual", "capital protégé")),
+   tags=("taux", "range accrual", "capital protégé", "sans décrément")),
 
  P("CLN 5 ans — signature corporate investment grade", "Credit Linked Note (CLN)",
-   "Citigroup", "BBB+ / A3 / A", "Signature corporate européenne notée BBB", "Crédit",
-   0.058, "Annuelle", None, None, None, 5, 3, sri=5,
+   "Citigroup", "BBB+ / A3 / A", "Signature corporate européenne notée BBB", CRED,
+   0.068, "Annuelle", None, None, None, 5, 3, sri=5,
    enveloppes=(CTO,),
-   mecanisme="Coupon annuel fixe de 5,80 % tant qu’aucun événement de crédit n’affecte la signature de référence. Capital remboursé à 100 % à l’échéance en l’absence d’événement. En cas d’événement de crédit, remboursement limité au taux de recouvrement constaté sur la dette de la référence.",
-   sc_fav="Aucun événement de crédit : 29 % de coupons sur cinq ans et capital restitué.",
+   mecanisme="Coupon annuel fixe de 6,80 % tant qu’aucun événement de crédit n’affecte la signature de référence. Capital remboursé à 100 % à l’échéance en l’absence d’événement. En cas d’événement de crédit, remboursement limité au taux de recouvrement constaté sur la dette de la référence.",
+   sc_fav="Aucun événement de crédit : 34 % de coupons sur cinq ans et capital restitué.",
    sc_med="Dégradation de la notation sans défaut : coupons versés normalement, valeur de marché en baisse en cours de vie.",
    sc_def="Défaut de la référence en troisième année : remboursement au taux de recouvrement, souvent compris entre 20 % et 40 % du nominal.",
    attention=["Deux risques de crédit se cumulent : celui de l’émetteur du titre et celui de la signature de référence.",
               "La perte en cas de défaut est brutale et sans rapport avec les marchés actions.",
               "Réservé à un investisseur capable d’analyser lui-même la solidité de la signature de référence."],
-   tags=("crédit", "obligataire", "défaut")),
+   tags=("crédit", "obligataire", "défaut", "sans décrément")),
 
- P("Phoenix 10 ans — ESG indice européen décrément", "Phoenix à coupon mémoire",
-   "BNP Paribas", "A+ / Aa3 / A+", "Indice européen ISR décrément", "Indice ESG",
-   0.079, "Trimestrielle", 0.60, 0.60, 1.00, 10, 4, non_call=12, memoire=True,
+ P("Phoenix 10 ans — MSCI EMU ESG Leaders", "Phoenix à coupon mémoire",
+   "BNP Paribas", "A+ / Aa3 / A+", "MSCI EMU ESG Leaders", ESG,
+   0.095, "Trimestrielle", 0.60, 0.60, 1.00, 10, 4, non_call=12, memoire=True,
    enveloppes=(AV, CTO, PER),
-   mecanisme="Phoenix mémoire sur un indice appliquant des filtres extra-financiers au sein d’un univers européen large. Coupon trimestriel de 1,975 % au-dessus de 60 %, rappel dès 100 %, barrière de capital à 60 % à l’échéance.",
-   sc_fav="Rappel à un an : 7,90 % de gain.",
+   mecanisme="Phoenix mémoire sur un indice ESG public appliquant des filtres extra-financiers à un univers de la zone euro. Coupon trimestriel de 2,375 % au-dessus de 60 %, rappel dès 100 %, barrière de capital à 60 % à l’échéance.",
+   sc_fav="Rappel à un an : 9,50 % de gain.",
    sc_med="Indice à 85 % à l’échéance : coupons versés et capital remboursé intégralement.",
    sc_def="Indice à 50 % à l’échéance : perte de 50 % du capital.",
    attention=["Vérifier la méthodologie d’exclusion réelle de l’indice : l’intitulé ne suffit pas à qualifier la démarche.",
-              "L’univers filtré est plus concentré, ce qui peut accroître la volatilité par rapport à l’indice large.",
-              "Le décrément s’applique de la même manière que sur un indice classique : la mécanique de prélèvement reste le principal déterminant du coupon."],
-   tags=("ESG", "mémoire", "indice maison")),
+              "L’univers filtré est plus concentré que l’indice large, ce qui peut accroître la volatilité.",
+              "Indice public, publié par un fournisseur indépendant : la méthodologie est consultable, contrairement à un indice propriétaire d’émetteur."],
+   tags=("ESG", "mémoire", "indice public", "sans décrément")),
 
- P("Discount 2 ans — indice européen large", "Certificat Discount",
-   "Vontobel", "Non noté / A2 / Non noté", "Indice européen large", "Indice classique",
+ P("Discount 2 ans — EURO STOXX 50", "Certificat Discount",
+   "Vontobel", "Non noté / A2 / Non noté", "EURO STOXX 50", IDX,
    None, "Aucun coupon", None, None, None, 2, 3, sri=5,
    enveloppes=(CTO,),
    frais="Frais inclus dans la décote d’émission",
-   mecanisme="Achat du certificat avec une décote de 12 % sur le niveau de l’indice. À l’échéance, remboursement égal au plus petit des deux montants entre la valeur de l’indice et le plafond fixé au niveau initial. Gain maximal de 13,6 %.",
-   sc_fav="Indice stable ou en hausse : gain maximal de 13,6 % sur deux ans.",
-   sc_med="Indice en baisse de 8 % : la décote absorbe la baisse, gain résiduel d’environ 4,5 %.",
-   sc_def="Indice en baisse de 35 % : perte d’environ 26 %, la décote n’absorbant que les douze premiers pour cent.",
+   mecanisme="Achat du certificat avec une décote de 14 % sur le niveau de l’indice. À l’échéance, remboursement égal au plus petit des deux montants entre la valeur de l’indice et le plafond fixé au niveau initial. Gain maximal de 16,3 %.",
+   sc_fav="Indice stable ou en hausse : gain maximal de 16,3 % sur deux ans.",
+   sc_med="Indice en baisse de 8 % : la décote absorbe la baisse, gain résiduel d’environ 7,0 %.",
+   sc_def="Indice en baisse de 35 % : perte d’environ 24 %, la décote n’absorbant que les quatorze premiers pour cent.",
    attention=["La décote est la seule protection : au-delà, la perte est intégrale et proportionnelle.",
               "Gain strictement plafonné : aucune participation à une hausse marquée.",
               "Émetteur noté par une seule agence : la comparaison de signature demande de la prudence."],
-   tags=("décote", "court terme", "gain plafonné")),
+   tags=("décote", "court terme", "gain plafonné", "sans décrément")),
 
- P("Twin Win 4 ans — indice européen large", "Twin Win",
-   "UBS", "A- / A3 / A", "Indice européen large", "Indice classique",
+ P("Twin Win 4 ans — EURO STOXX 50", "Twin Win",
+   "UBS", "A- / A3 / A", "EURO STOXX 50", IDX,
    None, "Aucun coupon", None, 0.65, None, 4, 3, sri=5,
    enveloppes=(CTO, AV),
-   mecanisme="À l’échéance, une hausse de l’indice est restituée à 100 %. Une baisse est convertie en gain de même ampleur, tant que l’indice n’est jamais descendu sous 65 % de son niveau initial en constatation quotidienne. Si ce seuil est touché, l’investisseur subit la performance négative réelle.",
+   mecanisme="À l’échéance, une hausse de l’indice est restituée à 110 %. Une baisse est convertie en gain de même ampleur, tant que l’indice n’est jamais descendu sous 65 % de son niveau initial en constatation quotidienne. Si ce seuil est touché, l’investisseur subit la performance négative réelle.",
    sc_fav="Indice en baisse de 20 % sans jamais toucher 65 % : gain de 20 %.",
-   sc_med="Indice en hausse de 15 % : gain de 15 %.",
+   sc_med="Indice en hausse de 15 % : gain de 16,5 %.",
    sc_def="Indice descendu à 60 % en cours de vie et terminant à 70 % : perte de 30 % du capital, le mécanisme s’étant éteint.",
    attention=["La barrière est constatée en continu : un seul passage sous le seuil, même sur une seule séance, annule définitivement le double sens.",
               "Sur quatre ans, la probabilité de toucher une barrière à 65 % en continu est loin d’être négligeable.",
               "Aucun coupon : le résultat n’est connu qu’à l’échéance."],
-   tags=("double sens", "barrière continue", "volatilité")),
+   tags=("double sens", "barrière continue", "volatilité", "sans décrément")),
 
- P("Phoenix 8 ans — panier 4 actions européennes", "Autocall Phoenix",
-   "HSBC", "A- / A3 / A+", "Worst-of 4 actions européennes", "Panier Worst-of",
-   0.135, "Trimestrielle", 0.60, 0.50, 1.00, 8, 2, non_call=12, memoire=True, sri=7,
+ P("Phoenix 8 ans — Worst-of 4 actions européennes", "Autocall Phoenix",
+   "HSBC", "A- / A3 / A+", "Worst-of 4 actions européennes", WOF,
+   0.162, "Trimestrielle", 0.60, 0.50, 1.00, 8, 2, non_call=12, memoire=True, sri=7,
    enveloppes=(CTO,),
-   mecanisme="Conditions appréciées sur la moins performante de quatre actions européennes. Coupon trimestriel de 3,375 % si cette action est au-dessus de 60 %, avec mémoire. Rappel lorsque les quatre actions sont simultanément au-dessus de 100 %.",
-   sc_fav="Les quatre titres progressent : rappel au bout d’un an, 13,50 % de gain.",
+   sj_detail="Quatre grandes capitalisations européennes de secteurs distincts, arrêtées à la structuration",
+   mecanisme="Conditions appréciées sur la moins performante de quatre actions européennes. Coupon trimestriel de 4,05 % si cette action est au-dessus de 60 %, avec mémoire. Rappel lorsque les quatre actions sont simultanément au-dessus de 100 %.",
+   sc_fav="Les quatre titres progressent : rappel au bout d’un an, 16,20 % de gain.",
    sc_med="Trois titres montent, le quatrième stagne à 75 % : coupons versés mais aucun rappel.",
    sc_def="Un titre chute à 35 % : perte de 65 % du capital, indépendamment des trois autres.",
    attention=["Worst-of sur actions individuelles : c’est le profil le plus risqué du marché des produits de rendement.",
               "Chaque action ajoutée augmente la probabilité d’un accident spécifique : un seul titre suffit à faire échouer le produit.",
-              "Coupon de 13,5 % : un tel niveau est le signal d’un risque élevé, non d’une opportunité.",
+              "Coupon de 16,2 % : un tel niveau est le signal d’un risque élevé, non d’une opportunité.",
               "SRI de 7 sur 7 : niveau de risque maximal de l’échelle réglementaire."],
-   tags=("worst-of actions", "risque maximal", "coupon très élevé")),
+   tags=("worst-of actions", "risque maximal", "coupon très élevé", "sans décrément")),
 
- P("Phoenix 6 ans — indice émergents décrément", "Autocall Phoenix",
-   "Nomura", "BBB+ / Baa1 / A-", "Indice marchés émergents décrément", "Indice géographique",
-   0.102, "Trimestrielle", 0.65, 0.55, 1.00, 6, 3, non_call=12, memoire=True,
+ P("Phoenix 6 ans — MSCI Emerging Markets", "Autocall Phoenix",
+   "Nomura", "BBB+ / Baa1 / A-", "MSCI Emerging Markets", GEO,
+   0.122, "Trimestrielle", 0.65, 0.55, 1.00, 6, 3, non_call=12, memoire=True,
    enveloppes=(AV, CTO),
-   mecanisme="Phoenix mémoire sur un indice émergent. Coupon trimestriel de 2,55 % au-dessus de 65 %, rappel dès 100 %, barrière de capital à 55 % à l’échéance.",
-   sc_fav="Rappel à un an : 10,20 % de gain.",
+   mecanisme="Phoenix mémoire sur l’indice MSCI Emerging Markets. Coupon trimestriel de 3,05 % au-dessus de 65 %, rappel dès 100 %, barrière de capital à 55 % à l’échéance.",
+   sc_fav="Rappel à un an : 12,20 % de gain.",
    sc_med="Indice à 80 % à l’échéance : coupons versés et capital remboursé.",
    sc_def="Indice à 45 % à l’échéance : perte de 55 % du capital.",
    attention=["Volatilité structurellement supérieure à celle des indices développés, avec des phases de baisse plus profondes.",
               "Risque politique et risque de change intégrés au sous-jacent, même pour un produit libellé en euro.",
               "Émetteur de catégorie BBB sur un sous-jacent déjà risqué : le cumul mérite d’être mesuré."],
-   tags=("émergents", "mémoire", "volatilité")),
+   tags=("émergents", "mémoire", "volatilité", "sans décrément")),
 
  P("Capital protégé 8 ans — participation 100 % plafonnée", "Capital protégé ou garanti",
-   "BNP Paribas", "A+ / Aa3 / A+", "Indice européen large", "Indice classique",
+   "BNP Paribas", "A+ / Aa3 / A+", "EURO STOXX 50", IDX,
    None, "Aucun coupon", None, None, None, 8, 4, sri=2,
    enveloppes=(AV, CTO, PER),
    frais="Frais de structuration intégrés au prix d’émission, détaillés dans le DIC",
-   mecanisme="Capital remboursé à 100 % à l’échéance, sous réserve de la solvabilité de l’émetteur, majoré de 100 % de la performance positive de l’indice dans la limite de 55 % de gain.",
-   sc_fav="Indice en hausse de 80 % : gain plafonné à 55 %, soit environ 5,6 % par an.",
+   mecanisme="Capital remboursé à 100 % à l’échéance, sous réserve de la solvabilité de l’émetteur, majoré de 100 % de la performance positive de l’EURO STOXX 50 dans la limite de 65 % de gain.",
+   sc_fav="Indice en hausse de 80 % : gain plafonné à 65 %, soit environ 6,4 % par an.",
    sc_med="Indice en hausse de 25 % : gain de 25 %, soit environ 2,8 % par an.",
    sc_def="Indice en baisse de 50 % : capital remboursé intégralement, aucun gain sur huit ans.",
    attention=["Huit ans d’immobilisation pour une protection qui ne joue qu’à l’échéance.",
               "Les dividendes de l’indice ne sont pas reversés : sur huit ans, le manque à gagner est substantiel.",
               "La comparaison pertinente est celle d’une obligation de même émetteur et de même maturité, pas celle d’un livret."],
-   tags=("capital garanti", "long terme", "prudent")),
+   tags=("capital garanti", "long terme", "prudent", "sans décrément")),
 
- P("Phoenix 10 ans — indice immobilier coté décrément", "Phoenix à coupon mémoire",
-   "Crédit Mutuel / CIC", "A+ / Aa3 / AA-", "Indice immobilier coté européen décrément", "Indice sectoriel",
-   0.093, "Trimestrielle", 0.60, 0.55, 1.00, 10, 4, non_call=12, memoire=True,
+ P("Phoenix 10 ans — FTSE EPRA Nareit Europe", "Phoenix à coupon mémoire",
+   "Crédit Mutuel / CIC", "A+ / Aa3 / AA-", "FTSE EPRA Nareit Developed Europe", SEC,
+   0.115, "Trimestrielle", 0.60, 0.55, 1.00, 10, 4, non_call=12, memoire=True,
    enveloppes=(AV, CTO, PER),
-   mecanisme="Phoenix mémoire sur un indice de foncières cotées européennes. Coupon trimestriel de 2,325 % au-dessus de 60 %, rappel dès 100 %, barrière de capital à 55 % à l’échéance.",
-   sc_fav="Rappel à 18 mois : 13,95 % de gain cumulé.",
+   mecanisme="Phoenix mémoire sur un indice public de foncières cotées européennes. Coupon trimestriel de 2,875 % au-dessus de 60 %, rappel dès 100 %, barrière de capital à 55 % à l’échéance.",
+   sc_fav="Rappel à 18 mois : 17,25 % de gain cumulé.",
    sc_med="Indice à 75 % à l’échéance : coupons versés, capital remboursé intégralement.",
    sc_def="Indice à 45 % à l’échéance : perte de 55 % du capital.",
    attention=["Les foncières cotées sont très sensibles aux taux longs : une remontée des taux pèse directement sur le sous-jacent.",
               "Le secteur a connu des corrections de grande ampleur, ce qui explique le niveau de coupon proposé.",
               "Attention au doublon si le portefeuille comporte déjà de l’immobilier physique ou des SCPI."],
-   tags=("immobilier", "mémoire", "sensibilité taux")),
+   tags=("immobilier", "mémoire", "sensibilité taux", "sans décrément")),
 
- P("Phoenix 12 ans — indice européen décrément, barrière 40 %", "Autocall Phoenix",
-   "Banco Santander", "A+ / A2 / A-", "Indice européen décrément 50 pts", "Indice décrément",
-   0.072, "Trimestrielle", 0.50, 0.40, 1.00, 12, 5, non_call=12, memoire=True, sri=5,
+ P("Phoenix 12 ans — CAC 40, barrière 40 %", "Autocall Phoenix",
+   "Banco Santander", "A+ / A2 / A-", "CAC 40", IDX,
+   0.085, "Trimestrielle", 0.50, 0.40, 1.00, 12, 5, non_call=12, memoire=True, sri=5,
    enveloppes=(AV, CTO, PER),
-   mecanisme="Structure très défensive : coupon trimestriel de 1,80 % dès que l’indice est au-dessus de 50 %, avec mémoire. Rappel au pair dès 100 %. Barrière de capital à 40 % seulement, constatée à l’échéance.",
-   sc_fav="Rappel à un an : 7,20 % de gain.",
+   mecanisme="Structure très défensive : coupon trimestriel de 2,125 % dès que le CAC 40 est au-dessus de 50 %, avec mémoire. Rappel au pair dès 100 %. Barrière de capital à 40 % seulement, constatée à l’échéance.",
+   sc_fav="Rappel à un an : 8,50 % de gain.",
    sc_med="Indice à 60 % à l’échéance : coupons intégralement versés, capital remboursé à 100 %.",
    sc_def="Indice à 35 % à l’échéance : perte de 65 % du capital. Une baisse de cette ampleur sur douze ans reste historiquement rare sur un indice large.",
-   attention=["Profil le plus prudent de la gamme de rendement, obtenu en abaissant le coupon à 7,20 %.",
+   attention=["Profil le plus prudent de la gamme de rendement, obtenu en abaissant le coupon à 8,50 %.",
               "Maturité de douze ans : horizon de placement très long à assumer.",
-              "Une barrière à 40 % réduit fortement le risque de perte sans l’annuler, notamment en raison du décrément."],
-   tags=("très défensif", "barrière 40 %", "long terme")),
+              "Une barrière à 40 % sur un indice public réduit fortement le risque de perte, sans l’annuler."],
+   tags=("très défensif", "barrière 40 %", "long terme", "sans décrément")),
 ]
 
 # Indexation croisée famille -> slug (pour les liens)
@@ -1323,15 +1331,148 @@ def unesc(o):
 def build_data_js():
     payload = json.dumps(unesc(PRODUITS), ensure_ascii=False, indent=0, separators=(",", ":"))
     js = ("/* Généré par build-observatoire.py — ne pas modifier à la main. */\n"
-          "/* Gabarits de structures représentatifs du marché, à titre pédagogique. */\n"
+          "/* Gabarits de structures sur sous-jacents de marché, à titre pédagogique. */\n"
+          "window.OBS_EMAIL = " + json.dumps(EMAIL) + ";\n"
           "window.OBS_PRODUITS = " + payload + ";\n")
     write("assets/data.js", js)
+
+def slugify(s):
+    s = html.unescape(s).lower()
+    repl = {"à": "a", "â": "a", "ä": "a", "é": "e", "è": "e", "ê": "e", "ë": "e",
+            "î": "i", "ï": "i", "ô": "o", "ö": "o", "ù": "u", "û": "u", "ü": "u",
+            "ç": "c", "’": " ", "'": " ", "(": " ", ")": " ", "&": " ", ",": " ",
+            ".": " ", "—": " ", "-": " ", "/": " "}
+    for k, v in repl.items():
+        s = s.replace(k, v)
+    s = "".join(c for c in s if c.isalnum() or c == " ")
+    return "-".join(s.split())
+
+def pct(v):
+    if v is None:
+        return "—"
+    return f"{v*100:.2f}".rstrip("0").rstrip(".").replace(".", ",") + " %"
+
+# ==========================================================================
+#  FRAGMENT — schéma de profil de remboursement
+# ==========================================================================
+PAYOFF_SVG = """<svg viewBox="0 0 680 330" role="img" aria-label="Profil de remboursement à l’échéance d’un produit à barrière de capital 60 pour cent">
+  <defs>
+    <linearGradient id="zoneKo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#99402F" stop-opacity=".10"/><stop offset="100%" stop-color="#99402F" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="zoneOk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2F6B4E" stop-opacity=".10"/><stop offset="100%" stop-color="#2F6B4E" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Repère : y=260 -> 0 %, y=87,5 -> 100 % (1 % = 1,725 px) ; x=60 -> 0 %, x=620 -> 140 % (1 % = 4 px) -->
+  <rect x="60" y="60" width="240" height="200" fill="url(#zoneKo)"/>
+  <rect x="300" y="60" width="320" height="200" fill="url(#zoneOk)"/>
+  <g stroke="#E4E1DA" stroke-width="1">
+    <line x1="60" y1="87.5" x2="620" y2="87.5"/>
+    <line x1="60" y1="130.6" x2="620" y2="130.6"/>
+    <line x1="60" y1="173.8" x2="620" y2="173.8"/>
+    <line x1="60" y1="216.9" x2="620" y2="216.9"/>
+  </g>
+  <line x1="60" y1="260" x2="620" y2="260" stroke="#14171B" stroke-width="1.2"/>
+  <line x1="60" y1="60" x2="60" y2="260" stroke="#14171B" stroke-width="1.2"/>
+  <line x1="300" y1="60" x2="300" y2="260" stroke="#A9853F" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="140" y="76" font-family="Jost, sans-serif" font-size="12" fill="#A9853F">Barrière de capital — 60 %</text>
+  <path d="M 60 260 L 300 156.5" fill="none" stroke="#99402F" stroke-width="2.6"/>
+  <path d="M 300 87.5 L 620 87.5" fill="none" stroke="#2F6B4E" stroke-width="2.6"/>
+  <circle cx="300" cy="156.5" r="4" fill="#fff" stroke="#99402F" stroke-width="2.2"/>
+  <circle cx="300" cy="87.5" r="4" fill="#2F6B4E"/>
+  <line x1="300" y1="156.5" x2="300" y2="87.5" stroke="#14171B" stroke-width="1.1"/>
+  <path d="M 296 92 L 300 87.5 L 304 92" fill="none" stroke="#14171B" stroke-width="1.1"/>
+  <path d="M 296 152 L 300 156.5 L 304 152" fill="none" stroke="#14171B" stroke-width="1.1"/>
+  <text x="312" y="126" font-family="Jost, sans-serif" font-size="12" fill="#14171B">Effet de seuil : 40 points de nominal</text>
+  <text x="330" y="78" font-family="Jost, sans-serif" font-size="11.5" fill="#2F6B4E">Remboursement plafonné à 100 %</text>
+  <g font-family="Jost, sans-serif" font-size="11.5" fill="#6B7078" text-anchor="end">
+    <text x="52" y="91.5">100 %</text><text x="52" y="134.6">75 %</text>
+    <text x="52" y="177.8">50 %</text><text x="52" y="220.9">25 %</text><text x="52" y="264">0 %</text>
+  </g>
+  <g font-family="Jost, sans-serif" font-size="11.5" fill="#6B7078" text-anchor="middle">
+    <text x="60" y="279">0 %</text><text x="300" y="279">60 %</text>
+    <text x="460" y="279">100 %</text><text x="620" y="279">140 %</text>
+  </g>
+  <text x="340" y="303" font-family="Jost, sans-serif" font-size="12" fill="#14171B" text-anchor="middle">Niveau du sous-jacent à l’échéance</text>
+  <text x="16" y="160" font-family="Jost, sans-serif" font-size="12" fill="#14171B" text-anchor="middle" transform="rotate(-90 16 160)">Capital remboursé</text>
+</svg>"""
+
+# ==========================================================================
+#  FRAGMENT — zone de dépôt « faire analyser un produit »
+# ==========================================================================
+def bloc_analyse():
+    return """
+<section class="section section--navy" id="analyse" style="scroll-margin-top:90px">
+  <div class="container container--mid">
+    <p class="eyebrow eyebrow--light">Avis sur votre produit</p>
+    <h2 class="title-lg">Déposez la documentation,<br>nous vous disons ce que nous en pensons</h2>
+    <p style="max-width:660px;margin-top:18px">
+      Vous avez reçu une proposition et vous voulez un second regard&nbsp;? Déposez le document
+      d’informations clés (DIC) ou la brochure. Nous en reprenons le sous-jacent, les barrières
+      et leur mode de constatation, nous vérifions la signature de l’émetteur, nous comparons
+      aux offres du moment à risque équivalent — et nous vous répondons sous deux jours ouvrés.
+    </p>
+
+    <form class="dz-form" id="dz-form" novalidate>
+      <div class="dz" id="dz" tabindex="0" role="button"
+           aria-label="Déposer un document : glissez un fichier ici ou appuyez sur Entrée pour parcourir vos fichiers">
+        <input type="file" id="dz-input" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" multiple hidden>
+        <svg class="dz__i" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 32V12m0 0l-8 8m8-8l8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 30v4a4 4 0 004 4h24a4 4 0 004-4v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <p class="dz__t">Glissez le DIC ou la brochure ici</p>
+        <p class="dz__s">ou <span class="dz__link">parcourez vos fichiers</span> — PDF, PNG ou JPEG, 10 Mo maximum, 3 fichiers au plus</p>
+      </div>
+      <ul class="dz-files" id="dz-files" aria-live="polite"></ul>
+
+      <div class="dz-grid">
+        <div class="field"><label for="dz-prenom">Prénom *</label>
+          <input type="text" id="dz-prenom" name="prenom" autocomplete="given-name" required></div>
+        <div class="field"><label for="dz-nom">Nom *</label>
+          <input type="text" id="dz-nom" name="nom" autocomplete="family-name" required></div>
+        <div class="field"><label for="dz-email">Email *</label>
+          <input type="email" id="dz-email" name="email" autocomplete="email" required></div>
+        <div class="field"><label for="dz-tel">Téléphone</label>
+          <input type="text" id="dz-tel" name="telephone" autocomplete="tel"></div>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label for="dz-msg">Votre question</label>
+        <textarea id="dz-msg" name="message" rows="3"
+          placeholder="Montant envisagé, enveloppe (assurance-vie, compte-titres…), ce qui vous fait hésiter."></textarea>
+      </div>
+      <div class="dz-hp" aria-hidden="true">
+        <label for="dz-company">Société</label>
+        <input type="text" id="dz-company" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="dz-foot">
+        <button class="btn btn--gold" type="submit" id="dz-send">Demander une analyse</button>
+        <p class="dz-status" id="dz-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <p class="dz-note">
+        <strong>Vos fichiers ne quittent pas votre ordinateur à cette étape.</strong> Ce
+        formulaire nous transmet votre demande et la liste des documents ; un brouillon
+        d’email s’ouvre ensuite pour que vous y joigniez les fichiers — un lien de messagerie
+        ne pouvant pas attacher de pièce automatiquement. Si votre messagerie ne s’ouvre pas,
+        écrivez-nous directement à
+        <a href="mailto:""" + EMAIL + """">""" + EMAIL + """</a>.
+      </p>
+      <p class="dz-note xsmall">
+        Cette analyse est une lecture documentaire à visée pédagogique. Elle ne constitue pas
+        un conseil en investissement personnalisé, lequel suppose un examen préalable de votre
+        situation, de vos objectifs et de vos connaissances.
+      </p>
+    </form>
+  </div>
+</section>"""
 
 # ==========================================================================
 #  PAGE — ACCUEIL
 # ==========================================================================
 def page_index():
-    # Sélection mise en avant : les mieux notés, un par famille
     best, seen = [], set()
     for p in sorted(PRODUITS, key=lambda x: -x["note"]):
         if p["famille"] in seen:
@@ -1341,55 +1482,47 @@ def page_index():
         if len(best) == 5:
             break
 
-    rows = []
-    for p in best:
-        cpn = "—" if p["coupon"] is None else f'{p["coupon"]*100:.2f}'.rstrip("0").rstrip(".").replace(".", ",") + " %"
-        bk = "Protégé" if p["b_capital"] is None else f'{round(p["b_capital"]*100)} %'
-        rows.append(f"""        <tr>
+    rows = "\n".join(f"""        <tr>
           <td><div class="t-name">{p["nom"]}</div><div class="t-sub">{p["emetteur"]}</div></td>
-          <td><a class="tag tag--gold" href="familles.html#{FAM_SLUG[p["famille"]]}">{p["famille"]}</a></td>
-          <td class="num-cell"><span class="coupon">{cpn}</span></td>
-          <td class="num-cell">{bk}</td>
+          <td><a class="tag tag--gold" href="comprendre.html#{FAM_SLUG[p["famille"]]}">{p["famille"]}</a></td>
+          <td class="num-cell"><span class="coupon">{pct(p["coupon"])}</span></td>
+          <td class="num-cell">{"Protégé" if p["b_capital"] is None else f'{round(p["b_capital"]*100)} %'}</td>
           <td class="num-cell">{p["maturite"]} ans</td>
-        </tr>""")
-    rows_html = "\n".join(rows)
+        </tr>""" for p in best)
 
-    fam_cards = []
-    for f in FAMILLES[:6]:
-        fam_cards.append(f"""      <a class="card linkcard rv" href="familles.html#{f["slug"]}">
+    fam_html = "\n".join(f"""      <a class="card linkcard rv" href="comprendre.html#{f["slug"]}">
         <p class="card__k">{f["profil"]}</p>
         <h3 class="card__t">{f["nom"]}</h3>
         <p class="small muted">{f["resume"]}</p>
         <span class="card__more">Lire la fiche</span>
-      </a>""")
-    fam_html = "\n".join(fam_cards)
+      </a>""" for f in FAMILLES if not f.get("exclu"))
 
-    emet_rows = []
-    for em in EMETTEURS[:8]:
-        emet_rows.append(f"""        <tr>
-          <td><strong>{em["nom"]}</strong><div class="t-sub">{em["pays"]} · {em["zone"]}</div></td>
+    emet_html = "\n".join(f"""        <tr>
+          <td><strong>{em["nom"]}</strong><div class="t-sub">{em["pays"]}</div></td>
           <td class="num-cell">{em["sp"]}</td>
           <td class="num-cell">{em["moodys"]}</td>
           <td class="num-cell">{em["fitch"]}</td>
-        </tr>""")
-    emet_html = "\n".join(emet_rows)
+        </tr>""" for em in EMETTEURS[:8])
+
+    cp = [p["coupon"] for p in PRODUITS if p["coupon"]]
+    cmax = f'{max(cp)*100:.1f}'.replace(".", ",")
 
     body = f"""
 {hero(
-  "Le marché des produits structurés, mis à plat.",
-  "Familles de structures, émetteurs, établissements de place et vocabulaire : "
-  "l’ensemble de ce qu’il faut comprendre avant de souscrire, réuni et expliqué "
-  "sans raccourci commercial.",
+  "Les produits structurés,<br>sans indice décrément.",
+  "Un répertoire du marché français qui ne retient que des sous-jacents publics — CAC 40, "
+  "EURO STOXX 50, S&amp;P 500 — dont vous pouvez suivre la cotation chaque jour. Structures, "
+  "émetteurs, établissements et vocabulaire, expliqués sans raccourci commercial.",
   actions='<a class="btn btn--gold" href="produits.html">Ouvrir le comparateur</a>'
-          '<a class="btn btn--ghost-light" href="comprendre.html">Comprendre en 10 minutes</a>',
+          '<a class="btn btn--ghost-light" href="produits.html#analyse">Faire analyser mon produit</a>',
   page=False)}
 
 <section>
   <div class="container">
     <div class="stats">
-      <div class="stat"><div class="stat__n">{len(FAMILLES)}</div><div class="stat__l">Familles décryptées</div></div>
-      <div class="stat"><div class="stat__n">{len(EMETTEURS)}</div><div class="stat__l">Émetteurs analysés</div></div>
-      <div class="stat"><div class="stat__n">{len(ETABLISSEMENTS)}</div><div class="stat__l">Établissements de place</div></div>
+      <div class="stat"><div class="stat__n">{len(PRODUITS)}</div><div class="stat__l">Structures référencées</div></div>
+      <div class="stat"><div class="stat__n">{cmax}&nbsp;<em>%</em></div><div class="stat__l">Coupon le plus élevé</div></div>
+      <div class="stat"><div class="stat__n">0</div><div class="stat__l">Indice décrément</div></div>
       <div class="stat"><div class="stat__n">{len(GLOSSAIRE)}</div><div class="stat__l">Définitions au glossaire</div></div>
     </div>
   </div>
@@ -1400,16 +1533,18 @@ def page_index():
     <div class="grid grid--2">
       <div class="cell">
         <p class="eyebrow">Notre parti pris</p>
-        <h2 class="title-lg">Un produit structuré n’est ni un placement miracle,<br>ni un piège.</h2>
+        <h2 class="title-lg">Un sous-jacent que vous pouvez<br>suivre dans le journal.</h2>
       </div>
       <div class="cell cell--ivory">
-        <p class="lede">C’est un contrat. Un titre de créance émis par une banque, dont le
-        remboursement est calculé selon une formule connue d’avance. Tout le sujet tient dans
-        la lecture de cette formule : ce qu’elle promet, ce qu’elle plafonne, et ce qu’elle
-        fait porter à l’investisseur.</p>
-        <p>Un coupon de 12 % n’est pas une bonne nouvelle en soi : c’est le prix d’un risque
-        que quelqu’un a accepté de prendre. Comprendre lequel, et décider si l’on veut le
-        porter, voilà la seule question qui vaille. Cet observatoire existe pour y répondre.</p>
+        <p class="lede">La majorité des produits distribués en France repose sur un indice
+        décrément : un indice fabriqué par l’émetteur, dont on retranche un dividende
+        forfaitaire chaque année. Il permet d’afficher de beaux coupons. Il rend aussi le
+        sous-jacent impossible à suivre pour celui qui l’achète.</p>
+        <p>Nous avons fait le choix inverse. Toutes les structures de ce comparateur reposent
+        sur des indices publics ou sur des actions cotées. Le coupon y est financé par les
+        dividendes que vous ne percevez pas — un mécanisme simple, vérifiable, et qui permet
+        malgré tout d’atteindre {cmax} % par an sur les profils les plus exposés.</p>
+        <p style="margin-bottom:0"><a class="card__more" href="comprendre.html#indice-decrement">Pourquoi nous écartons le décrément</a></p>
       </div>
     </div>
   </div>
@@ -1427,7 +1562,7 @@ def page_index():
         <p class="small">Le sous-jacent ne vous appartient pas. Vous prêtez à une banque. Si
         elle fait défaut, la formule ne vous protège de rien. Première question : quelle est
         la notation de l’émetteur, et qui est son garant ?</p>
-        <a class="card__more" href="emetteurs.html">Les émetteurs du marché</a>
+        <a class="card__more" href="acteurs.html#emetteurs">Les émetteurs du marché</a>
       </div>
       <div class="card rv">
         <div class="num">2</div>
@@ -1435,15 +1570,15 @@ def page_index():
         <p class="small">Leur niveau compte, leur mode de constatation davantage encore. Une
         barrière à 65 % constatée tous les jours pendant huit ans n’a rien à voir avec la même
         barrière constatée un seul jour, à l’échéance.</p>
-        <a class="card__more" href="glossaire.html#barriere-americaine">Européenne ou américaine</a>
+        <a class="card__more" href="comprendre.html#barriere-americaine">Européenne ou américaine</a>
       </div>
       <div class="card rv">
         <div class="num">3</div>
         <h3 class="card__t">Comment le coupon est financé</h3>
-        <p class="small">Un coupon se paie toujours : par un plafond de gain, par un indice
-        décrément qui prélève les dividendes, ou par un mécanisme Worst-of. Identifier la
-        source, c’est comprendre le produit.</p>
-        <a class="card__more" href="glossaire.html#indice-decrement">L’indice décrément</a>
+        <p class="small">Un coupon se paie toujours : par un plafond de gain, par les
+        dividendes auxquels vous renoncez, par un décrément contractuel ou par un mécanisme
+        Worst-of. Identifier la source, c’est comprendre le produit.</p>
+        <a class="card__more" href="comprendre.html#fabrication">D’où vient le coupon</a>
       </div>
     </div>
   </div>
@@ -1453,14 +1588,14 @@ def page_index():
   <div class="container">
     <p class="eyebrow">Le comparateur</p>
     <h2 class="title-lg">Les structures de référence du marché</h2>
-    <p class="lede" style="max-width:640px;margin-top:18px">Vingt-quatre gabarits représentatifs,
-    filtrables par famille, émetteur, sous-jacent, barrière et maturité, avec le détail des
-    mécanismes et des scénarios pour chacun.</p>
+    <p class="lede" style="max-width:640px;margin-top:18px">{len(PRODUITS)} gabarits sur
+    sous-jacents publics, filtrables par famille, émetteur, sous-jacent, barrière et maturité,
+    avec le détail des mécanismes et des scénarios pour chacun.</p>
     <div class="tablewrap" style="border-top:1px solid var(--line);margin-top:30px">
       <table class="tbl" style="min-width:720px">
         <thead><tr><th>Structure</th><th>Famille</th><th>Coupon annuel</th><th>Barrière capital</th><th>Maturité</th></tr></thead>
         <tbody>
-{rows_html}
+{rows}
         </tbody>
       </table>
     </div>
@@ -1471,12 +1606,12 @@ def page_index():
 <section class="section">
   <div class="container">
     <p class="eyebrow">Familles de produits</p>
-    <h2 class="title-lg">Douze structures, douze profils de risque</h2>
+    <h2 class="title-lg">Onze structures, onze profils de risque</h2>
     <hr class="rule">
     <div class="cards" style="margin-top:34px">
 {fam_html}
     </div>
-    <div style="margin-top:30px"><a class="btn" href="familles.html">Les douze familles</a></div>
+    <div style="margin-top:30px"><a class="btn" href="comprendre.html#familles">Toutes les familles</a></div>
   </div>
 </section>
 
@@ -1484,12 +1619,12 @@ def page_index():
   <div class="container">
     <div class="grid grid--2">
       <div class="cell">
-        <p class="eyebrow">Émetteurs</p>
+        <p class="eyebrow">Les acteurs</p>
         <h2 class="title-md">La signature avant la formule</h2>
-        <p class="small" style="margin-top:16px">Vingt-deux émetteurs actifs sur le marché
-        français et européen, avec leur notation de crédit, leur profil de gamme et les points
-        de vigilance propres à chacun.</p>
-        <a class="card__more" href="emetteurs.html">Voir les fiches émetteurs</a>
+        <p class="small" style="margin-top:16px">{len(EMETTEURS)} émetteurs et
+        {len(ETABLISSEMENTS)} établissements de place : notations de crédit, profil de gamme,
+        rôle de chacun dans la chaîne — et à quel niveau se joue la qualité du conseil.</p>
+        <a class="card__more" href="acteurs.html">Voir les acteurs du marché</a>
       </div>
       <div class="cell" style="padding:0">
         <div class="tablewrap" style="border:0">
@@ -1503,47 +1638,21 @@ def page_index():
       </div>
     </div>
     <p class="xsmall muted" style="margin-top:14px">Notations de dette senior long terme, à
-    titre indicatif, telles que relevées en {ANNEE_RATINGS}. Elles évoluent : à revérifier auprès des agences.</p>
+    titre indicatif, telles que relevées en {ANNEE_RATINGS}. Elles évoluent : à revérifier
+    auprès des agences.</p>
   </div>
 </section>
-
-<section class="section">
-  <div class="container">
-    <div class="grid grid--3">
-      <a class="cell linkcard" href="glossaire.html">
-        <p class="card__k">Glossaire</p>
-        <h3 class="card__t">{len(GLOSSAIRE)} définitions, sans jargon</h3>
-        <p class="small muted">Autocall, décrément, Worst-of, airbag, bail-in, SRI, pull-to-par :
-        tout le vocabulaire, expliqué avec les exemples chiffrés qui le rendent concret.</p>
-        <span class="card__more">Ouvrir le glossaire</span>
-      </a>
-      <a class="cell linkcard" href="etablissements.html">
-        <p class="card__k">Établissements</p>
-        <h3 class="card__t">Qui fait quoi dans la chaîne</h3>
-        <p class="small muted">Structureurs, plateformes, assureurs, distributeurs et régulateur :
-        comprendre le rôle de chaque intervenant, et à quel niveau se joue la qualité du conseil.</p>
-        <span class="card__more">Voir l’annuaire</span>
-      </a>
-      <a class="cell linkcard" href="methodologie.html">
-        <p class="card__k">Méthodologie</p>
-        <h3 class="card__t">Comment nous jugeons un produit</h3>
-        <p class="small muted">Les six critères de notre grille d’analyse, ce que nous écartons
-        systématiquement, et les limites que nous assumons dans cet exercice.</p>
-        <span class="card__more">Lire la méthodologie</span>
-      </a>
-    </div>
-  </div>
-</section>
+{bloc_analyse()}
 
 <section class="section section--tight">
   <div class="container">
     <div class="notice">
       <span class="notice__i" aria-hidden="true">!</span>
       <div>
-        <p><strong>Nature des informations publiées.</strong> Cet observatoire est un outil
-        pédagogique. Les structures présentées dans le comparateur sont des gabarits de
-        référence destinés à illustrer les mécanismes du marché : ce ne sont pas des souches
-        réelles en cours de commercialisation, et aucun code ISIN n’est publié.</p>
+        <p><strong>Nature des informations publiées.</strong> Ce site est un outil pédagogique.
+        Les structures présentées dans le comparateur sont des gabarits de référence destinés à
+        illustrer les mécanismes du marché : ce ne sont pas des souches réelles en cours de
+        commercialisation, et aucun code ISIN n’est publié.</p>
         <p>Les conditions définitives d’une émission ne sont connues qu’à sa date de strike et
         figurent dans le document d’informations clés et le prospectus de l’émetteur, seuls
         documents faisant foi. Aucun élément de ce site ne constitue un conseil en
@@ -1555,42 +1664,33 @@ def page_index():
 """
     write("index.html", layout("index.html",
         f"{SITE} — {TAGLINE}",
-        "Comparateur de produits structurés, fiches émetteurs, annuaire des établissements de "
-        "place et glossaire de 73 définitions. Un observatoire pédagogique et indépendant du "
-        "marché français des produits structurés.",
+        "Comparateur de produits structurés sur indices publics, sans indice décrément : "
+        "fiches familles, émetteurs, établissements de place et glossaire. Déposez votre "
+        "document d'informations clés pour un avis.",
         body))
 
 # ==========================================================================
 #  PAGE — COMPARATEUR
 # ==========================================================================
 def page_produits():
-    th = [
-        ("", "", False),
-        ("Structure", "nom", True),
-        ("Émetteur", "emetteur", True),
-        ("Coupon annuel", "coupon", True),
-        ("Barr. coupon", "b_coupon", True),
-        ("Barr. capital", "b_capital", True),
-        ("Maturité", "maturite", True),
-        ("Devise", "devise", True),
-        ("Note", "note", True),
-    ]
-    head = []
-    for label, key, sortable in th:
-        if not label:
-            head.append('<th aria-hidden="true"></th>')
-        elif sortable:
-            head.append(f'<th class="sortable" data-k="{key}" scope="col" title="Trier par {label.lower()}">{label}<span class="arrow">⇅</span></th>')
-        else:
-            head.append(f'<th scope="col">{label}</th>')
-    head_html = "\n            ".join(head)
+    th = [("", "", False), ("Structure", "nom", True), ("Émetteur", "emetteur", True),
+          ("Coupon annuel", "coupon", True), ("Barr. coupon", "b_coupon", True),
+          ("Barr. capital", "b_capital", True), ("Maturité", "maturite", True),
+          ("Devise", "devise", True), ("Note", "note", True)]
+    head_html = "\n            ".join(
+        '<th aria-hidden="true"></th>' if not label else
+        (f'<th class="sortable" data-k="{key}" scope="col" title="Trier par {label.lower()}">{label}<span class="arrow">⇅</span></th>'
+         if sortable else f'<th scope="col">{label}</th>')
+        for label, key, sortable in th)
 
     body = f"""
-{hero("Le comparateur", 
-  "Vingt-quatre gabarits de structures représentatifs du marché français, filtrables et "
-  "triables selon les paramètres qui déterminent réellement le profil de risque. "
-  "Cliquez sur une ligne pour en déplier le mécanisme, les scénarios et les points de vigilance.",
-  crumb="Le comparateur")}
+{hero("Le comparateur",
+  f"{len(PRODUITS)} gabarits de structures sur sous-jacents publics — aucun indice "
+  "décrément. Filtrables et triables selon les paramètres qui déterminent réellement le "
+  "profil de risque. Cliquez sur une ligne pour en déplier le mécanisme, les scénarios et "
+  "les points de vigilance.",
+  crumb="Le comparateur",
+  actions='<a class="btn btn--ghost-light" href="#analyse">Faire analyser mon produit</a>')}
 
 <section class="section section--tight">
   <div class="container">
@@ -1602,9 +1702,11 @@ def page_produits():
         qu’elle se traite couramment sur le marché, avec un niveau de coupon cohérent avec les
         conditions observées en {MAJ}. Aucun code ISIN n’est publié : les conditions
         définitives d’une émission ne sont arrêtées qu’à sa date de strike.</p>
-        <p>Les niveaux de coupon évoluent en permanence avec les taux et la volatilité.
-        Pour connaître les offres réellement ouvertes à un instant donné,
-        <a class="card__more" href="../contact.html" style="border:0;padding:0">consultez-nous</a>.</p>
+        <p>Les niveaux de coupon évoluent en permanence avec les taux et la volatilité. Pour
+        connaître les offres réellement ouvertes à un instant donné,
+        <a class="card__more" href="../contact.html" style="border:0;padding:0">consultez-nous</a>
+        — ou <a class="card__more" href="#analyse" style="border:0;padding:0">déposez la
+        documentation d’un produit</a> qu’on vous a proposé.</p>
       </div>
     </div>
 
@@ -1612,7 +1714,7 @@ def page_produits():
       <div class="filters__row">
         <div class="field" style="grid-column:span 2">
           <label for="f-q">Recherche libre</label>
-          <input type="search" id="f-q" placeholder="Phoenix, worst-of, décrément, dollar…" autocomplete="off">
+          <input type="search" id="f-q" placeholder="Phoenix, worst-of, CAC 40, dollar…" autocomplete="off">
         </div>
         <div class="field"><label for="f-fam">Famille</label><select id="f-fam"></select></div>
         <div class="field"><label for="f-emet">Émetteur</label><select id="f-emet"></select></div>
@@ -1622,10 +1724,10 @@ def page_produits():
         <div class="field"><label for="f-cpn">Coupon minimum</label>
           <select id="f-cpn">
             <option value="">Indifférent</option>
-            <option value="0.06">6 % et plus</option>
             <option value="0.08">8 % et plus</option>
             <option value="0.10">10 % et plus</option>
             <option value="0.12">12 % et plus</option>
+            <option value="0.14">14 % et plus</option>
           </select></div>
         <div class="field"><label for="f-cap">Barrière de capital</label>
           <select id="f-cap">
@@ -1676,7 +1778,7 @@ def page_produits():
         <h3 class="card__t" style="font-size:1.1rem">Le coupon n’est pas un rendement</h3>
         <p class="small muted">C’est un maximum conditionnel. Le rendement réellement perçu
         dépend du nombre de constatations réussies et de la date de rappel. Deux produits à
-        9 % n’ont pas la même espérance de gain si leurs barrières diffèrent.</p>
+        11 % n’ont pas la même espérance de gain si leurs barrières diffèrent.</p>
       </div>
       <div class="cell">
         <h3 class="card__t" style="font-size:1.1rem">La maturité est un plafond</h3>
@@ -1693,98 +1795,461 @@ def page_produits():
     </div>
   </div>
 </section>
+{bloc_analyse()}
 """
     write("produits.html", layout("produits.html", "Comparateur de produits structurés",
-        "Comparez 24 gabarits de structures du marché français : coupon, barrière de coupon, "
-        "barrière de capital, maturité, émetteur et scénarios détaillés.",
+        f"Comparez {len(PRODUITS)} gabarits de structures sur indices publics, sans décrément : "
+        "coupon, barrière de coupon, barrière de capital, maturité, émetteur et scénarios.",
         body))
 
 # ==========================================================================
-#  PAGE — FAMILLES
+#  PAGE — COMPRENDRE (guide + familles + glossaire, en onglets)
 # ==========================================================================
-def page_familles():
-    sections = []
-    toc = []
-    for i, f in enumerate(FAMILLES, 1):
-        toc.append(f'<li><a href="#{f["slug"]}">{f["nom"]}</a></li>')
-        mec = "\n        ".join(f"<p>{m}</p>" for m in f["mecanisme"])
-        plus = "\n          ".join(f"<li>{x}</li>" for x in f["plus"])
-        moins = "\n          ".join(f"<li>{x}</li>" for x in f["moins"])
-        bg = ' section--ivory' if i % 2 == 0 else ''
-        sections.append(f"""
-<section class="section{bg}" id="{f["slug"]}" style="scroll-margin-top:100px">
-  <div class="container">
-    <div class="grid grid--2">
-      <div class="cell">
-        <p class="eyebrow">{f["profil"]}</p>
-        <h2 class="title-md">{f["nom"]}</h2>
-        <hr class="rule">
-        <p class="lede">{f["resume"]}</p>
-        <p class="small muted" style="margin-bottom:0"><strong>Pour qui ?</strong> {f["pour"]}</p>
-        <p style="margin-top:22px;margin-bottom:0">
-          <a class="btn btn--sm" href="produits.html?{urllib.parse.urlencode(dict([f.get("filtre") or ("famille", html.unescape(f["nom"]))]))}">{"Voir les structures concernées" if f.get("filtre") else "Voir les structures de cette famille"}</a>
-        </p>
+def onglets(items, actif=0):
+    """items = [(id, libellé), ...] — barre d'onglets commune."""
+    btns = "\n      ".join(
+        f'<button class="tabs__b{" is-active" if i == actif else ""}" type="button" '
+        f'role="tab" id="tab-{tid}" aria-controls="{tid}" '
+        f'aria-selected="{"true" if i == actif else "false"}" data-tab="{tid}">{lbl}</button>'
+        for i, (tid, lbl) in enumerate(items))
+    return f'<div class="tabs" role="tablist" aria-label="Sections">\n      {btns}\n    </div>'
+
+def volet_guide():
+    fam_rows = "\n".join(
+        f'<tr><td><a class="inline" href="#{f["slug"]}" data-goto="familles">{f["nom"]}</a></td>'
+        f'<td>{f["profil"]}</td><td>{f["resume"][:120]}…</td></tr>'
+        for f in FAMILLES)
+    return f"""
+    <div class="prose">
+      <div class="toc">
+        <p class="toc__t">Au sommaire</p>
+        <ol>
+          <li><a href="#definition">Ce qu’est un produit structuré — et ce qu’il n’est pas</a></li>
+          <li><a href="#fabrication">D’où vient le coupon</a></li>
+          <li><a href="#decrement-ou-pas">Indice public ou indice décrément</a></li>
+          <li><a href="#tableau-familles">Les familles, en un tableau</a></li>
+          <li><a href="#barrieres">Les barrières, le cœur du sujet</a></li>
+          <li><a href="#risques">Les six risques réellement portés</a></li>
+          <li><a href="#fiscalite">Enveloppes et fiscalité</a></li>
+          <li><a href="#sortie">Sortir avant l’échéance</a></li>
+          <li><a href="#questions">Les dix questions à poser</a></li>
+          <li><a href="#erreurs">Les erreurs les plus fréquentes</a></li>
+        </ol>
       </div>
-      <div class="cell cell--ivory">
-        <h3 class="card__t" style="font-size:1.08rem">Mécanisme</h3>
-        {mec}
-        <div class="grid grid--2" style="margin-top:24px;border:0;gap:1px">
-          <div class="cell" style="padding:20px">
-            <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
-            <ul class="small" style="padding-left:18px;margin:0">
-          {plus}
-            </ul>
-          </div>
-          <div class="cell" style="padding:20px">
-            <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
-            <ul class="small" style="padding-left:18px;margin:0">
-          {moins}
-            </ul>
+
+      <h2 id="definition">1. Ce qu’est un produit structuré — et ce qu’il n’est pas</h2>
+      <p>Un produit structuré est un <strong>titre de créance émis par une banque</strong>,
+      dont le remboursement et la rémunération sont calculés selon une formule fixée à
+      l’avance et référencée à un actif financier : un indice, une action, un panier, un taux.</p>
+      <p>Cette définition juridique a trois conséquences immédiates, qui échappent souvent à
+      l’investisseur.</p>
+      <ul>
+        <li><strong>Vous ne détenez pas le sous-jacent.</strong> Ni les actions, ni l’indice.
+        Vous ne percevez donc aucun dividende et ne disposez d’aucun droit de vote.</li>
+        <li><strong>Vous êtes créancier d’une banque.</strong> Si elle fait défaut, la formule
+        ne vous protège de rien, quelle que soit la performance du sous-jacent.</li>
+        <li><strong>Ce n’est pas un fonds.</strong> Il n’y a ni gérant, ni arbitrage, ni
+        décision discrétionnaire en cours de vie. La formule s’applique mécaniquement.</li>
+      </ul>
+      <blockquote><p>Un produit structuré ne gère rien. Il exécute un contrat. Toute la
+      question est de savoir si ce contrat vous est favorable.</p></blockquote>
+
+      <h2 id="fabrication">2. D’où vient le coupon</h2>
+      <p>Un coupon de 11 % par an dans un monde où le taux sans risque est à 2 % ne tombe pas
+      du ciel. Il est financé, et il est utile de savoir par quoi. Schématiquement, l’émetteur
+      décompose votre nominal en deux poches.</p>
+      <p>La première est une <strong>composante obligataire</strong> : en plaçant une partie
+      de votre argent à son propre taux de financement, l’émetteur sait reconstituer une
+      fraction du capital à l’échéance. La seconde est un <strong>budget d’options</strong> :
+      avec le reliquat, il achète et vend des options sur le sous-jacent. C’est cette seconde
+      poche qui fabrique le profil de gain.</p>
+      <p>Trois leviers permettent d’augmenter le coupon — et chacun a un coût pour vous :</p>
+      <ul>
+        <li><strong>Vendre de la volatilité.</strong> Plus le sous-jacent est agité, plus les
+        options vendues rapportent. Un coupon élevé signale donc un sous-jacent risqué, pas une
+        bonne affaire.</li>
+        <li><strong>Renoncer aux dividendes.</strong> Les grands indices sont publiés
+        dividendes non réinvestis : le CAC 40 que vous lisez dans la presse ne les intègre pas.
+        Ces dividendes abandonnés financent l’essentiel de votre coupon.</li>
+        <li><strong>Plafonner le gain.</strong> En abandonnant les scénarios très haussiers,
+        vous achetez votre protection à la baisse.</li>
+      </ul>
+      <p>À ces trois leviers s’ajoutent les mécanismes défavorables : un
+      <a class="inline" href="#worst-of" data-goto="glossaire">Worst-of</a> sur plusieurs
+      actions, une <a class="inline" href="#barriere-americaine" data-goto="glossaire">barrière
+      américaine</a>, un indice décrément, une devise étrangère non couverte. Lorsqu’un coupon
+      dépasse nettement ceux du marché, l’un de ces mécanismes est presque toujours présent.
+      Le trouver, c’est comprendre le produit.</p>
+
+      <h2 id="decrement-ou-pas">3. Indice public ou indice décrément</h2>
+      <p>C’est aujourd’hui la ligne de partage la plus importante du marché français, et la
+      moins expliquée.</p>
+      <p>Un <strong>indice public</strong> — CAC 40, EURO STOXX 50, S&amp;P 500 — est calculé
+      par un fournisseur indépendant, coté en continu, consultable par n’importe qui. Un
+      <strong>indice décrément</strong> est construit pour la structuration : il réinvestit les
+      dividendes réels du panier, puis en retranche un prélèvement forfaitaire, soit un
+      pourcentage annuel, soit un nombre fixe de points.</p>
+      <table>
+        <thead><tr><th></th><th>Indice public</th><th>Indice décrément</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Cotation</strong></td><td>Suivie quotidiennement, presse et sites financiers</td><td>Publiée par l’émetteur, peu accessible</td></tr>
+          <tr><td><strong>Historique</strong></td><td>Réel, souvent plusieurs décennies</td><td>Souvent reconstitué par calcul avant la création</td></tr>
+          <tr><td><strong>Dividendes</strong></td><td>Non réinvestis : ils financent le coupon</td><td>Réinvestis puis prélevés au forfait</td></tr>
+          <tr><td><strong>Coupon affiché</strong></td><td>Élevé</td><td>Plus élevé encore</td></tr>
+          <tr><td><strong>Écart à la référence</strong></td><td>Aucun, c’est la référence</td><td>Se creuse chaque année</td></tr>
+        </tbody>
+      </table>
+      <p>Le décrément n’est pas un piège en soi : c’est un mode de financement du coupon,
+      parfaitement documenté. Mais il transfère au souscripteur un sous-jacent qu’il ne peut
+      plus suivre, et dont le prélèvement pèse d’autant plus lourd que le marché baisse —
+      quand il s’agit d’un décrément en points, le prélèvement reste constant en valeur
+      absolue alors que l’indice, lui, a reculé.</p>
+      <p><strong>Nos structures sont toutes sur indice public.</strong> Le coupon y est un peu
+      plus faible à barrières identiques, et nous assumons cet écart :
+      <a class="inline" href="#indice-decrement" data-goto="familles">la fiche détaillée</a>
+      explique le calcul.</p>
+
+      <h2 id="tableau-familles">4. Les familles, en un tableau</h2>
+      <table>
+        <thead><tr><th>Famille</th><th>Profil</th><th>En une ligne</th></tr></thead>
+        <tbody>
+{fam_rows}
+        </tbody>
+      </table>
+      <p>Chaque famille fait l’objet d’une fiche détaillée, avec son mécanisme, ses avantages
+      et ses coûts : <a class="inline" href="#familles" data-goto="familles">voir les fiches</a>.</p>
+
+      <h2 id="barrieres">5. Les barrières, le cœur du sujet</h2>
+      <p>Un produit de rendement comporte généralement deux barrières, qu’il ne faut pas
+      confondre. La <strong>barrière de coupon</strong> commande le revenu : au-dessus, le
+      coupon tombe ; en dessous, il est suspendu (ou mémorisé). La <strong>barrière de
+      capital</strong> commande le remboursement : c’est elle, et elle seule, qui détermine
+      votre risque de perte.</p>
+      <p>Le graphique ci-dessous montre le profil de remboursement à l’échéance d’un Phoenix à
+      barrière 60 %. Il résume à lui seul la nature du pari.</p>
+      <figure class="payoff">
+        {PAYOFF_SVG}
+        <figcaption>Profil de remboursement à l’échéance. Au-dessus de la barrière, le capital
+        est remboursé intégralement — mais jamais davantage. En dessous, la perte est immédiate
+        et proportionnelle : deux points d’écart font basculer le remboursement de 100 % à 59 %.</figcaption>
+      </figure>
+      <p>Deux points méritent toute l’attention.</p>
+      <h3>Le mode de constatation</h3>
+      <p>Une barrière dite <strong>européenne</strong> n’est constatée qu’une seule fois, le
+      jour de l’échéance. Le sous-jacent peut passer sous le seuil pendant des années sans
+      aucune conséquence, pourvu qu’il soit remonté ce jour-là. Une barrière
+      <strong>américaine</strong>, elle, est constatée à chaque séance : un seul franchissement,
+      même intrajournalier, suffit à détruire définitivement la protection. À niveau identique,
+      les deux n’ont rien à voir. La quasi-totalité des produits distribués en France retient
+      heureusement le format européen — mais il faut le vérifier.</p>
+      <h3>L’effet de seuil</h3>
+      <p>Juste au-dessus de la barrière, vous récupérez tout. Juste en dessous, vous perdez
+      quarante points. Cette discontinuité est le défaut structurel des barrières sèches. Elle
+      explique aussi pourquoi la valeur de marché d’un produit devient très instable lorsque le
+      sous-jacent rôde autour de son seuil. Les mécanismes
+      <a class="inline" href="#airbag" data-goto="glossaire">airbag</a> ont précisément été
+      conçus pour la supprimer, au prix d’un coupon plus faible.</p>
+
+      <h2 id="risques">6. Les six risques réellement portés</h2>
+      <p>La documentation commerciale insiste sur le risque de marché. Il n’est ni le seul, ni
+      toujours le plus important.</p>
+      <ol>
+        <li><strong>Risque de perte en capital.</strong> Si la barrière est enfoncée à
+        l’échéance, la perte est réelle et peut être lourde. Elle est proportionnelle à la
+        baisse du sous-jacent depuis le niveau initial, sauf mécanisme airbag.</li>
+        <li><strong>Risque de crédit de l’émetteur.</strong> Le plus négligé. En cas de
+        défaillance de la banque, vous êtes un créancier parmi d’autres, soumis au mécanisme
+        européen de renflouement interne. Aucune garantie des dépôts ne s’applique.</li>
+        <li><strong>Risque de rendement nul.</strong> Vous pouvez porter un produit huit ans et
+        n’encaisser aucun coupon, tout en récupérant votre capital. Le capital est préservé,
+        mais huit années de rendement sont perdues : c’est un coût d’opportunité réel.</li>
+        <li><strong>Risque de liquidité.</strong> Il n’existe pas de marché organisé. La sortie
+        anticipée dépend du prix de rachat affiché par l’émetteur, qui n’y est le plus souvent
+        pas contractuellement tenu.</li>
+        <li><strong>Risque de réinvestissement.</strong> Un produit rappelé rapidement vous
+        rend votre capital au moment précis où le marché a monté — donc où les nouveaux coupons
+        offerts sont plus faibles.</li>
+        <li><strong>Risque de change.</strong> Sur un produit libellé en devise étrangère, il
+        peut à lui seul effacer le gain de la formule.</li>
+      </ol>
+      <div class="notice" style="margin:28px 0">
+        <span class="notice__i" aria-hidden="true">!</span>
+        <div><p>Un produit structuré n’est pas un placement sans risque déguisé. C’est un
+        échange explicite : vous renoncez à une partie du potentiel de hausse et vous acceptez
+        un risque de perte au-delà d’un certain seuil, en contrepartie d’un rendement
+        conditionnel supérieur à celui d’un placement sans risque. Si cet échange vous convient,
+        le produit a du sens. Sinon, aucun niveau de coupon ne le justifiera.</p></div>
+      </div>
+
+      <h2 id="fiscalite">7. Enveloppes et fiscalité</h2>
+      <p>Le même produit n’a pas le même rendement net selon l’enveloppe qui l’accueille. C’est
+      un paramètre de décision, pas un détail administratif.</p>
+      <table>
+        <thead><tr><th>Enveloppe</th><th>Traitement des coupons</th><th>À retenir</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Assurance-vie</strong></td>
+              <td>Capitalisation en franchise d’impôt dans le contrat</td>
+              <td>Le cadre le plus utilisé. Les coupons se réinvestissent à plein. Ajouter les frais de gestion annuels du contrat au coût du produit.</td></tr>
+          <tr><td><strong>Contrat de capitalisation</strong></td>
+              <td>Identique à l’assurance-vie</td>
+              <td>La voie usuelle pour une holding ou une trésorerie d’entreprise excédentaire.</td></tr>
+          <tr><td><strong>Compte-titres</strong></td>
+              <td>Imposition à la perception, au prélèvement forfaitaire unique ou au barème</td>
+              <td>Liberté totale de choix de l’émetteur et de la souche, mais fiscalité immédiate sur chaque coupon.</td></tr>
+          <tr><td><strong>PER</strong></td>
+              <td>Capitalisation dans le plan</td>
+              <td>L’horizon long s’accorde aux maturités élevées. Fonds bloqués jusqu’à la retraite, hors cas de déblocage.</td></tr>
+          <tr><td><strong>PEA</strong></td>
+              <td>Exonération après cinq ans</td>
+              <td>Éligibilité très restreinte : la grande majorité des produits structurés n’y est pas admise. À vérifier systématiquement.</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted">Ces éléments décrivent le cadre général applicable aux résidents
+      fiscaux français. Ils ne constituent pas un conseil fiscal : la situation personnelle du
+      souscripteur commande, et la réglementation évolue.</p>
+
+      <h2 id="sortie">8. Sortir avant l’échéance</h2>
+      <p>C’est possible, mais rarement au prix que l’on imagine. La valorisation en cours de vie
+      ne se déduit pas du niveau du sous-jacent par une règle de trois : elle dépend aussi de la
+      volatilité, des taux, du temps restant et de la qualité de crédit de l’émetteur.</p>
+      <p>Un produit dont le sous-jacent est inchangé peut parfaitement valoir 93 % du nominal,
+      pour deux raisons principales : les frais de structuration ont été prélevés dès
+      l’émission, et le temps n’a pas encore fait son œuvre. À l’inverse, en fin de vie, la
+      valeur converge mécaniquement vers le montant de remboursement attendu — c’est
+      l’<a class="inline" href="#effet-de-pull-to-par" data-goto="glossaire">effet de pull-to-par</a>.</p>
+      <p>En pratique : un produit structuré doit être souscrit avec l’intention de le porter
+      jusqu’à son terme. La sortie anticipée est une porte de secours, jamais une stratégie.</p>
+
+      <h2 id="questions">9. Les dix questions à poser</h2>
+      <ol>
+        <li>Quel est l’émetteur exact du titre, et quel est son garant ?</li>
+        <li>Quelles sont ses trois notations, à quelle date, et avec quelles perspectives ?</li>
+        <li>Le sous-jacent est-il un indice public ou un indice décrément ? Si décrément, en points ou en pourcentage, et de combien ?</li>
+        <li>La barrière de capital est-elle constatée à l’échéance seulement, ou en continu ?</li>
+        <li>Y a-t-il un mécanisme Worst-of ? Sur combien de composantes ?</li>
+        <li>Les coupons sont-ils à mémoire ? Existe-t-il une période de non-rappel ?</li>
+        <li>Quel est le coût total : frais intégrés à la formule, plus frais de l’enveloppe ?</li>
+        <li>Quel est le SRI, et que disent les quatre scénarios du document d’informations clés ?</li>
+        <li>Quelle est la devise, et le risque de change est-il couvert ?</li>
+        <li>Quelle part ce produit représente-t-il dans mon patrimoine financier total ?</li>
+      </ol>
+      <p>Si l’on ne retient qu’une règle : <strong>exiger le document d’informations clés avant
+      la brochure commerciale</strong>. Le premier est réglementaire, standardisé et comparable.
+      La seconde n’a aucune valeur contractuelle.</p>
+
+      <h2 id="erreurs">10. Les erreurs les plus fréquentes</h2>
+      <ul>
+        <li><strong>Comparer le coupon de deux produits sans comparer leurs sous-jacents.</strong>
+        Un produit à 10 % sur indice public et un produit à 12 % sur décrément ne sont pas
+        comparables : le second a déjà prélevé la différence.</li>
+        <li><strong>Comparer le coupon sans comparer les barrières.</strong> Un produit à 8,5 %
+        barrière 40 % est souvent préférable à un produit à 11 % barrière 70 %.</li>
+        <li><strong>Prendre la maturité affichée pour la durée réelle.</strong> Sur un autocall,
+        elle est presque toujours plus courte — sans qu’on puisse en être certain.</li>
+        <li><strong>Croire qu’un panier diversifie.</strong> En Worst-of, il concentre le risque
+        au lieu de le disperser.</li>
+        <li><strong>Confondre « capital garanti » et « sans risque ».</strong> La garantie est
+        celle d’une banque, elle ne vaut qu’à l’échéance.</li>
+        <li><strong>Comparer un backtest à une performance.</strong> L’historique d’un indice
+        récent est reconstitué a posteriori : personne ne l’a jamais investi.</li>
+        <li><strong>Concentrer sur un seul émetteur.</strong> Diversifier les signatures compte
+        autant que diversifier les sous-jacents.</li>
+      </ul>
+      <p style="margin-top:34px">
+        <a class="btn" href="produits.html">Voir le comparateur</a>
+        <a class="btn" href="produits.html#analyse" style="margin-left:10px">Faire analyser un produit</a>
+      </p>
+    </div>"""
+
+def volet_familles():
+    cards = []
+    for f in FAMILLES:
+        mec = "\n          ".join(f"<p>{m}</p>" for m in f["mecanisme"])
+        plus = "\n            ".join(f"<li>{x}</li>" for x in f["plus"])
+        moins = "\n            ".join(f"<li>{x}</li>" for x in f["moins"])
+        if f.get("exclu"):
+            cta = ('<span class="tag" style="border-color:var(--neg);color:var(--neg)">'
+                   'Aucune structure de ce type au comparateur</span>')
+        else:
+            q = urllib.parse.urlencode({"famille": html.unescape(f["nom"])})
+            cta = f'<a class="btn btn--sm" href="produits.html?{q}">Voir les structures de cette famille</a>'
+        cards.append(f"""
+      <article class="fam{' fam--exclu' if f.get("exclu") else ''}" id="{f["slug"]}">
+        <div class="fam__l">
+          <p class="eyebrow">{f["profil"]}</p>
+          <h3 class="title-md">{f["nom"]}</h3>
+          <hr class="rule">
+          <p class="lede">{f["resume"]}</p>
+          <p class="small muted"><strong>Pour qui ?</strong> {f["pour"]}</p>
+          <p style="margin:22px 0 0">{cta}</p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          {mec}
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            {plus}
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            {moins}
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
+      </article>""")
+    liens = "".join(f'<a href="#{f["slug"]}">{f["nom"]}</a>' for f in FAMILLES)
+    return f"""
+    <div class="notice notice--grey" style="margin-bottom:26px">
+      <span class="notice__i" aria-hidden="true">i</span>
+      <div><p>Onze familles décrites, et une douzième —
+      <a class="card__more" href="#indice-decrement" style="border:0;padding:0">l’indice
+      décrément</a> — que nous présentons pour la reconnaître et l’écarter. Les niveaux
+      chiffrés cités sont des ordres de grandeur représentatifs des conditions de {MAJ}.</p></div>
     </div>
-  </div>
-</section>""")
+    <nav class="chips" aria-label="Accès direct aux familles">{liens}</nav>
+{"".join(cards)}"""
 
+def volet_glossaire():
+    entries = sorted(GLOSSAIRE, key=lambda g: slugify(g["t"]))
+    groups = {}
+    for g in entries:
+        groups.setdefault(slugify(g["t"])[0].upper(), []).append(g)
+
+    alpha = "".join(f'<a href="#lettre-{ch}">{ch}</a>' if ch in groups
+                    else f'<span aria-hidden="true">{ch}</span>'
+                    for ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+    blocks = []
+    for letter in sorted(groups):
+        items = []
+        for g in groups[letter]:
+            gid = slugify(g["t"])
+            defs = "\n          ".join(f'<p class="gl__d">{d}</p>' for d in g["d"])
+            ex = f'<div class="gl__ex"><b>Exemple</b>{g["ex"]}</div>' if g["ex"] else ""
+            search = html.unescape(f'{g["t"]} {g["alias"]} {g["cat"]} ' + " ".join(g["d"]))
+            items.append(f"""        <div class="gl" id="{gid}" data-cat="{g["cat"]}" data-s="{e(search)}">
+          <h3 class="gl__t">{g["t"]} <span class="gl__cat">{g["cat"]}</span></h3>
+          {defs}
+          {ex}
+        </div>""")
+        blocks.append(f"""      <div class="gl-group" id="lettre-{letter}">
+        <div class="gl-group__l">{letter}</div>
+{"".join(items)}
+      </div>""")
+
+    return f"""
+    <form class="filters" role="search" aria-label="Rechercher dans le glossaire" onsubmit="return false">
+      <div class="filters__row">
+        <div class="field" style="grid-column:span 2">
+          <label for="gl-q">Rechercher un terme</label>
+          <input type="search" id="gl-q" placeholder="décrément, worst-of, bail-in, SRI, airbag…" autocomplete="off">
+        </div>
+        <div class="field"><label for="gl-cat">Catégorie</label>
+          <select id="gl-cat">
+            <option value="">Toutes catégories</option>
+            {"".join(f'<option value="{c}">{html.unescape(c)}</option>' for c in CAT_GLOSSAIRE)}
+          </select></div>
+      </div>
+      <div class="filters__foot">
+        <span class="filters__count" id="gl-count" aria-live="polite"></span>
+        <button class="btn-link" type="button" id="gl-reset">Réinitialiser</button>
+      </div>
+    </form>
+    <nav class="alpha" aria-label="Navigation alphabétique" style="margin-top:28px">{alpha}</nav>
+{"".join(blocks)}
+    <p class="small muted" style="margin-top:34px">Un terme manque ?
+      <a class="card__more" href="../contact.html" style="border:0;padding:0">Signalez-le</a>,
+      le glossaire est enrichi au fil des évolutions du marché.</p>"""
+
+def page_comprendre():
     body = f"""
-{hero("Les familles de produits",
-  "Douze structures couvrent la quasi-totalité de ce qui se distribue en France. Chacune "
-  "répond à un arbitrage précis entre rendement, protection et horizon. Les connaître, "
-  "c’est pouvoir écarter d’emblée celles qui ne correspondent pas à son objectif.",
-  crumb="Familles de produits")}
+{hero("Comprendre",
+  "Le guide, les familles de produits et le glossaire, réunis en un seul endroit. "
+  "De quoi lire une fiche produit sans rien laisser dans l’ombre.",
+  crumb="Comprendre")}
 
 <section class="section section--tight">
   <div class="container container--mid">
-    <div class="toc">
-      <p class="toc__t">Les douze familles</p>
-      <ol style="columns:2;column-gap:40px">
-        {"".join(toc)}
-      </ol>
+    {onglets([("guide", "Le guide"), ("familles", "Les familles"), ("glossaire", f"Glossaire · {len(GLOSSAIRE)}")])}
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container container--mid">
+    <div class="tabs__p is-active" id="guide" role="tabpanel" aria-labelledby="tab-guide">
+{volet_guide()}
     </div>
-    <div class="notice notice--grey">
-      <span class="notice__i" aria-hidden="true">i</span>
-      <div><p>Les niveaux chiffrés cités dans les exemples sont des ordres de grandeur
-      représentatifs des conditions de marché de {MAJ}. Ils évoluent avec les taux et la
-      volatilité et ne constituent pas une offre.</p></div>
+    <div class="tabs__p" id="familles" role="tabpanel" aria-labelledby="tab-familles" hidden>
+{volet_familles()}
+    </div>
+    <div class="tabs__p" id="glossaire" role="tabpanel" aria-labelledby="tab-glossaire" hidden>
+{volet_glossaire()}
     </div>
   </div>
 </section>
-{"".join(sections)}
 """
-    write("familles.html", layout("familles.html", "Familles de produits structurés",
-        "Autocall Phoenix, Athéna, Reverse Convertible, capital garanti, participation, "
-        "airbag, indice décrément, CLN : les douze familles de produits structurés expliquées "
-        "une par une, avec leurs avantages et leurs coûts.",
+    write("comprendre.html", layout("comprendre.html", "Comprendre les produits structurés",
+        "Guide complet, fiches des 12 familles de produits et glossaire de "
+        f"{len(GLOSSAIRE)} définitions : autocall, indice décrément, worst-of, airbag, "
+        "barrière européenne et américaine, effet mémoire, bail-in, SRI, EMTN.",
         body))
 
 # ==========================================================================
-#  PAGE — ÉMETTEURS
+#  PAGE — LES ACTEURS (LFDR en tête + émetteurs + établissements)
 # ==========================================================================
-def page_emetteurs():
+def bloc_lfdr():
+    return f"""
+<section class="section section--tight" style="padding-bottom:0">
+  <div class="container">
+    <article class="lead-actor">
+      <div class="lead-actor__badge">Éditeur du Comptoir</div>
+      <div class="lead-actor__l">
+        <p class="eyebrow">Conseil en gestion privée — architecture ouverte</p>
+        <h2 class="title-lg">{EDITEUR}</h2>
+        <hr class="rule">
+        <p class="lede">Nous ne sommes ni émetteur, ni structureur : nous n’avons donc aucune
+        souche à placer. Notre rôle est de définir avec vous la formule qui correspond à votre
+        horizon et à votre tolérance au risque, puis de mettre les émetteurs en concurrence
+        sur cette formule — et de suivre les constatations une fois le produit souscrit.</p>
+        <p style="margin-bottom:0">C’est ce positionnement qui nous permet d’écarter les
+        indices décrément : nous n’avons pas de gamme à défendre.</p>
+      </div>
+      <div class="lead-actor__r">
+        <h3 class="card__t" style="font-size:1.08rem">Ce que nous faisons sur un produit structuré</h3>
+        <ol class="lead-actor__steps">
+          <li><strong>Cadrage.</strong> Horizon, montant, enveloppe d’accueil, part acceptable
+          dans l’allocation d’ensemble.</li>
+          <li><strong>Calibrage.</strong> Choix du sous-jacent, profondeur des barrières, mode
+          de constatation, période de non-rappel.</li>
+          <li><strong>Mise en concurrence.</strong> Demande de prix auprès de plusieurs
+          émetteurs sur la formule retenue, à signature comparable.</li>
+          <li><strong>Lecture du DIC.</strong> Vérification de l’entité émettrice, du garant,
+          du SRI et des coûts réellement supportés.</li>
+          <li><strong>Suivi.</strong> Constatations, coupons, rappels, et décision de
+          réinvestissement le moment venu.</li>
+        </ol>
+        <p style="margin:22px 0 0">
+          <a class="btn btn--sm" href="produits.html#analyse">Faire analyser un produit</a>
+          <a class="btn btn--sm" href="../contact.html" style="margin-left:8px">Nous contacter</a>
+        </p>
+      </div>
+    </article>
+    <p class="xsmall muted" style="margin-top:14px">{ADDRESS} — {EMAIL}. Les statuts
+    réglementaires et immatriculations figurent dans les
+    <a class="card__more" href="../mentions-legales.html" style="border:0;padding:0">mentions
+    légales de l’éditeur</a>.</p>
+  </div>
+</section>"""
+
+def volet_emetteurs():
     cards = []
     for em in EMETTEURS:
-        forces = "\n          ".join(f"<li>{x}</li>" for x in em["forces"])
+        forces = "\n            ".join(f"<li>{x}</li>" for x in em["forces"])
         search = f'{em["nom"]} {em["pays"]} {em["groupe"]} {em["zone"]} {em["sp"]} {em["moodys"]} {em["fitch"]}'
         cards.append(f"""      <article class="issuer" data-dir data-cat="{em["zone"]}" data-s="{e(html.unescape(search))}">
         <div class="issuer__h">
@@ -1802,7 +2267,7 @@ def page_emetteurs():
         <div>
           <p class="card__k" style="margin-bottom:8px">Points d’appui</p>
           <ul class="small" style="padding-left:18px;margin:0">
-          {forces}
+            {forces}
           </ul>
         </div>
         <p class="small" style="margin:0;padding:13px 16px;background:var(--ivory);border-left:2px solid var(--gold)">
@@ -1810,20 +2275,11 @@ def page_emetteurs():
         <p class="xsmall muted" style="margin:0">Format usuel : {em["format"]}</p>
       </article>""")
 
-    body = f"""
-{hero("Les émetteurs",
-  "Souscrire un produit structuré, c’est prêter de l’argent à une banque. La formule "
-  "détermine la rémunération ; la signature de l’émetteur détermine si elle sera honorée. "
-  "Vingt-deux émetteurs actifs sur le marché français et européen, avec leur notation, "
-  "leur profil de gamme et leurs points de vigilance.",
-  crumb="Émetteurs")}
-
-<section class="section section--tight">
-  <div class="container">
-    <div class="grid grid--2" style="margin-bottom:30px">
+    return f"""
+    <div class="grid grid--2" style="margin-bottom:28px">
       <div class="cell">
         <p class="eyebrow">Le risque que personne ne regarde</p>
-        <h2 class="title-md">Le risque de crédit émetteur</h2>
+        <h3 class="title-md">Le risque de crédit émetteur</h3>
         <hr class="rule">
         <p>Un produit « à capital garanti » émis par une banque défaillante ne garantit plus
         rien. Les produits structurés sont des titres de créance : ils ne bénéficient d’aucune
@@ -1875,7 +2331,7 @@ def page_emetteurs():
 {"".join(cards)}
     </div>
 
-    <div class="notice" style="margin-top:36px">
+    <div class="notice" style="margin-top:32px">
       <span class="notice__i" aria-hidden="true">!</span>
       <div>
         <p><strong>Notations indicatives.</strong> Les notations citées portent sur la dette
@@ -1887,70 +2343,47 @@ def page_emetteurs():
         d’informations clés l’identité exacte de l’émetteur, celle du garant et leur notation
         à cette date.</p>
       </div>
-    </div>
-  </div>
-</section>
-"""
-    write("emetteurs.html", layout("emetteurs.html", "Les émetteurs de produits structurés",
-        "Fiches des 22 principaux émetteurs de produits structurés en Europe : notations "
-        "Standard & Poor's, Moody's et Fitch, profil de gamme, points d'appui et vigilances.",
-        body))
+    </div>"""
 
-# ==========================================================================
-#  PAGE — ÉTABLISSEMENTS
-# ==========================================================================
-def page_etablissements():
+def volet_etablissements():
     blocks = []
     for slug, titre, intro in CAT_ETAB:
         items = [x for x in ETABLISSEMENTS if x["cat"] == slug]
-        cards = []
-        for x in items:
-            search = f'{x["nom"]} {x["pays"]} {x["role"]} {x["txt"]}'
-            cards.append(f"""        <article class="card" data-dir data-cat="{slug}" data-s="{e(html.unescape(search))}">
+        cards = "".join(f"""        <article class="card" data-dir2 data-cat2="{slug}" data-s="{e(html.unescape(f'{x["nom"]} {x["pays"]} {x["role"]} {x["txt"]}'))}">
           <p class="card__k">{x["role"]}</p>
-          <h3 class="card__t" style="font-size:1.18rem">{x["nom"]}</h3>
+          <h4 class="card__t" style="font-size:1.16rem">{x["nom"]}</h4>
           <p class="xsmall muted" style="margin-bottom:10px">{x["pays"]}</p>
           <p class="small" style="margin:0">{x["txt"]}</p>
-        </article>""")
+        </article>""" for x in items)
         blocks.append(f"""
-<section class="section section--tight" data-dir-section id="{slug}" style="scroll-margin-top:100px">
-  <div class="container">
-    <p class="eyebrow">{len(items)} établissements</p>
-    <h2 class="title-md">{titre}</h2>
-    <hr class="rule">
-    <p class="lede" style="max-width:720px">{intro}</p>
-    <div class="cards" style="margin-top:30px">
-{"".join(cards)}
-    </div>
-  </div>
-</section>""")
+    <div data-dir2-section id="{slug}" style="scroll-margin-top:110px;margin-top:40px">
+      <p class="eyebrow">{len(items)} établissements</p>
+      <h3 class="title-md">{titre}</h3>
+      <hr class="rule">
+      <p class="lede" style="max-width:720px">{intro}</p>
+      <div class="cards" style="margin-top:26px">
+{cards}
+      </div>
+    </div>""")
 
-    body = f"""
-{hero("Les établissements",
-  "Entre l’investisseur et l’émetteur s’interposent plusieurs métiers, qui n’ont ni le même "
-  "rôle ni la même responsabilité. Savoir qui structure, qui émet, qui référence et qui "
-  "conseille permet de comprendre où se forme le prix — et où se joue la qualité du conseil.",
-  crumb="Établissements")}
-
-<section class="section section--tight">
-  <div class="container container--mid">
-    <h2 class="title-md">La chaîne de valeur, dans l’ordre</h2>
+    return f"""
+    <h3 class="title-md">La chaîne de valeur, dans l’ordre</h3>
     <hr class="rule">
-    <div class="grid grid--4" style="margin-top:26px">
+    <div class="grid grid--4" style="margin-top:24px">
       <div class="cell" style="padding:24px"><div class="num">1</div>
-        <h3 class="card__t" style="font-size:1.02rem">Le structureur</h3>
+        <h4 class="card__t" style="font-size:1.02rem">Le structureur</h4>
         <p class="xsmall muted" style="margin:0">Conçoit la formule et met les émetteurs en concurrence. Ne porte aucun risque de crédit.</p></div>
       <div class="cell" style="padding:24px"><div class="num">2</div>
-        <h3 class="card__t" style="font-size:1.02rem">L’émetteur</h3>
+        <h4 class="card__t" style="font-size:1.02rem">L’émetteur</h4>
         <p class="xsmall muted" style="margin:0">Émet le titre de créance et s’engage à payer. C’est lui, et lui seul, qui porte le risque de crédit.</p></div>
       <div class="cell" style="padding:24px"><div class="num">3</div>
-        <h3 class="card__t" style="font-size:1.02rem">L’assureur</h3>
+        <h4 class="card__t" style="font-size:1.02rem">L’assureur</h4>
         <p class="xsmall muted" style="margin:0">Référence le titre en unité de compte, le valorise et porte le cadre juridique de l’enveloppe.</p></div>
       <div class="cell" style="padding:24px"><div class="num">4</div>
-        <h3 class="card__t" style="font-size:1.02rem">Le distributeur</h3>
+        <h4 class="card__t" style="font-size:1.02rem">Le distributeur</h4>
         <p class="xsmall muted" style="margin:0">Sélectionne, explique, souscrit et suit les constatations pour le compte de l’investisseur.</p></div>
     </div>
-    <div class="notice notice--grey" style="margin-top:30px">
+    <div class="notice notice--grey" style="margin-top:26px">
       <span class="notice__i" aria-hidden="true">i</span>
       <div><p>Un point mérite d’être retenu : <strong>seul l’émetteur porte le risque de
       crédit</strong>. Ni le structureur, ni la plateforme, ni l’assureur ne se substituent à
@@ -1958,30 +2391,26 @@ def page_etablissements():
       la solidité de celui qui s’engage à vous rembourser.</p></div>
     </div>
 
-    <form class="filters" role="search" aria-label="Filtrer les établissements" style="margin-top:34px" onsubmit="return false">
+    <form class="filters" role="search" aria-label="Filtrer les établissements" style="margin-top:30px" onsubmit="return false">
       <div class="filters__row">
         <div class="field" style="grid-column:span 2">
-          <label for="dir-q">Rechercher un établissement</label>
-          <input type="search" id="dir-q" placeholder="Feefty, assureur luxembourgeois, plateforme…" autocomplete="off">
+          <label for="dir2-q">Rechercher un établissement</label>
+          <input type="search" id="dir2-q" placeholder="Feefty, assureur luxembourgeois, plateforme…" autocomplete="off">
         </div>
-        <div class="field"><label for="dir-cat">Catégorie</label>
-          <select id="dir-cat">
+        <div class="field"><label for="dir2-cat">Catégorie</label>
+          <select id="dir2-cat">
             <option value="">Toutes catégories</option>
             {"".join(f'<option value="{s}">{html.unescape(t)}</option>' for s, t, _ in CAT_ETAB)}
           </select></div>
       </div>
       <div class="filters__foot">
-        <span class="filters__count" id="dir-count" aria-live="polite"></span>
-        <button class="btn-link" type="button" id="dir-reset">Réinitialiser</button>
+        <span class="filters__count" id="dir2-count" data-noun="établissement" aria-live="polite"></span>
+        <button class="btn-link" type="button" id="dir2-reset">Réinitialiser</button>
       </div>
     </form>
-  </div>
-</section>
 {"".join(blocks)}
 
-<section class="section section--tight">
-  <div class="container">
-    <div class="notice">
+    <div class="notice" style="margin-top:34px">
       <span class="notice__i" aria-hidden="true">!</span>
       <div>
         <p><strong>Annuaire informatif.</strong> Cet annuaire décrit le rôle de chaque
@@ -1991,388 +2420,38 @@ def page_etablissements():
         <p>Les référencements, conditions commerciales, montants d’accès et gammes évoluent
         constamment : ils doivent être vérifiés directement auprès de chaque établissement.</p>
       </div>
-    </div>
-  </div>
-</section>
-"""
-    write("etablissements.html", layout("etablissements.html", "Les établissements du marché",
-        "Structureurs, plateformes de structuration, assureurs, banques privées et "
-        "distributeurs : l'annuaire des établissements qui traitent les produits structurés "
-        "en France, et le rôle de chacun dans la chaîne de valeur.",
-        body))
+    </div>"""
 
-# ==========================================================================
-#  PAGE — COMPRENDRE
-# ==========================================================================
-PAYOFF_SVG = """<svg viewBox="0 0 680 330" role="img" aria-label="Profil de remboursement à l’échéance d’un produit à barrière de capital 60 pour cent">
-  <defs>
-    <linearGradient id="zoneKo" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#99402F" stop-opacity=".10"/><stop offset="100%" stop-color="#99402F" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="zoneOk" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2F6B4E" stop-opacity=".10"/><stop offset="100%" stop-color="#2F6B4E" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
-  <!-- Repère : y=260 -> 0 %, y=87,5 -> 100 % (1 % = 1,725 px) ; x=60 -> 0 %, x=620 -> 140 % (1 % = 4 px) -->
-  <rect x="60" y="60" width="240" height="200" fill="url(#zoneKo)"/>
-  <rect x="300" y="60" width="320" height="200" fill="url(#zoneOk)"/>
-  <g stroke="#E4E1DA" stroke-width="1">
-    <line x1="60" y1="87.5" x2="620" y2="87.5"/>
-    <line x1="60" y1="130.6" x2="620" y2="130.6"/>
-    <line x1="60" y1="173.8" x2="620" y2="173.8"/>
-    <line x1="60" y1="216.9" x2="620" y2="216.9"/>
-  </g>
-  <line x1="60" y1="260" x2="620" y2="260" stroke="#14171B" stroke-width="1.2"/>
-  <line x1="60" y1="60" x2="60" y2="260" stroke="#14171B" stroke-width="1.2"/>
-  <!-- barrière de capital à 60 % -->
-  <line x1="300" y1="60" x2="300" y2="260" stroke="#A9853F" stroke-width="1.4" stroke-dasharray="5 4"/>
-  <text x="140" y="76" font-family="Jost, sans-serif" font-size="12" fill="#A9853F">Barrière de capital — 60 %</text>
-  <!-- en dessous de la barrière : remboursement = niveau du sous-jacent -->
-  <path d="M 60 260 L 300 156.5" fill="none" stroke="#99402F" stroke-width="2.6"/>
-  <!-- au-dessus : remboursement plafonné à 100 % du nominal -->
-  <path d="M 300 87.5 L 620 87.5" fill="none" stroke="#2F6B4E" stroke-width="2.6"/>
-  <circle cx="300" cy="156.5" r="4" fill="#fff" stroke="#99402F" stroke-width="2.2"/>
-  <circle cx="300" cy="87.5" r="4" fill="#2F6B4E"/>
-  <!-- saut de barrière : 40 points de nominal -->
-  <line x1="300" y1="156.5" x2="300" y2="87.5" stroke="#14171B" stroke-width="1.1"/>
-  <path d="M 296 92 L 300 87.5 L 304 92" fill="none" stroke="#14171B" stroke-width="1.1"/>
-  <path d="M 296 152 L 300 156.5 L 304 152" fill="none" stroke="#14171B" stroke-width="1.1"/>
-  <text x="312" y="126" font-family="Jost, sans-serif" font-size="12" fill="#14171B">Effet de seuil : 40 points de nominal</text>
-  <text x="330" y="78" font-family="Jost, sans-serif" font-size="11.5" fill="#2F6B4E">Remboursement plafonné à 100 %</text>
-  <g font-family="Jost, sans-serif" font-size="11.5" fill="#6B7078" text-anchor="end">
-    <text x="52" y="91.5">100 %</text><text x="52" y="134.6">75 %</text>
-    <text x="52" y="177.8">50 %</text><text x="52" y="220.9">25 %</text><text x="52" y="264">0 %</text>
-  </g>
-  <g font-family="Jost, sans-serif" font-size="11.5" fill="#6B7078" text-anchor="middle">
-    <text x="60" y="279">0 %</text><text x="300" y="279">60 %</text>
-    <text x="460" y="279">100 %</text><text x="620" y="279">140 %</text>
-  </g>
-  <text x="340" y="303" font-family="Jost, sans-serif" font-size="12" fill="#14171B" text-anchor="middle">Niveau du sous-jacent à l’échéance</text>
-  <text x="16" y="160" font-family="Jost, sans-serif" font-size="12" fill="#14171B" text-anchor="middle" transform="rotate(-90 16 160)">Capital remboursé</text>
-</svg>"""
-
-def page_comprendre():
-    fam_rows = "\n".join(
-        f'<tr><td><a class="inline" href="familles.html#{f["slug"]}">{f["nom"]}</a></td>'
-        f'<td>{f["profil"]}</td><td>{f["resume"].split(" : ")[0] if " : " in f["resume"] else f["resume"][:110]}…</td></tr>'
-        for f in FAMILLES)
-
+def page_acteurs():
     body = f"""
-{hero("Comprendre un produit structuré",
-  "Dix minutes de lecture pour saisir l’essentiel : d’où vient le coupon, à quoi servent "
-  "les barrières, quels risques sont réellement portés, et quelles questions poser avant "
-  "de signer.",
-  crumb="Comprendre")}
-
-<section class="section">
-  <div class="container container--narrow">
-    <div class="toc">
-      <p class="toc__t">Au sommaire</p>
-      <ol>
-        <li><a href="#definition">Ce qu’est un produit structuré — et ce qu’il n’est pas</a></li>
-        <li><a href="#fabrication">D’où vient le coupon</a></li>
-        <li><a href="#familles">Les familles, en un tableau</a></li>
-        <li><a href="#barrieres">Les barrières, le cœur du sujet</a></li>
-        <li><a href="#risques">Les six risques réellement portés</a></li>
-        <li><a href="#fiscalite">Enveloppes et fiscalité</a></li>
-        <li><a href="#sortie">Sortir avant l’échéance</a></li>
-        <li><a href="#questions">Les dix questions à poser</a></li>
-        <li><a href="#erreurs">Les erreurs les plus fréquentes</a></li>
-      </ol>
-    </div>
-
-    <div class="prose">
-      <h2 id="definition">1. Ce qu’est un produit structuré — et ce qu’il n’est pas</h2>
-      <p>Un produit structuré est un <strong>titre de créance émis par une banque</strong>,
-      dont le remboursement et la rémunération sont calculés selon une formule fixée à
-      l’avance et référencée à un actif financier : un indice, une action, un panier, un taux.</p>
-      <p>Cette définition juridique a trois conséquences immédiates, qui échappent souvent à
-      l’investisseur.</p>
-      <ul>
-        <li><strong>Vous ne détenez pas le sous-jacent.</strong> Ni les actions, ni l’indice.
-        Vous ne percevez donc aucun dividende et ne disposez d’aucun droit de vote.</li>
-        <li><strong>Vous êtes créancier d’une banque.</strong> Si elle fait défaut, la formule
-        ne vous protège de rien, quelle que soit la performance du sous-jacent.</li>
-        <li><strong>Ce n’est pas un fonds.</strong> Il n’y a ni gérant, ni arbitrage, ni
-        décision discrétionnaire en cours de vie. La formule s’applique mécaniquement.</li>
-      </ul>
-      <blockquote><p>Un produit structuré ne gère rien. Il exécute un contrat. Toute la
-      question est de savoir si ce contrat vous est favorable.</p></blockquote>
-
-      <h2 id="fabrication">2. D’où vient le coupon</h2>
-      <p>Un coupon de 9 % par an dans un monde où le taux sans risque est à 2 % ne tombe pas
-      du ciel. Il est financé, et il est utile de savoir par quoi. Schématiquement, l’émetteur
-      décompose votre nominal en deux poches.</p>
-      <p>La première est une <strong>composante obligataire</strong> : en plaçant une partie
-      de votre argent à son propre taux de financement, l’émetteur sait reconstituer une
-      fraction du capital à l’échéance. La seconde est un <strong>budget d’options</strong> :
-      avec le reliquat, il achète et vend des options sur le sous-jacent. C’est cette seconde
-      poche qui fabrique le profil de gain.</p>
-      <p>Trois leviers permettent d’augmenter le coupon — et chacun a un coût pour vous :</p>
-      <ul>
-        <li><strong>Vendre de la volatilité.</strong> Plus le sous-jacent est agité, plus les
-        options vendues rapportent. Un coupon élevé signale donc un sous-jacent risqué, pas une
-        bonne affaire.</li>
-        <li><strong>Renoncer aux dividendes.</strong> C’est le rôle des
-        <a class="inline" href="glossaire.html#indice-decrement">indices décrément</a>, qui
-        prélèvent un dividende forfaitaire chaque année. Vous financez votre coupon avec les
-        dividendes auxquels vous renoncez.</li>
-        <li><strong>Plafonner le gain.</strong> En abandonnant les scénarios très haussiers,
-        vous achetez votre protection à la baisse.</li>
-      </ul>
-      <p>À ces trois leviers s’ajoutent les mécanismes défavorables : un
-      <a class="inline" href="glossaire.html#worst-of">Worst-of</a> sur plusieurs actions, une
-      <a class="inline" href="glossaire.html#barriere-americaine">barrière américaine</a>, une
-      devise étrangère non couverte. Lorsqu’un coupon dépasse nettement ceux du marché, l’un de
-      ces mécanismes est presque toujours présent. Le trouver, c’est comprendre le produit.</p>
-
-      <h2 id="familles">3. Les familles, en un tableau</h2>
-      <table>
-        <thead><tr><th>Famille</th><th>Profil</th><th>En une ligne</th></tr></thead>
-        <tbody>
-{fam_rows}
-        </tbody>
-      </table>
-      <p>Chaque famille fait l’objet d’une fiche détaillée, avec son mécanisme, ses avantages
-      et ses coûts : <a class="inline" href="familles.html">voir les douze familles</a>.</p>
-
-      <h2 id="barrieres">4. Les barrières, le cœur du sujet</h2>
-      <p>Un produit de rendement comporte généralement deux barrières, qu’il ne faut pas
-      confondre. La <strong>barrière de coupon</strong> commande le revenu : au-dessus, le
-      coupon tombe ; en dessous, il est suspendu (ou mémorisé). La <strong>barrière de
-      capital</strong> commande le remboursement : c’est elle, et elle seule, qui détermine
-      votre risque de perte.</p>
-      <p>Le graphique ci-dessous montre le profil de remboursement à l’échéance d’un Phoenix à
-      barrière 60 %. Il résume à lui seul la nature du pari.</p>
-      <figure class="payoff">
-        {PAYOFF_SVG}
-        <figcaption>Profil de remboursement à l’échéance. Au-dessus de la barrière, le capital
-        est remboursé intégralement — mais jamais davantage. En dessous, la perte est immédiate
-        et proportionnelle : deux points d’écart font basculer le remboursement de 100 % à 59 %.</figcaption>
-      </figure>
-      <p>Deux points méritent toute l’attention.</p>
-      <h3>Le mode de constatation</h3>
-      <p>Une barrière dite <strong>européenne</strong> n’est constatée qu’une seule fois, le
-      jour de l’échéance. Le sous-jacent peut passer sous le seuil pendant des années sans
-      aucune conséquence, pourvu qu’il soit remonté ce jour-là. Une barrière
-      <strong>américaine</strong>, elle, est constatée à chaque séance : un seul franchissement,
-      même intrajournalier, suffit à détruire définitivement la protection. À niveau identique,
-      les deux n’ont rien à voir. La quasi-totalité des produits distribués en France retient
-      heureusement le format européen — mais il faut le vérifier.</p>
-      <h3>L’effet de seuil</h3>
-      <p>Juste au-dessus de la barrière, vous récupérez tout. Juste en dessous, vous perdez
-      quarante points. Cette discontinuité est le défaut structurel des barrières sèches. Elle
-      explique aussi pourquoi la valeur de marché d’un produit devient très instable lorsque le
-      sous-jacent rôde autour de son seuil. Les mécanismes
-      <a class="inline" href="glossaire.html#airbag">airbag</a> ont précisément été conçus pour
-      la supprimer, au prix d’un coupon plus faible.</p>
-
-      <h2 id="risques">5. Les six risques réellement portés</h2>
-      <p>La documentation commerciale insiste sur le risque de marché. Il n’est ni le seul, ni
-      toujours le plus important.</p>
-      <ol>
-        <li><strong>Risque de perte en capital.</strong> Si la barrière est enfoncée à
-        l’échéance, la perte est réelle et peut être lourde. Elle est proportionnelle à la
-        baisse du sous-jacent depuis le niveau initial, sauf mécanisme airbag.</li>
-        <li><strong>Risque de crédit de l’émetteur.</strong> Le plus négligé. En cas de
-        défaillance de la banque, vous êtes un créancier parmi d’autres, soumis au mécanisme
-        européen de renflouement interne. Aucune garantie des dépôts ne s’applique.</li>
-        <li><strong>Risque de rendement nul.</strong> Vous pouvez porter un produit huit ans et
-        n’encaisser aucun coupon, tout en récupérant votre capital. Le capital est préservé,
-        mais huit années de rendement sont perdues : c’est un coût d’opportunité réel.</li>
-        <li><strong>Risque de liquidité.</strong> Il n’existe pas de marché organisé. La sortie
-        anticipée dépend du prix de rachat affiché par l’émetteur, qui n’y est le plus souvent
-        pas contractuellement tenu.</li>
-        <li><strong>Risque de réinvestissement.</strong> Un produit rappelé rapidement vous
-        rend votre capital au moment précis où le marché a monté — donc où les nouveaux coupons
-        offerts sont plus faibles.</li>
-        <li><strong>Risque de change.</strong> Sur un produit libellé en devise étrangère, il
-        peut à lui seul effacer le gain de la formule.</li>
-      </ol>
-      <div class="notice" style="margin:28px 0">
-        <span class="notice__i" aria-hidden="true">!</span>
-        <div><p>Un produit structuré n’est pas un placement sans risque déguisé. C’est un
-        échange explicite : vous renoncez à une partie du potentiel de hausse et vous acceptez
-        un risque de perte au-delà d’un certain seuil, en contrepartie d’un rendement
-        conditionnel supérieur à celui d’un placement sans risque. Si cet échange vous convient,
-        le produit a du sens. Sinon, aucun niveau de coupon ne le justifiera.</p></div>
-      </div>
-
-      <h2 id="fiscalite">6. Enveloppes et fiscalité</h2>
-      <p>Le même produit n’a pas le même rendement net selon l’enveloppe qui l’accueille. C’est
-      un paramètre de décision, pas un détail administratif.</p>
-      <table>
-        <thead><tr><th>Enveloppe</th><th>Traitement des coupons</th><th>À retenir</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Assurance-vie</strong></td>
-              <td>Capitalisation en franchise d’impôt dans le contrat</td>
-              <td>Le cadre le plus utilisé. Les coupons se réinvestissent à plein. Ajouter les frais de gestion annuels du contrat au coût du produit.</td></tr>
-          <tr><td><strong>Contrat de capitalisation</strong></td>
-              <td>Identique à l’assurance-vie</td>
-              <td>La voie usuelle pour une holding ou une trésorerie d’entreprise excédentaire.</td></tr>
-          <tr><td><strong>Compte-titres</strong></td>
-              <td>Imposition à la perception, au prélèvement forfaitaire unique ou au barème</td>
-              <td>Liberté totale de choix de l’émetteur et de la souche, mais fiscalité immédiate sur chaque coupon.</td></tr>
-          <tr><td><strong>PER</strong></td>
-              <td>Capitalisation dans le plan</td>
-              <td>L’horizon long s’accorde aux maturités élevées. Fonds bloqués jusqu’à la retraite, hors cas de déblocage.</td></tr>
-          <tr><td><strong>PEA</strong></td>
-              <td>Exonération après cinq ans</td>
-              <td>Éligibilité très restreinte : la grande majorité des produits structurés n’y est pas admise. À vérifier systématiquement.</td></tr>
-        </tbody>
-      </table>
-      <p class="small muted">Ces éléments décrivent le cadre général applicable aux résidents
-      fiscaux français. Ils ne constituent pas un conseil fiscal : la situation personnelle du
-      souscripteur commande, et la réglementation évolue.</p>
-
-      <h2 id="sortie">7. Sortir avant l’échéance</h2>
-      <p>C’est possible, mais rarement au prix que l’on imagine. La valorisation en cours de vie
-      ne se déduit pas du niveau du sous-jacent par une règle de trois : elle dépend aussi de la
-      volatilité, des taux, du temps restant et de la qualité de crédit de l’émetteur.</p>
-      <p>Un produit dont le sous-jacent est inchangé peut parfaitement valoir 93 % du nominal,
-      pour deux raisons principales : les frais de structuration ont été prélevés dès
-      l’émission, et le temps n’a pas encore fait son œuvre. À l’inverse, en fin de vie, la
-      valeur converge mécaniquement vers le montant de remboursement attendu — c’est
-      l’<a class="inline" href="glossaire.html#effet-de-pull-to-par">effet de pull-to-par</a>.</p>
-      <p>En pratique : un produit structuré doit être souscrit avec l’intention de le porter
-      jusqu’à son terme. La sortie anticipée est une porte de secours, jamais une stratégie.</p>
-
-      <h2 id="questions">8. Les dix questions à poser</h2>
-      <ol>
-        <li>Quel est l’émetteur exact du titre, et quel est son garant ?</li>
-        <li>Quelles sont ses trois notations, à quelle date, et avec quelles perspectives ?</li>
-        <li>Le sous-jacent est-il un indice classique ou un indice décrément ? Si décrément, en points ou en pourcentage, et de combien ?</li>
-        <li>La barrière de capital est-elle constatée à l’échéance seulement, ou en continu ?</li>
-        <li>Y a-t-il un mécanisme Worst-of ? Sur combien de composantes ?</li>
-        <li>Les coupons sont-ils à mémoire ? Existe-t-il une période de non-rappel ?</li>
-        <li>Quel est le coût total : frais intégrés à la formule, plus frais de l’enveloppe ?</li>
-        <li>Quel est le SRI, et que disent les quatre scénarios du document d’informations clés ?</li>
-        <li>Quelle est la devise, et le risque de change est-il couvert ?</li>
-        <li>Quelle part ce produit représente-t-il dans mon patrimoine financier total ?</li>
-      </ol>
-      <p>Si l’on ne retient qu’une règle : <strong>exiger le document d’informations clés avant
-      la brochure commerciale</strong>. Le premier est réglementaire, standardisé et comparable.
-      La seconde n’a aucune valeur contractuelle.</p>
-
-      <h2 id="erreurs">9. Les erreurs les plus fréquentes</h2>
-      <ul>
-        <li><strong>Comparer le coupon de deux produits sans comparer leurs barrières.</strong>
-        Un produit à 7 % barrière 50 % est souvent préférable à un produit à 9 % barrière 70 %.</li>
-        <li><strong>Prendre la maturité affichée pour la durée réelle.</strong> Sur un autocall,
-        elle est presque toujours plus courte — sans qu’on puisse en être certain.</li>
-        <li><strong>Croire qu’un panier diversifie.</strong> En Worst-of, il concentre le risque
-        au lieu de le disperser.</li>
-        <li><strong>Confondre « capital garanti » et « sans risque ».</strong> La garantie est
-        celle d’une banque, elle ne vaut qu’à l’échéance.</li>
-        <li><strong>Comparer un backtest à une performance.</strong> L’historique d’un indice
-        récent est reconstitué a posteriori : personne ne l’a jamais investi.</li>
-        <li><strong>Concentrer sur un seul émetteur.</strong> Diversifier les signatures compte
-        autant que diversifier les sous-jacents.</li>
-        <li><strong>Souscrire sans pouvoir porter jusqu’au terme.</strong> La sortie anticipée
-        se fait au prix du marché, pas au nominal.</li>
-      </ul>
-      <p style="margin-top:34px"><a class="btn" href="glossaire.html">Approfondir avec le glossaire</a></p>
-    </div>
-  </div>
-</section>
-"""
-    write("comprendre.html", layout("comprendre.html", "Comprendre un produit structuré",
-        "Guide complet : d'où vient le coupon, à quoi servent les barrières, les six risques "
-        "réellement portés, la fiscalité selon l'enveloppe et les dix questions à poser avant "
-        "de souscrire.",
-        body))
-
-# ==========================================================================
-#  PAGE — GLOSSAIRE
-# ==========================================================================
-def slugify(s):
-    s = html.unescape(s).lower()
-    repl = {"à": "a", "â": "a", "ä": "a", "é": "e", "è": "e", "ê": "e", "ë": "e",
-            "î": "i", "ï": "i", "ô": "o", "ö": "o", "ù": "u", "û": "u", "ü": "u",
-            "ç": "c", "’": " ", "'": " ", "(": " ", ")": " ", "&": " ", ",": " ",
-            ".": " ", "—": " ", "-": " ", "/": " "}
-    for k, v in repl.items():
-        s = s.replace(k, v)
-    s = "".join(c for c in s if c.isalnum() or c == " ")
-    return "-".join(s.split())
-
-def page_glossaire():
-    entries = sorted(GLOSSAIRE, key=lambda g: slugify(g["t"]))
-    groups = {}
-    for g in entries:
-        letter = slugify(g["t"])[0].upper()
-        groups.setdefault(letter, []).append(g)
-
-    alpha = []
-    for ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-        if ch in groups:
-            alpha.append(f'<a href="#lettre-{ch}">{ch}</a>')
-        else:
-            alpha.append(f'<span aria-hidden="true">{ch}</span>')
-
-    blocks = []
-    for letter in sorted(groups):
-        items = []
-        for g in groups[letter]:
-            gid = slugify(g["t"])
-            defs = "\n          ".join(f'<p class="gl__d">{d}</p>' for d in g["d"])
-            ex = (f'<div class="gl__ex"><b>Exemple</b>{g["ex"]}</div>' if g["ex"] else "")
-            search = html.unescape(f'{g["t"]} {g["alias"]} {g["cat"]} ' + " ".join(g["d"]))
-            items.append(f"""        <div class="gl" id="{gid}" data-cat="{g["cat"]}" data-s="{e(search)}">
-          <h3 class="gl__t">{g["t"]} <span class="gl__cat">{g["cat"]}</span></h3>
-          {defs}
-          {ex}
-        </div>""")
-        blocks.append(f"""      <div class="gl-group" id="lettre-{letter}">
-        <div class="gl-group__l">{letter}</div>
-{"".join(items)}
-      </div>""")
-
-    body = f"""
-{hero("Glossaire",
-  f"{len(GLOSSAIRE)} définitions pour lire une fiche produit sans rien laisser dans l’ombre. "
-  "Chaque terme est expliqué dans ses conséquences pratiques, et non dans sa seule "
-  "définition théorique.",
-  crumb="Glossaire")}
+{hero("Les acteurs du marché",
+  "Entre vous et l’émetteur s’interposent plusieurs métiers, qui n’ont ni le même rôle ni la "
+  "même responsabilité. Savoir qui structure, qui émet, qui référence et qui conseille permet "
+  "de comprendre où se forme le prix — et où se joue la qualité du conseil.",
+  crumb="Les acteurs")}
+{bloc_lfdr()}
 
 <section class="section section--tight">
-  <div class="container container--mid">
-    <form class="filters" role="search" aria-label="Rechercher dans le glossaire" onsubmit="return false">
-      <div class="filters__row">
-        <div class="field" style="grid-column:span 2">
-          <label for="gl-q">Rechercher un terme</label>
-          <input type="search" id="gl-q" placeholder="décrément, worst-of, bail-in, SRI, airbag…" autocomplete="off">
-        </div>
-        <div class="field"><label for="gl-cat">Catégorie</label>
-          <select id="gl-cat">
-            <option value="">Toutes catégories</option>
-            {"".join(f'<option value="{c}">{html.unescape(c)}</option>' for c in CAT_GLOSSAIRE)}
-          </select></div>
-      </div>
-      <div class="filters__foot">
-        <span class="filters__count" id="gl-count" aria-live="polite"></span>
-        <button class="btn-link" type="button" id="gl-reset">Réinitialiser</button>
-      </div>
-    </form>
+  <div class="container">
+    {onglets([("emetteurs", f"Émetteurs · {len(EMETTEURS)}"), ("etablissements", f"Établissements · {len(ETABLISSEMENTS)}")])}
   </div>
 </section>
 
-<section class="section section--tight" style="padding-top:0">
-  <div class="container container--mid">
-    <nav class="alpha" aria-label="Navigation alphabétique">
-      {"".join(alpha)}
-    </nav>
-{"".join(blocks)}
-    <p class="small muted" style="margin-top:34px">Un terme manque ?
-      <a class="card__more" href="../contact.html" style="border:0;padding:0">Signalez-le</a>,
-      le glossaire est enrichi au fil des évolutions du marché.</p>
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="tabs__p is-active" id="emetteurs" role="tabpanel" aria-labelledby="tab-emetteurs">
+{volet_emetteurs()}
+    </div>
+    <div class="tabs__p" id="etablissements" role="tabpanel" aria-labelledby="tab-etablissements" hidden>
+{volet_etablissements()}
+    </div>
   </div>
 </section>
 """
-    write("glossaire.html", layout("glossaire.html", "Glossaire des produits structurés",
-        f"{len(GLOSSAIRE)} définitions : autocall, indice décrément, worst-of, airbag, "
-        "barrière européenne et américaine, effet mémoire, bail-in, SRI, EMTN, pull-to-par. "
-        "Le vocabulaire des produits structurés expliqué avec des exemples chiffrés.",
+    write("acteurs.html", layout("acteurs.html", "Les acteurs du marché",
+        f"Les {len(EMETTEURS)} principaux émetteurs de produits structurés avec leurs notations, "
+        f"et {len(ETABLISSEMENTS)} établissements de place : structureurs, plateformes, "
+        "assureurs et distributeurs, avec le rôle de chacun.",
         body))
 
 # ==========================================================================
@@ -2380,22 +2459,23 @@ def page_glossaire():
 # ==========================================================================
 def page_methodologie():
     crit = [
-        ("Qualité de la signature", 25,
-         "Notation des trois agences sur la dette senior de l’entité émettrice réelle, perspective associée, et identité du garant. Une notation inférieure à la catégorie investissement disqualifie le produit, quel que soit son coupon."),
-        ("Profondeur de la protection", 25,
-         "Niveau de la barrière de capital, mode de constatation, et présence éventuelle d’un mécanisme airbag. Une barrière européenne profonde vaut mieux qu’un coupon élevé : c’est le critère que nous pondérons le plus fortement avec la signature."),
-        ("Lisibilité du mécanisme", 20,
-         "Nombre de mécanismes cumulés dans une même formule. Chaque couche supplémentaire — Worst-of, barrière continue, devise non couverte, décrément agressif — dégrade la note, même lorsqu’elle améliore le coupon affiché."),
-        ("Cohérence du sous-jacent", 15,
-         "Ancienneté réelle de l’indice, largeur de l’univers, concentration sectorielle, et ampleur du décrément rapporté au rendement du dividende historique du panier."),
-        ("Rapport rendement / risque", 10,
+        ("Nature du sous-jacent", 25,
+         "Critère éliminatoire. Nous ne retenons que des indices publics, calculés par un fournisseur indépendant et cotés quotidiennement, ou des actions cotées. Toute structure adossée à un indice décrément, quel que soit son coupon, est écartée d’office."),
+        ("Qualité de la signature", 20,
+         "Notation des trois agences sur la dette senior de l’entité émettrice réelle, perspective associée, et identité du garant. Une notation inférieure à la catégorie investissement disqualifie le produit."),
+        ("Profondeur de la protection", 20,
+         "Niveau de la barrière de capital, mode de constatation, et présence éventuelle d’un mécanisme airbag. Une barrière européenne profonde vaut mieux qu’un coupon élevé."),
+        ("Lisibilité du mécanisme", 15,
+         "Nombre de mécanismes cumulés dans une même formule. Chaque couche supplémentaire — Worst-of, barrière continue, devise non couverte — dégrade la note, même lorsqu’elle améliore le coupon affiché."),
+        ("Rapport rendement / risque", 15,
          "Coupon rapporté non pas au marché en général, mais à ce que l’on peut obtenir au même moment, chez d’autres émetteurs, à barrières et maturité comparables."),
         ("Transparence des coûts", 5,
          "Clarté de l’information sur les frais de structuration et de distribution, et cohérence entre la brochure commerciale et le document d’informations clés."),
     ]
-    rows = "\n".join(
-        f'<tr><td><strong>{n}</strong></td><td class="num-cell">{p} %</td><td>{d}</td></tr>'
-        for n, p, d in crit)
+    rows = "\n".join(f'<tr><td><strong>{n}</strong></td><td class="num-cell">{p} %</td><td>{d}</td></tr>'
+                     for n, p, d in crit)
+    cp = [p["coupon"] for p in PRODUITS if p["coupon"]]
+    cmax = f'{max(cp)*100:.1f}'.replace(".", ",")
 
     body = f"""
 {hero("Méthodologie",
@@ -2406,16 +2486,24 @@ def page_methodologie():
 <section class="section">
   <div class="container container--narrow">
     <div class="prose">
-      <h2>Le principe : la signature et la protection d’abord</h2>
+      <h2>La règle première : un sous-jacent que vous pouvez suivre</h2>
+      <p>La majorité des produits distribués en France repose sur un indice décrément, c’est-à-dire
+      un indice construit par l’émetteur dont on retranche un dividende forfaitaire chaque année.
+      Le procédé est documenté et parfaitement légal. Il a deux conséquences que nous jugeons
+      rédhibitoires : le souscripteur ne peut plus suivre son sous-jacent dans la presse, et
+      l’écart avec l’indice de référence se creuse mécaniquement année après année.</p>
+      <p><strong>Nous n’en référençons aucun.</strong> Toutes les structures de ce comparateur
+      reposent sur des indices publics ou sur des actions cotées. Le coupon y est financé par les
+      dividendes non réinvestis de l’indice — un mécanisme que n’importe qui peut vérifier. Cela
+      coûte environ un à deux points de coupon à barrières identiques, et permet malgré tout
+      d’atteindre {cmax} % par an sur les profils les plus exposés.</p>
+
+      <h2>La règle seconde : la signature et la protection avant le coupon</h2>
       <p>La plupart des classements de produits structurés ordonnent les offres par niveau de
       coupon. C’est l’inverse de ce qu’il faut faire. Le coupon est la variable la plus visible
       et la moins informative : il se déduit mécaniquement des autres paramètres. Un coupon
       élevé ne traduit pas la générosité d’un émetteur mais le prix d’un risque, ou la présence
       d’un mécanisme défavorable.</p>
-      <p>Notre grille accorde donc la moitié du poids total à deux critères seulement : la
-      qualité de la signature qui s’engage, et la profondeur de la protection accordée. Le
-      rendement n’intervient qu’ensuite, et relativement à ce que le marché offre au même
-      moment à risque comparable.</p>
 
       <h2>Les six critères</h2>
       <table>
@@ -2431,12 +2519,14 @@ def page_methodologie():
 
       <h2>Ce que nous écartons par principe</h2>
       <ul>
+        <li><strong>Les indices décrément</strong>, sous toutes leurs formes, en points comme
+        en pourcentage.</li>
         <li><strong>Les émetteurs en catégorie spéculative.</strong> Aucun supplément de coupon
         ne compense une signature fragile sur un horizon de huit à douze ans.</li>
         <li><strong>Les barrières de capital constatées en continu.</strong> Sur une maturité
         longue, la probabilité de franchissement rend la protection largement illusoire.</li>
-        <li><strong>Les Worst-of sur plus de trois actions individuelles.</strong> Le cumul de
-        risques spécifiques y devient impossible à apprécier sérieusement.</li>
+        <li><strong>Les Worst-of sur plus de quatre composantes.</strong> Le cumul de risques
+        spécifiques y devient impossible à apprécier sérieusement.</li>
         <li><strong>Les devises étrangères non couvertes</strong> lorsque le produit est présenté
         comme un produit de rendement : le change peut à lui seul effacer la formule.</li>
         <li><strong>Les formules à plus de trois mécanismes cumulés.</strong> Au-delà, le
@@ -2460,22 +2550,30 @@ def page_methodologie():
         marché de {MAJ}.</li>
       </ul>
 
+      <h2>L’analyse d’un produit que vous nous soumettez</h2>
+      <p>Lorsque vous déposez un document d’informations clés, nous appliquons la même grille,
+      dans l’ordre : nature du sous-jacent, identité et notation de l’émetteur réel, niveau et
+      mode de constatation des barrières, mécanismes cumulés, coûts, puis comparaison avec ce
+      qui se traite au même moment à risque équivalent. Nous vous indiquons ce qui nous paraît
+      solide et ce qui nous paraît cher — sans préjuger de votre situation personnelle, que
+      nous ne connaissons pas à ce stade.</p>
+
       <h2>Fréquence de revue</h2>
       <p>Les niveaux de coupon évoluent avec les taux et la volatilité ; les notations évoluent
-      avec les décisions des agences ; les gammes évoluent avec les émetteurs. Le contenu de cet
-      observatoire fait l’objet d’une revue éditoriale périodique, dont la date figure en pied
-      de chaque page. Entre deux revues, les ordres de grandeur restent indicatifs.</p>
+      avec les décisions des agences ; les gammes évoluent avec les émetteurs. Le contenu de ce
+      site fait l’objet d’une revue éditoriale périodique, dont la date figure en pied de chaque
+      page. Entre deux revues, les ordres de grandeur restent indicatifs.</p>
 
       <h2>Indépendance</h2>
-      <p>Cet observatoire est édité par {EDITEUR}, cabinet de gestion privée exerçant en
-      architecture ouverte. Les émetteurs et établissements cités le sont à titre documentaire :
-      leur mention ne résulte d’aucun accord commercial et ne constitue pas une recommandation.
-      Lorsque nous accompagnons un client sur un produit structuré, nous mettons les émetteurs
-      en concurrence sur une formule définie avec lui, et nous lui communiquons les frais
-      applicables.</p>
+      <p>{SITE} est édité par {EDITEUR}, cabinet de gestion privée exerçant en architecture
+      ouverte. Nous ne sommes ni émetteur ni structureur : nous n’avons aucune souche à placer.
+      Les émetteurs et établissements cités le sont à titre documentaire — leur mention ne
+      résulte d’aucun accord commercial et ne constitue pas une recommandation. Lorsque nous
+      accompagnons un client, nous mettons les émetteurs en concurrence sur une formule définie
+      avec lui, et nous lui communiquons les frais applicables.</p>
 
       <p style="margin-top:34px">
-        <a class="btn" href="../contact.html">Nous consulter</a>
+        <a class="btn" href="produits.html#analyse">Faire analyser un produit</a>
         <a class="btn" href="produits.html" style="margin-left:10px">Voir le comparateur</a>
       </p>
     </div>
@@ -2483,9 +2581,8 @@ def page_methodologie():
 </section>
 """
     write("methodologie.html", layout("methodologie.html", "Méthodologie d’analyse",
-        "Les six critères de notre grille d'analyse des produits structurés, pondérés en "
-        "faveur de la signature de l'émetteur et de la profondeur de la protection, et les "
-        "limites assumées de l'exercice.",
+        "Les six critères de notre grille d'analyse, à commencer par l'exclusion des indices "
+        "décrément, et les limites assumées de l'exercice.",
         body))
 
 # ==========================================================================
@@ -2526,12 +2623,30 @@ def page_mentions():
       émission ne sont arrêtées qu’à sa date de strike. Seuls le prospectus et le document
       d’informations clés de l’émetteur font foi.</p>
 
+      <h2>Service d’analyse de document</h2>
+      <p>Le formulaire « Faire analyser un produit » permet de nous adresser une demande
+      d’examen documentaire. Les fichiers que vous sélectionnez <strong>ne sont pas téléversés
+      par ce site</strong> : ils restent sur votre appareil, et seul le contenu que vous
+      saisissez — identité, coordonnées, question et nom des documents — nous est transmis, afin
+      d’ouvrir ensuite un brouillon d’email auquel vous joignez vous-même les pièces.</p>
+      <p>L’analyse rendue est une lecture documentaire à visée pédagogique. Elle ne constitue pas
+      un conseil en investissement personnalisé, lequel suppose un examen préalable de votre
+      situation patrimoniale, de vos objectifs, de votre horizon, de vos connaissances et de
+      votre expérience. Elle n’engage pas l’éditeur sur le résultat futur du produit examiné.</p>
+
       <h2>Notations de crédit</h2>
       <p>Les notations citées portent sur la dette senior long terme des entités mentionnées.
       Elles sont reproduites à titre indicatif, telles que relevées en {ANNEE_RATINGS}, et sont
       susceptibles d’être révisées par les agences à tout moment et sans préavis. La notation
       d’un groupe ne se confond pas nécessairement avec celle de l’entité émettrice du titre.
       Ces notations sont la propriété de leurs auteurs respectifs.</p>
+
+      <h2>Indices cités</h2>
+      <p>Les indices mentionnés (CAC 40, EURO STOXX 50, S&amp;P 500, MSCI World, Nikkei 225,
+      FTSE EPRA Nareit, et autres) sont des marques déposées de leurs fournisseurs respectifs.
+      Ils sont cités à titre documentaire pour décrire des mécanismes de produits. Ni les
+      fournisseurs d’indices ni leurs ayants droit ne sont associés à cette publication, ne la
+      cautionnent et n’en garantissent le contenu.</p>
 
       <h2>Marques et dénominations citées</h2>
       <p>Les dénominations sociales, marques et noms d’établissements cités appartiennent à leurs
@@ -2578,8 +2693,8 @@ def page_mentions():
       <h2>Données personnelles</h2>
       <p>Ce site ne dépose aucun cookie de mesure d’audience ni de suivi publicitaire, et
       n’intègre aucun script tiers. Les polices de caractères sont auto-hébergées. Aucune donnée
-      de navigation n’est collectée par l’éditeur. Les demandes de contact sont traitées selon les
-      modalités décrites dans
+      de navigation n’est collectée par l’éditeur. Les demandes adressées par les formulaires
+      sont traitées selon les modalités décrites dans
       <a class="inline" href="../mentions-legales.html">les mentions légales de l’éditeur</a>.</p>
 
       <h2>Propriété intellectuelle</h2>
@@ -2593,29 +2708,35 @@ def page_mentions():
 </section>
 """
     write("mentions-legales.html", layout("mentions-legales.html", "Mentions légales",
-        "Éditeur, nature des informations publiées, notations de crédit, avertissement sur les "
-        "risques des produits structurés et propriété intellectuelle.",
+        "Éditeur, nature des informations publiées, service d'analyse de document, notations "
+        "de crédit et avertissement sur les risques des produits structurés.",
         body))
 
 # ==========================================================================
 #  MAIN
 # ==========================================================================
+OBSOLETES = ["familles.html", "glossaire.html", "emetteurs.html", "etablissements.html"]
+
 def main():
     os.makedirs(os.path.join(OUT, "assets"), exist_ok=True)
     print(f"\n{SITE} — génération")
+    for f in OBSOLETES:
+        path = os.path.join(OUT, f)
+        if os.path.exists(path):
+            os.remove(path)
+            print(f"  − {f} (fusionné dans un autre onglet)")
     build_data_js()
     page_index()
     page_produits()
-    page_familles()
-    page_emetteurs()
-    page_etablissements()
     page_comprendre()
-    page_glossaire()
+    page_acteurs()
     page_methodologie()
     page_mentions()
+    cp = [p["coupon"] for p in PRODUITS if p["coupon"]]
     print(f"\n  {len(FAMILLES)} familles · {len(EMETTEURS)} émetteurs · "
           f"{len(ETABLISSEMENTS)} établissements · {len(PRODUITS)} structures · "
           f"{len(GLOSSAIRE)} définitions")
+    print(f"  Coupons : {min(cp)*100:.1f} % à {max(cp)*100:.1f} % — aucun indice décrément.")
     print("  Terminé.\n")
 
 if __name__ == "__main__":

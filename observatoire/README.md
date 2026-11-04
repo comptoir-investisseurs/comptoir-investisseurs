@@ -1,7 +1,14 @@
-# L’Observatoire des Produits Structurés
+# Le Comptoir des Structurés
 
-Site public dédié au marché des produits structurés : comparateur de structures, fiches
-familles, fiches émetteurs, annuaire des établissements de place et glossaire.
+Site public dédié au marché des produits structurés : comparateur de structures, guide,
+familles, glossaire, émetteurs et établissements de place.
+
+**Parti pris éditorial : aucun indice décrément.** Toutes les structures référencées reposent
+sur des indices publics (CAC 40, EURO STOXX 50, S&P 500, MSCI World…) ou sur des actions
+cotées. Le coupon y est financé par les dividendes non réinvestis de l’indice, mécanisme
+vérifiable par le souscripteur. Les indices décrément restent documentés — fiche famille
+« Indice décrément » et entrée de glossaire — mais uniquement pour savoir les reconnaître et
+les écarter.
 
 Statique, sans dépendance externe, sans cookie ni script tiers. Palette **blanche et or**
 rehaussée d’un bleu nuit (`#101C2B`), distincte de la charte vert sombre du site principal,
@@ -14,53 +21,87 @@ avec les mêmes polices auto-hébergées (Cormorant Garamond + Jost, réutilisé
 python3 build-observatoire.py
 ```
 
-Le script est à la racine du dépôt et écrit dans `observatoire/`. Il régénère les neuf pages
+Le script est à la racine du dépôt et écrit dans `observatoire/`. Il régénère les six pages
 HTML **et** `observatoire/assets/data.js`. Les fichiers `observatoire/assets/obs.css` et
 `observatoire/assets/obs.js` sont écrits à la main et ne sont jamais réécrits par le script :
 modifiez-les directement.
 
-## Pages
+Le script supprime aussi les pages d’une ancienne arborescence (`familles.html`,
+`glossaire.html`, `emetteurs.html`, `etablissements.html`), désormais fusionnées en onglets —
+voir la liste `OBSOLETES`.
 
-| Fichier | Contenu |
-|---|---|
-| `index.html` | Accueil : chiffres clés, lecture d’une fiche produit en trois temps, aperçu du comparateur |
-| `produits.html` | Comparateur filtrable et triable, détail dépliable par structure |
-| `familles.html` | Les 12 familles de produits, mécanisme, apports et coûts |
-| `emetteurs.html` | 22 émetteurs : notations, profil de gamme, points de vigilance |
-| `etablissements.html` | 39 établissements : structureurs, plateformes, assureurs, distributeurs |
-| `comprendre.html` | Guide en 9 chapitres, avec schéma de payoff |
-| `glossaire.html` | 73 définitions, recherche instantanée et navigation alphabétique |
-| `methodologie.html` | Grille d’analyse en 6 critères et limites assumées |
-| `mentions-legales.html` | Éditeur, nature des informations, avertissement sur les risques |
+## Les quatre onglets
+
+| Fichier | Onglet | Contenu |
+|---|---|---|
+| `index.html` | Accueil | Chiffres clés, parti pris, lecture d’une fiche en trois temps, aperçu du comparateur |
+| `produits.html` | Le comparateur | Tableau filtrable et triable + zone de dépôt « faire analyser un produit » |
+| `comprendre.html` | Comprendre | **3 volets** : le guide (10 chapitres), les 12 familles, le glossaire (73 définitions) |
+| `acteurs.html` | Les acteurs | Bloc éditeur (LFDR) en tête, puis **2 volets** : 22 émetteurs, 39 établissements |
+| `methodologie.html` | *(pied de page)* | Grille d’analyse en 6 critères et limites assumées |
+| `mentions-legales.html` | *(pied de page)* | Éditeur, nature des informations, avertissement sur les risques |
+
+Les volets sont des onglets ARIA (`role="tablist"` / `role="tabpanel"`) pilotés par
+`obs.js`. **Les ancres profondes ouvrent le bon volet** : `comprendre.html#worst-of` ouvre le
+glossaire sur le terme, `comprendre.html#indice-decrement` ouvre les familles sur la fiche,
+`acteurs.html#etablissements` ouvre le second volet. Un lien interne pointant vers un volet
+masqué le révèle avant de défiler.
 
 ## Où se trouvent les données
 
 Tout est centralisé dans `build-observatoire.py`, en haut du fichier :
 
-- `FAMILLES` — les 12 familles de produits ;
+- `FAMILLES` — les 12 familles ; celle portant `exclu=True` (indice décrément) s’affiche en
+  rouge, sans lien vers le comparateur puisqu’aucune structure n’en relève ;
 - `EMETTEURS` — les émetteurs et leurs notations ;
 - `CAT_ETAB` / `ETABLISSEMENTS` — l’annuaire des établissements ;
 - `PRODUITS` — le catalogue du comparateur (via la fonction `P(...)`) ;
 - `GLOSSAIRE` — les définitions (via la fonction `G(...)`).
 
-Les constantes d’en-tête (`SITE`, `EDITEUR`, `EMAIL`, `MAJ`, `ANNEE_RATINGS`) pilotent les
-mentions répétées sur toutes les pages. **`MAJ` et `ANNEE_RATINGS` sont à actualiser à chaque
-revue éditoriale** : elles s’affichent en pied de page et dans les avertissements.
+Les constantes d’en-tête (`SITE`, `SITE_SHORT`, `MARK`, `EDITEUR`, `EMAIL`, `MAJ`,
+`ANNEE_RATINGS`) pilotent les mentions répétées sur toutes les pages. **`MAJ` et
+`ANNEE_RATINGS` sont à actualiser à chaque revue éditoriale.**
+
+## Zone de dépôt « faire analyser un produit »
+
+Section `#analyse`, présente sur l’accueil et sur le comparateur, et cible du bouton
+d’en-tête. Glisser-déposer ou sélection de fichiers, PDF / PNG / JPEG, 10 Mo et 3 fichiers au
+maximum, avec motif de rejet explicite pour chaque fichier écarté.
+
+**Les fichiers ne sont jamais téléversés.** Le site est statique et `contact.php` n’accepte
+que du JSON (32 Ko). Le formulaire procède donc en deux temps :
+
+1. une requête `POST` JSON vers `../contact.php` (schéma `prenom`, `nom`, `email`,
+   `telephone`, `objet`, `message`), qui notifie le cabinet et inclut le nom et la taille des
+   documents ;
+2. l’ouverture d’un brouillon d’email pré-rempli, auquel l’utilisateur joint lui-même les
+   pièces — un lien `mailto:` ne pouvant pas attacher de fichier.
+
+Le texte sous le formulaire l’explique à l’utilisateur, et les mentions légales en traitent
+dans une rubrique dédiée. Si `contact.php` est absent (hébergement GitHub Pages, par
+exemple), la requête échoue silencieusement et le brouillon s’ouvre quand même : la demande
+n’est jamais perdue. Un pot de miel (`#dz-company`) bloque les robots.
+
+**Pour téléverser réellement les fichiers**, il faut un point d’entrée serveur acceptant le
+`multipart/form-data` : remplacer le `fetch` JSON de `obs.js` par un envoi de `FormData`, et
+ajouter côté serveur la validation du type réel, une limite de taille, un stockage hors
+racine web et une purge. À faire valider par la conformité, un DIC pouvant contenir des
+données personnelles.
 
 ## ⚠️ Nature du catalogue de produits
 
 Les entrées de `PRODUITS` sont des **gabarits de structures**, pas des souches réelles en
 commercialisation. Elles décrivent des combinaisons famille / sous-jacent / barrières /
 maturité représentatives du marché, avec des niveaux de coupon cohérents avec les conditions
-de la période indiquée par `MAJ`. **Aucun code ISIN n’est publié**, et le site l’annonce
-explicitement sur l’accueil, dans le comparateur et dans les mentions légales.
+de la période indiquée par `MAJ` (5,0 % à 16,2 %). **Aucun code ISIN n’est publié**, et le
+site l’annonce explicitement sur l’accueil, dans le comparateur et dans les mentions légales.
 
-Pour publier des offres réellement ouvertes à la souscription, il faut :
+Pour publier des offres réellement ouvertes à la souscription :
 
 1. remplacer les entrées de `PRODUITS` par les termsheets du moment ;
 2. ajouter un champ `isin` et l’afficher dans `rowHTML` / `detailHTML` (`obs.js`) ;
 3. ajouter une date de fin de commercialisation et faire basculer `statut` ;
-4. retirer ou réécrire les trois encarts d’avertissement correspondants ;
+4. retirer ou réécrire les encarts d’avertissement correspondants ;
 5. faire valider la page par la conformité — la commercialisation de produits structurés
    auprès de clientèle non professionnelle est encadrée par la doctrine de l’AMF.
 
@@ -71,6 +112,13 @@ datées par la constante `ANNEE_RATINGS`. Elles sont révisées sans préavis pa
 **Elles doivent être revérifiées auprès des trois agences avant toute mise en ligne
 commerciale**, et à chaque revue éditoriale ensuite.
 
+## ⚠️ Disponibilité du nom
+
+« Le Comptoir des Structurés » a été retenu après une recherche web qui n’a fait apparaître
+aucun site ni service portant ce nom. Cette vérification ne vaut pas recherche d’antériorité :
+**avant tout usage commercial, faire une recherche de marque à l’INPI et vérifier la
+disponibilité des noms de domaine.**
+
 ## Pré-filtrage du comparateur par l’URL
 
 `produits.html` accepte des paramètres qui pré-positionnent les filtres :
@@ -78,7 +126,7 @@ commerciale**, et à chaque revue éditoriale ensuite.
 ```
 produits.html?famille=Autocall+Phoenix
 produits.html?emetteur=BNP+Paribas
-produits.html?sous-jacent=Indice+d%C3%A9cr%C3%A9ment
+produits.html?sous-jacent=Indice+actions
 produits.html?enveloppe=PER
 ```
 
@@ -89,13 +137,16 @@ Alias courts acceptés : `fam`, `emet`, `sj`, `env`, `dev`.
 - **En-tête de tableau collant** : `overflow-x:auto` sur `.tablewrap` crée un conteneur de
   défilement qui neutralise `position:sticky`. Au-delà de 1100 px, le tableau tient dans la
   largeur disponible : le débordement repasse à `visible` et l’en-tête colle sous le header.
-  En dessous, le défilement horizontal reprend la main et l’en-tête ne colle pas.
 - **Sous 760 px**, le tableau cède la place à une liste de cartes (`.plist`), alimentée par le
   même jeu de données.
 - **Recherche insensible aux accents** : `norm()` dans `obs.js` applique `NFD` et retire les
   diacritiques, si bien que « decrement » trouve « décrément ».
-- **Accessibilité** : lignes du tableau activables au clavier (`tabindex`, Entrée / Espace),
-  compteurs en `aria-live`, navigation alphabétique en `<nav>`.
+- **Deux annuaires sur une même page** : les émetteurs utilisent les attributs `data-dir` /
+  `data-cat`, les établissements `data-dir2` / `data-cat2`, pour que les deux filtres
+  coexistent sans collision d’identifiants.
+- **Accessibilité** : onglets au motif ARIA avec navigation par flèches, lignes du tableau
+  activables au clavier, zone de dépôt focusable et déclenchable à Entrée ou Espace,
+  compteurs en `aria-live`, champs en erreur marqués `aria-invalid`.
 
 ## Rattachement au site principal
 

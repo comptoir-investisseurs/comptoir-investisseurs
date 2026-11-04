@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Comprendre un produit structuré — L’Observatoire des Produits Structurés</title>
-<meta name="description" content="Guide complet : d&#x27;où vient le coupon, à quoi servent les barrières, les six risques réellement portés, la fiscalité selon l&#x27;enveloppe et les dix questions à poser avant de souscrire.">
+<title>Comprendre les produits structurés — Le Comptoir des Structurés</title>
+<meta name="description" content="Guide complet, fiches des 12 familles de produits et glossaire de 73 définitions : autocall, indice décrément, worst-of, airbag, barrière européenne et américaine, effet mémoire, bail-in, SRI, EMTN.">
 <meta name="theme-color" content="#101C2B">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
-<meta property="og:site_name" content="L’Observatoire des Produits Structurés">
-<meta property="og:title" content="Comprendre un produit structuré — L’Observatoire des Produits Structurés">
-<meta property="og:description" content="Guide complet : d&#x27;où vient le coupon, à quoi servent les barrières, les six risques réellement portés, la fiscalité selon l&#x27;enveloppe et les dix questions à poser avant de souscrire.">
+<meta property="og:site_name" content="Le Comptoir des Structurés">
+<meta property="og:title" content="Comprendre les produits structurés — Le Comptoir des Structurés">
+<meta property="og:description" content="Guide complet, fiches des 12 familles de produits et glossaire de 73 définitions : autocall, indice décrément, worst-of, airbag, barrière européenne et américaine, effet mémoire, bail-in, SRI, EMTN.">
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16.png">
 <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
@@ -20,11 +20,11 @@
 
 <header class="hdr">
   <div class="container hdr__in">
-    <a class="brand" href="index.html" aria-label="L’Observatoire des Produits Structurés — accueil">
-      <span class="brand__mark" aria-hidden="true">O</span>
+    <a class="brand" href="index.html" aria-label="Le Comptoir des Structurés — accueil">
+      <span class="brand__mark" aria-hidden="true">C</span>
       <span class="brand__txt">
-        <span class="brand__name">L’Observatoire</span>
-        <span class="brand__sub">Produits structurés</span>
+        <span class="brand__name">Le Comptoir</span>
+        <span class="brand__sub">des structurés</span>
       </span>
     </a>
     <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
@@ -33,12 +33,9 @@
     <nav class="nav" aria-label="Navigation principale">
       <a href="index.html">Accueil</a>
       <a href="produits.html">Le comparateur</a>
-      <a href="familles.html">Familles de produits</a>
-      <a href="emetteurs.html">Émetteurs</a>
-      <a href="etablissements.html">Établissements</a>
       <a href="comprendre.html" class="is-active">Comprendre</a>
-      <a href="glossaire.html">Glossaire</a>
-      <a class="nav__cta" href="../contact.html">Nous consulter</a>
+      <a href="acteurs.html">Les acteurs</a>
+      <a class="nav__cta" href="produits.html#analyse">Faire analyser un produit</a>
     </nav>
   </div>
 </header>
@@ -48,31 +45,44 @@
 <section class="hero hero--page">
   <div class="hero__grid" aria-hidden="true"></div>
   <div class="container hero__in">
-    <p class="crumb"><a href="index.html">L’Observatoire</a><span>/</span>Comprendre</p>
-    <h1 class="title-xl">Comprendre un produit structuré</h1>
-    <p class="hero__lede" style="margin-top:22px">Dix minutes de lecture pour saisir l’essentiel : d’où vient le coupon, à quoi servent les barrières, quels risques sont réellement portés, et quelles questions poser avant de signer.</p>
+    <p class="crumb"><a href="index.html">Le Comptoir</a><span>/</span>Comprendre</p>
+    <h1 class="title-xl">Comprendre</h1>
+    <p class="hero__lede" style="margin-top:22px">Le guide, les familles de produits et le glossaire, réunis en un seul endroit. De quoi lire une fiche produit sans rien laisser dans l’ombre.</p>
     
   </div>
 </section>
 
-<section class="section">
-  <div class="container container--narrow">
-    <div class="toc">
-      <p class="toc__t">Au sommaire</p>
-      <ol>
-        <li><a href="#definition">Ce qu’est un produit structuré — et ce qu’il n’est pas</a></li>
-        <li><a href="#fabrication">D’où vient le coupon</a></li>
-        <li><a href="#familles">Les familles, en un tableau</a></li>
-        <li><a href="#barrieres">Les barrières, le cœur du sujet</a></li>
-        <li><a href="#risques">Les six risques réellement portés</a></li>
-        <li><a href="#fiscalite">Enveloppes et fiscalité</a></li>
-        <li><a href="#sortie">Sortir avant l’échéance</a></li>
-        <li><a href="#questions">Les dix questions à poser</a></li>
-        <li><a href="#erreurs">Les erreurs les plus fréquentes</a></li>
-      </ol>
+<section class="section section--tight">
+  <div class="container container--mid">
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button class="tabs__b is-active" type="button" role="tab" id="tab-guide" aria-controls="guide" aria-selected="true" data-tab="guide">Le guide</button>
+      <button class="tabs__b" type="button" role="tab" id="tab-familles" aria-controls="familles" aria-selected="false" data-tab="familles">Les familles</button>
+      <button class="tabs__b" type="button" role="tab" id="tab-glossaire" aria-controls="glossaire" aria-selected="false" data-tab="glossaire">Glossaire · 73</button>
     </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container container--mid">
+    <div class="tabs__p is-active" id="guide" role="tabpanel" aria-labelledby="tab-guide">
 
     <div class="prose">
+      <div class="toc">
+        <p class="toc__t">Au sommaire</p>
+        <ol>
+          <li><a href="#definition">Ce qu’est un produit structuré — et ce qu’il n’est pas</a></li>
+          <li><a href="#fabrication">D’où vient le coupon</a></li>
+          <li><a href="#decrement-ou-pas">Indice public ou indice décrément</a></li>
+          <li><a href="#tableau-familles">Les familles, en un tableau</a></li>
+          <li><a href="#barrieres">Les barrières, le cœur du sujet</a></li>
+          <li><a href="#risques">Les six risques réellement portés</a></li>
+          <li><a href="#fiscalite">Enveloppes et fiscalité</a></li>
+          <li><a href="#sortie">Sortir avant l’échéance</a></li>
+          <li><a href="#questions">Les dix questions à poser</a></li>
+          <li><a href="#erreurs">Les erreurs les plus fréquentes</a></li>
+        </ol>
+      </div>
+
       <h2 id="definition">1. Ce qu’est un produit structuré — et ce qu’il n’est pas</h2>
       <p>Un produit structuré est un <strong>titre de créance émis par une banque</strong>,
       dont le remboursement et la rémunération sont calculés selon une formule fixée à
@@ -91,7 +101,7 @@
       question est de savoir si ce contrat vous est favorable.</p></blockquote>
 
       <h2 id="fabrication">2. D’où vient le coupon</h2>
-      <p>Un coupon de 9 % par an dans un monde où le taux sans risque est à 2 % ne tombe pas
+      <p>Un coupon de 11 % par an dans un monde où le taux sans risque est à 2 % ne tombe pas
       du ciel. Il est financé, et il est utile de savoir par quoi. Schématiquement, l’émetteur
       décompose votre nominal en deux poches.</p>
       <p>La première est une <strong>composante obligataire</strong> : en plaçant une partie
@@ -104,41 +114,69 @@
         <li><strong>Vendre de la volatilité.</strong> Plus le sous-jacent est agité, plus les
         options vendues rapportent. Un coupon élevé signale donc un sous-jacent risqué, pas une
         bonne affaire.</li>
-        <li><strong>Renoncer aux dividendes.</strong> C’est le rôle des
-        <a class="inline" href="glossaire.html#indice-decrement">indices décrément</a>, qui
-        prélèvent un dividende forfaitaire chaque année. Vous financez votre coupon avec les
-        dividendes auxquels vous renoncez.</li>
+        <li><strong>Renoncer aux dividendes.</strong> Les grands indices sont publiés
+        dividendes non réinvestis : le CAC 40 que vous lisez dans la presse ne les intègre pas.
+        Ces dividendes abandonnés financent l’essentiel de votre coupon.</li>
         <li><strong>Plafonner le gain.</strong> En abandonnant les scénarios très haussiers,
         vous achetez votre protection à la baisse.</li>
       </ul>
       <p>À ces trois leviers s’ajoutent les mécanismes défavorables : un
-      <a class="inline" href="glossaire.html#worst-of">Worst-of</a> sur plusieurs actions, une
-      <a class="inline" href="glossaire.html#barriere-americaine">barrière américaine</a>, une
-      devise étrangère non couverte. Lorsqu’un coupon dépasse nettement ceux du marché, l’un de
-      ces mécanismes est presque toujours présent. Le trouver, c’est comprendre le produit.</p>
+      <a class="inline" href="#worst-of" data-goto="glossaire">Worst-of</a> sur plusieurs
+      actions, une <a class="inline" href="#barriere-americaine" data-goto="glossaire">barrière
+      américaine</a>, un indice décrément, une devise étrangère non couverte. Lorsqu’un coupon
+      dépasse nettement ceux du marché, l’un de ces mécanismes est presque toujours présent.
+      Le trouver, c’est comprendre le produit.</p>
 
-      <h2 id="familles">3. Les familles, en un tableau</h2>
+      <h2 id="decrement-ou-pas">3. Indice public ou indice décrément</h2>
+      <p>C’est aujourd’hui la ligne de partage la plus importante du marché français, et la
+      moins expliquée.</p>
+      <p>Un <strong>indice public</strong> — CAC 40, EURO STOXX 50, S&amp;P 500 — est calculé
+      par un fournisseur indépendant, coté en continu, consultable par n’importe qui. Un
+      <strong>indice décrément</strong> est construit pour la structuration : il réinvestit les
+      dividendes réels du panier, puis en retranche un prélèvement forfaitaire, soit un
+      pourcentage annuel, soit un nombre fixe de points.</p>
+      <table>
+        <thead><tr><th></th><th>Indice public</th><th>Indice décrément</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Cotation</strong></td><td>Suivie quotidiennement, presse et sites financiers</td><td>Publiée par l’émetteur, peu accessible</td></tr>
+          <tr><td><strong>Historique</strong></td><td>Réel, souvent plusieurs décennies</td><td>Souvent reconstitué par calcul avant la création</td></tr>
+          <tr><td><strong>Dividendes</strong></td><td>Non réinvestis : ils financent le coupon</td><td>Réinvestis puis prélevés au forfait</td></tr>
+          <tr><td><strong>Coupon affiché</strong></td><td>Élevé</td><td>Plus élevé encore</td></tr>
+          <tr><td><strong>Écart à la référence</strong></td><td>Aucun, c’est la référence</td><td>Se creuse chaque année</td></tr>
+        </tbody>
+      </table>
+      <p>Le décrément n’est pas un piège en soi : c’est un mode de financement du coupon,
+      parfaitement documenté. Mais il transfère au souscripteur un sous-jacent qu’il ne peut
+      plus suivre, et dont le prélèvement pèse d’autant plus lourd que le marché baisse —
+      quand il s’agit d’un décrément en points, le prélèvement reste constant en valeur
+      absolue alors que l’indice, lui, a reculé.</p>
+      <p><strong>Nos structures sont toutes sur indice public.</strong> Le coupon y est un peu
+      plus faible à barrières identiques, et nous assumons cet écart :
+      <a class="inline" href="#indice-decrement" data-goto="familles">la fiche détaillée</a>
+      explique le calcul.</p>
+
+      <h2 id="tableau-familles">4. Les familles, en un tableau</h2>
       <table>
         <thead><tr><th>Famille</th><th>Profil</th><th>En une ligne</th></tr></thead>
         <tbody>
-<tr><td><a class="inline" href="familles.html#autocall-phoenix">Autocall Phoenix</a></td><td>Rendement conditionnel</td><td>La structure la plus distribuée en France…</td></tr>
-<tr><td><a class="inline" href="familles.html#phoenix-memoire">Phoenix à coupon mémoire</a></td><td>Rendement conditionnel</td><td>Un Phoenix classique auquel on ajoute un effet mémoire…</td></tr>
-<tr><td><a class="inline" href="familles.html#athena">Athéna</a></td><td>Rendement capitalisé</td><td>Pas de coupon détaché en cours de vie…</td></tr>
-<tr><td><a class="inline" href="familles.html#reverse-convertible">Reverse Convertible</a></td><td>Rendement élevé, protection limitée</td><td>Un coupon fixe et inconditionnel, versé quoi qu’il arrive, en échange d’une exposition directe à la baisse du …</td></tr>
-<tr><td><a class="inline" href="familles.html#capital-protege">Capital protégé ou garanti</a></td><td>Protection prioritaire</td><td>Le nominal est remboursé à l’échéance quel que soit le parcours du sous-jacent — sous la seule réserve de la s…</td></tr>
-<tr><td><a class="inline" href="familles.html#participation">Produit de participation</a></td><td>Croissance indexée</td><td>Pas de coupon…</td></tr>
-<tr><td><a class="inline" href="familles.html#airbag-bonus">Airbag &amp; Bonus</a></td><td>Amortisseur de baisse</td><td>Deux réponses au défaut majeur des barrières classiques…</td></tr>
-<tr><td><a class="inline" href="familles.html#indice-decrement">Produit sur indice décrément</a></td><td>Sous-jacent synthétique</td><td>Le sous-jacent n’est pas un indice de marché classique mais un indice construit, auquel on retranche un divide…</td></tr>
-<tr><td><a class="inline" href="familles.html#twin-win">Twin Win</a></td><td>Double sens</td><td>Un produit qui gagne dans les deux sens…</td></tr>
-<tr><td><a class="inline" href="familles.html#cln">Credit Linked Note (CLN)</a></td><td>Risque de crédit</td><td>Le rendement ne dépend pas d’un indice actions mais de la survenance d’un événement de crédit sur un émetteur …</td></tr>
-<tr><td><a class="inline" href="familles.html#produits-taux">Produits de taux</a></td><td>Taux &amp; obligataire</td><td>Le sous-jacent n’est plus une action ou un indice mais une courbe de taux…</td></tr>
-<tr><td><a class="inline" href="familles.html#discount">Certificat Discount</a></td><td>Décote à l’entrée</td><td>Pas de coupon…</td></tr>
+<tr><td><a class="inline" href="#autocall-phoenix" data-goto="familles">Autocall Phoenix</a></td><td>Rendement conditionnel</td><td>La structure la plus distribuée en France : un coupon versé à chaque constatation si le sous-jacent reste au-dessus d’un…</td></tr>
+<tr><td><a class="inline" href="#phoenix-memoire" data-goto="familles">Phoenix à coupon mémoire</a></td><td>Rendement conditionnel</td><td>Un Phoenix classique auquel on ajoute un effet mémoire : les coupons non versés ne sont pas perdus, ils sont mis en rése…</td></tr>
+<tr><td><a class="inline" href="#athena" data-goto="familles">Athéna</a></td><td>Rendement capitalisé</td><td>Pas de coupon détaché en cours de vie : le rendement est capitalisé et versé en une fois, au moment du remboursement ant…</td></tr>
+<tr><td><a class="inline" href="#reverse-convertible" data-goto="familles">Reverse Convertible</a></td><td>Rendement élevé, protection limitée</td><td>Un coupon fixe et inconditionnel, versé quoi qu’il arrive, en échange d’une exposition directe à la baisse du sous-jacen…</td></tr>
+<tr><td><a class="inline" href="#capital-protege" data-goto="familles">Capital protégé ou garanti</a></td><td>Protection prioritaire</td><td>Le nominal est remboursé à l’échéance quel que soit le parcours du sous-jacent — sous la seule réserve de la solvabilité…</td></tr>
+<tr><td><a class="inline" href="#participation" data-goto="familles">Produit de participation</a></td><td>Croissance indexée</td><td>Pas de coupon : la performance du sous-jacent est restituée, en totalité ou avec un effet de levier, dans une fourchette…</td></tr>
+<tr><td><a class="inline" href="#airbag-bonus" data-goto="familles">Airbag &amp; Bonus</a></td><td>Amortisseur de baisse</td><td>Deux réponses au défaut majeur des barrières classiques : l’effet de seuil. L’Airbag amortit la perte au-delà de la barr…</td></tr>
+<tr><td><a class="inline" href="#indice-decrement" data-goto="familles">Indice décrément</a></td><td>Ce que nous ne retenons pas</td><td>Le sous-jacent n’est pas un indice de marché mais un indice construit par l’émetteur, auquel on retranche un dividende f…</td></tr>
+<tr><td><a class="inline" href="#twin-win" data-goto="familles">Twin Win</a></td><td>Double sens</td><td>Un produit qui gagne dans les deux sens : la hausse est restituée, et la baisse est convertie en performance positive ta…</td></tr>
+<tr><td><a class="inline" href="#cln" data-goto="familles">Credit Linked Note (CLN)</a></td><td>Risque de crédit</td><td>Le rendement ne dépend pas d’un indice actions mais de la survenance d’un événement de crédit sur un émetteur de référen…</td></tr>
+<tr><td><a class="inline" href="#produits-taux" data-goto="familles">Produits de taux</a></td><td>Taux &amp; obligataire</td><td>Le sous-jacent n’est plus une action ou un indice mais une courbe de taux : Euribor, CMS, inflation. Structures privilég…</td></tr>
+<tr><td><a class="inline" href="#discount" data-goto="familles">Certificat Discount</a></td><td>Décote à l’entrée</td><td>Pas de coupon : l’avantage est pris à l’achat, sous forme d’une décote sur le niveau du sous-jacent. Le gain est plafonn…</td></tr>
         </tbody>
       </table>
       <p>Chaque famille fait l’objet d’une fiche détaillée, avec son mécanisme, ses avantages
-      et ses coûts : <a class="inline" href="familles.html">voir les douze familles</a>.</p>
+      et ses coûts : <a class="inline" href="#familles" data-goto="familles">voir les fiches</a>.</p>
 
-      <h2 id="barrieres">4. Les barrières, le cœur du sujet</h2>
+      <h2 id="barrieres">5. Les barrières, le cœur du sujet</h2>
       <p>Un produit de rendement comporte généralement deux barrières, qu’il ne faut pas
       confondre. La <strong>barrière de coupon</strong> commande le revenu : au-dessus, le
       coupon tombe ; en dessous, il est suspendu (ou mémorisé). La <strong>barrière de
@@ -167,16 +205,12 @@
   </g>
   <line x1="60" y1="260" x2="620" y2="260" stroke="#14171B" stroke-width="1.2"/>
   <line x1="60" y1="60" x2="60" y2="260" stroke="#14171B" stroke-width="1.2"/>
-  <!-- barrière de capital à 60 % -->
   <line x1="300" y1="60" x2="300" y2="260" stroke="#A9853F" stroke-width="1.4" stroke-dasharray="5 4"/>
   <text x="140" y="76" font-family="Jost, sans-serif" font-size="12" fill="#A9853F">Barrière de capital — 60 %</text>
-  <!-- en dessous de la barrière : remboursement = niveau du sous-jacent -->
   <path d="M 60 260 L 300 156.5" fill="none" stroke="#99402F" stroke-width="2.6"/>
-  <!-- au-dessus : remboursement plafonné à 100 % du nominal -->
   <path d="M 300 87.5 L 620 87.5" fill="none" stroke="#2F6B4E" stroke-width="2.6"/>
   <circle cx="300" cy="156.5" r="4" fill="#fff" stroke="#99402F" stroke-width="2.2"/>
   <circle cx="300" cy="87.5" r="4" fill="#2F6B4E"/>
-  <!-- saut de barrière : 40 points de nominal -->
   <line x1="300" y1="156.5" x2="300" y2="87.5" stroke="#14171B" stroke-width="1.1"/>
   <path d="M 296 92 L 300 87.5 L 304 92" fill="none" stroke="#14171B" stroke-width="1.1"/>
   <path d="M 296 152 L 300 156.5 L 304 152" fill="none" stroke="#14171B" stroke-width="1.1"/>
@@ -211,10 +245,10 @@
       quarante points. Cette discontinuité est le défaut structurel des barrières sèches. Elle
       explique aussi pourquoi la valeur de marché d’un produit devient très instable lorsque le
       sous-jacent rôde autour de son seuil. Les mécanismes
-      <a class="inline" href="glossaire.html#airbag">airbag</a> ont précisément été conçus pour
-      la supprimer, au prix d’un coupon plus faible.</p>
+      <a class="inline" href="#airbag" data-goto="glossaire">airbag</a> ont précisément été
+      conçus pour la supprimer, au prix d’un coupon plus faible.</p>
 
-      <h2 id="risques">5. Les six risques réellement portés</h2>
+      <h2 id="risques">6. Les six risques réellement portés</h2>
       <p>La documentation commerciale insiste sur le risque de marché. Il n’est ni le seul, ni
       toujours le plus important.</p>
       <ol>
@@ -245,7 +279,7 @@
         le produit a du sens. Sinon, aucun niveau de coupon ne le justifiera.</p></div>
       </div>
 
-      <h2 id="fiscalite">6. Enveloppes et fiscalité</h2>
+      <h2 id="fiscalite">7. Enveloppes et fiscalité</h2>
       <p>Le même produit n’a pas le même rendement net selon l’enveloppe qui l’accueille. C’est
       un paramètre de décision, pas un détail administratif.</p>
       <table>
@@ -272,7 +306,7 @@
       fiscaux français. Ils ne constituent pas un conseil fiscal : la situation personnelle du
       souscripteur commande, et la réglementation évolue.</p>
 
-      <h2 id="sortie">7. Sortir avant l’échéance</h2>
+      <h2 id="sortie">8. Sortir avant l’échéance</h2>
       <p>C’est possible, mais rarement au prix que l’on imagine. La valorisation en cours de vie
       ne se déduit pas du niveau du sous-jacent par une règle de trois : elle dépend aussi de la
       volatilité, des taux, du temps restant et de la qualité de crédit de l’émetteur.</p>
@@ -280,15 +314,15 @@
       pour deux raisons principales : les frais de structuration ont été prélevés dès
       l’émission, et le temps n’a pas encore fait son œuvre. À l’inverse, en fin de vie, la
       valeur converge mécaniquement vers le montant de remboursement attendu — c’est
-      l’<a class="inline" href="glossaire.html#effet-de-pull-to-par">effet de pull-to-par</a>.</p>
+      l’<a class="inline" href="#effet-de-pull-to-par" data-goto="glossaire">effet de pull-to-par</a>.</p>
       <p>En pratique : un produit structuré doit être souscrit avec l’intention de le porter
       jusqu’à son terme. La sortie anticipée est une porte de secours, jamais une stratégie.</p>
 
-      <h2 id="questions">8. Les dix questions à poser</h2>
+      <h2 id="questions">9. Les dix questions à poser</h2>
       <ol>
         <li>Quel est l’émetteur exact du titre, et quel est son garant ?</li>
         <li>Quelles sont ses trois notations, à quelle date, et avec quelles perspectives ?</li>
-        <li>Le sous-jacent est-il un indice classique ou un indice décrément ? Si décrément, en points ou en pourcentage, et de combien ?</li>
+        <li>Le sous-jacent est-il un indice public ou un indice décrément ? Si décrément, en points ou en pourcentage, et de combien ?</li>
         <li>La barrière de capital est-elle constatée à l’échéance seulement, ou en continu ?</li>
         <li>Y a-t-il un mécanisme Worst-of ? Sur combien de composantes ?</li>
         <li>Les coupons sont-ils à mémoire ? Existe-t-il une période de non-rappel ?</li>
@@ -301,10 +335,13 @@
       la brochure commerciale</strong>. Le premier est réglementaire, standardisé et comparable.
       La seconde n’a aucune valeur contractuelle.</p>
 
-      <h2 id="erreurs">9. Les erreurs les plus fréquentes</h2>
+      <h2 id="erreurs">10. Les erreurs les plus fréquentes</h2>
       <ul>
-        <li><strong>Comparer le coupon de deux produits sans comparer leurs barrières.</strong>
-        Un produit à 7 % barrière 50 % est souvent préférable à un produit à 9 % barrière 70 %.</li>
+        <li><strong>Comparer le coupon de deux produits sans comparer leurs sous-jacents.</strong>
+        Un produit à 10 % sur indice public et un produit à 12 % sur décrément ne sont pas
+        comparables : le second a déjà prélevé la différence.</li>
+        <li><strong>Comparer le coupon sans comparer les barrières.</strong> Un produit à 8,5 %
+        barrière 40 % est souvent préférable à un produit à 11 % barrière 70 %.</li>
         <li><strong>Prendre la maturité affichée pour la durée réelle.</strong> Sur un autocall,
         elle est presque toujours plus courte — sans qu’on puisse en être certain.</li>
         <li><strong>Croire qu’un panier diversifie.</strong> En Worst-of, il concentre le risque
@@ -315,10 +352,863 @@
         récent est reconstitué a posteriori : personne ne l’a jamais investi.</li>
         <li><strong>Concentrer sur un seul émetteur.</strong> Diversifier les signatures compte
         autant que diversifier les sous-jacents.</li>
-        <li><strong>Souscrire sans pouvoir porter jusqu’au terme.</strong> La sortie anticipée
-        se fait au prix du marché, pas au nominal.</li>
       </ul>
-      <p style="margin-top:34px"><a class="btn" href="glossaire.html">Approfondir avec le glossaire</a></p>
+      <p style="margin-top:34px">
+        <a class="btn" href="produits.html">Voir le comparateur</a>
+        <a class="btn" href="produits.html#analyse" style="margin-left:10px">Faire analyser un produit</a>
+      </p>
+    </div>
+    </div>
+    <div class="tabs__p" id="familles" role="tabpanel" aria-labelledby="tab-familles" hidden>
+
+    <div class="notice notice--grey" style="margin-bottom:26px">
+      <span class="notice__i" aria-hidden="true">i</span>
+      <div><p>Onze familles décrites, et une douzième —
+      <a class="card__more" href="#indice-decrement" style="border:0;padding:0">l’indice
+      décrément</a> — que nous présentons pour la reconnaître et l’écarter. Les niveaux
+      chiffrés cités sont des ordres de grandeur représentatifs des conditions de novembre 2025.</p></div>
+    </div>
+    <nav class="chips" aria-label="Accès direct aux familles"><a href="#autocall-phoenix">Autocall Phoenix</a><a href="#phoenix-memoire">Phoenix à coupon mémoire</a><a href="#athena">Athéna</a><a href="#reverse-convertible">Reverse Convertible</a><a href="#capital-protege">Capital protégé ou garanti</a><a href="#participation">Produit de participation</a><a href="#airbag-bonus">Airbag &amp; Bonus</a><a href="#indice-decrement">Indice décrément</a><a href="#twin-win">Twin Win</a><a href="#cln">Credit Linked Note (CLN)</a><a href="#produits-taux">Produits de taux</a><a href="#discount">Certificat Discount</a></nav>
+
+      <article class="fam" id="autocall-phoenix">
+        <div class="fam__l">
+          <p class="eyebrow">Rendement conditionnel</p>
+          <h3 class="title-md">Autocall Phoenix</h3>
+          <hr class="rule">
+          <p class="lede">La structure la plus distribuée en France : un coupon versé à chaque constatation si le sous-jacent reste au-dessus d’une barrière, et un remboursement anticipé possible dès que le niveau initial est retrouvé.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur qui anticipe un marché stable, légèrement haussier ou modérément baissier, et qui accepte de plafonner son gain au coupon en échange d’une protection partielle à l’échéance.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Autocall+Phoenix">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>À chaque date de constatation (souvent trimestrielle ou annuelle), on compare le niveau du sous-jacent à deux seuils. Si le sous-jacent est au-dessus de la <strong>barrière de coupon</strong>, le coupon de la période est versé. S’il est au-dessus du <strong>seuil de rappel</strong> (généralement 100 % du niveau initial), le produit est remboursé par anticipation au nominal, coupon inclus, et s’arrête là.</p>
+          <p>Si aucun rappel n’a eu lieu jusqu’à l’échéance, le capital est remboursé intégralement tant que le sous-jacent est au-dessus de la <strong>barrière de capital</strong> (par exemple 60 % du niveau initial). En dessous, l’investisseur subit la baisse réelle du sous-jacent, sans amortisseur.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Coupon connu à l’avance et détaché même en marché baissier modéré</li>
+            <li>Rappel anticipé qui raccourcit la durée réelle de détention</li>
+            <li>Barrière de capital souvent profonde (50 à 70 %)</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Gain plafonné : la hausse du sous-jacent au-delà du coupon ne profite pas à l’investisseur</li>
+            <li>Risque de perte franche dès que la barrière de capital est enfoncée à l’échéance</li>
+            <li>Durée réelle incertaine, entre quelques mois et la maturité maximale</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="phoenix-memoire">
+        <div class="fam__l">
+          <p class="eyebrow">Rendement conditionnel</p>
+          <h3 class="title-md">Phoenix à coupon mémoire</h3>
+          <hr class="rule">
+          <p class="lede">Un Phoenix classique auquel on ajoute un effet mémoire : les coupons non versés ne sont pas perdus, ils sont mis en réserve et rattrapés dès qu’une constatation redevient favorable.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur qui redoute moins une baisse durable qu’un passage sous la barrière au mauvais moment, et qui privilégie le rendement total sur la régularité des versements.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Phoenix+%C3%A0+coupon+m%C3%A9moire">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>Le fonctionnement est celui de l’Autocall Phoenix. La différence tient à l’<strong>effet mémoire</strong> : chaque coupon manqué est conservé et s’additionne au premier coupon payé par la suite.</p>
+          <p>Un produit à 8 % annuel qui manque deux constatations puis en réussit une troisième verse 24 % en une fois. La mémoire transforme un trou de performance temporaire en simple report, à condition que le sous-jacent repasse un jour au-dessus de la barrière de coupon.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Aucun coupon définitivement perdu tant que le produit vit</li>
+            <li>Lisse l’effet des constatations défavorables isolées</li>
+            <li>Rendement total souvent supérieur à un Phoenix sans mémoire sur un parcours agité</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Coupon facial légèrement inférieur à un produit sans mémoire, à barrières identiques</li>
+            <li>Si le sous-jacent ne repasse jamais la barrière de coupon, la mémoire ne sert à rien</li>
+            <li>Trésorerie irrégulière : versements groupés plutôt que réguliers</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="athena">
+        <div class="fam__l">
+          <p class="eyebrow">Rendement capitalisé</p>
+          <h3 class="title-md">Athéna</h3>
+          <hr class="rule">
+          <p class="lede">Pas de coupon détaché en cours de vie : le rendement est capitalisé et versé en une fois, au moment du remboursement anticipé ou à l’échéance.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur qui n’a pas besoin de revenus intermédiaires et préfère un gain intégralement différé, souvent mieux rémunéré qu’un coupon détaché à barrières comparables.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Ath%C3%A9na">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>À chaque constatation, le produit est remboursé par anticipation si le sous-jacent est au-dessus du seuil de rappel. Le versement comprend alors le nominal plus un gain égal au taux annuel multiplié par le nombre d’années écoulées.</p>
+          <p>Tant que le rappel n’intervient pas, rien n’est versé. À l’échéance, soit le sous-jacent est au-dessus de la barrière finale et le capital est remboursé avec l’intégralité du gain capitalisé, soit il est en dessous de la barrière de capital et l’investisseur encaisse la baisse.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Taux de capitalisation généralement supérieur au coupon d’un Phoenix équivalent</li>
+            <li>Un seul flux à l’arrivée : simple à suivre et à fiscaliser dans un compte-titres</li>
+            <li>Capitalisation mécanique qui travaille tant que le produit vit</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Aucun revenu intermédiaire : zéro perçu si le produit ne rappelle jamais et termine sous la barrière</li>
+            <li>Logique tout ou rien, moins lisible pour un investisseur cherchant du rendement courant</li>
+            <li>Sensible à la date : un rappel tardif allonge l’immobilisation du capital</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="reverse-convertible">
+        <div class="fam__l">
+          <p class="eyebrow">Rendement élevé, protection limitée</p>
+          <h3 class="title-md">Reverse Convertible</h3>
+          <hr class="rule">
+          <p class="lede">Un coupon fixe et inconditionnel, versé quoi qu’il arrive, en échange d’une exposition directe à la baisse du sous-jacent à l’échéance, avec une protection faible ou nulle.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur averti qui recherche un rendement élevé immédiat et accepte d’être assimilé à un acheteur du sous-jacent en cas de baisse.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Reverse+Convertible">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>Le coupon est versé à chaque période sans condition de barrière : c’est la seule famille où le rendement est acquis indépendamment du parcours du sous-jacent.</p>
+          <p>En contrepartie, le remboursement du capital est intégralement conditionné au niveau final. Au-dessus du strike (ou d’une barrière peu profonde, souvent 80 à 90 %), le nominal est remboursé ; en dessous, l’investisseur reçoit l’équivalent de la performance négative du sous-jacent, parfois sous forme de livraison des titres.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Coupon certain, non conditionnel</li>
+            <li>Rendement facial parmi les plus élevés du marché</li>
+            <li>Structure simple à trois paramètres : coupon, strike, échéance</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Protection du capital faible ou inexistante : le profil de perte ressemble à une détention directe</li>
+            <li>Aucun rappel anticipé pour sécuriser le gain</li>
+            <li>Sur un mono sous-jacent action, le risque spécifique de l’émetteur du titre s’ajoute au reste</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="capital-protege">
+        <div class="fam__l">
+          <p class="eyebrow">Protection prioritaire</p>
+          <h3 class="title-md">Capital protégé ou garanti</h3>
+          <hr class="rule">
+          <p class="lede">Le nominal est remboursé à l’échéance quel que soit le parcours du sous-jacent — sous la seule réserve de la solvabilité de l’émetteur. Le rendement, lui, reste conditionnel ou partiel.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Trésorerie d’entreprise, investisseur prudent ou allocation cœur de portefeuille, pour qui la préservation du nominal primait sur le rendement.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Capital+prot%C3%A9g%C3%A9+ou+garanti">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>L’émetteur place l’essentiel du nominal sur une composante obligataire qui ramène 100 % du capital à l’échéance, et consacre le reliquat à l’achat d’options qui portent la performance.</p>
+          <p>Le niveau des taux conditionne directement l’attrait de cette famille : plus les taux sont élevés, moins la composante obligataire coûte cher et plus le budget d’options est important. La protection ne vaut qu’à l’échéance — en cours de vie, la valeur de marché peut descendre sous le nominal — et elle ne couvre jamais le risque de défaut de l’émetteur.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Capital remboursé à l’échéance, hors défaut de l’émetteur</li>
+            <li>Profil compatible avec des contraintes prudentielles ou statutaires</li>
+            <li>Lisibilité forte pour un comité d’investissement</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Participation à la hausse réduite, souvent plafonnée</li>
+            <li>Protection valable uniquement à l’échéance, pas en cours de vie</li>
+            <li>Immobilise le capital sur une durée longue, avec un coût d’opportunité réel</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="participation">
+        <div class="fam__l">
+          <p class="eyebrow">Croissance indexée</p>
+          <h3 class="title-md">Produit de participation</h3>
+          <hr class="rule">
+          <p class="lede">Pas de coupon : la performance du sous-jacent est restituée, en totalité ou avec un effet de levier, dans une fourchette délimitée par un plancher et un plafond.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur qui a une vue haussière à moyen terme et souhaite rester exposé à la progression du marché tout en bornant sa perte.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Produit+de+participation">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>L’indexation s’exprime par un <strong>taux de participation</strong> : 100 % pour une restitution à l’identique, 150 % pour un levier, 70 % pour une participation partielle compensée par une protection plus solide.</p>
+          <p>La fourchette de gain est très souvent bornée par un <strong>cap</strong> (plafond), ce qui finance la protection à la baisse. Les variantes <em>call spread</em>, <em>asiatique</em> (moyenne des constatations) ou <em>lock-in</em> (cliquet qui sécurise les paliers atteints) modulent ce profil.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Participation réelle à la hausse du sous-jacent, parfois avec levier</li>
+            <li>Profil proche d’un investissement en actions, avec un amortisseur contractuel</li>
+            <li>Variante lock-in capable de verrouiller les gains intermédiaires</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Aucun revenu intermédiaire : la performance n’est connue qu’à l’échéance</li>
+            <li>Plafond qui prive l’investisseur des marchés très haussiers</li>
+            <li>Les dividendes du sous-jacent ne sont généralement pas reversés</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="airbag-bonus">
+        <div class="fam__l">
+          <p class="eyebrow">Amortisseur de baisse</p>
+          <h3 class="title-md">Airbag &amp; Bonus</h3>
+          <hr class="rule">
+          <p class="lede">Deux réponses au défaut majeur des barrières classiques : l’effet de seuil. L’Airbag amortit la perte au-delà de la barrière, le Bonus verse une prime fixe tant qu’un seuil n’a jamais été touché.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur qui a compris le danger du franchissement de barrière et accepte un coupon un peu plus faible pour le neutraliser.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Airbag+%26+Bonus">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p><strong>Airbag</strong> : lorsque la barrière de capital est franchie, la perte n’est pas calculée depuis le niveau initial mais depuis la barrière elle-même. Avec une barrière à 60 %, un sous-jacent qui termine à 55 % fait perdre environ 8 % au lieu de 45 %. L’effet falaise est lissé.</p>
+          <p><strong>Bonus</strong> : le produit verse une prime prédéfinie à l’échéance tant qu’un seuil bas n’a jamais été touché en continu. Si ce seuil est touché une seule fois, le produit se transforme en exposition directe au sous-jacent et la prime est perdue.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Suppression ou atténuation de l’effet de seuil, principal piège des barrières</li>
+            <li>Perte progressive et non brutale sur la variante Airbag</li>
+            <li>Profil de risque plus lisible à présenter</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Coupon ou prime inférieurs à ceux d’une structure sèche équivalente</li>
+            <li>La variante Bonus avec constatation continue est fragile : un seul point de passage suffit</li>
+            <li>Documentation plus technique, donc plus difficile à comparer</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam fam--exclu" id="indice-decrement">
+        <div class="fam__l">
+          <p class="eyebrow">Ce que nous ne retenons pas</p>
+          <h3 class="title-md">Indice décrément</h3>
+          <hr class="rule">
+          <p class="lede">Le sous-jacent n’est pas un indice de marché mais un indice construit par l’émetteur, auquel on retranche un dividende forfaitaire chaque année. C’est le socle de la majorité des structures distribuées en France — et la raison pour laquelle nous n’en référençons aucune.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Personne, selon nous — du moins tant qu’une structure équivalente existe sur indice public. Cette fiche est là pour reconnaître un décrément dans une documentation et en mesurer le coût.</p>
+          <p style="margin:22px 0 0"><span class="tag" style="border-color:var(--neg);color:var(--neg)">Aucune structure de ce type au comparateur</span></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>Un indice décrément reproduit un panier d’actions en réinvestissant les dividendes réels, puis en déduisant un prélèvement fixe : soit un pourcentage annuel (par exemple 5 % par an), soit un montant en points d’indice (par exemple 50 points par an).</p>
+          <p>L’émetteur connaît ainsi à l’avance le flux de dividendes, ce qui lui permet d’afficher des coupons et des barrières plus généreux. La contrepartie est mécanique : si les dividendes réels du panier sont inférieurs au décrément, l’indice progresse structurellement moins vite que l’indice de référence classique. Le décrément en points est particulièrement pénalisant lorsque l’indice baisse, puisque le prélèvement reste constant en valeur absolue au moment même où l’investisseur a besoin que l’indice se maintienne au-dessus de ses barrières.</p>
+          <p><strong>Notre position.</strong> Le gain de coupon ne compense pas, à nos yeux, la perte de lisibilité : l’investisseur ne peut pas suivre son sous-jacent dans la presse, l’historique présenté est le plus souvent reconstitué, et l’écart avec l’indice de référence se creuse année après année. Nous ne retenons donc que des indices publics, dont la méthodologie est consultable et la cotation vérifiable chaque jour.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Permet d’afficher des coupons et des barrières plus attractifs</li>
+            <li>Volatilité souvent inférieure à celle d’un mono sous-jacent action</li>
+            <li>Diversification sectorielle ou géographique dans un seul sous-jacent</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Écart de performance croissant avec l’indice de référence au fil du temps</li>
+            <li>Décrément exprimé en points : effet d’autant plus lourd que l’indice baisse</li>
+            <li>Indices souvent jeunes : historiques réels courts, le reste étant du backtest</li>
+            <li>Cotation et méthodologie difficilement vérifiables par l’investisseur</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="twin-win">
+        <div class="fam__l">
+          <p class="eyebrow">Double sens</p>
+          <h3 class="title-md">Twin Win</h3>
+          <hr class="rule">
+          <p class="lede">Un produit qui gagne dans les deux sens : la hausse est restituée, et la baisse est convertie en performance positive tant qu’un seuil bas n’est pas franchi.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur qui anticipe un mouvement marqué sans savoir dans quel sens, par exemple avant un événement de marché identifié.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Twin+Win">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>À l’échéance, une hausse du sous-jacent est restituée selon un taux de participation. Une baisse est transformée en gain équivalent à sa valeur absolue, tant que la barrière basse n’a pas été atteinte.</p>
+          <p>Si la barrière est franchie, le mécanisme s’éteint : l’investisseur retrouve une exposition directe à la baisse réelle du sous-jacent.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Gagne en marché haussier comme en marché baissier contenu</li>
+            <li>Réponse pertinente à une vue de forte volatilité sans direction</li>
+            <li>Profil original, peu corrélé aux structures classiques du portefeuille</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Structure coûteuse : participation souvent inférieure à 100 %</li>
+            <li>Barrière généralement proche, donc vite atteinte</li>
+            <li>Rare sur le marché français et peu liquide en secondaire</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="cln">
+        <div class="fam__l">
+          <p class="eyebrow">Risque de crédit</p>
+          <h3 class="title-md">Credit Linked Note (CLN)</h3>
+          <hr class="rule">
+          <p class="lede">Le rendement ne dépend pas d’un indice actions mais de la survenance d’un événement de crédit sur un émetteur de référence ou un panier d’émetteurs.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur obligataire qui cherche un surcroît de rendement sur une signature qu’il connaît et dont il accepte le risque de défaut.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Credit+Linked+Note+%28CLN%29">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>Tant qu’aucun événement de crédit (défaut, restructuration, faillite) n’affecte la référence, le coupon est versé et le capital remboursé à l’échéance.</p>
+          <p>Si un événement de crédit survient, le remboursement est amputé du taux de recouvrement constaté. L’investisseur porte donc deux risques de crédit distincts : celui de l’émetteur du titre et celui de la référence sous-jacente.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Rendement décorrélé des marchés actions</li>
+            <li>Exposition à une signature précise, choisie et analysable</li>
+            <li>Insensible aux mouvements de marché tant qu’il n’y a pas d’événement de crédit</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Deux risques de crédit cumulés : émetteur et référence</li>
+            <li>Perte potentiellement très lourde et brutale en cas de défaut</li>
+            <li>Analyse crédit exigeante, hors de portée d’un investisseur non spécialiste</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="produits-taux">
+        <div class="fam__l">
+          <p class="eyebrow">Taux &amp; obligataire</p>
+          <h3 class="title-md">Produits de taux</h3>
+          <hr class="rule">
+          <p class="lede">Le sous-jacent n’est plus une action ou un indice mais une courbe de taux : Euribor, CMS, inflation. Structures privilégiées pour les placements de trésorerie.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Trésorier d’entreprise, holding ou investisseur institutionnel qui veut améliorer la rémunération d’une poche obligataire sans exposition actions.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Produits+de+taux">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>Les variantes les plus courantes sont le <em>callable</em> (taux fixe élevé, l’émetteur pouvant rappeler le titre aux dates prévues), le <em>range accrual</em> (coupon versé chaque jour où le taux de référence reste dans une fourchette) et les formules indexées sur l’inflation ou la pente de la courbe.</p>
+          <p>Ces produits ne comportent généralement aucune exposition actions : le capital est le plus souvent protégé à l’échéance, et le risque résiduel est le risque de taux en cours de vie et le risque de crédit de l’émetteur.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Pas de risque actions, capital généralement protégé à l’échéance</li>
+            <li>Rémunération supérieure à un compte à terme de même maturité</li>
+            <li>Compatible avec un cadre de placement de trésorerie encadré</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Option de rappel détenue par l’émetteur, donc exercée contre l’investisseur</li>
+            <li>Valeur de marché très sensible aux mouvements de taux en cours de vie</li>
+            <li>Durées souvent longues, avec un risque de réinvestissement défavorable</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="fam" id="discount">
+        <div class="fam__l">
+          <p class="eyebrow">Décote à l’entrée</p>
+          <h3 class="title-md">Certificat Discount</h3>
+          <hr class="rule">
+          <p class="lede">Pas de coupon : l’avantage est pris à l’achat, sous forme d’une décote sur le niveau du sous-jacent. Le gain est plafonné à un niveau fixé dès l’origine.</p>
+          <p class="small muted"><strong>Pour qui ?</strong> Investisseur qui veut s’exposer à un sous-jacent avec une marge de sécurité et qui accepte un gain borné.</p>
+          <p style="margin:22px 0 0"><a class="btn btn--sm" href="produits.html?famille=Certificat+Discount">Voir les structures de cette famille</a></p>
+        </div>
+        <div class="fam__r">
+          <h4 class="card__t" style="font-size:1.06rem">Mécanisme</h4>
+          <p>L’investisseur achète le certificat en dessous du cours du sous-jacent. À l’échéance, il reçoit le plus petit des deux montants entre le niveau du sous-jacent et le plafond.</p>
+          <p>La décote constitue l’amortisseur : le produit reste gagnant tant que le sous-jacent ne baisse pas plus que la décote accordée au départ.</p>
+          <div class="fam__pm">
+            <div>
+              <p class="card__k" style="color:var(--pos)">Ce que la structure apporte</p>
+              <ul class="small">
+            <li>Entrée à prix réduit, qui constitue une protection immédiate</li>
+            <li>Structure simple, lisible en deux paramètres</li>
+            <li>Gain atteint même en cas de légère baisse du sous-jacent</li>
+              </ul>
+            </div>
+            <div>
+              <p class="card__k" style="color:var(--neg)">Ce qu’elle coûte</p>
+              <ul class="small">
+            <li>Gain plafonné, souvent modeste</li>
+            <li>Pas de coupon : rien n’est perçu avant l’échéance</li>
+            <li>Perte proportionnelle au-delà de la décote, sans barrière protectrice</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="tabs__p" id="glossaire" role="tabpanel" aria-labelledby="tab-glossaire" hidden>
+
+    <form class="filters" role="search" aria-label="Rechercher dans le glossaire" onsubmit="return false">
+      <div class="filters__row">
+        <div class="field" style="grid-column:span 2">
+          <label for="gl-q">Rechercher un terme</label>
+          <input type="search" id="gl-q" placeholder="décrément, worst-of, bail-in, SRI, airbag…" autocomplete="off">
+        </div>
+        <div class="field"><label for="gl-cat">Catégorie</label>
+          <select id="gl-cat">
+            <option value="">Toutes catégories</option>
+            <option value="Mécanismes">Mécanismes</option><option value="Barrières &amp; protection">Barrières & protection</option><option value="Sous-jacents">Sous-jacents</option><option value="Vie du produit">Vie du produit</option><option value="Cadre &amp; risques">Cadre & risques</option><option value="Enveloppes &amp; fiscalité">Enveloppes & fiscalité</option><option value="Frais &amp; valorisation">Frais & valorisation</option>
+          </select></div>
+      </div>
+      <div class="filters__foot">
+        <span class="filters__count" id="gl-count" aria-live="polite"></span>
+        <button class="btn-link" type="button" id="gl-reset">Réinitialiser</button>
+      </div>
+    </form>
+    <nav class="alpha" aria-label="Navigation alphabétique" style="margin-top:28px"><a href="#lettre-A">A</a><a href="#lettre-B">B</a><a href="#lettre-C">C</a><a href="#lettre-D">D</a><a href="#lettre-E">E</a><a href="#lettre-F">F</a><a href="#lettre-G">G</a><span aria-hidden="true">H</span><a href="#lettre-I">I</a><span aria-hidden="true">J</span><span aria-hidden="true">K</span><span aria-hidden="true">L</span><a href="#lettre-M">M</a><a href="#lettre-N">N</a><span aria-hidden="true">O</span><a href="#lettre-P">P</a><span aria-hidden="true">Q</span><a href="#lettre-R">R</a><a href="#lettre-S">S</a><a href="#lettre-T">T</a><a href="#lettre-U">U</a><a href="#lettre-V">V</a><a href="#lettre-W">W</a><span aria-hidden="true">X</span><span aria-hidden="true">Y</span><span aria-hidden="true">Z</span></nav>
+      <div class="gl-group" id="lettre-A">
+        <div class="gl-group__l">A</div>
+        <div class="gl" id="airbag" data-cat="Mécanismes" data-s="Airbag airbag amortisseur effet de seuil Mécanismes Mécanisme qui recalcule la perte depuis la barrière de capital et non depuis le niveau initial, de façon à supprimer l’effet de seuil. Sans airbag, une barrière à 60 % franchie de peu provoque une perte immédiate de plus de 40 %. Avec airbag, la perte est proportionnelle au dépassement de la barrière : elle démarre à zéro juste sous le seuil et progresse graduellement.">
+          <h3 class="gl__t">Airbag <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Mécanisme qui recalcule la perte depuis la barrière de capital et non depuis le niveau initial, de façon à supprimer l’effet de seuil.</p>
+          <p class="gl__d">Sans airbag, une barrière à 60 % franchie de peu provoque une perte immédiate de plus de 40 %. Avec airbag, la perte est proportionnelle au dépassement de la barrière : elle démarre à zéro juste sous le seuil et progresse graduellement.</p>
+          <div class="gl__ex"><b>Exemple</b>Barrière à 60 %, sous-jacent final à 54 %. Sans airbag : perte de 46 %. Avec airbag : 54 % ÷ 60 % = 90 %, soit une perte de 10 %.</div>
+        </div>        <div class="gl" id="assurance-vie" data-cat="Enveloppes &amp; fiscalité" data-s="Assurance-vie assurance vie contrat av Enveloppes &amp; fiscalité Enveloppe de capitalisation offrant une fiscalité avantageuse après huit ans de détention et un cadre favorable à la transmission. Le logement d’un produit structuré en assurance-vie présente un avantage majeur : les coupons perçus ne sont pas fiscalisés tant qu’ils restent dans le contrat, ce qui permet un réinvestissement à plein. Il faut en revanche ajouter les frais de gestion annuels du contrat au coût du produit lui-même.">
+          <h3 class="gl__t">Assurance-vie <span class="gl__cat">Enveloppes &amp; fiscalité</span></h3>
+          <p class="gl__d">Enveloppe de capitalisation offrant une fiscalité avantageuse après huit ans de détention et un cadre favorable à la transmission.</p>
+          <p class="gl__d">Le logement d’un produit structuré en assurance-vie présente un avantage majeur : les coupons perçus ne sont pas fiscalisés tant qu’ils restent dans le contrat, ce qui permet un réinvestissement à plein. Il faut en revanche ajouter les frais de gestion annuels du contrat au coût du produit lui-même.</p>
+          
+        </div>        <div class="gl" id="athena" data-cat="Mécanismes" data-s="Athéna capitalisé capitalisation gain différé Mécanismes Famille de produits structurés dans laquelle le rendement n’est jamais détaché en cours de vie mais capitalisé, puis versé en une seule fois au moment du remboursement anticipé ou à l’échéance. Le gain est proportionnel au temps écoulé : un Athéna à 9 % rappelé au bout de trois ans verse 27 % en une fois. Si le produit n’est jamais rappelé et termine sous sa barrière de capital, l’investisseur n’aura rien perçu du tout pendant toute la durée de vie.">
+          <h3 class="gl__t">Athéna <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Famille de produits structurés dans laquelle le rendement n’est jamais détaché en cours de vie mais capitalisé, puis versé en une seule fois au moment du remboursement anticipé ou à l’échéance.</p>
+          <p class="gl__d">Le gain est proportionnel au temps écoulé : un Athéna à 9 % rappelé au bout de trois ans verse 27 % en une fois. Si le produit n’est jamais rappelé et termine sous sa barrière de capital, l’investisseur n’aura rien perçu du tout pendant toute la durée de vie.</p>
+          
+        </div>        <div class="gl" id="autocall" data-cat="Mécanismes" data-s="Autocall rappel anticipé remboursement automatique callable Mécanismes Mécanisme de remboursement anticipé automatique. À chaque date de constatation, si le sous-jacent est au-dessus d’un seuil prédéfini — le plus souvent 100 % de son niveau initial —, le produit s’arrête immédiatement : l’émetteur rembourse le nominal majoré du gain prévu et l’investisseur récupère ses fonds. Le mot « automatique » est essentiel : ni l’investisseur ni l’émetteur ne décident. Le rappel se déclenche mécaniquement dès que la condition est remplie. La conséquence pratique est que la durée réelle d’un produit autocall est inconnue à la souscription : elle peut aller d’un trimestre à la maturité maximale.">
+          <h3 class="gl__t">Autocall <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Mécanisme de remboursement anticipé automatique. À chaque date de constatation, si le sous-jacent est au-dessus d’un seuil prédéfini — le plus souvent 100 % de son niveau initial —, le produit s’arrête immédiatement : l’émetteur rembourse le nominal majoré du gain prévu et l’investisseur récupère ses fonds.</p>
+          <p class="gl__d">Le mot « automatique » est essentiel : ni l’investisseur ni l’émetteur ne décident. Le rappel se déclenche mécaniquement dès que la condition est remplie. La conséquence pratique est que la durée réelle d’un produit autocall est inconnue à la souscription : elle peut aller d’un trimestre à la maturité maximale.</p>
+          <div class="gl__ex"><b>Exemple</b>Un autocall à 100 % constaté trimestriellement sur un indice à 102 % de son niveau initial au bout de six mois est remboursé à cette date, avec six mois de coupons. L’investisseur doit alors réinvestir.</div>
+        </div>
+      </div>      <div class="gl-group" id="lettre-B">
+        <div class="gl-group__l">B</div>
+        <div class="gl" id="backtest" data-cat="Frais &amp; valorisation" data-s="Backtest backtest simulation historique reconstitue Frais &amp; valorisation Simulation du comportement passé d’un produit ou d’un indice, calculée a posteriori sur des données historiques. Un backtest est construit en connaissant le passé : il est toujours flatteur. Pour un indice créé récemment, l’essentiel de l’historique présenté est reconstitué et n’a jamais été investi par personne. À lire comme une illustration de mécanisme, jamais comme une performance.">
+          <h3 class="gl__t">Backtest <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Simulation du comportement passé d’un produit ou d’un indice, calculée a posteriori sur des données historiques.</p>
+          <p class="gl__d">Un backtest est construit en connaissant le passé : il est toujours flatteur. Pour un indice créé récemment, l’essentiel de l’historique présenté est reconstitué et n’a jamais été investi par personne. À lire comme une illustration de mécanisme, jamais comme une performance.</p>
+          
+        </div>        <div class="gl" id="bail-in" data-cat="Cadre &amp; risques" data-s="Bail-in bail in resolution bancaire renflouement interne Cadre &amp; risques Mécanisme européen de résolution bancaire permettant d’imputer les pertes d’une banque en difficulté sur ses créanciers, par dépréciation ou conversion de leurs créances. Les produits structurés étant des titres de créance, ils entrent dans le périmètre du bail-in. Ils ne bénéficient d’aucune garantie des dépôts : le fonds de garantie qui couvre les comptes bancaires ne s’applique pas aux EMTN.">
+          <h3 class="gl__t">Bail-in <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Mécanisme européen de résolution bancaire permettant d’imputer les pertes d’une banque en difficulté sur ses créanciers, par dépréciation ou conversion de leurs créances.</p>
+          <p class="gl__d">Les produits structurés étant des titres de créance, ils entrent dans le périmètre du bail-in. Ils ne bénéficient d’aucune garantie des dépôts : le fonds de garantie qui couvre les comptes bancaires ne s’applique pas aux EMTN.</p>
+          
+        </div>        <div class="gl" id="barriere-activante" data-cat="Barrières &amp; protection" data-s="Barrière activante knock-in activante Barrières &amp; protection Seuil dont le franchissement déclenche l’entrée en vigueur d’un mécanisme, par exemple une participation à la hausse ou un coupon majoré. Moins fréquente que la barrière désactivante, elle s’analyse de la même manière : date et mode de constatation avant tout.">
+          <h3 class="gl__t">Barrière activante <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Seuil dont le franchissement déclenche l’entrée en vigueur d’un mécanisme, par exemple une participation à la hausse ou un coupon majoré.</p>
+          <p class="gl__d">Moins fréquente que la barrière désactivante, elle s’analyse de la même manière : date et mode de constatation avant tout.</p>
+          
+        </div>        <div class="gl" id="barriere-americaine" data-cat="Barrières &amp; protection" data-s="Barrière américaine barriere americaine constatation continue barrière continue Barrières &amp; protection Barrière constatée en continu, sur chaque séance de la durée de vie du produit. Un seul franchissement, même intrajournalier, suffit à la désactiver définitivement. À niveau identique, une barrière américaine est bien plus risquée qu’une européenne. Sa présence dans une fiche produit doit faire exiger un coupon sensiblement plus élevé.">
+          <h3 class="gl__t">Barrière américaine <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Barrière constatée en continu, sur chaque séance de la durée de vie du produit. Un seul franchissement, même intrajournalier, suffit à la désactiver définitivement.</p>
+          <p class="gl__d">À niveau identique, une barrière américaine est bien plus risquée qu’une européenne. Sa présence dans une fiche produit doit faire exiger un coupon sensiblement plus élevé.</p>
+          <div class="gl__ex"><b>Exemple</b>Barrière américaine à 65 % sur huit ans : il suffit d’une seule séance de panique à 64 % pour perdre la protection, même si le sous-jacent termine à 110 %.</div>
+        </div>        <div class="gl" id="barriere-de-capital" data-cat="Barrières &amp; protection" data-s="Barrière de capital barriere capital PDI protection du capital Barrières &amp; protection Niveau du sous-jacent en dessous duquel le capital n’est plus intégralement remboursé à l’échéance. C’est le paramètre le plus important d’un produit de rendement. Au-dessus de la barrière, l’investisseur récupère 100 % du nominal, même si le sous-jacent a baissé de 39 %. En dessous, et sauf mécanisme airbag, il subit la totalité de la baisse depuis le niveau initial — ce qui crée une discontinuité brutale.">
+          <h3 class="gl__t">Barrière de capital <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Niveau du sous-jacent en dessous duquel le capital n’est plus intégralement remboursé à l’échéance. C’est le paramètre le plus important d’un produit de rendement.</p>
+          <p class="gl__d">Au-dessus de la barrière, l’investisseur récupère 100 % du nominal, même si le sous-jacent a baissé de 39 %. En dessous, et sauf mécanisme airbag, il subit la totalité de la baisse depuis le niveau initial — ce qui crée une discontinuité brutale.</p>
+          <div class="gl__ex"><b>Exemple</b>Barrière à 60 %. Sous-jacent final à 61 % : remboursement de 100 %. Sous-jacent final à 59 % : remboursement de 59 %, soit 41 % de perte pour deux points d’écart.</div>
+        </div>        <div class="gl" id="barriere-de-coupon" data-cat="Barrières &amp; protection" data-s="Barrière de coupon barriere coupon seuil de coupon Barrières &amp; protection Niveau du sous-jacent au-dessus duquel le coupon de la période est versé. Elle se situe généralement entre 50 % et 70 % du niveau initial. Plus la barrière est basse, plus le coupon est probable, et plus son taux affiché est faible. C’est le premier arbitrage à examiner dans une fiche produit : un coupon élevé associé à une barrière haute est souvent moins intéressant qu’un coupon modeste associé à une barrière profonde.">
+          <h3 class="gl__t">Barrière de coupon <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Niveau du sous-jacent au-dessus duquel le coupon de la période est versé. Elle se situe généralement entre 50 % et 70 % du niveau initial.</p>
+          <p class="gl__d">Plus la barrière est basse, plus le coupon est probable, et plus son taux affiché est faible. C’est le premier arbitrage à examiner dans une fiche produit : un coupon élevé associé à une barrière haute est souvent moins intéressant qu’un coupon modeste associé à une barrière profonde.</p>
+          
+        </div>        <div class="gl" id="barriere-desactivante" data-cat="Barrières &amp; protection" data-s="Barrière désactivante knock-out désactivante barrière désactivante Barrières &amp; protection Seuil dont le franchissement supprime définitivement un avantage du produit : prime de bonus, mécanisme Twin Win, ou protection. La vigilance porte sur le mode de constatation : une barrière désactivante constatée en continu sur plusieurs années est très souvent atteinte.">
+          <h3 class="gl__t">Barrière désactivante <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Seuil dont le franchissement supprime définitivement un avantage du produit : prime de bonus, mécanisme Twin Win, ou protection.</p>
+          <p class="gl__d">La vigilance porte sur le mode de constatation : une barrière désactivante constatée en continu sur plusieurs années est très souvent atteinte.</p>
+          
+        </div>        <div class="gl" id="barriere-europeenne" data-cat="Barrières &amp; protection" data-s="Barrière européenne barriere europeenne constatation finale Barrières &amp; protection Barrière constatée à une seule date, celle de l’échéance. C’est le format très largement dominant sur le marché français. Elle est nettement plus favorable à l’investisseur qu’une barrière américaine : le sous-jacent peut passer sous le seuil pendant des années sans aucune conséquence, pourvu qu’il soit remonté au-dessus le jour de la constatation finale.">
+          <h3 class="gl__t">Barrière européenne <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Barrière constatée à une seule date, celle de l’échéance. C’est le format très largement dominant sur le marché français.</p>
+          <p class="gl__d">Elle est nettement plus favorable à l’investisseur qu’une barrière américaine : le sous-jacent peut passer sous le seuil pendant des années sans aucune conséquence, pourvu qu’il soit remonté au-dessus le jour de la constatation finale.</p>
+          
+        </div>        <div class="gl" id="best-of" data-cat="Barrières &amp; protection" data-s="Best-of best of meilleur du panier Barrières &amp; protection Mécanisme inverse du Worst-of : les conditions sont appréciées sur la composante la plus performante du panier. Nettement plus favorable à l’investisseur, et donc nettement plus coûteux à structurer : les coupons proposés sont très inférieurs à ceux d’un Worst-of équivalent. Ces produits restent rares sur le marché français.">
+          <h3 class="gl__t">Best-of <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Mécanisme inverse du Worst-of : les conditions sont appréciées sur la composante la plus performante du panier.</p>
+          <p class="gl__d">Nettement plus favorable à l’investisseur, et donc nettement plus coûteux à structurer : les coupons proposés sont très inférieurs à ceux d’un Worst-of équivalent. Ces produits restent rares sur le marché français.</p>
+          
+        </div>        <div class="gl" id="bmtn" data-cat="Cadre &amp; risques" data-s="BMTN bmtn bon a moyen terme Cadre &amp; risques Bon à moyen terme négociable : équivalent de droit français de l’EMTN, émis sur le marché domestique. Le format est différent, la logique identique : titre de créance, risque de crédit de l’émetteur, remboursement calculé par formule.">
+          <h3 class="gl__t">BMTN <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Bon à moyen terme négociable : équivalent de droit français de l’EMTN, émis sur le marché domestique.</p>
+          <p class="gl__d">Le format est différent, la logique identique : titre de créance, risque de crédit de l’émetteur, remboursement calculé par formule.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-C">
+        <div class="gl-group__l">C</div>
+        <div class="gl" id="cap-plafond" data-cat="Mécanismes" data-s="Cap (plafond) plafond cap gain maximal Mécanismes Limite maximale de gain du produit. Au-delà de ce niveau, la hausse supplémentaire du sous-jacent ne profite plus à l’investisseur. Le plafond est le principal financeur de la protection à la baisse : c’est en renonçant aux scénarios très haussiers que l’investisseur achète son amortisseur.">
+          <h3 class="gl__t">Cap (plafond) <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Limite maximale de gain du produit. Au-delà de ce niveau, la hausse supplémentaire du sous-jacent ne profite plus à l’investisseur.</p>
+          <p class="gl__d">Le plafond est le principal financeur de la protection à la baisse : c’est en renonçant aux scénarios très haussiers que l’investisseur achète son amortisseur.</p>
+          
+        </div>        <div class="gl" id="cliquet-lock-in" data-cat="Mécanismes" data-s="Cliquet (lock-in) lock-in palier verrouillage cliquet Mécanismes Mécanisme qui verrouille définitivement un niveau de gain dès qu’il a été atteint à une date de constatation, indépendamment de l’évolution ultérieure du sous-jacent. Le cliquet protège les gains intermédiaires contre un retournement de fin de vie. Son utilité dépend entièrement du parcours : sur un marché régulièrement haussier jusqu’à l’échéance, il n’apporte rien.">
+          <h3 class="gl__t">Cliquet (lock-in) <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Mécanisme qui verrouille définitivement un niveau de gain dès qu’il a été atteint à une date de constatation, indépendamment de l’évolution ultérieure du sous-jacent.</p>
+          <p class="gl__d">Le cliquet protège les gains intermédiaires contre un retournement de fin de vie. Son utilité dépend entièrement du parcours : sur un marché régulièrement haussier jusqu’à l’échéance, il n’apporte rien.</p>
+          
+        </div>        <div class="gl" id="commission-de-distribution" data-cat="Frais &amp; valorisation" data-s="Commission de distribution commission distribution retrocession rémunération distributeur Frais &amp; valorisation Rémunération du distributeur, prélevée à l’entrée ou étalée sur la durée de vie du produit, et incluse dans la formule. Son niveau est désormais obligatoirement communiqué. Un produit chargé de frais de distribution élevés verse nécessairement un coupon plus faible, toutes choses égales : il n’existe pas de frais indolores.">
+          <h3 class="gl__t">Commission de distribution <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Rémunération du distributeur, prélevée à l’entrée ou étalée sur la durée de vie du produit, et incluse dans la formule.</p>
+          <p class="gl__d">Son niveau est désormais obligatoirement communiqué. Un produit chargé de frais de distribution élevés verse nécessairement un coupon plus faible, toutes choses égales : il n’existe pas de frais indolores.</p>
+          
+        </div>        <div class="gl" id="compte-titres-ordinaire" data-cat="Enveloppes &amp; fiscalité" data-s="Compte-titres ordinaire cto compte titres ordinaire Enveloppes &amp; fiscalité Enveloppe sans contrainte de plafond ni de durée, dans laquelle les produits structurés sont détenus en direct. Les revenus et plus-values sont imposés à mesure de leur perception, au prélèvement forfaitaire unique ou sur option au barème. L’avantage est la liberté totale de choix de l’émetteur et de la souche ; l’inconvénient, une fiscalité immédiate qui pèse sur le rendement net d’un produit à coupons réguliers.">
+          <h3 class="gl__t">Compte-titres ordinaire <span class="gl__cat">Enveloppes &amp; fiscalité</span></h3>
+          <p class="gl__d">Enveloppe sans contrainte de plafond ni de durée, dans laquelle les produits structurés sont détenus en direct.</p>
+          <p class="gl__d">Les revenus et plus-values sont imposés à mesure de leur perception, au prélèvement forfaitaire unique ou sur option au barème. L’avantage est la liberté totale de choix de l’émetteur et de la souche ; l’inconvénient, une fiscalité immédiate qui pèse sur le rendement net d’un produit à coupons réguliers.</p>
+          
+        </div>        <div class="gl" id="contrat-de-capitalisation" data-cat="Enveloppes &amp; fiscalité" data-s="Contrat de capitalisation capitalisation personne morale holding Enveloppes &amp; fiscalité Enveloppe de même nature financière que l’assurance-vie, accessible aux personnes morales et plus adaptée à certaines stratégies de transmission. Il constitue la voie usuelle pour loger des produits structurés au sein d’une holding ou d’une trésorerie d’entreprise excédentaire.">
+          <h3 class="gl__t">Contrat de capitalisation <span class="gl__cat">Enveloppes &amp; fiscalité</span></h3>
+          <p class="gl__d">Enveloppe de même nature financière que l’assurance-vie, accessible aux personnes morales et plus adaptée à certaines stratégies de transmission.</p>
+          <p class="gl__d">Il constitue la voie usuelle pour loger des produits structurés au sein d’une holding ou d’une trésorerie d’entreprise excédentaire.</p>
+          
+        </div>        <div class="gl" id="coupon-conditionnel" data-cat="Mécanismes" data-s="Coupon conditionnel coupon potentiel rendement conditionnel Mécanismes Coupon dont le versement dépend de la réalisation d’une condition de marché à la date de constatation, typiquement un sous-jacent au-dessus d’une barrière. Toute la communication commerciale des produits structurés repose sur ce taux, souvent présenté comme un « rendement ». Il s’agit d’un rendement potentiel maximal, en aucun cas d’un rendement attendu ni garanti.">
+          <h3 class="gl__t">Coupon conditionnel <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Coupon dont le versement dépend de la réalisation d’une condition de marché à la date de constatation, typiquement un sous-jacent au-dessus d’une barrière.</p>
+          <p class="gl__d">Toute la communication commerciale des produits structurés repose sur ce taux, souvent présenté comme un « rendement ». Il s’agit d’un rendement potentiel maximal, en aucun cas d’un rendement attendu ni garanti.</p>
+          
+        </div>        <div class="gl" id="coupon-fixe-inconditionnel" data-cat="Mécanismes" data-s="Coupon fixe inconditionnel coupon garanti inconditionnel Mécanismes Coupon versé à chaque période sans aucune condition de marché. On le rencontre dans les Reverse Convertibles et dans la plupart des produits de taux. La certitude du coupon se paie ailleurs : la protection du capital est alors faible ou nulle, et le produit se comporte à l’échéance comme une détention directe du sous-jacent.">
+          <h3 class="gl__t">Coupon fixe inconditionnel <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Coupon versé à chaque période sans aucune condition de marché. On le rencontre dans les Reverse Convertibles et dans la plupart des produits de taux.</p>
+          <p class="gl__d">La certitude du coupon se paie ailleurs : la protection du capital est alors faible ou nulle, et le produit se comporte à l’échéance comme une détention directe du sous-jacent.</p>
+          
+        </div>        <div class="gl" id="cout-total-de-detention" data-cat="Frais &amp; valorisation" data-s="Coût total de détention cout total frais totaux ter Frais &amp; valorisation Somme de tous les frais supportés par l’investisseur : structuration, distribution, frais de gestion de l’enveloppe d’accueil, éventuels droits d’entrée. C’est la seule mesure pertinente. Un produit structuré en assurance-vie supporte à la fois les frais intégrés à la formule et les frais de gestion annuels du contrat sur les unités de compte.">
+          <h3 class="gl__t">Coût total de détention <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Somme de tous les frais supportés par l’investisseur : structuration, distribution, frais de gestion de l’enveloppe d’accueil, éventuels droits d’entrée.</p>
+          <p class="gl__d">C’est la seule mesure pertinente. Un produit structuré en assurance-vie supporte à la fois les frais intégrés à la formule et les frais de gestion annuels du contrat sur les unités de compte.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-D">
+        <div class="gl-group__l">D</div>
+        <div class="gl" id="date-d-echeance" data-cat="Vie du produit" data-s="Date d’échéance maturite echeance maturité maximale Vie du produit Date de maturité maximale du produit. Si aucun rappel anticipé n’est intervenu, c’est à cette date que le sort du capital est déterminé. La durée affichée d’un produit autocall est une durée maximale, pas une durée attendue. Il faut néanmoins être en mesure de porter le produit jusqu’à cette date.">
+          <h3 class="gl__t">Date d’échéance <span class="gl__cat">Vie du produit</span></h3>
+          <p class="gl__d">Date de maturité maximale du produit. Si aucun rappel anticipé n’est intervenu, c’est à cette date que le sort du capital est déterminé.</p>
+          <p class="gl__d">La durée affichée d’un produit autocall est une durée maximale, pas une durée attendue. Il faut néanmoins être en mesure de porter le produit jusqu’à cette date.</p>
+          
+        </div>        <div class="gl" id="date-de-constatation" data-cat="Vie du produit" data-s="Date de constatation constatation observation date d&#x27;observation Vie du produit Date à laquelle le niveau du sous-jacent est relevé pour déterminer le versement d’un coupon ou le déclenchement d’un rappel. Seules ces dates comptent. Entre deux constatations, l’évolution du sous-jacent n’a aucune conséquence contractuelle — sauf en présence d’une barrière à constatation continue.">
+          <h3 class="gl__t">Date de constatation <span class="gl__cat">Vie du produit</span></h3>
+          <p class="gl__d">Date à laquelle le niveau du sous-jacent est relevé pour déterminer le versement d’un coupon ou le déclenchement d’un rappel.</p>
+          <p class="gl__d">Seules ces dates comptent. Entre deux constatations, l’évolution du sous-jacent n’a aucune conséquence contractuelle — sauf en présence d’une barrière à constatation continue.</p>
+          
+        </div>        <div class="gl" id="date-de-strike" data-cat="Vie du produit" data-s="Date de strike strike niveau initial date de constatation initiale Vie du produit Date à laquelle le niveau initial du sous-jacent est constaté. Toutes les barrières et tous les seuils du produit sont exprimés en pourcentage de ce niveau. Le strike est déterminant et pourtant rarement discuté : souscrire juste avant un strike fixé sur un point haut de marché place d’emblée toutes les barrières plus près du danger. Certains produits retiennent une moyenne de plusieurs observations pour lisser cet effet.">
+          <h3 class="gl__t">Date de strike <span class="gl__cat">Vie du produit</span></h3>
+          <p class="gl__d">Date à laquelle le niveau initial du sous-jacent est constaté. Toutes les barrières et tous les seuils du produit sont exprimés en pourcentage de ce niveau.</p>
+          <p class="gl__d">Le strike est déterminant et pourtant rarement discuté : souscrire juste avant un strike fixé sur un point haut de marché place d’emblée toutes les barrières plus près du danger. Certains produits retiennent une moyenne de plusieurs observations pour lisser cet effet.</p>
+          
+        </div>        <div class="gl" id="decrement-en-points-ou-en-pourcentage" data-cat="Sous-jacents" data-s="Décrément en points ou en pourcentage points fixes pourcentage decrement Sous-jacents Deux modes de prélèvement très différents dans leurs conséquences. Le décrément en pourcentage est proportionnel au niveau de l’indice. Le décrément en points est un montant fixe en valeur absolue. Le décrément en points est plus favorable quand l’indice monte, puisque le prélèvement relatif diminue. Il est beaucoup plus pénalisant quand l’indice baisse, car le prélèvement relatif augmente au moment même où l’investisseur a besoin que l’indice se maintienne au-dessus de ses barrières.">
+          <h3 class="gl__t">Décrément en points ou en pourcentage <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Deux modes de prélèvement très différents dans leurs conséquences. Le décrément en pourcentage est proportionnel au niveau de l’indice. Le décrément en points est un montant fixe en valeur absolue.</p>
+          <p class="gl__d">Le décrément en points est plus favorable quand l’indice monte, puisque le prélèvement relatif diminue. Il est beaucoup plus pénalisant quand l’indice baisse, car le prélèvement relatif augmente au moment même où l’investisseur a besoin que l’indice se maintienne au-dessus de ses barrières.</p>
+          
+        </div>        <div class="gl" id="delta-vega-theta" data-cat="Frais &amp; valorisation" data-s="Delta, vega, thêta grecques delta vega theta gamma sensibilites Frais &amp; valorisation Sensibilités de la valeur du produit à ses principaux paramètres : le delta mesure la sensibilité au niveau du sous-jacent, le vega à la volatilité, le thêta à l’écoulement du temps. Ces notions expliquent le comportement parfois contre-intuitif d’une valorisation en cours de vie. Un produit dont le sous-jacent est stable peut se déprécier sous l’effet d’une hausse de la volatilité ou s’apprécier par le simple écoulement du temps.">
+          <h3 class="gl__t">Delta, vega, thêta <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Sensibilités de la valeur du produit à ses principaux paramètres : le delta mesure la sensibilité au niveau du sous-jacent, le vega à la volatilité, le thêta à l’écoulement du temps.</p>
+          <p class="gl__d">Ces notions expliquent le comportement parfois contre-intuitif d’une valorisation en cours de vie. Un produit dont le sous-jacent est stable peut se déprécier sous l’effet d’une hausse de la volatilité ou s’apprécier par le simple écoulement du temps.</p>
+          
+        </div>        <div class="gl" id="dividendes-synthetiques" data-cat="Sous-jacents" data-s="Dividendes synthétiques dividendes anticipés rendement du dividende Sous-jacents Hypothèse de dividendes futurs retenue par l’émetteur pour construire le produit. Elle est figée à l’émission. Les dividendes constituent la matière première du rendement d’un produit structuré : c’est en renonçant à les percevoir que l’investisseur finance ses coupons et ses barrières. Un investisseur en produits structurés achète donc, en substance, un flux de dividendes déjà transformé.">
+          <h3 class="gl__t">Dividendes synthétiques <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Hypothèse de dividendes futurs retenue par l’émetteur pour construire le produit. Elle est figée à l’émission.</p>
+          <p class="gl__d">Les dividendes constituent la matière première du rendement d’un produit structuré : c’est en renonçant à les percevoir que l’investisseur finance ses coupons et ses barrières. Un investisseur en produits structurés achète donc, en substance, un flux de dividendes déjà transformé.</p>
+          
+        </div>        <div class="gl" id="document-d-informations-cles-dic" data-cat="Cadre &amp; risques" data-s="Document d’informations clés (DIC) dic kid priips document d&#x27;information cle Cadre &amp; risques Document réglementaire standardisé de trois pages, remis obligatoirement avant toute souscription. Il présente la nature du produit, l’indicateur de risque, quatre scénarios de performance, les coûts et la durée de détention recommandée. C’est la seule pièce véritablement comparable d’un produit à l’autre, et la seule qui fait foi avec le prospectus. La brochure commerciale, elle, n’a aucune valeur contractuelle. Les scénarios qui y figurent sont calculés selon une méthode réglementaire : ils n’engagent pas l’émetteur.">
+          <h3 class="gl__t">Document d’informations clés (DIC) <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Document réglementaire standardisé de trois pages, remis obligatoirement avant toute souscription. Il présente la nature du produit, l’indicateur de risque, quatre scénarios de performance, les coûts et la durée de détention recommandée.</p>
+          <p class="gl__d">C’est la seule pièce véritablement comparable d’un produit à l’autre, et la seule qui fait foi avec le prospectus. La brochure commerciale, elle, n’a aucune valeur contractuelle. Les scénarios qui y figurent sont calculés selon une méthode réglementaire : ils n’engagent pas l’émetteur.</p>
+          
+        </div>        <div class="gl" id="duree-de-vie-effective" data-cat="Vie du produit" data-s="Durée de vie effective duree effective duree reelle Vie du produit Durée réellement écoulée entre l’émission et le remboursement, anticipé ou à l’échéance. Sur les structures autocall, la durée effective moyenne observée sur le marché est très inférieure à la maturité contractuelle. Ce décalage doit être anticipé : il crée un risque de réinvestissement récurrent.">
+          <h3 class="gl__t">Durée de vie effective <span class="gl__cat">Vie du produit</span></h3>
+          <p class="gl__d">Durée réellement écoulée entre l’émission et le remboursement, anticipé ou à l’échéance.</p>
+          <p class="gl__d">Sur les structures autocall, la durée effective moyenne observée sur le marché est très inférieure à la maturité contractuelle. Ce décalage doit être anticipé : il crée un risque de réinvestissement récurrent.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-E">
+        <div class="gl-group__l">E</div>
+        <div class="gl" id="effet-de-pull-to-par" data-cat="Vie du produit" data-s="Effet de pull-to-par pull to par convergence Vie du produit Tendance de la valeur de marché d’un produit à se rapprocher de sa valeur de remboursement à mesure que l’échéance approche. Il explique qu’un produit décoté en milieu de vie puisse revenir vers 100 % dans ses derniers mois, dès lors que les conditions de remboursement au pair sont réunies.">
+          <h3 class="gl__t">Effet de pull-to-par <span class="gl__cat">Vie du produit</span></h3>
+          <p class="gl__d">Tendance de la valeur de marché d’un produit à se rapprocher de sa valeur de remboursement à mesure que l’échéance approche.</p>
+          <p class="gl__d">Il explique qu’un produit décoté en milieu de vie puisse revenir vers 100 % dans ses derniers mois, dès lors que les conditions de remboursement au pair sont réunies.</p>
+          
+        </div>        <div class="gl" id="effet-de-seuil" data-cat="Barrières &amp; protection" data-s="Effet de seuil effet falaise discontinuité cliff Barrières &amp; protection Discontinuité du remboursement de part et d’autre d’une barrière : quelques dixièmes de point d’écart sur le sous-jacent peuvent faire passer le remboursement de 100 % du nominal à 60 %. C’est le défaut structurel des barrières sèches, et la raison d’être des mécanismes airbag. Il explique aussi pourquoi la valeur de marché d’un produit devient très instable lorsque le sous-jacent évolue près de sa barrière.">
+          <h3 class="gl__t">Effet de seuil <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Discontinuité du remboursement de part et d’autre d’une barrière : quelques dixièmes de point d’écart sur le sous-jacent peuvent faire passer le remboursement de 100 % du nominal à 60 %.</p>
+          <p class="gl__d">C’est le défaut structurel des barrières sèches, et la raison d’être des mécanismes airbag. Il explique aussi pourquoi la valeur de marché d’un produit devient très instable lorsque le sous-jacent évolue près de sa barrière.</p>
+          
+        </div>        <div class="gl" id="effet-memoire" data-cat="Mécanismes" data-s="Effet mémoire mémoire coupon rattrapé memory Mécanismes Clause selon laquelle un coupon non versé n’est pas perdu mais mis en réserve. Il est rattrapé et payé en totalité dès qu’une constatation ultérieure redevient favorable. La mémoire ne change rien au rendement maximal du produit : elle modifie la probabilité de l’atteindre. Elle protège contre les parcours agités, pas contre une baisse durable : si le sous-jacent ne repasse jamais au-dessus de la barrière de coupon, les coupons mémorisés ne sont jamais versés.">
+          <h3 class="gl__t">Effet mémoire <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Clause selon laquelle un coupon non versé n’est pas perdu mais mis en réserve. Il est rattrapé et payé en totalité dès qu’une constatation ultérieure redevient favorable.</p>
+          <p class="gl__d">La mémoire ne change rien au rendement maximal du produit : elle modifie la probabilité de l’atteindre. Elle protège contre les parcours agités, pas contre une baisse durable : si le sous-jacent ne repasse jamais au-dessus de la barrière de coupon, les coupons mémorisés ne sont jamais versés.</p>
+          <div class="gl__ex"><b>Exemple</b>Produit à 8 % annuel : constatations 1 et 2 manquées, constatation 3 réussie. Le versement de la troisième année est de 24 %, soit les trois coupons cumulés.</div>
+        </div>        <div class="gl" id="emtn" data-cat="Cadre &amp; risques" data-s="EMTN emtn titre de creance medium term note Cadre &amp; risques Euro Medium Term Note : format juridique dominant des produits structurés en Europe. Il s’agit d’un titre de créance émis par une banque dans le cadre d’un programme d’émission déposé auprès d’un régulateur. La nature juridique est déterminante : l’investisseur est créancier de la banque, et non propriétaire du sous-jacent. La formule de remboursement est une modalité de calcul de la dette, rien de plus.">
+          <h3 class="gl__t">EMTN <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Euro Medium Term Note : format juridique dominant des produits structurés en Europe. Il s’agit d’un titre de créance émis par une banque dans le cadre d’un programme d’émission déposé auprès d’un régulateur.</p>
+          <p class="gl__d">La nature juridique est déterminante : l’investisseur est créancier de la banque, et non propriétaire du sous-jacent. La formule de remboursement est une modalité de calcul de la dette, rien de plus.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-F">
+        <div class="gl-group__l">F</div>
+        <div class="gl" id="floor-plancher" data-cat="Mécanismes" data-s="Floor (plancher) plancher floor perte maximale Mécanismes Niveau minimal de remboursement garanti par la formule, par exemple 90 % du nominal quel que soit le parcours du sous-jacent. Un plancher borne la perte maximale, hors défaut de l’émetteur. Il se distingue d’une barrière, qui fonctionne par tout ou rien.">
+          <h3 class="gl__t">Floor (plancher) <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Niveau minimal de remboursement garanti par la formule, par exemple 90 % du nominal quel que soit le parcours du sous-jacent.</p>
+          <p class="gl__d">Un plancher borne la perte maximale, hors défaut de l’émetteur. Il se distingue d’une barrière, qui fonctionne par tout ou rien.</p>
+          
+        </div>        <div class="gl" id="fourchette-achat-vente" data-cat="Frais &amp; valorisation" data-s="Fourchette achat-vente spread bid ask fourchette achat vente Frais &amp; valorisation Écart entre le prix auquel l’émetteur rachète le produit et celui auquel il le vendrait, en cours de vie. Il constitue le coût réel d’une sortie anticipée. Sur les souches de taille réduite ou les structures complexes, cette fourchette peut représenter plusieurs points de nominal.">
+          <h3 class="gl__t">Fourchette achat-vente <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Écart entre le prix auquel l’émetteur rachète le produit et celui auquel il le vendrait, en cours de vie.</p>
+          <p class="gl__d">Il constitue le coût réel d’une sortie anticipée. Sur les souches de taille réduite ou les structures complexes, cette fourchette peut représenter plusieurs points de nominal.</p>
+          
+        </div>        <div class="gl" id="frais-de-structuration" data-cat="Frais &amp; valorisation" data-s="Frais de structuration frais de structuration marge emetteur upfront Frais &amp; valorisation Marge prélevée par l’émetteur et le structureur, intégrée au prix d’émission du produit et non facturée séparément. Concrètement, un produit émis à 100 % du nominal a une valeur financière réelle inférieure à 100 % dès le premier jour. Cet écart explique une part importante de la décote constatée en cas de sortie anticipée précoce. Le DIC en donne la mesure dans sa rubrique sur les coûts.">
+          <h3 class="gl__t">Frais de structuration <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Marge prélevée par l’émetteur et le structureur, intégrée au prix d’émission du produit et non facturée séparément.</p>
+          <p class="gl__d">Concrètement, un produit émis à 100 % du nominal a une valeur financière réelle inférieure à 100 % dès le premier jour. Cet écart explique une part importante de la décote constatée en cas de sortie anticipée précoce. Le DIC en donne la mesure dans sa rubrique sur les coûts.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-G">
+        <div class="gl-group__l">G</div>
+        <div class="gl" id="garant" data-cat="Cadre &amp; risques" data-s="Garant garant garantie maison mere Cadre &amp; risques Entité qui garantit les engagements de l’émetteur, souvent la maison mère d’un véhicule d’émission dédié. Lorsque l’émetteur est une structure de financement ad hoc, c’est la qualité de crédit du garant qu’il faut analyser. Cette information figure en première page du document d’informations clés.">
+          <h3 class="gl__t">Garant <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Entité qui garantit les engagements de l’émetteur, souvent la maison mère d’un véhicule d’émission dédié.</p>
+          <p class="gl__d">Lorsque l’émetteur est une structure de financement ad hoc, c’est la qualité de crédit du garant qu’il faut analyser. Cette information figure en première page du document d’informations clés.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-I">
+        <div class="gl-group__l">I</div>
+        <div class="gl" id="indice-de-reference-classique" data-cat="Sous-jacents" data-s="Indice de référence classique price index indice nu Sous-jacents Indice de marché standard, calculé hors dividendes réinvestis, tel qu’il est cité par la presse financière. Toute comparaison entre la performance d’un produit structuré et celle d’un indice classique doit être maniée avec précaution : le sous-jacent du produit est le plus souvent un indice décrément, dont la trajectoire diverge de l’indice classique année après année.">
+          <h3 class="gl__t">Indice de référence classique <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Indice de marché standard, calculé hors dividendes réinvestis, tel qu’il est cité par la presse financière.</p>
+          <p class="gl__d">Toute comparaison entre la performance d’un produit structuré et celle d’un indice classique doit être maniée avec précaution : le sous-jacent du produit est le plus souvent un indice décrément, dont la trajectoire diverge de l’indice classique année après année.</p>
+          
+        </div>        <div class="gl" id="indice-decrement" data-cat="Sous-jacents" data-s="Indice décrément decrement indice synthetique indice maison points fixes Sous-jacents Indice construit spécifiquement pour la structuration, qui réinvestit les dividendes du panier puis en retranche un prélèvement forfaitaire : soit un pourcentage annuel, soit un nombre fixe de points d’indice. Le mécanisme permet à l’émetteur de connaître à l’avance le flux de dividendes et donc d’offrir des coupons et des barrières plus généreux. La contrepartie est structurelle : si les dividendes réels du panier sont inférieurs au décrément, l’indice progresse mécaniquement moins vite que l’indice de référence classique. C’est la clé de lecture de la grande majorité des produits distribués en France.">
+          <h3 class="gl__t">Indice décrément <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Indice construit spécifiquement pour la structuration, qui réinvestit les dividendes du panier puis en retranche un prélèvement forfaitaire : soit un pourcentage annuel, soit un nombre fixe de points d’indice.</p>
+          <p class="gl__d">Le mécanisme permet à l’émetteur de connaître à l’avance le flux de dividendes et donc d’offrir des coupons et des barrières plus généreux. La contrepartie est structurelle : si les dividendes réels du panier sont inférieurs au décrément, l’indice progresse mécaniquement moins vite que l’indice de référence classique. C’est la clé de lecture de la grande majorité des produits distribués en France.</p>
+          <div class="gl__ex"><b>Exemple</b>Un décrément de 50 points sur un indice valant 1 000 représente 5 % par an. Si l’indice tombe à 500, les mêmes 50 points représentent 10 % par an : l’effet s’aggrave avec la baisse.</div>
+        </div>        <div class="gl" id="indice-thematique" data-cat="Sous-jacents" data-s="Indice thématique thematique megatendance Sous-jacents Indice construit autour d’un thème d’investissement : transition énergétique, santé, intelligence artificielle, sécurité. Ces indices sont souvent récents : la performance présentée avant leur date de lancement est une reconstitution calculée a posteriori, non une performance observée. Leur concentration sectorielle accroît la volatilité par rapport à un indice large.">
+          <h3 class="gl__t">Indice thématique <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Indice construit autour d’un thème d’investissement : transition énergétique, santé, intelligence artificielle, sécurité.</p>
+          <p class="gl__d">Ces indices sont souvent récents : la performance présentée avant leur date de lancement est une reconstitution calculée a posteriori, non une performance observée. Leur concentration sectorielle accroît la volatilité par rapport à un indice large.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-M">
+        <div class="gl-group__l">M</div>
+        <div class="gl" id="marche-secondaire" data-cat="Vie du produit" data-s="Marché secondaire secondaire liquidite revente sortie anticipée Vie du produit Mécanisme permettant de revendre le produit avant son échéance. Sur les produits structurés, il est assuré par l’émetteur lui-même, qui affiche un prix de rachat indicatif. Il ne s’agit pas d’un marché au sens boursier : l’émetteur n’est en général pas contractuellement tenu d’assurer la liquidité, et le prix proposé intègre une fourchette achat-vente. Une sortie anticipée peut faire ressortir une valeur nettement inférieure au nominal, même lorsque le sous-jacent est au-dessus de toutes ses barrières.">
+          <h3 class="gl__t">Marché secondaire <span class="gl__cat">Vie du produit</span></h3>
+          <p class="gl__d">Mécanisme permettant de revendre le produit avant son échéance. Sur les produits structurés, il est assuré par l’émetteur lui-même, qui affiche un prix de rachat indicatif.</p>
+          <p class="gl__d">Il ne s’agit pas d’un marché au sens boursier : l’émetteur n’est en général pas contractuellement tenu d’assurer la liquidité, et le prix proposé intègre une fourchette achat-vente. Une sortie anticipée peut faire ressortir une valeur nettement inférieure au nominal, même lorsque le sous-jacent est au-dessus de toutes ses barrières.</p>
+          
+        </div>        <div class="gl" id="mono-sous-jacent" data-cat="Sous-jacents" data-s="Mono sous-jacent mono sous jacent single underlying Sous-jacents Produit dont la formule repose sur un seul actif de référence, le plus souvent un indice large ou une action. Sur un indice large, c’est le format le plus lisible et le plus prudent. Sur une action unique, le risque spécifique d’entreprise devient prépondérant et peut surpasser largement le risque de marché.">
+          <h3 class="gl__t">Mono sous-jacent <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Produit dont la formule repose sur un seul actif de référence, le plus souvent un indice large ou une action.</p>
+          <p class="gl__d">Sur un indice large, c’est le format le plus lisible et le plus prudent. Sur une action unique, le risque spécifique d’entreprise devient prépondérant et peut surpasser largement le risque de marché.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-N">
+        <div class="gl-group__l">N</div>
+        <div class="gl" id="notation-de-credit" data-cat="Cadre &amp; risques" data-s="Notation de crédit rating notation agence standard poor moodys fitch Cadre &amp; risques Appréciation de la solidité financière d’un émetteur par une agence spécialisée : Standard &amp; Poor’s, Moody’s ou Fitch. Les trois agences utilisent des échelles distinctes et aboutissent régulièrement à des conclusions différentes sur un même émetteur. Lire les trois notations plutôt qu’une seule, et retenir que la frontière déterminante se situe entre la catégorie investissement et la catégorie spéculative.">
+          <h3 class="gl__t">Notation de crédit <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Appréciation de la solidité financière d’un émetteur par une agence spécialisée : Standard &amp; Poor’s, Moody’s ou Fitch.</p>
+          <p class="gl__d">Les trois agences utilisent des échelles distinctes et aboutissent régulièrement à des conclusions différentes sur un même émetteur. Lire les trois notations plutôt qu’une seule, et retenir que la frontière déterminante se situe entre la catégorie investissement et la catégorie spéculative.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-P">
+        <div class="gl-group__l">P</div>
+        <div class="gl" id="panier" data-cat="Sous-jacents" data-s="Panier basket panier d&#x27;actions Sous-jacents Ensemble d’actifs servant de référence, dont la performance est agrégée selon une règle précise : moyenne, Worst-of, Best-of, ou pondérations fixes. La règle d’agrégation est plus importante que la composition du panier : un panier de quatre actions en Worst-of est beaucoup plus risqué qu’un indice de quatre cents valeurs.">
+          <h3 class="gl__t">Panier <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Ensemble d’actifs servant de référence, dont la performance est agrégée selon une règle précise : moyenne, Worst-of, Best-of, ou pondérations fixes.</p>
+          <p class="gl__d">La règle d’agrégation est plus importante que la composition du panier : un panier de quatre actions en Worst-of est beaucoup plus risqué qu’un indice de quatre cents valeurs.</p>
+          
+        </div>        <div class="gl" id="participation" data-cat="Mécanismes" data-s="Participation taux de participation levier indexation Mécanismes Pourcentage de la performance du sous-jacent effectivement restitué à l’investisseur. Une participation de 150 % amplifie la hausse, une participation de 70 % en restitue une partie seulement. Une participation élevée est presque toujours compensée par un plafond de gain plus bas ou une protection plus faible : les deux paramètres se financent mutuellement.">
+          <h3 class="gl__t">Participation <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Pourcentage de la performance du sous-jacent effectivement restitué à l’investisseur. Une participation de 150 % amplifie la hausse, une participation de 70 % en restitue une partie seulement.</p>
+          <p class="gl__d">Une participation élevée est presque toujours compensée par un plafond de gain plus bas ou une protection plus faible : les deux paramètres se financent mutuellement.</p>
+          
+        </div>        <div class="gl" id="pea" data-cat="Enveloppes &amp; fiscalité" data-s="PEA pea plan epargne actions eligibilite Enveloppes &amp; fiscalité Plan d’épargne en actions. Son éligibilité aux produits structurés est très restreinte : seuls certains titres respectant des contraintes strictes de composition peuvent y figurer. En pratique, la grande majorité des produits structurés n’est pas éligible au PEA. Toute affirmation contraire doit être vérifiée dans la documentation de l’émetteur.">
+          <h3 class="gl__t">PEA <span class="gl__cat">Enveloppes &amp; fiscalité</span></h3>
+          <p class="gl__d">Plan d’épargne en actions. Son éligibilité aux produits structurés est très restreinte : seuls certains titres respectant des contraintes strictes de composition peuvent y figurer.</p>
+          <p class="gl__d">En pratique, la grande majorité des produits structurés n’est pas éligible au PEA. Toute affirmation contraire doit être vérifiée dans la documentation de l’émetteur.</p>
+          
+        </div>        <div class="gl" id="per" data-cat="Enveloppes &amp; fiscalité" data-s="PER per plan epargne retraite Enveloppes &amp; fiscalité Plan d’épargne retraite, enveloppe de long terme avec déductibilité des versements à l’entrée et sortie en capital ou en rente. L’horizon long du PER s’accorde avec les maturités élevées des produits structurés. Le blocage des fonds jusqu’à la retraite, hors cas de déblocage anticipé, doit être pleinement intégré avant de souscrire.">
+          <h3 class="gl__t">PER <span class="gl__cat">Enveloppes &amp; fiscalité</span></h3>
+          <p class="gl__d">Plan d’épargne retraite, enveloppe de long terme avec déductibilité des versements à l’entrée et sortie en capital ou en rente.</p>
+          <p class="gl__d">L’horizon long du PER s’accorde avec les maturités élevées des produits structurés. Le blocage des fonds jusqu’à la retraite, hors cas de déblocage anticipé, doit être pleinement intégré avant de souscrire.</p>
+          
+        </div>        <div class="gl" id="periode-de-non-rappel" data-cat="Mécanismes" data-s="Période de non-rappel non call period lock-out verrouillage initial Mécanismes Durée initiale pendant laquelle aucun remboursement anticipé ne peut se produire, même si la condition de rappel est remplie. Elle est fréquemment de douze mois. Cette clause garantit à l’investisseur une durée minimale d’exposition et donc un minimum de coupons encaissables. Elle évite le cas désagréable d’un produit rappelé après un seul trimestre, qui laisse l’investisseur devant un problème de réinvestissement immédiat.">
+          <h3 class="gl__t">Période de non-rappel <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Durée initiale pendant laquelle aucun remboursement anticipé ne peut se produire, même si la condition de rappel est remplie. Elle est fréquemment de douze mois.</p>
+          <p class="gl__d">Cette clause garantit à l’investisseur une durée minimale d’exposition et donc un minimum de coupons encaissables. Elle évite le cas désagréable d’un produit rappelé après un seul trimestre, qui laisse l’investisseur devant un problème de réinvestissement immédiat.</p>
+          
+        </div>        <div class="gl" id="phoenix" data-cat="Mécanismes" data-s="Phoenix coupon conditionnel Mécanismes Famille de produits structurés qui verse un coupon à chaque date de constatation dès lors que le sous-jacent se situe au-dessus d’une barrière de coupon, généralement fixée entre 50 % et 70 % du niveau initial. Le Phoenix se distingue de l’Athéna par le détachement effectif des coupons en cours de vie, et du Reverse Convertible par le caractère conditionnel de ces coupons. C’est la structure la plus distribuée en France, le plus souvent assortie d’un mécanisme d’autocall et d’un effet mémoire.">
+          <h3 class="gl__t">Phoenix <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Famille de produits structurés qui verse un coupon à chaque date de constatation dès lors que le sous-jacent se situe au-dessus d’une barrière de coupon, généralement fixée entre 50 % et 70 % du niveau initial.</p>
+          <p class="gl__d">Le Phoenix se distingue de l’Athéna par le détachement effectif des coupons en cours de vie, et du Reverse Convertible par le caractère conditionnel de ces coupons. C’est la structure la plus distribuée en France, le plus souvent assortie d’un mécanisme d’autocall et d’un effet mémoire.</p>
+          
+        </div>        <div class="gl" id="position-recommandation-amf" data-cat="Cadre &amp; risques" data-s="Position-recommandation AMF amf regulateur doctrine commercialisation 2010-05 Cadre &amp; risques Doctrine de l’Autorité des marchés financiers encadrant la commercialisation des instruments financiers complexes auprès de la clientèle non professionnelle. Elle fixe notamment des critères de complexité au-delà desquels un produit est considéré comme difficilement commercialisable auprès du grand public : nombre de mécanismes cumulés, lisibilité de la formule, caractère défavorable d’un mécanisme. Un produit cumulant Worst-of sur actions, barrière américaine et devise étrangère entre clairement dans cette zone de vigilance.">
+          <h3 class="gl__t">Position-recommandation AMF <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Doctrine de l’Autorité des marchés financiers encadrant la commercialisation des instruments financiers complexes auprès de la clientèle non professionnelle.</p>
+          <p class="gl__d">Elle fixe notamment des critères de complexité au-delà desquels un produit est considéré comme difficilement commercialisable auprès du grand public : nombre de mécanismes cumulés, lisibilité de la formule, caractère défavorable d’un mécanisme. Un produit cumulant Worst-of sur actions, barrière américaine et devise étrangère entre clairement dans cette zone de vigilance.</p>
+          
+        </div>        <div class="gl" id="prelevement-forfaitaire-unique" data-cat="Enveloppes &amp; fiscalité" data-s="Prélèvement forfaitaire unique pfu flat tax 30% prelevement forfaitaire Enveloppes &amp; fiscalité Imposition forfaitaire des revenus et plus-values de placement, au taux global de 30 % intégrant l’impôt sur le revenu et les prélèvements sociaux. Applicable aux produits détenus en compte-titres. L’option pour le barème progressif reste possible et peut être plus favorable aux contribuables faiblement imposés.">
+          <h3 class="gl__t">Prélèvement forfaitaire unique <span class="gl__cat">Enveloppes &amp; fiscalité</span></h3>
+          <p class="gl__d">Imposition forfaitaire des revenus et plus-values de placement, au taux global de 30 % intégrant l’impôt sur le revenu et les prélèvements sociaux.</p>
+          <p class="gl__d">Applicable aux produits détenus en compte-titres. L’option pour le barème progressif reste possible et peut être plus favorable aux contribuables faiblement imposés.</p>
+          
+        </div>        <div class="gl" id="prospectus" data-cat="Cadre &amp; risques" data-s="Prospectus prospectus conditions definitives termsheet final base prospectus Cadre &amp; risques Document juridique complet du programme d’émission, approuvé par un régulateur, auquel s’ajoutent les conditions définitives propres à chaque souche. Souvent long de plusieurs centaines de pages, il fait seul foi en cas de litige sur l’interprétation de la formule. Les conditions définitives — le termsheet final — précisent les niveaux exacts constatés au strike.">
+          <h3 class="gl__t">Prospectus <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Document juridique complet du programme d’émission, approuvé par un régulateur, auquel s’ajoutent les conditions définitives propres à chaque souche.</p>
+          <p class="gl__d">Souvent long de plusieurs centaines de pages, il fait seul foi en cas de litige sur l’interprétation de la formule. Les conditions définitives — le termsheet final — précisent les niveaux exacts constatés au strike.</p>
+          
+        </div>        <div class="gl" id="protection-du-capital" data-cat="Barrières &amp; protection" data-s="Protection du capital capital garanti capital protégé protection Barrières &amp; protection Engagement de rembourser tout ou partie du nominal à l’échéance. On distingue la protection conditionnelle, qui dépend d’une barrière, de la protection inconditionnelle, qui ne dépend que de la solvabilité de l’émetteur. Dans tous les cas, la protection ne joue qu’à l’échéance et ne couvre jamais le risque de défaut de l’émetteur. L’expression « capital garanti » ne doit jamais être comprise comme « sans risque ».">
+          <h3 class="gl__t">Protection du capital <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Engagement de rembourser tout ou partie du nominal à l’échéance. On distingue la protection conditionnelle, qui dépend d’une barrière, de la protection inconditionnelle, qui ne dépend que de la solvabilité de l’émetteur.</p>
+          <p class="gl__d">Dans tous les cas, la protection ne joue qu’à l’échéance et ne couvre jamais le risque de défaut de l’émetteur. L’expression « capital garanti » ne doit jamais être comprise comme « sans risque ».</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-R">
+        <div class="gl-group__l">R</div>
+        <div class="gl" id="reverse-convertible" data-cat="Mécanismes" data-s="Reverse Convertible reverse convertible livraison de titres Mécanismes Structure versant un coupon fixe inconditionnel, avec un remboursement du capital conditionné au niveau final du sous-jacent et une protection faible ou nulle. Dans certaines variantes, le remboursement se fait en titres plutôt qu’en espèces : l’investisseur devient alors effectivement actionnaire au prix d’exercice, ce qui matérialise la perte latente.">
+          <h3 class="gl__t">Reverse Convertible <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Structure versant un coupon fixe inconditionnel, avec un remboursement du capital conditionné au niveau final du sous-jacent et une protection faible ou nulle.</p>
+          <p class="gl__d">Dans certaines variantes, le remboursement se fait en titres plutôt qu’en espèces : l’investisseur devient alors effectivement actionnaire au prix d’exercice, ce qui matérialise la perte latente.</p>
+          
+        </div>        <div class="gl" id="risque-de-change" data-cat="Cadre &amp; risques" data-s="Risque de change change devise quanto couverture forex Cadre &amp; risques Risque lié à la libellé du produit dans une devise différente de celle de l’investisseur, ou à un sous-jacent exprimé en devise étrangère. Il peut effacer entièrement un gain de formule ou aggraver une perte. Une version couverte dite &lt;em&gt;quanto&lt;/em&gt; existe souvent : son coût de couverture réduit le coupon affiché, ce qui est le prix de la tranquillité.">
+          <h3 class="gl__t">Risque de change <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Risque lié à la libellé du produit dans une devise différente de celle de l’investisseur, ou à un sous-jacent exprimé en devise étrangère.</p>
+          <p class="gl__d">Il peut effacer entièrement un gain de formule ou aggraver une perte. Une version couverte dite <em>quanto</em> existe souvent : son coût de couverture réduit le coupon affiché, ce qui est le prix de la tranquillité.</p>
+          
+        </div>        <div class="gl" id="risque-de-credit-emetteur" data-cat="Cadre &amp; risques" data-s="Risque de crédit émetteur risque emetteur contrepartie defaut credit Cadre &amp; risques Risque de défaillance de la banque émettrice du titre. En cas de défaut, l’investisseur perd tout ou partie de son capital, indépendamment du comportement du sous-jacent. C’est le risque le plus souvent négligé, car il ne se matérialise presque jamais — jusqu’à ce qu’il se matérialise. Un produit « à capital garanti » émis par une banque défaillante ne garantit plus rien. La diversification des émetteurs est donc aussi importante que celle des sous-jacents.">
+          <h3 class="gl__t">Risque de crédit émetteur <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Risque de défaillance de la banque émettrice du titre. En cas de défaut, l’investisseur perd tout ou partie de son capital, indépendamment du comportement du sous-jacent.</p>
+          <p class="gl__d">C’est le risque le plus souvent négligé, car il ne se matérialise presque jamais — jusqu’à ce qu’il se matérialise. Un produit « à capital garanti » émis par une banque défaillante ne garantit plus rien. La diversification des émetteurs est donc aussi importante que celle des sous-jacents.</p>
+          <div class="gl__ex"><b>Exemple</b>En 2008, les porteurs de notes émises par Lehman Brothers ont subi des pertes très lourdes sur des produits dont certains étaient présentés comme à capital garanti.</div>
+        </div>        <div class="gl" id="risque-de-reinvestissement" data-cat="Vie du produit" data-s="Risque de réinvestissement reinvestissement replacement Vie du produit Risque de devoir replacer un capital remboursé par anticipation dans des conditions de marché moins favorables qu’à l’origine. C’est le risque le plus sous-estimé des structures autocall. Un produit rappelé rapidement a bien rempli son office, mais l’investisseur se retrouve à devoir reconstituer une position dans un marché où les coupons offerts sont souvent plus faibles — précisément parce que le marché a monté.">
+          <h3 class="gl__t">Risque de réinvestissement <span class="gl__cat">Vie du produit</span></h3>
+          <p class="gl__d">Risque de devoir replacer un capital remboursé par anticipation dans des conditions de marché moins favorables qu’à l’origine.</p>
+          <p class="gl__d">C’est le risque le plus sous-estimé des structures autocall. Un produit rappelé rapidement a bien rempli son office, mais l’investisseur se retrouve à devoir reconstituer une position dans un marché où les coupons offerts sont souvent plus faibles — précisément parce que le marché a monté.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-S">
+        <div class="gl-group__l">S</div>
+        <div class="gl" id="scenarios-de-performance" data-cat="Frais &amp; valorisation" data-s="Scénarios de performance scenarios performance priips tendu defavorable favorable Frais &amp; valorisation Quatre scénarios — tendu, défavorable, intermédiaire et favorable — calculés selon une méthode réglementaire uniforme et présentés dans le document d’informations clés. Leur intérêt est de permettre une comparaison standardisée entre produits. Leur limite est qu’ils reposent sur des hypothèses normées et non sur une prévision : ils ne constituent ni un engagement de l’émetteur ni une probabilité.">
+          <h3 class="gl__t">Scénarios de performance <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Quatre scénarios — tendu, défavorable, intermédiaire et favorable — calculés selon une méthode réglementaire uniforme et présentés dans le document d’informations clés.</p>
+          <p class="gl__d">Leur intérêt est de permettre une comparaison standardisée entre produits. Leur limite est qu’ils reposent sur des hypothèses normées et non sur une prévision : ils ne constituent ni un engagement de l’émetteur ni une probabilité.</p>
+          
+        </div>        <div class="gl" id="senior-preferred-et-senior-non-preferred" data-cat="Cadre &amp; risques" data-s="Senior preferred et senior non preferred seniorite subordination senior preferred non preferred Cadre &amp; risques Deux rangs de séniorité dans la dette bancaire. La dette senior non preferred absorbe les pertes avant la dette senior preferred en cas de résolution. La plupart des produits structurés destinés aux particuliers sont émis en senior preferred. Une émission en senior non preferred offre un coupon supérieur pour un risque de subordination plus élevé : la mention figure dans la documentation et mérite vérification.">
+          <h3 class="gl__t">Senior preferred et senior non preferred <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Deux rangs de séniorité dans la dette bancaire. La dette senior non preferred absorbe les pertes avant la dette senior preferred en cas de résolution.</p>
+          <p class="gl__d">La plupart des produits structurés destinés aux particuliers sont émis en senior preferred. Une émission en senior non preferred offre un coupon supérieur pour un risque de subordination plus élevé : la mention figure dans la documentation et mérite vérification.</p>
+          
+        </div>        <div class="gl" id="seuil-de-rappel" data-cat="Mécanismes" data-s="Seuil de rappel trigger niveau de rappel strike de rappel Mécanismes Niveau que le sous-jacent doit atteindre à une date de constatation pour déclencher le remboursement anticipé. Il est le plus souvent fixé à 100 % du niveau initial. Un seuil de rappel bas accélère la sortie du produit, ce qui est généralement favorable à l’investisseur lorsque le coupon a été encaissé. Un seuil haut allonge la durée de vie probable.">
+          <h3 class="gl__t">Seuil de rappel <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Niveau que le sous-jacent doit atteindre à une date de constatation pour déclencher le remboursement anticipé. Il est le plus souvent fixé à 100 % du niveau initial.</p>
+          <p class="gl__d">Un seuil de rappel bas accélère la sortie du produit, ce qui est généralement favorable à l’investisseur lorsque le coupon a été encaissé. Un seuil haut allonge la durée de vie probable.</p>
+          
+        </div>        <div class="gl" id="soft-call-et-hard-call" data-cat="Frais &amp; valorisation" data-s="Soft call et hard call soft call hard call option de rappel Frais &amp; valorisation Deux natures d’option de remboursement anticipé. Le hard call appartient à l’émetteur, qui l’exerce quand cela lui est favorable. Le soft call se déclenche automatiquement sur condition de marché, comme dans un autocall. La distinction est essentielle : dans le premier cas, l’option joue contre l’investisseur ; dans le second, elle est neutre et contractuelle.">
+          <h3 class="gl__t">Soft call et hard call <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Deux natures d’option de remboursement anticipé. Le hard call appartient à l’émetteur, qui l’exerce quand cela lui est favorable. Le soft call se déclenche automatiquement sur condition de marché, comme dans un autocall.</p>
+          <p class="gl__d">La distinction est essentielle : dans le premier cas, l’option joue contre l’investisseur ; dans le second, elle est neutre et contractuelle.</p>
+          
+        </div>        <div class="gl" id="sous-jacent" data-cat="Sous-jacents" data-s="Sous-jacent sous jacent underlying actif de reference Sous-jacents Actif de référence dont l’évolution détermine le comportement du produit : indice, action, panier, taux, inflation ou signature de crédit. Le sous-jacent ne fait l’objet d’aucune détention par l’investisseur. Celui-ci ne possède ni les actions ni l’indice : il détient un titre de créance émis par une banque, dont le remboursement est calculé par référence à cet actif. Il ne perçoit donc pas les dividendes et ne dispose d’aucun droit de vote.">
+          <h3 class="gl__t">Sous-jacent <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Actif de référence dont l’évolution détermine le comportement du produit : indice, action, panier, taux, inflation ou signature de crédit.</p>
+          <p class="gl__d">Le sous-jacent ne fait l’objet d’aucune détention par l’investisseur. Celui-ci ne possède ni les actions ni l’indice : il détient un titre de créance émis par une banque, dont le remboursement est calculé par référence à cet actif. Il ne perçoit donc pas les dividendes et ne dispose d’aucun droit de vote.</p>
+          
+        </div>        <div class="gl" id="sri" data-cat="Cadre &amp; risques" data-s="SRI sri indicateur de risque priips srri Cadre &amp; risques Indicateur synthétique de risque imposé par la réglementation européenne, gradué de 1 à 7, présenté en tête de chaque document d’informations clés. Il agrège un risque de marché et un risque de crédit selon une méthode standardisée. Utile pour comparer deux produits entre eux, il reste insuffisant pour en saisir le profil réel : deux produits de SRI identique peuvent avoir des structures de perte très différentes.">
+          <h3 class="gl__t">SRI <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Indicateur synthétique de risque imposé par la réglementation européenne, gradué de 1 à 7, présenté en tête de chaque document d’informations clés.</p>
+          <p class="gl__d">Il agrège un risque de marché et un risque de crédit selon une méthode standardisée. Utile pour comparer deux produits entre eux, il reste insuffisant pour en saisir le profil réel : deux produits de SRI identique peuvent avoir des structures de perte très différentes.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-T">
+        <div class="gl-group__l">T</div>
+        <div class="gl" id="taux-de-rendement-interne" data-cat="Frais &amp; valorisation" data-s="Taux de rendement interne tri taux de rendement interne irr annualise Frais &amp; valorisation Taux annualisé qui résume la performance d’un produit en tenant compte du montant et de la date de chaque flux. C’est le seul indicateur permettant de comparer des structures de durées et de calendriers différents. Un coupon de 9 % perçu pendant deux ans avant rappel ne se compare pas directement à un coupon de 7 % perçu pendant huit ans.">
+          <h3 class="gl__t">Taux de rendement interne <span class="gl__cat">Frais &amp; valorisation</span></h3>
+          <p class="gl__d">Taux annualisé qui résume la performance d’un produit en tenant compte du montant et de la date de chaque flux.</p>
+          <p class="gl__d">C’est le seul indicateur permettant de comparer des structures de durées et de calendriers différents. Un coupon de 9 % perçu pendant deux ans avant rappel ne se compare pas directement à un coupon de 7 % perçu pendant huit ans.</p>
+          
+        </div>        <div class="gl" id="termsheet" data-cat="Cadre &amp; risques" data-s="Termsheet term sheet fiche technique Cadre &amp; risques Fiche technique récapitulant les caractéristiques d’un produit : sous-jacent, barrières, coupon, dates, format d’émission. Avant l’émission, elle est indicative : les niveaux définitifs ne sont arrêtés qu’à la date de strike. C’est le document de travail de la comparaison entre offres concurrentes.">
+          <h3 class="gl__t">Termsheet <span class="gl__cat">Cadre &amp; risques</span></h3>
+          <p class="gl__d">Fiche technique récapitulant les caractéristiques d’un produit : sous-jacent, barrières, coupon, dates, format d’émission.</p>
+          <p class="gl__d">Avant l’émission, elle est indicative : les niveaux définitifs ne sont arrêtés qu’à la date de strike. C’est le document de travail de la comparaison entre offres concurrentes.</p>
+          
+        </div>        <div class="gl" id="triangle-de-securite-luxembourgeois" data-cat="Enveloppes &amp; fiscalité" data-s="Triangle de sécurité luxembourgeois luxembourg triangle de securite creancier privilegie Enveloppes &amp; fiscalité Dispositif de droit luxembourgeois plaçant les actifs des contrats d’assurance-vie hors du bilan de l’assureur, sous la surveillance du régulateur local. Il confère au souscripteur un rang de créancier privilégié de premier rang sur les actifs du contrat. Il protège du défaut de l’assureur, mais jamais du défaut de l’émetteur du produit structuré logé dans le contrat : les deux risques sont distincts.">
+          <h3 class="gl__t">Triangle de sécurité luxembourgeois <span class="gl__cat">Enveloppes &amp; fiscalité</span></h3>
+          <p class="gl__d">Dispositif de droit luxembourgeois plaçant les actifs des contrats d’assurance-vie hors du bilan de l’assureur, sous la surveillance du régulateur local.</p>
+          <p class="gl__d">Il confère au souscripteur un rang de créancier privilégié de premier rang sur les actifs du contrat. Il protège du défaut de l’assureur, mais jamais du défaut de l’émetteur du produit structuré logé dans le contrat : les deux risques sont distincts.</p>
+          
+        </div>        <div class="gl" id="trigger-degressif" data-cat="Mécanismes" data-s="Trigger dégressif step down trigger descending seuil dégressif Mécanismes Variante dans laquelle le seuil de rappel diminue à chaque constatation, par exemple de cinq points par semestre, au lieu de rester fixe à 100 %. Le mécanisme augmente sensiblement la probabilité de remboursement anticipé au fil du temps. La contrepartie est qu’un rappel peut intervenir alors que le sous-jacent reste très inférieur à son niveau d’origine : le produit se termine sans que l’investisseur ait pu bénéficier d’un éventuel rebond.">
+          <h3 class="gl__t">Trigger dégressif <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Variante dans laquelle le seuil de rappel diminue à chaque constatation, par exemple de cinq points par semestre, au lieu de rester fixe à 100 %.</p>
+          <p class="gl__d">Le mécanisme augmente sensiblement la probabilité de remboursement anticipé au fil du temps. La contrepartie est qu’un rappel peut intervenir alors que le sous-jacent reste très inférieur à son niveau d’origine : le produit se termine sans que l’investisseur ait pu bénéficier d’un éventuel rebond.</p>
+          <div class="gl__ex"><b>Exemple</b>Seuil à 100 % la première année, puis 95 %, 90 %, 85 %… Au bout de six ans, un simple retour à 70 % suffit à déclencher le rappel.</div>
+        </div>        <div class="gl" id="twin-win" data-cat="Mécanismes" data-s="Twin Win double sens twin win Mécanismes Structure qui transforme la baisse du sous-jacent en gain, tant qu’un seuil bas n’a pas été franchi, tout en restituant également la hausse. L’investisseur gagne donc dans les deux directions, à condition que l’amplitude de la baisse reste contenue. Le franchissement de la barrière éteint le mécanisme et rétablit une exposition classique à la perte.">
+          <h3 class="gl__t">Twin Win <span class="gl__cat">Mécanismes</span></h3>
+          <p class="gl__d">Structure qui transforme la baisse du sous-jacent en gain, tant qu’un seuil bas n’a pas été franchi, tout en restituant également la hausse.</p>
+          <p class="gl__d">L’investisseur gagne donc dans les deux directions, à condition que l’amplitude de la baisse reste contenue. Le franchissement de la barrière éteint le mécanisme et rétablit une exposition classique à la perte.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-U">
+        <div class="gl-group__l">U</div>
+        <div class="gl" id="unite-de-compte" data-cat="Enveloppes &amp; fiscalité" data-s="Unité de compte uc unite de compte support Enveloppes &amp; fiscalité Support d’investissement d’un contrat d’assurance-vie ou de capitalisation, dont la valeur suit celle de l’actif sous-jacent sans garantie en capital de l’assureur. C’est sous cette forme que la très grande majorité des produits structurés sont souscrits en France. L’assureur référence le titre, en assure la valorisation périodique et porte la relation contractuelle.">
+          <h3 class="gl__t">Unité de compte <span class="gl__cat">Enveloppes &amp; fiscalité</span></h3>
+          <p class="gl__d">Support d’investissement d’un contrat d’assurance-vie ou de capitalisation, dont la valeur suit celle de l’actif sous-jacent sans garantie en capital de l’assureur.</p>
+          <p class="gl__d">C’est sous cette forme que la très grande majorité des produits structurés sont souscrits en France. L’assureur référence le titre, en assure la valorisation périodique et porte la relation contractuelle.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-V">
+        <div class="gl-group__l">V</div>
+        <div class="gl" id="valeur-de-marche-mark-to-market" data-cat="Vie du produit" data-s="Valeur de marché (mark-to-market) mark to market valorisation valeur liquidative Vie du produit Valorisation du produit en cours de vie, calculée par l’émetteur à partir de modèles d’options. Elle dépend du niveau du sous-jacent mais aussi de la volatilité, des taux, du temps restant et du risque de crédit de l’émetteur. C’est pourquoi un produit peut valoir 92 % du nominal alors que son sous-jacent est inchangé : la valeur de marché n’est pas une règle de trois.">
+          <h3 class="gl__t">Valeur de marché (mark-to-market) <span class="gl__cat">Vie du produit</span></h3>
+          <p class="gl__d">Valorisation du produit en cours de vie, calculée par l’émetteur à partir de modèles d’options.</p>
+          <p class="gl__d">Elle dépend du niveau du sous-jacent mais aussi de la volatilité, des taux, du temps restant et du risque de crédit de l’émetteur. C’est pourquoi un produit peut valoir 92 % du nominal alors que son sous-jacent est inchangé : la valeur de marché n’est pas une règle de trois.</p>
+          
+        </div>        <div class="gl" id="volatilite" data-cat="Sous-jacents" data-s="Volatilité volatilite vol implicite Sous-jacents Amplitude des variations du sous-jacent. C’est la variable qui détermine le niveau de coupon qu’un émetteur peut offrir. Une volatilité élevée permet des coupons élevés : l’émetteur vend des options plus chères. Un coupon exceptionnellement généreux ne signale donc pas une bonne affaire mais un sous-jacent plus risqué, ou un mécanisme défavorable comme un Worst-of.">
+          <h3 class="gl__t">Volatilité <span class="gl__cat">Sous-jacents</span></h3>
+          <p class="gl__d">Amplitude des variations du sous-jacent. C’est la variable qui détermine le niveau de coupon qu’un émetteur peut offrir.</p>
+          <p class="gl__d">Une volatilité élevée permet des coupons élevés : l’émetteur vend des options plus chères. Un coupon exceptionnellement généreux ne signale donc pas une bonne affaire mais un sous-jacent plus risqué, ou un mécanisme défavorable comme un Worst-of.</p>
+          
+        </div>
+      </div>      <div class="gl-group" id="lettre-W">
+        <div class="gl-group__l">W</div>
+        <div class="gl" id="worst-of" data-cat="Barrières &amp; protection" data-s="Worst-of worst of panier le moins performant Barrières &amp; protection Mécanisme dans lequel toutes les conditions du produit sont appréciées sur la composante la moins performante d’un panier. C’est le mécanisme le plus mal compris du marché. Un panier de quatre actions n’apporte aucune diversification : il additionne les risques. La probabilité qu’au moins une des quatre composantes connaisse un accident est bien supérieure à celle d’un accident sur une seule. Le coupon généreux d’un Worst-of est donc la rémunération d’un risque accru, non d’une opportunité.">
+          <h3 class="gl__t">Worst-of <span class="gl__cat">Barrières &amp; protection</span></h3>
+          <p class="gl__d">Mécanisme dans lequel toutes les conditions du produit sont appréciées sur la composante la moins performante d’un panier.</p>
+          <p class="gl__d">C’est le mécanisme le plus mal compris du marché. Un panier de quatre actions n’apporte aucune diversification : il additionne les risques. La probabilité qu’au moins une des quatre composantes connaisse un accident est bien supérieure à celle d’un accident sur une seule. Le coupon généreux d’un Worst-of est donc la rémunération d’un risque accru, non d’une opportunité.</p>
+          <div class="gl__ex"><b>Exemple</b>Panier de quatre actions dont trois progressent de 30 % et une chute de 45 % sous la barrière : le produit perd 45 %. Les trois hausses ne comptent pas.</div>
+        </div>
+      </div>
+    <p class="small muted" style="margin-top:34px">Un terme manque ?
+      <a class="card__more" href="../contact.html" style="border:0;padding:0">Signalez-le</a>,
+      le glossaire est enrichi au fil des évolutions du marché.</p>
     </div>
   </div>
 </section>
@@ -329,16 +1219,16 @@
   <div class="container cta__in">
     <div>
       <p class="eyebrow eyebrow--light">Accompagnement</p>
-      <h2 class="title-lg">Faire étudier un produit avant d’y souscrire</h2>
+      <h2 class="title-lg">Un doute sur un produit qu’on vous propose&nbsp;?</h2>
       <p style="margin:18px 0 0;max-width:560px">
-        Lecture du document d’informations clés, analyse du sous-jacent et des barrières,
-        comparaison avec les offres concurrentes du moment et vérification de la cohérence
-        avec votre allocation : notre équipe réalise cette revue à vos côtés.
+        Déposez son document d’informations clés : nous en reprenons le sous-jacent, les
+        barrières et le mode de constatation, nous le comparons aux offres du moment à
+        risque équivalent, et nous vous disons ce que nous en pensons.
       </p>
     </div>
     <div class="cta__actions">
-      <a class="btn btn--ghost-light" href="../contact.html">Prendre rendez-vous</a>
-      <a class="btn btn--ghost-light" href="methodologie.html">Notre méthodologie</a>
+      <a class="btn btn--ghost-light" href="produits.html#analyse">Faire analyser un produit</a>
+      <a class="btn btn--ghost-light" href="../contact.html">Nous contacter</a>
     </div>
   </div>
 </section>
@@ -348,15 +1238,15 @@
     <div class="ftr__top">
       <div class="ftr__brand">
         <span class="brand">
-          <span class="brand__mark" aria-hidden="true">O</span>
+          <span class="brand__mark" aria-hidden="true">C</span>
           <span class="brand__txt">
-            <span class="brand__name">L’Observatoire</span>
-            <span class="brand__sub">Produits structurés</span>
+            <span class="brand__name">Le Comptoir</span>
+            <span class="brand__sub">des structurés</span>
           </span>
         </span>
-        <p>Référence indépendante du marché français. Un observatoire pédagogique du marché des produits
-        structurés : familles, émetteurs, établissements de place et vocabulaire,
-        réunis en un seul endroit.</p>
+        <p>Un répertoire pédagogique du marché des produits structurés : structures,
+        émetteurs, établissements de place et vocabulaire. Nous ne retenons que des
+        sous-jacents de marché, sans indice décrément.</p>
         <p class="xsmall" style="margin-top:14px">Une publication de
           <a href="../index.html">La Financière de Rochechouart</a>.</p>
       </div>
@@ -364,22 +1254,22 @@
         <h4>Le marché</h4>
         <ul>
           <li><a href="produits.html">Le comparateur</a></li>
-          <li><a href="familles.html">Familles de produits</a></li>
-          <li><a href="emetteurs.html">Émetteurs</a></li>
-          <li><a href="etablissements.html">Établissements</a></li>
+          <li><a href="produits.html#analyse">Faire analyser un produit</a></li>
+          <li><a href="acteurs.html">Les acteurs</a></li>
+          <li><a href="acteurs.html#emetteurs">Les émetteurs</a></li>
         </ul>
       </div>
       <div>
         <h4>Comprendre</h4>
         <ul>
-          <li><a href="comprendre.html">Guide du produit structuré</a></li>
+          <li><a href="comprendre.html">Le guide</a></li>
+          <li><a href="comprendre.html#familles">Les familles de produits</a></li>
+          <li><a href="comprendre.html#glossaire">Le glossaire</a></li>
           <li><a href="comprendre.html#risques">Les risques</a></li>
-          <li><a href="comprendre.html#fiscalite">Fiscalité &amp; enveloppes</a></li>
-          <li><a href="glossaire.html">Glossaire</a></li>
         </ul>
       </div>
       <div>
-        <h4>L’Observatoire</h4>
+        <h4>Le Comptoir</h4>
         <ul>
           <li><a href="methodologie.html">Méthodologie</a></li>
           <li><a href="mentions-legales.html">Mentions légales</a></li>

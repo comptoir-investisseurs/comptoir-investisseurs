@@ -1,16 +1,17 @@
 /* Généré par build-observatoire.py — ne pas modifier à la main. */
-/* Gabarits de structures représentatifs du marché, à titre pédagogique. */
+/* Gabarits de structures sur sous-jacents de marché, à titre pédagogique. */
+window.OBS_EMAIL = "contact@lfd-rochechouart.com";
 window.OBS_PRODUITS = [
 {
-"nom":"Phoenix Mémoire 10 ans — grand indice européen décrément",
+"nom":"Phoenix Mémoire 10 ans — EURO STOXX 50",
 "famille":"Phoenix à coupon mémoire",
 "emetteur":"BNP Paribas",
 "emetteur_rating":"A+ / Aa3 / A+",
-"sous_jacent":"Indice européen décrément 50 pts",
-"sous_jacent_detail":"Indice européen décrément 50 pts",
-"sj_type":"Indice décrément",
+"sous_jacent":"EURO STOXX 50",
+"sous_jacent_detail":"EURO STOXX 50",
+"sj_type":"Indice actions",
 "devise":"EUR",
-"coupon":0.082,
+"coupon":0.1,
 "frequence":"Trimestrielle",
 "b_coupon":0.6,
 "b_capital":0.6,
@@ -28,32 +29,33 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":5,
-"mecanisme":"Constatation trimestrielle. Coupon de 2,05 % par trimestre versé si l’indice clôture au-dessus de 60 % de son niveau initial, avec effet mémoire intégral. Rappel automatique au nominal majoré des coupons dès que l’indice atteint 100 % de son niveau initial, à partir du 4e trimestre. À l’échéance, capital remboursé intégralement si l’indice est au-dessus de 60 %.",
-"sc_fav":"Rappel dès la fin de la première année : 8,20 % de gain, capital restitué, produit clôturé.",
+"mecanisme":"Constatation trimestrielle sur l’EURO STOXX 50, indice public dividendes non réinvestis. Coupon de 2,50 % par trimestre versé si l’indice clôture au-dessus de 60 % de son niveau initial, avec effet mémoire intégral. Rappel automatique au nominal majoré des coupons dès que l’indice atteint 100 % de son niveau initial, à partir du 4e trimestre. À l’échéance, capital remboursé intégralement si l’indice est au-dessus de 60 %.",
+"sc_fav":"Rappel dès la fin de la première année : 10,00 % de gain, capital restitué, produit clôturé.",
 "sc_med":"Aucun rappel, indice à 85 % à l’échéance : coupons encaissés sur toute la période, capital remboursé à 100 %.",
 "sc_def":"Indice à 45 % à l’échéance : perte de 55 % du capital, sans amortisseur, coupons déjà perçus conservés.",
 "attention":[
 "La barrière de 60 % est constatée uniquement à l’échéance, ce qui autorise de longs passages sous ce seuil sans conséquence définitive.",
-"Le décrément de 50 points par an pèse d’autant plus lourd que l’indice baisse : exprimé en pourcentage, le prélèvement augmente mécaniquement.",
-"Sur 10 ans, un gain plafonné à 8,20 % par an prive l’investisseur d’un marché actions franchement haussier."
+"Le coupon est financé par les dividendes de l’indice, que l’investisseur ne perçoit pas : sur dix ans, c’est un renoncement substantiel.",
+"Sur 10 ans, un gain plafonné à 10 % par an prive l’investisseur d’un marché actions franchement haussier."
 ],
 "tags":[
 "mémoire",
 "défensif",
-"indice maison"
+"indice public",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Autocall Phoenix 12 ans — indice européen décrément 5 %",
+"nom":"Autocall Phoenix 12 ans — EURO STOXX 50",
 "famille":"Autocall Phoenix",
 "emetteur":"Société Générale",
 "emetteur_rating":"A / A1 / A-",
-"sous_jacent":"Indice européen décrément 5 %",
-"sous_jacent_detail":"Indice européen décrément 5 %",
-"sj_type":"Indice décrément",
+"sous_jacent":"EURO STOXX 50",
+"sous_jacent_detail":"EURO STOXX 50",
+"sj_type":"Indice actions",
 "devise":"EUR",
-"coupon":0.091,
+"coupon":0.112,
 "frequence":"Trimestrielle",
 "b_coupon":0.7,
 "b_capital":0.5,
@@ -71,32 +73,33 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Coupon trimestriel de 2,275 % versé si l’indice est au-dessus de 70 % de son niveau initial, avec mémoire. Rappel au pair dès franchissement de 100 % à partir de la cinquième constatation. Barrière de capital très profonde à 50 % constatée à la seule date d’échéance.",
-"sc_fav":"Rappel au bout de 18 mois : environ 13,65 % de gain cumulé puis restitution du capital.",
+"mecanisme":"Coupon trimestriel de 2,80 % versé si l’indice est au-dessus de 70 % de son niveau initial, avec mémoire. Rappel au pair dès franchissement de 100 % à partir de la cinquième constatation. Barrière de capital très profonde à 50 %, constatée à la seule date d’échéance.",
+"sc_fav":"Rappel au bout de 18 mois : environ 16,80 % de gain cumulé puis restitution du capital.",
 "sc_med":"Indice à 75 % à l’échéance : la totalité des coupons a été versée, le capital est remboursé à 100 %.",
 "sc_def":"Indice à 40 % à l’échéance : perte de 60 % du capital.",
 "attention":[
 "Maturité de 12 ans : il faut accepter une immobilisation potentiellement très longue du capital.",
 "La barrière de coupon à 70 % est plus haute que celle des structures à 60 % : les coupons sont interrompus plus tôt en cas de baisse.",
-"Un décrément de 5 % par an représente un handicap de performance considérable sur 12 ans face à l’indice de référence."
+"Le coupon élevé traduit la profondeur de la barrière de capital et la longueur de la maturité, non une générosité particulière."
 ],
 "tags":[
 "barrière profonde",
 "mémoire",
-"long terme"
+"long terme",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Athéna 8 ans — CAC 40 décrément",
+"nom":"Athéna 8 ans — CAC 40",
 "famille":"Athéna",
 "emetteur":"Crédit Agricole CIB",
 "emetteur_rating":"A+ / Aa3 / A+",
-"sous_jacent":"CAC 40 décrément 50 pts",
-"sous_jacent_detail":"CAC 40 décrément 50 pts",
-"sj_type":"Indice décrément",
+"sous_jacent":"CAC 40",
+"sous_jacent_detail":"CAC 40",
+"sj_type":"Indice actions",
 "devise":"EUR",
-"coupon":0.095,
+"coupon":0.118,
 "frequence":"Annuelle (capitalisé)",
 "b_coupon":null,
 "b_capital":0.6,
@@ -114,32 +117,33 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Aucun coupon détaché en cours de vie. À chaque constatation annuelle, si l’indice est au-dessus de son niveau initial, le produit est remboursé au nominal majoré de 9,50 % par année écoulée. À l’échéance, remboursement intégral majoré du gain capitalisé si l’indice est au-dessus de 60 %.",
-"sc_fav":"Rappel à la deuxième constatation : 19 % de gain versé en une fois.",
-"sc_med":"Rappel à la septième année : 66,5 % de gain cumulé, soit une performance annualisée proche de 7,6 %.",
+"mecanisme":"Aucun coupon détaché en cours de vie. À chaque constatation annuelle, si le CAC 40 est au-dessus de son niveau initial, le produit est remboursé au nominal majoré de 11,80 % par année écoulée. À l’échéance, remboursement intégral majoré du gain capitalisé si l’indice est au-dessus de 60 %.",
+"sc_fav":"Rappel à la deuxième constatation : 23,60 % de gain versé en une fois.",
+"sc_med":"Rappel à la septième année : 82,6 % de gain cumulé, soit une performance annualisée proche de 9,0 %.",
 "sc_def":"Indice à 50 % à l’échéance : perte de 50 % du capital, aucun gain n’ayant jamais été versé.",
 "attention":[
 "Structure sans aucun revenu intermédiaire : si l’indice reste durablement sous 100 %, rien n’est perçu avant l’échéance.",
 "Logique tout ou rien à l’arrivée : le passage sous 60 % anéantit huit années de rendement potentiel.",
-"La capitalisation ne joue qu’en cas de rappel ou de constatation finale favorable."
+"Le CAC 40 publié est un indice dividendes non réinvestis : c’est ce flux abandonné qui finance le taux de capitalisation."
 ],
 "tags":[
 "capitalisation",
 "sans coupon",
-"indice français"
+"indice français",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix Airbag 10 ans — indice européen décrément",
+"nom":"Phoenix Airbag 10 ans — EURO STOXX 50",
 "famille":"Airbag & Bonus",
 "emetteur":"Natixis",
 "emetteur_rating":"A / A1 / A+",
-"sous_jacent":"Indice européen décrément 50 pts",
-"sous_jacent_detail":"Indice européen décrément 50 pts",
-"sj_type":"Indice décrément",
+"sous_jacent":"EURO STOXX 50",
+"sous_jacent_detail":"EURO STOXX 50",
+"sj_type":"Indice actions",
 "devise":"EUR",
-"coupon":0.074,
+"coupon":0.092,
 "frequence":"Trimestrielle",
 "b_coupon":0.6,
 "b_capital":0.6,
@@ -158,31 +162,32 @@ window.OBS_PRODUITS = [
 "statut":"Gabarit de référence",
 "note":5,
 "mecanisme":"Phoenix mémoire classique assorti d’un mécanisme airbag : si l’indice termine sous 60 %, la perte n’est pas calculée depuis le niveau initial mais depuis la barrière. La baisse constatée est divisée par 0,60, ce qui supprime l’effet de seuil.",
-"sc_fav":"Rappel à la première année : 7,40 % de gain, capital restitué.",
+"sc_fav":"Rappel à la première année : 9,20 % de gain, capital restitué.",
 "sc_med":"Indice à 70 % à l’échéance : coupons intégralement versés, capital remboursé à 100 %.",
 "sc_def":"Indice à 55 % à l’échéance : perte limitée à environ 8,3 % grâce à l’airbag, contre 45 % sur une barrière sèche.",
 "attention":[
-"Le coupon est inférieur d’environ un point à une structure identique sans airbag : c’est le prix de l’amortisseur.",
+"Le coupon est inférieur d’environ deux points à une structure identique sans airbag : c’est le prix de l’amortisseur.",
 "L’airbag atténue la perte mais ne l’élimine pas : une chute de l’indice à 30 % entraîne encore une perte de 50 %.",
 "Vérifier dans le DIC la formule exacte de l’airbag, les modalités variant d’un émetteur à l’autre."
 ],
 "tags":[
 "airbag",
 "mémoire",
-"protection renforcée"
+"protection renforcée",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 6 ans — EuroStoxx Banks",
+"nom":"Phoenix 6 ans — EURO STOXX Banks",
 "famille":"Autocall Phoenix",
 "emetteur":"J.P. Morgan",
 "emetteur_rating":"A- / A1 / AA-",
-"sous_jacent":"Indice sectoriel bancaire européen",
-"sous_jacent_detail":"Indice sectoriel bancaire européen",
+"sous_jacent":"EURO STOXX Banks",
+"sous_jacent_detail":"EURO STOXX Banks",
 "sj_type":"Indice sectoriel",
 "devise":"EUR",
-"coupon":0.108,
+"coupon":0.132,
 "frequence":"Semestrielle",
 "b_coupon":0.65,
 "b_capital":0.55,
@@ -199,9 +204,9 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":3,
-"mecanisme":"Coupon semestriel de 5,40 % conditionné à un indice au-dessus de 65 %, avec mémoire. Rappel possible dès la première constatation semestrielle. Barrière de capital à 55 % à l’échéance.",
-"sc_fav":"Rappel à six mois : 5,40 % de gain sur une immobilisation d’un semestre.",
-"sc_med":"Rappel en quatrième année : environ 43 % de gain cumulé.",
+"mecanisme":"Coupon semestriel de 6,60 % conditionné à un indice au-dessus de 65 %, avec mémoire. Rappel possible dès la première constatation semestrielle. Barrière de capital à 55 % à l’échéance.",
+"sc_fav":"Rappel à six mois : 6,60 % de gain sur une immobilisation d’un semestre.",
+"sc_med":"Rappel en quatrième année : environ 52,8 % de gain cumulé.",
 "sc_def":"Indice à 40 % à l’échéance : perte de 60 % du capital.",
 "attention":[
 "Un indice sectoriel bancaire est beaucoup plus volatil qu’un indice diversifié : le coupon élevé rémunère ce risque réel.",
@@ -211,20 +216,21 @@ window.OBS_PRODUITS = [
 "tags":[
 "sectoriel",
 "coupon élevé",
-"volatilité"
+"volatilité",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 8 ans — panier Worst-of 3 indices mondiaux",
+"nom":"Phoenix 8 ans — Worst-of EURO STOXX 50 / S&P 500 / Nikkei 225",
 "famille":"Autocall Phoenix",
 "emetteur":"Goldman Sachs",
 "emetteur_rating":"BBB+ / A2 / A",
-"sous_jacent":"Worst-of 3 indices (Europe, États-Unis, Japon)",
-"sous_jacent_detail":"Worst-of 3 indices (Europe, États-Unis, Japon)",
+"sous_jacent":"Worst-of 3 indices mondiaux",
+"sous_jacent_detail":"EURO STOXX 50, S&P 500 et Nikkei 225 — conditions appréciées sur le moins performant",
 "sj_type":"Panier Worst-of",
 "devise":"EUR",
-"coupon":0.118,
+"coupon":0.142,
 "frequence":"Trimestrielle",
 "b_coupon":0.65,
 "b_capital":0.55,
@@ -241,32 +247,33 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":3,
-"mecanisme":"Toutes les conditions sont appréciées sur le moins performant des trois indices du panier. Coupon trimestriel de 2,95 % si ce plus mauvais indice est au-dessus de 65 %, avec mémoire. Rappel lorsque les trois indices sont simultanément au-dessus de 100 %.",
-"sc_fav":"Les trois indices progressent de concert : rappel au bout d’un an, 11,80 % de gain.",
+"mecanisme":"Toutes les conditions sont appréciées sur le moins performant des trois indices du panier. Coupon trimestriel de 3,55 % si ce plus mauvais indice est au-dessus de 65 %, avec mémoire. Rappel lorsque les trois indices sont simultanément au-dessus de 100 %.",
+"sc_fav":"Les trois indices progressent de concert : rappel au bout d’un an, 14,20 % de gain.",
 "sc_med":"Deux indices montent, le troisième stagne à 80 % : coupons versés mais aucun rappel avant l’échéance.",
 "sc_def":"Un seul indice chute à 45 % : perte de 55 % du capital, quelle que soit la performance des deux autres.",
 "attention":[
 "Le mécanisme Worst-of est le plus mal compris du marché : la diversification apparente du panier augmente en réalité le risque, puisque seul le plus mauvais compte.",
-"Plus le panier compte de composantes, plus la probabilité qu’au moins une sous-performe est élevée.",
+"Un panier multidevises ajoute un décalage de change entre les trois composantes, même pour un produit libellé en euro.",
 "Le coupon très élevé est la contrepartie directe de cette asymétrie, non le signe d’une bonne affaire."
 ],
 "tags":[
 "worst-of",
 "coupon élevé",
-"complexe"
+"complexe",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Reverse Convertible 3 ans — grande valeur européenne",
+"nom":"Reverse Convertible 3 ans — action du CAC 40",
 "famille":"Reverse Convertible",
 "emetteur":"UniCredit",
 "emetteur_rating":"BBB+ / Baa1 / BBB+",
-"sous_jacent":"Action européenne de premier rang",
-"sous_jacent_detail":"Action européenne de premier rang",
+"sous_jacent":"Action française de premier rang",
+"sous_jacent_detail":"Action de grande capitalisation cotée au CAC 40, choisie au moment de la structuration",
 "sj_type":"Action",
 "devise":"EUR",
-"coupon":0.126,
+"coupon":0.148,
 "frequence":"Trimestrielle",
 "b_coupon":null,
 "b_capital":0.8,
@@ -282,8 +289,8 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":2,
-"mecanisme":"Coupon trimestriel de 3,15 % versé sans aucune condition de barrière, quelle que soit l’évolution de l’action. À l’échéance, remboursement au pair si l’action est au-dessus de 80 % de son niveau initial ; en dessous, l’investisseur subit la baisse constatée depuis le niveau initial.",
-"sc_fav":"Action stable ou en hausse : 37,80 % de coupons sur trois ans, capital restitué.",
+"mecanisme":"Coupon trimestriel de 3,70 % versé sans aucune condition de barrière, quelle que soit l’évolution de l’action. À l’échéance, remboursement au pair si l’action est au-dessus de 80 % de son niveau initial ; en dessous, l’investisseur subit la baisse constatée depuis le niveau initial.",
+"sc_fav":"Action stable ou en hausse : 44,40 % de coupons sur trois ans, capital restitué.",
 "sc_med":"Action à 85 % à l’échéance : coupons encaissés, capital remboursé à 100 %.",
 "sc_def":"Action à 50 % à l’échéance : perte de 50 % du capital, partiellement compensée par les coupons perçus.",
 "attention":[
@@ -295,18 +302,19 @@ window.OBS_PRODUITS = [
 "tags":[
 "coupon garanti",
 "mono sous-jacent",
-"risque élevé"
+"risque élevé",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Capital garanti 6 ans — participation indice européen",
+"nom":"Capital garanti 6 ans — participation EURO STOXX 50",
 "famille":"Capital protégé ou garanti",
 "emetteur":"Crédit Agricole CIB",
 "emetteur_rating":"A+ / Aa3 / A+",
-"sous_jacent":"Indice européen large",
-"sous_jacent_detail":"Indice européen large",
-"sj_type":"Indice classique",
+"sous_jacent":"EURO STOXX 50",
+"sous_jacent_detail":"EURO STOXX 50",
+"sj_type":"Indice actions",
 "devise":"EUR",
 "coupon":null,
 "frequence":"Aucun coupon",
@@ -326,9 +334,9 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Remboursement de 100 % du nominal à l’échéance quelle que soit l’évolution de l’indice, sous réserve de la solvabilité de l’émetteur. S’y ajoute 60 % de la performance positive de l’indice, mesurée en moyenne sur les douze derniers mois, dans la limite d’un plafond de gain de 30 %.",
-"sc_fav":"Indice en hausse de 60 % : gain plafonné à 30 %, soit 4,5 % par an.",
-"sc_med":"Indice en hausse de 20 % : gain de 12 %, soit environ 1,9 % par an.",
+"mecanisme":"Remboursement de 100 % du nominal à l’échéance quelle que soit l’évolution de l’indice, sous réserve de la solvabilité de l’émetteur. S’y ajoute 70 % de la performance positive de l’EURO STOXX 50, mesurée en moyenne sur les douze derniers mois, dans la limite d’un plafond de gain de 40 %.",
+"sc_fav":"Indice en hausse de 60 % : gain plafonné à 40 %, soit 5,8 % par an.",
+"sc_med":"Indice en hausse de 20 % : gain de 14 %, soit environ 2,2 % par an.",
 "sc_def":"Indice en baisse de 40 % : capital remboursé à 100 %, aucun gain, coût d’opportunité de six ans.",
 "attention":[
 "La garantie ne vaut qu’à l’échéance : une sortie anticipée se fait au prix de marché, qui peut être inférieur au nominal.",
@@ -338,18 +346,19 @@ window.OBS_PRODUITS = [
 "tags":[
 "capital garanti",
 "trésorerie",
-"prudent"
+"prudent",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Participation 5 ans — call spread indice européen",
+"nom":"Participation 5 ans — call spread EURO STOXX 50",
 "famille":"Produit de participation",
 "emetteur":"BNP Paribas",
 "emetteur_rating":"A+ / Aa3 / A+",
-"sous_jacent":"Indice européen large",
-"sous_jacent_detail":"Indice européen large",
-"sj_type":"Indice classique",
+"sous_jacent":"EURO STOXX 50",
+"sous_jacent_detail":"EURO STOXX 50",
+"sj_type":"Indice actions",
 "devise":"EUR",
 "coupon":null,
 "frequence":"Aucun coupon",
@@ -369,30 +378,31 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Aucun coupon. À l’échéance, l’investisseur reçoit 150 % de la performance positive de l’indice, plafonnée à 45 % de gain. Le capital est remboursé intégralement tant que l’indice n’a pas baissé de plus de 20 % ; en dessous, la perte est égale à la baisse constatée.",
-"sc_fav":"Indice en hausse de 30 % : gain de 45 % atteint, soit 7,7 % par an.",
-"sc_med":"Indice en hausse de 10 % : gain de 15 %, soit environ 2,8 % par an.",
+"mecanisme":"Aucun coupon. À l’échéance, l’investisseur reçoit 170 % de la performance positive de l’indice, plafonnée à 55 % de gain. Le capital est remboursé intégralement tant que l’indice n’a pas baissé de plus de 20 % ; en dessous, la perte est égale à la baisse constatée.",
+"sc_fav":"Indice en hausse de 35 % : gain de 55 % atteint, soit 9,2 % par an.",
+"sc_med":"Indice en hausse de 10 % : gain de 17 %, soit environ 3,2 % par an.",
 "sc_def":"Indice en baisse de 35 % : perte de 35 % du capital.",
 "attention":[
-"Le levier de 150 % ne joue que dans la fourchette de gain : au-delà du plafond, il n’apporte plus rien.",
+"Le levier de 170 % ne joue que dans la fourchette de gain : au-delà du plafond, il n’apporte plus rien.",
 "Protection de 20 % seulement : plus faible que celle des structures de rendement à barrière.",
 "Les dividendes de l’indice ne sont pas reversés, ce qui constitue un manque à gagner significatif sur cinq ans."
 ],
 "tags":[
 "participation",
 "levier",
-"croissance"
+"croissance",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Participation Lock-in 8 ans — indice mondial",
+"nom":"Participation Lock-in 8 ans — MSCI World",
 "famille":"Produit de participation",
 "emetteur":"Morgan Stanley",
 "emetteur_rating":"A- / A1 / A",
-"sous_jacent":"Indice mondial actions",
-"sous_jacent_detail":"Indice mondial actions",
-"sj_type":"Indice classique",
+"sous_jacent":"MSCI World",
+"sous_jacent_detail":"MSCI World",
+"sj_type":"Indice actions",
 "devise":"EUR",
 "coupon":null,
 "frequence":"Annuelle (cliquet)",
@@ -423,20 +433,21 @@ window.OBS_PRODUITS = [
 "tags":[
 "lock-in",
 "cliquet",
-"croissance"
+"croissance",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 10 ans — thématique énergies & infrastructures",
+"nom":"Phoenix 10 ans — STOXX Europe 600 Oil & Gas",
 "famille":"Phoenix à coupon mémoire",
 "emetteur":"Barclays",
 "emetteur_rating":"BBB+ / Baa1 / A",
-"sous_jacent":"Indice thématique infrastructures décrément",
-"sous_jacent_detail":"Indice thématique infrastructures décrément",
-"sj_type":"Indice thématique",
+"sous_jacent":"STOXX Europe 600 Oil & Gas",
+"sous_jacent_detail":"STOXX Europe 600 Oil & Gas",
+"sj_type":"Indice sectoriel",
 "devise":"EUR",
-"coupon":0.098,
+"coupon":0.118,
 "frequence":"Trimestrielle",
 "b_coupon":0.6,
 "b_capital":0.55,
@@ -453,32 +464,33 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":3,
-"mecanisme":"Coupon trimestriel de 2,45 % conditionné à un indice thématique au-dessus de 60 %, avec mémoire. Rappel au pair dès 100 %. Barrière de capital à 55 % à l’échéance.",
-"sc_fav":"Rappel à 18 mois : 14,70 % de gain cumulé.",
+"mecanisme":"Coupon trimestriel de 2,95 % conditionné à un indice sectoriel au-dessus de 60 %, avec mémoire. Rappel au pair dès 100 %. Barrière de capital à 55 % à l’échéance.",
+"sc_fav":"Rappel à 18 mois : 17,70 % de gain cumulé.",
 "sc_med":"Indice à 80 % à l’échéance : coupons versés, capital remboursé intégralement.",
 "sc_def":"Indice à 45 % à l’échéance : perte de 55 % du capital.",
 "attention":[
-"Les indices thématiques affichent des historiques très courts : la performance antérieure à leur lancement est reconstituée par calcul, non observée.",
-"Concentration sectorielle élevée, donc volatilité supérieure à celle d’un indice diversifié.",
+"Secteur cyclique dont les cours dépendent largement du prix des matières premières : volatilité élevée.",
+"Le rendement du dividende du secteur est structurellement fort, ce qui explique en grande partie le niveau de coupon offert.",
 "Notation de l’émetteur la plus basse du panel des grandes signatures : à doser dans l’allocation."
 ],
 "tags":[
-"thématique",
+"sectoriel",
 "mémoire",
-"historique court"
+"cyclique",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Athéna Trigger dégressif 10 ans — indice européen décrément",
+"nom":"Athéna Trigger dégressif 10 ans — CAC 40",
 "famille":"Athéna",
 "emetteur":"Société Générale",
 "emetteur_rating":"A / A1 / A-",
-"sous_jacent":"Indice européen décrément 50 pts",
-"sous_jacent_detail":"Indice européen décrément 50 pts",
-"sj_type":"Indice décrément",
+"sous_jacent":"CAC 40",
+"sous_jacent_detail":"CAC 40",
+"sj_type":"Indice actions",
 "devise":"EUR",
-"coupon":0.088,
+"coupon":0.105,
 "frequence":"Semestrielle (capitalisé)",
 "b_coupon":null,
 "b_capital":0.6,
@@ -496,32 +508,33 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Seuil de rappel dégressif : fixé à 100 % lors de la première constatation, il baisse de 5 points à chaque constatation semestrielle suivante, jusqu’à 55 % en fin de vie. Le gain capitalisé de 8,80 % par an est versé au moment du rappel.",
-"sc_fav":"Rappel à un an : 8,80 % de gain versé en une fois.",
-"sc_med":"Rappel en sixième année grâce au seuil descendu à 75 % : environ 52,8 % de gain cumulé.",
+"mecanisme":"Seuil de rappel dégressif : fixé à 100 % lors de la première constatation, il baisse de 5 points à chaque constatation semestrielle suivante, jusqu’à 55 % en fin de vie. Le gain capitalisé de 10,50 % par an est versé au moment du rappel.",
+"sc_fav":"Rappel à un an : 10,50 % de gain versé en une fois.",
+"sc_med":"Rappel en sixième année grâce au seuil descendu à 75 % : environ 63 % de gain cumulé.",
 "sc_def":"Indice à 50 % à l’échéance : perte de 50 % du capital, aucun gain versé.",
 "attention":[
-"Le seuil dégressif augmente nettement la probabilité de rappel : c’est l’atout principal de cette variante.",
-"En contrepartie, le rappel peut intervenir alors que l’indice est très inférieur à son niveau d’origine, ce qui met fin au produit sans possibilité de rattrapage.",
+"Le seuil dégressif porte sur le rappel, pas sur le sous-jacent : à ne pas confondre avec un indice décrément, absent de ce catalogue.",
+"Le seuil dégressif augmente nettement la probabilité de rappel, mais celui-ci peut intervenir alors que l’indice reste très inférieur à son niveau d’origine.",
 "Aucun revenu intermédiaire pendant toute la durée de vie."
 ],
 "tags":[
 "trigger dégressif",
 "capitalisation",
-"probabilité de rappel"
+"probabilité de rappel",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 7 ans — indice américain décrément",
+"nom":"Phoenix 7 ans — S&P 500",
 "famille":"Autocall Phoenix",
 "emetteur":"Bank of America",
 "emetteur_rating":"A- / A1 / AA-",
-"sous_jacent":"Indice américain décrément",
-"sous_jacent_detail":"Indice américain décrément",
-"sj_type":"Indice décrément",
+"sous_jacent":"S&P 500",
+"sous_jacent_detail":"S&P 500",
+"sj_type":"Indice actions",
 "devise":"USD",
-"coupon":0.086,
+"coupon":0.098,
 "frequence":"Trimestrielle",
 "b_coupon":0.65,
 "b_capital":0.6,
@@ -538,19 +551,20 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Structure Phoenix mémoire libellée en dollar. Coupon trimestriel de 2,15 % si l’indice est au-dessus de 65 %, rappel au pair dès 100 %, barrière de capital à 60 % à l’échéance.",
-"sc_fav":"Rappel à un an : 8,60 % de gain en dollar, hors effet de change.",
+"mecanisme":"Structure Phoenix mémoire libellée en dollar sur le S&P 500. Coupon trimestriel de 2,45 % si l’indice est au-dessus de 65 %, rappel au pair dès 100 %, barrière de capital à 60 % à l’échéance.",
+"sc_fav":"Rappel à un an : 9,80 % de gain en dollar, hors effet de change.",
 "sc_med":"Indice à 90 % à l’échéance : coupons versés, capital remboursé à 100 % en dollar.",
 "sc_def":"Indice à 50 % à l’échéance : perte de 50 % en dollar, aggravée ou atténuée par le change.",
 "attention":[
 "Produit en dollar : le risque de change s’ajoute intégralement au risque de marché et peut en inverser le résultat pour un investisseur en euro.",
 "Une version couverte en euro existe généralement, mais son coût de couverture réduit le coupon.",
-"Vérifier la devise de l’enveloppe d’accueil pour éviter une double conversion."
+"Le rendement du dividende du S&P 500 étant faible, le coupon offert y est structurellement inférieur à celui d’un équivalent européen."
 ],
 "tags":[
 "dollar",
 "risque de change",
-"mémoire"
+"mémoire",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
@@ -563,7 +577,7 @@ window.OBS_PRODUITS = [
 "sous_jacent_detail":"Taux fixe, option de rappel émetteur",
 "sj_type":"Taux",
 "devise":"EUR",
-"coupon":0.042,
+"coupon":0.05,
 "frequence":"Annuelle",
 "b_coupon":null,
 "b_capital":null,
@@ -580,10 +594,10 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Coupon annuel fixe de 4,20 % versé sans condition. L’émetteur dispose du droit de rappeler le titre au pair à chaque date anniversaire à partir de la deuxième année. Capital remboursé à 100 % à l’échéance ou au rappel.",
-"sc_fav":"Les taux montent, l’émetteur ne rappelle pas : 4,20 % par an pendant dix ans.",
-"sc_med":"Rappel en cinquième année après une baisse des taux : 21 % de gain cumulé, puis réinvestissement à des conditions moins favorables.",
-"sc_def":"Rappel dès la deuxième année : 8,40 % perçus, et le capital doit être replacé sur un marché devenu moins rémunérateur.",
+"mecanisme":"Coupon annuel fixe de 5,00 % versé sans condition. L’émetteur dispose du droit de rappeler le titre au pair à chaque date anniversaire à partir de la deuxième année. Capital remboursé à 100 % à l’échéance ou au rappel.",
+"sc_fav":"Les taux montent, l’émetteur ne rappelle pas : 5,00 % par an pendant dix ans.",
+"sc_med":"Rappel en cinquième année après une baisse des taux : 25 % de gain cumulé, puis réinvestissement à des conditions moins favorables.",
+"sc_def":"Rappel dès la deuxième année : 10 % perçus, et le capital doit être replacé sur un marché devenu moins rémunérateur.",
 "attention":[
 "L’option de rappel appartient à l’émetteur et sera exercée dans son intérêt, donc contre celui de l’investisseur.",
 "Le risque principal n’est pas la perte en capital mais le risque de réinvestissement.",
@@ -592,7 +606,8 @@ window.OBS_PRODUITS = [
 "tags":[
 "taux",
 "trésorerie",
-"capital protégé"
+"capital protégé",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
@@ -605,7 +620,7 @@ window.OBS_PRODUITS = [
 "sous_jacent_detail":"Euribor 3 mois, fourchette 0 % – 4 %",
 "sj_type":"Taux",
 "devise":"EUR",
-"coupon":0.048,
+"coupon":0.056,
 "frequence":"Trimestrielle (prorata)",
 "b_coupon":null,
 "b_capital":null,
@@ -621,9 +636,9 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":3,
-"mecanisme":"Le coupon annuel de 4,80 % est acquis au prorata du nombre de jours pendant lesquels l’Euribor 3 mois reste dans la fourchette définie. Chaque journée hors fourchette ne génère aucun intérêt. Capital remboursé à 100 % à l’échéance.",
-"sc_fav":"Euribor dans la fourchette toute l’année : 4,80 % perçus.",
-"sc_med":"Euribor hors fourchette un quart du temps : environ 3,60 % perçus.",
+"mecanisme":"Le coupon annuel de 5,60 % est acquis au prorata du nombre de jours pendant lesquels l’Euribor 3 mois reste dans la fourchette définie. Chaque journée hors fourchette ne génère aucun intérêt. Capital remboursé à 100 % à l’échéance.",
+"sc_fav":"Euribor dans la fourchette toute l’année : 5,60 % perçus.",
+"sc_med":"Euribor hors fourchette un quart du temps : environ 4,20 % perçus.",
 "sc_def":"Euribor durablement au-dessus de 4 % : coupon proche de zéro, capital néanmoins remboursé.",
 "attention":[
 "Le rendement dépend d’un pari sur la trajectoire des taux courts, pas sur les actions.",
@@ -633,7 +648,8 @@ window.OBS_PRODUITS = [
 "tags":[
 "taux",
 "range accrual",
-"capital protégé"
+"capital protégé",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
@@ -646,7 +662,7 @@ window.OBS_PRODUITS = [
 "sous_jacent_detail":"Signature corporate européenne notée BBB",
 "sj_type":"Crédit",
 "devise":"EUR",
-"coupon":0.058,
+"coupon":0.068,
 "frequence":"Annuelle",
 "b_coupon":null,
 "b_capital":null,
@@ -662,8 +678,8 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":3,
-"mecanisme":"Coupon annuel fixe de 5,80 % tant qu’aucun événement de crédit n’affecte la signature de référence. Capital remboursé à 100 % à l’échéance en l’absence d’événement. En cas d’événement de crédit, remboursement limité au taux de recouvrement constaté sur la dette de la référence.",
-"sc_fav":"Aucun événement de crédit : 29 % de coupons sur cinq ans et capital restitué.",
+"mecanisme":"Coupon annuel fixe de 6,80 % tant qu’aucun événement de crédit n’affecte la signature de référence. Capital remboursé à 100 % à l’échéance en l’absence d’événement. En cas d’événement de crédit, remboursement limité au taux de recouvrement constaté sur la dette de la référence.",
+"sc_fav":"Aucun événement de crédit : 34 % de coupons sur cinq ans et capital restitué.",
 "sc_med":"Dégradation de la notation sans défaut : coupons versés normalement, valeur de marché en baisse en cours de vie.",
 "sc_def":"Défaut de la référence en troisième année : remboursement au taux de recouvrement, souvent compris entre 20 % et 40 % du nominal.",
 "attention":[
@@ -674,20 +690,21 @@ window.OBS_PRODUITS = [
 "tags":[
 "crédit",
 "obligataire",
-"défaut"
+"défaut",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 10 ans — ESG indice européen décrément",
+"nom":"Phoenix 10 ans — MSCI EMU ESG Leaders",
 "famille":"Phoenix à coupon mémoire",
 "emetteur":"BNP Paribas",
 "emetteur_rating":"A+ / Aa3 / A+",
-"sous_jacent":"Indice européen ISR décrément",
-"sous_jacent_detail":"Indice européen ISR décrément",
+"sous_jacent":"MSCI EMU ESG Leaders",
+"sous_jacent_detail":"MSCI EMU ESG Leaders",
 "sj_type":"Indice ESG",
 "devise":"EUR",
-"coupon":0.079,
+"coupon":0.095,
 "frequence":"Trimestrielle",
 "b_coupon":0.6,
 "b_capital":0.6,
@@ -705,30 +722,31 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Phoenix mémoire sur un indice appliquant des filtres extra-financiers au sein d’un univers européen large. Coupon trimestriel de 1,975 % au-dessus de 60 %, rappel dès 100 %, barrière de capital à 60 % à l’échéance.",
-"sc_fav":"Rappel à un an : 7,90 % de gain.",
+"mecanisme":"Phoenix mémoire sur un indice ESG public appliquant des filtres extra-financiers à un univers de la zone euro. Coupon trimestriel de 2,375 % au-dessus de 60 %, rappel dès 100 %, barrière de capital à 60 % à l’échéance.",
+"sc_fav":"Rappel à un an : 9,50 % de gain.",
 "sc_med":"Indice à 85 % à l’échéance : coupons versés et capital remboursé intégralement.",
 "sc_def":"Indice à 50 % à l’échéance : perte de 50 % du capital.",
 "attention":[
 "Vérifier la méthodologie d’exclusion réelle de l’indice : l’intitulé ne suffit pas à qualifier la démarche.",
-"L’univers filtré est plus concentré, ce qui peut accroître la volatilité par rapport à l’indice large.",
-"Le décrément s’applique de la même manière que sur un indice classique : la mécanique de prélèvement reste le principal déterminant du coupon."
+"L’univers filtré est plus concentré que l’indice large, ce qui peut accroître la volatilité.",
+"Indice public, publié par un fournisseur indépendant : la méthodologie est consultable, contrairement à un indice propriétaire d’émetteur."
 ],
 "tags":[
 "ESG",
 "mémoire",
-"indice maison"
+"indice public",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Discount 2 ans — indice européen large",
+"nom":"Discount 2 ans — EURO STOXX 50",
 "famille":"Certificat Discount",
 "emetteur":"Vontobel",
 "emetteur_rating":"Non noté / A2 / Non noté",
-"sous_jacent":"Indice européen large",
-"sous_jacent_detail":"Indice européen large",
-"sj_type":"Indice classique",
+"sous_jacent":"EURO STOXX 50",
+"sous_jacent_detail":"EURO STOXX 50",
+"sj_type":"Indice actions",
 "devise":"EUR",
 "coupon":null,
 "frequence":"Aucun coupon",
@@ -746,10 +764,10 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":3,
-"mecanisme":"Achat du certificat avec une décote de 12 % sur le niveau de l’indice. À l’échéance, remboursement égal au plus petit des deux montants entre la valeur de l’indice et le plafond fixé au niveau initial. Gain maximal de 13,6 %.",
-"sc_fav":"Indice stable ou en hausse : gain maximal de 13,6 % sur deux ans.",
-"sc_med":"Indice en baisse de 8 % : la décote absorbe la baisse, gain résiduel d’environ 4,5 %.",
-"sc_def":"Indice en baisse de 35 % : perte d’environ 26 %, la décote n’absorbant que les douze premiers pour cent.",
+"mecanisme":"Achat du certificat avec une décote de 14 % sur le niveau de l’indice. À l’échéance, remboursement égal au plus petit des deux montants entre la valeur de l’indice et le plafond fixé au niveau initial. Gain maximal de 16,3 %.",
+"sc_fav":"Indice stable ou en hausse : gain maximal de 16,3 % sur deux ans.",
+"sc_med":"Indice en baisse de 8 % : la décote absorbe la baisse, gain résiduel d’environ 7,0 %.",
+"sc_def":"Indice en baisse de 35 % : perte d’environ 24 %, la décote n’absorbant que les quatorze premiers pour cent.",
 "attention":[
 "La décote est la seule protection : au-delà, la perte est intégrale et proportionnelle.",
 "Gain strictement plafonné : aucune participation à une hausse marquée.",
@@ -758,18 +776,19 @@ window.OBS_PRODUITS = [
 "tags":[
 "décote",
 "court terme",
-"gain plafonné"
+"gain plafonné",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Twin Win 4 ans — indice européen large",
+"nom":"Twin Win 4 ans — EURO STOXX 50",
 "famille":"Twin Win",
 "emetteur":"UBS",
 "emetteur_rating":"A- / A3 / A",
-"sous_jacent":"Indice européen large",
-"sous_jacent_detail":"Indice européen large",
-"sj_type":"Indice classique",
+"sous_jacent":"EURO STOXX 50",
+"sous_jacent_detail":"EURO STOXX 50",
+"sj_type":"Indice actions",
 "devise":"EUR",
 "coupon":null,
 "frequence":"Aucun coupon",
@@ -788,9 +807,9 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":3,
-"mecanisme":"À l’échéance, une hausse de l’indice est restituée à 100 %. Une baisse est convertie en gain de même ampleur, tant que l’indice n’est jamais descendu sous 65 % de son niveau initial en constatation quotidienne. Si ce seuil est touché, l’investisseur subit la performance négative réelle.",
+"mecanisme":"À l’échéance, une hausse de l’indice est restituée à 110 %. Une baisse est convertie en gain de même ampleur, tant que l’indice n’est jamais descendu sous 65 % de son niveau initial en constatation quotidienne. Si ce seuil est touché, l’investisseur subit la performance négative réelle.",
 "sc_fav":"Indice en baisse de 20 % sans jamais toucher 65 % : gain de 20 %.",
-"sc_med":"Indice en hausse de 15 % : gain de 15 %.",
+"sc_med":"Indice en hausse de 15 % : gain de 16,5 %.",
 "sc_def":"Indice descendu à 60 % en cours de vie et terminant à 70 % : perte de 30 % du capital, le mécanisme s’étant éteint.",
 "attention":[
 "La barrière est constatée en continu : un seul passage sous le seuil, même sur une seule séance, annule définitivement le double sens.",
@@ -800,20 +819,21 @@ window.OBS_PRODUITS = [
 "tags":[
 "double sens",
 "barrière continue",
-"volatilité"
+"volatilité",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 8 ans — panier 4 actions européennes",
+"nom":"Phoenix 8 ans — Worst-of 4 actions européennes",
 "famille":"Autocall Phoenix",
 "emetteur":"HSBC",
 "emetteur_rating":"A- / A3 / A+",
 "sous_jacent":"Worst-of 4 actions européennes",
-"sous_jacent_detail":"Worst-of 4 actions européennes",
+"sous_jacent_detail":"Quatre grandes capitalisations européennes de secteurs distincts, arrêtées à la structuration",
 "sj_type":"Panier Worst-of",
 "devise":"EUR",
-"coupon":0.135,
+"coupon":0.162,
 "frequence":"Trimestrielle",
 "b_coupon":0.6,
 "b_capital":0.5,
@@ -829,33 +849,34 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":2,
-"mecanisme":"Conditions appréciées sur la moins performante de quatre actions européennes. Coupon trimestriel de 3,375 % si cette action est au-dessus de 60 %, avec mémoire. Rappel lorsque les quatre actions sont simultanément au-dessus de 100 %.",
-"sc_fav":"Les quatre titres progressent : rappel au bout d’un an, 13,50 % de gain.",
+"mecanisme":"Conditions appréciées sur la moins performante de quatre actions européennes. Coupon trimestriel de 4,05 % si cette action est au-dessus de 60 %, avec mémoire. Rappel lorsque les quatre actions sont simultanément au-dessus de 100 %.",
+"sc_fav":"Les quatre titres progressent : rappel au bout d’un an, 16,20 % de gain.",
 "sc_med":"Trois titres montent, le quatrième stagne à 75 % : coupons versés mais aucun rappel.",
 "sc_def":"Un titre chute à 35 % : perte de 65 % du capital, indépendamment des trois autres.",
 "attention":[
 "Worst-of sur actions individuelles : c’est le profil le plus risqué du marché des produits de rendement.",
 "Chaque action ajoutée augmente la probabilité d’un accident spécifique : un seul titre suffit à faire échouer le produit.",
-"Coupon de 13,5 % : un tel niveau est le signal d’un risque élevé, non d’une opportunité.",
+"Coupon de 16,2 % : un tel niveau est le signal d’un risque élevé, non d’une opportunité.",
 "SRI de 7 sur 7 : niveau de risque maximal de l’échelle réglementaire."
 ],
 "tags":[
 "worst-of actions",
 "risque maximal",
-"coupon très élevé"
+"coupon très élevé",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 6 ans — indice émergents décrément",
+"nom":"Phoenix 6 ans — MSCI Emerging Markets",
 "famille":"Autocall Phoenix",
 "emetteur":"Nomura",
 "emetteur_rating":"BBB+ / Baa1 / A-",
-"sous_jacent":"Indice marchés émergents décrément",
-"sous_jacent_detail":"Indice marchés émergents décrément",
+"sous_jacent":"MSCI Emerging Markets",
+"sous_jacent_detail":"MSCI Emerging Markets",
 "sj_type":"Indice géographique",
 "devise":"EUR",
-"coupon":0.102,
+"coupon":0.122,
 "frequence":"Trimestrielle",
 "b_coupon":0.65,
 "b_capital":0.55,
@@ -872,8 +893,8 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":3,
-"mecanisme":"Phoenix mémoire sur un indice émergent. Coupon trimestriel de 2,55 % au-dessus de 65 %, rappel dès 100 %, barrière de capital à 55 % à l’échéance.",
-"sc_fav":"Rappel à un an : 10,20 % de gain.",
+"mecanisme":"Phoenix mémoire sur l’indice MSCI Emerging Markets. Coupon trimestriel de 3,05 % au-dessus de 65 %, rappel dès 100 %, barrière de capital à 55 % à l’échéance.",
+"sc_fav":"Rappel à un an : 12,20 % de gain.",
 "sc_med":"Indice à 80 % à l’échéance : coupons versés et capital remboursé.",
 "sc_def":"Indice à 45 % à l’échéance : perte de 55 % du capital.",
 "attention":[
@@ -884,7 +905,8 @@ window.OBS_PRODUITS = [
 "tags":[
 "émergents",
 "mémoire",
-"volatilité"
+"volatilité",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
@@ -893,9 +915,9 @@ window.OBS_PRODUITS = [
 "famille":"Capital protégé ou garanti",
 "emetteur":"BNP Paribas",
 "emetteur_rating":"A+ / Aa3 / A+",
-"sous_jacent":"Indice européen large",
-"sous_jacent_detail":"Indice européen large",
-"sj_type":"Indice classique",
+"sous_jacent":"EURO STOXX 50",
+"sous_jacent_detail":"EURO STOXX 50",
+"sj_type":"Indice actions",
 "devise":"EUR",
 "coupon":null,
 "frequence":"Aucun coupon",
@@ -915,8 +937,8 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Capital remboursé à 100 % à l’échéance, sous réserve de la solvabilité de l’émetteur, majoré de 100 % de la performance positive de l’indice dans la limite de 55 % de gain.",
-"sc_fav":"Indice en hausse de 80 % : gain plafonné à 55 %, soit environ 5,6 % par an.",
+"mecanisme":"Capital remboursé à 100 % à l’échéance, sous réserve de la solvabilité de l’émetteur, majoré de 100 % de la performance positive de l’EURO STOXX 50 dans la limite de 65 % de gain.",
+"sc_fav":"Indice en hausse de 80 % : gain plafonné à 65 %, soit environ 6,4 % par an.",
 "sc_med":"Indice en hausse de 25 % : gain de 25 %, soit environ 2,8 % par an.",
 "sc_def":"Indice en baisse de 50 % : capital remboursé intégralement, aucun gain sur huit ans.",
 "attention":[
@@ -927,20 +949,21 @@ window.OBS_PRODUITS = [
 "tags":[
 "capital garanti",
 "long terme",
-"prudent"
+"prudent",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 10 ans — indice immobilier coté décrément",
+"nom":"Phoenix 10 ans — FTSE EPRA Nareit Europe",
 "famille":"Phoenix à coupon mémoire",
 "emetteur":"Crédit Mutuel / CIC",
 "emetteur_rating":"A+ / Aa3 / AA-",
-"sous_jacent":"Indice immobilier coté européen décrément",
-"sous_jacent_detail":"Indice immobilier coté européen décrément",
+"sous_jacent":"FTSE EPRA Nareit Developed Europe",
+"sous_jacent_detail":"FTSE EPRA Nareit Developed Europe",
 "sj_type":"Indice sectoriel",
 "devise":"EUR",
-"coupon":0.093,
+"coupon":0.115,
 "frequence":"Trimestrielle",
 "b_coupon":0.6,
 "b_capital":0.55,
@@ -958,8 +981,8 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":4,
-"mecanisme":"Phoenix mémoire sur un indice de foncières cotées européennes. Coupon trimestriel de 2,325 % au-dessus de 60 %, rappel dès 100 %, barrière de capital à 55 % à l’échéance.",
-"sc_fav":"Rappel à 18 mois : 13,95 % de gain cumulé.",
+"mecanisme":"Phoenix mémoire sur un indice public de foncières cotées européennes. Coupon trimestriel de 2,875 % au-dessus de 60 %, rappel dès 100 %, barrière de capital à 55 % à l’échéance.",
+"sc_fav":"Rappel à 18 mois : 17,25 % de gain cumulé.",
 "sc_med":"Indice à 75 % à l’échéance : coupons versés, capital remboursé intégralement.",
 "sc_def":"Indice à 45 % à l’échéance : perte de 55 % du capital.",
 "attention":[
@@ -970,20 +993,21 @@ window.OBS_PRODUITS = [
 "tags":[
 "immobilier",
 "mémoire",
-"sensibilité taux"
+"sensibilité taux",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 },
 {
-"nom":"Phoenix 12 ans — indice européen décrément, barrière 40 %",
+"nom":"Phoenix 12 ans — CAC 40, barrière 40 %",
 "famille":"Autocall Phoenix",
 "emetteur":"Banco Santander",
 "emetteur_rating":"A+ / A2 / A-",
-"sous_jacent":"Indice européen décrément 50 pts",
-"sous_jacent_detail":"Indice européen décrément 50 pts",
-"sj_type":"Indice décrément",
+"sous_jacent":"CAC 40",
+"sous_jacent_detail":"CAC 40",
+"sj_type":"Indice actions",
 "devise":"EUR",
-"coupon":0.072,
+"coupon":0.085,
 "frequence":"Trimestrielle",
 "b_coupon":0.5,
 "b_capital":0.4,
@@ -1001,19 +1025,20 @@ window.OBS_PRODUITS = [
 ],
 "statut":"Gabarit de référence",
 "note":5,
-"mecanisme":"Structure très défensive : coupon trimestriel de 1,80 % dès que l’indice est au-dessus de 50 %, avec mémoire. Rappel au pair dès 100 %. Barrière de capital à 40 % seulement, constatée à l’échéance.",
-"sc_fav":"Rappel à un an : 7,20 % de gain.",
+"mecanisme":"Structure très défensive : coupon trimestriel de 2,125 % dès que le CAC 40 est au-dessus de 50 %, avec mémoire. Rappel au pair dès 100 %. Barrière de capital à 40 % seulement, constatée à l’échéance.",
+"sc_fav":"Rappel à un an : 8,50 % de gain.",
 "sc_med":"Indice à 60 % à l’échéance : coupons intégralement versés, capital remboursé à 100 %.",
 "sc_def":"Indice à 35 % à l’échéance : perte de 65 % du capital. Une baisse de cette ampleur sur douze ans reste historiquement rare sur un indice large.",
 "attention":[
-"Profil le plus prudent de la gamme de rendement, obtenu en abaissant le coupon à 7,20 %.",
+"Profil le plus prudent de la gamme de rendement, obtenu en abaissant le coupon à 8,50 %.",
 "Maturité de douze ans : horizon de placement très long à assumer.",
-"Une barrière à 40 % réduit fortement le risque de perte sans l’annuler, notamment en raison du décrément."
+"Une barrière à 40 % sur un indice public réduit fortement le risque de perte, sans l’annuler."
 ],
 "tags":[
 "très défensif",
 "barrière 40 %",
-"long terme"
+"long terme",
+"sans décrément"
 ],
 "format":"EMTN senior non garanti"
 }
