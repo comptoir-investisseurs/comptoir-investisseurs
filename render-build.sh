@@ -21,6 +21,8 @@ tar -cf - \
   --exclude='./.github' \
   --exclude='./server' \
   --exclude='./prospection-app' \
+  --exclude='./tools' \
+  --exclude='./.sessions' \
   . | (cd "$OUT" && tar -xf -)
 
 echo "→ Retrait du code source, des secrets et des outils internes"
@@ -65,5 +67,7 @@ test "$n" -ge 20 || { echo "ERREUR : polices du Comptoir absentes ($n trouvée(s
 test ! -f "$OUT/SECURITY-AUDIT.md" || { echo "ERREUR : audit de sécurité présent dans la publication"; exit 1; }
 test -z "$(ls "$OUT"/*.sql 2>/dev/null)" || { echo "ERREUR : fichiers SQL présents dans la publication"; exit 1; }
 test ! -f "$OUT/contact.php" || { echo "ERREUR : contact.php présent (non exécutable sur un hôte statique)"; exit 1; }
+test ! -d "$OUT/tools" || { echo "ERREUR : outils internes présents dans la publication"; exit 1; }
+test ! -d "$OUT/.sessions" || { echo "ERREUR : sessions authentifiées présentes dans la publication"; exit 1; }
 
 echo "→ Publication prête : $(du -sh "$OUT" | cut -f1)"

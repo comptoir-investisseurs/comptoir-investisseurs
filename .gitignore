@@ -10,3 +10,10 @@ server/node_modules
 
 # Dossier de publication construit par render-build.sh
 _site
+
+# Sessions authentifiées des extranets partenaires — CONTIENNENT DES COOKIES
+# DE CONNEXION : ne jamais committer.
+.sessions/
+
+# Captures et extractions brutes produites par tools/collecte-structures.cjs
+tools/collecte/
