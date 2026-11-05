@@ -63,3 +63,15 @@ SANS LOGO (plaque typographique conservée)
   · Intesa Sanpaolo
   · Leonteq
   · Vontobel
+
+
+SECONDE PASSE
+BNP Paribas
+  fichier : bnp-paribas.png
+  licence : Public domain
+Société Générale
+  fichier : societe-generale.png
+  licence : Public domain
+Citigroup
+  fichier : citigroup.png
+  licence : Public domain
