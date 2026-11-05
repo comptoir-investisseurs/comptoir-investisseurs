@@ -69,6 +69,37 @@ def e(s):
     return html.escape(str(s), quote=True)
 
 # --------------------------------------------------------------------------
+#  Formes architecturales en filigrane
+# --------------------------------------------------------------------------
+# Une forme différente par page, pour que la navigation ne donne pas
+# l'impression de rester sur le même écran. Les guides se répartissent les
+# quatre formes de façon stable, d'après leur identifiant.
+FORMES = ["forme-courbe", "forme-angles", "forme-cercle", "forme-ecailles"]
+# Motifs très détaillés : ils demandent une opacité plus basse.
+FORMES_DENSES = {"forme-ecailles"}
+
+FORME_PAGE = {
+    "index.html":            "forme-courbe",
+    "produits.html":         "forme-ecailles",
+    "comprendre.html":       "forme-angles",
+    "acteurs.html":          "forme-cercle",
+    "guides/index.html":     "forme-angles",
+    "methodologie.html":     "forme-cercle",
+    "mentions-legales.html": "forme-courbe",
+    "404.html":              "forme-courbe",
+    "merci.html":            "forme-cercle",
+}
+
+def forme(page, graine=""):
+    if page in FORME_PAGE:
+        return FORME_PAGE[page]
+    n = sum(ord(c) for c in (graine or page))
+    return FORMES[n % len(FORMES)]
+
+def forme_bg(nom, pfx=""):
+    return f"background-image:url({pfx}{v('assets/img/' + nom + '.webp')})"
+
+# --------------------------------------------------------------------------
 #  Cache-busting
 # --------------------------------------------------------------------------
 # Le .htaccess demande aux navigateurs de garder CSS et JS sept jours. Sans
@@ -246,6 +277,7 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
 </main>
 
 <section class="cta">
+  <div class="cta__forme{" cta__forme--dense" if forme(filename, filename) in FORMES_DENSES else ""}" aria-hidden="true" style="{forme_bg(forme(filename, filename), pfx)}"></div>
   <div class="container cta__in">
     <div>
       <p class="eyebrow eyebrow--light">Accompagnement</p>
@@ -275,8 +307,8 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
           </span>
         </span>
         <p>Un répertoire pédagogique du marché des produits structurés : mécanismes,
-        familles, émetteurs, établissements de place et vocabulaire. Les structures
-        présentées reposent sur des indices de marché publics.</p>
+        familles, émetteurs, établissements de place et vocabulaire. Chaque structure
+        indique la nature de son sous-jacent — indice public ou indice décrément.</p>
         <p class="xsmall" style="margin-top:14px">Une publication de
           <a href="{pfx}../index.html">{e(EDITEUR)}</a>, {e(ADDRESS)}.</p>
       </div>
@@ -348,11 +380,13 @@ def fil(trail, pfx):
     return ('<nav class="crumb" aria-label="Fil d’Ariane">'
             + '<span aria-hidden="true">/</span>'.join(parts) + "</nav>")
 
-def hero(title, lede, crumb_html="", actions="", page=True, h1=True):
+def hero(title, lede, crumb_html="", actions="", page=True, h1=True,
+         forme_nom="forme-courbe", pfx=""):
     cls = "hero hero--page" if page else "hero"
     act = f'<div class="hero__actions">{actions}</div>' if actions else ""
     tag = "h1" if h1 else "p"
     return f"""<section class="{cls}">
+  <div class="hero__forme{" hero__forme--dense" if forme_nom in FORMES_DENSES else ""}" aria-hidden="true" style="{forme_bg(forme_nom, pfx)}"></div>
   <div class="hero__grid" aria-hidden="true"></div>
   <div class="container hero__in">
     {crumb_html}
@@ -809,7 +843,7 @@ ETABLISSEMENTS = [
 # ==========================================================================
 #  DONNÉES — CATALOGUE DE STRUCTURES
 # ==========================================================================
-# PARTI PRIS ÉDITORIAL — aucun indice décrément.
+# PARTI PRIS ÉDITORIAL — la nature du sous-jacent est toujours signalée.
 # Toutes les structures retenues reposent sur des indices de marché publics
 # (CAC 40, EURO STOXX 50, S&P 500…) ou sur des actions, à l'exclusion des
 # indices propriétaires à prélèvement forfaitaire. Le coupon est financé par
@@ -1726,12 +1760,12 @@ def page_index():
     body = f"""
 {hero(
   "Produits structurés : comprendre,<br>comparer, investir avec discernement",
-  "Un répertoire du marché français adossé à des sous-jacents publics — CAC 40, "
-  "EURO STOXX 50, S&amp;P 500 — dont la cotation se vérifie chaque jour. Mécanismes, "
-  "structures, émetteurs et vocabulaire, expliqués sans raccourci commercial.",
+  "Un répertoire du marché français : mécanismes, structures, émetteurs et vocabulaire, "
+  "expliqués sans raccourci commercial. Chaque structure indique la nature de son "
+  "sous-jacent — indice public ou indice décrément.",
   actions='<a class="btn btn--gold" href="produits.html">Ouvrir le comparateur</a>'
           '<a class="btn btn--ghost-light" href="produits.html#structurer">Structurer sur mesure</a>',
-  page=False)}
+  page=False, forme_nom=forme("index.html"))}
 
 <section>
   <div class="container">
@@ -1749,7 +1783,7 @@ def page_index():
     <div class="grid grid--2">
       <div class="cell">
         <p class="eyebrow">Notre parti pris</p>
-        <h2 class="title-lg">Un sous-jacent que vous pouvez<br>suivre dans le journal.</h2>
+        <h2 class="title-lg">Savoir sur quoi repose<br>vraiment votre produit.</h2>
       </div>
       <div class="cell cell--ivory">
         <p class="lede">La majorité des produits distribués en France repose sur un
@@ -1758,10 +1792,11 @@ def page_index():
         dividende forfaitaire chaque année. Le procédé est documenté et permet d’afficher des
         coupons plus élevés ; il rend en revanche le sous-jacent moins facile à suivre pour
         celui qui l’achète.</p>
-        <p>Pour ce comparateur, nous avons retenu des indices publics et des actions cotées.
-        Le coupon y est financé par les dividendes que vous ne percevez pas — un mécanisme
-        que chacun peut vérifier. Ce choix coûte un à deux points de coupon à barrières
-        identiques : c’est un arbitrage de lisibilité, pas un jugement de performance.</p>
+        <p>Nous ne les écartons pas du comparateur : nous les signalons. Chaque structure y
+        porte la nature de son sous-jacent, et le filtre « Sous-jacent » permet de n’afficher
+        que les indices publics si c’est votre préférence. Un décrément proche du dividende
+        réel du panier et correctement rémunéré reste un arbitrage défendable ; très
+        supérieur, il ampute la performance sans contrepartie.</p>
         <p style="margin-bottom:0"><a class="card__more" href="guides/produit-structure-sans-decrement/">Comparer les deux approches</a></p>
       </div>
     </div>
@@ -1937,12 +1972,12 @@ def page_produits():
 
     body = f"""
 {hero("Comparateur de produits structurés :<br>coupons, barrières et risques",
-  f"{len(PRODUITS)} gabarits de structures sur sous-jacents publics — aucun indice "
-  "décrément. Filtrables et triables selon les paramètres qui déterminent réellement le "
-  "profil de risque. Cliquez sur une ligne pour en déplier le mécanisme, les scénarios et "
-  "les points de vigilance.",
+  f"{len(PRODUITS)} gabarits de structures, indice public ou décrément — la nature du "
+  "sous-jacent est indiquée sur chaque ligne et sert de filtre. Triables selon les "
+  "paramètres qui déterminent réellement le profil de risque ; cliquez sur une ligne pour "
+  "en déplier le mécanisme, les scénarios et les points de vigilance.",
   crumb_html=fil([("Accueil", "index.html"), ("Comparateur", "produits.html")], ""),
-  actions='<a class="btn btn--ghost-light" href="#structurer">Structurer sur mesure</a>')}
+  actions='<a class="btn btn--ghost-light" href="#structurer">Structurer sur mesure</a>', forme_nom=forme("produits.html"))}
 
 <section class="section section--tight">
   <div class="container">
@@ -2479,7 +2514,7 @@ def page_comprendre():
 {hero("Comprendre les produits structurés :<br>guide complet",
   "Le guide, les familles de produits et le glossaire, réunis en un seul endroit. "
   "De quoi lire une fiche produit sans rien laisser dans l’ombre.",
-  crumb_html=fil([("Accueil", "index.html"), ("Comprendre", "comprendre.html")], ""))}
+  crumb_html=fil([("Accueil", "index.html"), ("Comprendre", "comprendre.html")], ""), forme_nom=forme("comprendre.html"))}
 
 <section class="section section--tight">
   <div class="container container--mid">
@@ -2773,7 +2808,7 @@ def page_acteurs():
   "Entre vous et l’émetteur s’interposent plusieurs métiers, qui n’ont ni le même rôle ni la "
   "même responsabilité. Savoir qui structure, qui émet, qui référence et qui conseille permet "
   "de comprendre où se forme le prix — et où se joue la qualité du conseil.",
-  crumb_html=fil([("Accueil", "index.html"), ("Les acteurs", "acteurs.html")], ""))}
+  crumb_html=fil([("Accueil", "index.html"), ("Les acteurs", "acteurs.html")], ""), forme_nom=forme("acteurs.html"))}
 {bloc_lfdr()}
 
 <section class="section section--tight">
@@ -2826,7 +2861,7 @@ def page_methodologie():
 {hero("Méthodologie de comparaison<br>des produits structurés",
   "Comment nous apprécions un produit structuré, ce que nous écartons par principe, et les "
   "limites que nous assumons dans cet exercice.",
-  crumb_html=fil([("Accueil", "index.html"), ("Méthodologie", "methodologie.html")], ""))}
+  crumb_html=fil([("Accueil", "index.html"), ("Méthodologie", "methodologie.html")], ""), forme_nom=forme("methodologie.html"))}
 
 <section class="section">
   <div class="container container--narrow">
@@ -2942,7 +2977,7 @@ def page_methodologie():
 def page_mentions():
     body = f"""
 {hero("Mentions légales", "Éditeur, nature des informations publiées et avertissement sur les risques.",
-  crumb_html=fil([("Accueil", "index.html"), ("Mentions légales", "mentions-legales.html")], ""))}
+  crumb_html=fil([("Accueil", "index.html"), ("Mentions légales", "mentions-legales.html")], ""), forme_nom=forme("mentions-legales.html"))}
 
 <section class="section">
   <div class="container container--narrow">
@@ -4235,7 +4270,7 @@ def page_guide(g):
         graph.append(ld_faq(g["faq"]))
 
     body = f"""
-{hero(g["h1"], g["lede"], crumb_html=fil(trail, pfx))}
+{hero(g["h1"], g["lede"], crumb_html=fil(trail, pfx), forme_nom=forme("guides/", g["slug"]), pfx=pfx)}
 
 <section class="section">
   <div class="container container--narrow">
@@ -4321,7 +4356,7 @@ def page_guides_index():
   "Quatorze guides pour comprendre un mécanisme précis, de la définition d’un produit "
   "structuré à la fiscalité de l’enveloppe qui l’accueille. Chacun va au bout d’un sujet, "
   "avec des exemples chiffrés.",
-  crumb_html=fil(trail, pfx))}
+  crumb_html=fil(trail, pfx), forme_nom=forme("guides/index.html"), pfx=pfx)}
 
 <section class="section">
   <div class="container">
@@ -4594,7 +4629,7 @@ def page_merci():
 {hero("Demande bien reçue",
   "Merci. Votre demande de structuration nous est parvenue : nous revenons vers vous "
   "sous deux jours ouvrés, à l’adresse que vous avez indiquée.",
-  crumb_html=fil([("Accueil", "index.html"), ("Demande envoyée", "merci.html")], ""))}
+  crumb_html=fil([("Accueil", "index.html"), ("Demande envoyée", "merci.html")], ""), forme_nom=forme("merci.html"))}
 
 <section class="section">
   <div class="container container--mid">
@@ -4739,7 +4774,7 @@ def page_404():
 {hero("Page introuvable",
   "Cette adresse ne correspond à aucune page du Comptoir des Structurés. "
   "Le contenu a peut-être été réorganisé.",
-  crumb_html=fil([("Accueil", "index.html"), ("Page introuvable", "404.html")], pfx))}
+  crumb_html=fil([("Accueil", "index.html"), ("Page introuvable", "404.html")], pfx), forme_nom=forme("404.html"))}
 
 <section class="section">
   <div class="container container--mid">

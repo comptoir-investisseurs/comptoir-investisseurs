@@ -802,3 +802,61 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
   letter-spacing:.015em; line-height:1.15; text-align:center;
 }
 .issuer__plate--long{ font-size:.92rem; max-width:210px; }
+
+/* =========================================================================
+   Formes architecturales en filigrane
+   =========================================================================
+   Une photographie claire posée sur le bleu nuit, en très faible opacité et
+   en fondu vers la gauche : la zone de texte reste parfaitement lisible,
+   la droite gagne un relief discret. `luminosity` conserve la teinte de la
+   marque et n'emprunte à l'image que ses valeurs.
+   ========================================================================= */
+.hero__forme,
+.cta__forme{
+  position:absolute; inset:0; pointer-events:none;
+  background-repeat:no-repeat; background-size:cover;
+  mix-blend-mode:luminosity;
+}
+.hero__forme{
+  z-index:0; background-position:right center; opacity:.22;
+  -webkit-mask-image:linear-gradient(95deg, transparent 0%, transparent 34%,
+                     rgba(0,0,0,.45) 58%, rgba(0,0,0,.9) 100%);
+          mask-image:linear-gradient(95deg, transparent 0%, transparent 34%,
+                     rgba(0,0,0,.45) 58%, rgba(0,0,0,.9) 100%);
+}
+.cta__forme{
+  z-index:0; background-position:left center; opacity:.16;
+  -webkit-mask-image:linear-gradient(265deg, transparent 0%, transparent 42%,
+                     rgba(0,0,0,.4) 66%, rgba(0,0,0,.85) 100%);
+          mask-image:linear-gradient(265deg, transparent 0%, transparent 42%,
+                     rgba(0,0,0,.4) 66%, rgba(0,0,0,.85) 100%);
+}
+/* La grille passe au-dessus de la forme, le contenu au-dessus de tout. */
+.hero__grid{ z-index:1; }
+.hero__in,.cta__in{ position:relative; z-index:2; }
+
+/* Les motifs très détaillés demandent une opacité plus basse que les
+   surfaces lisses, sinon ils prennent le pas sur le titre. */
+.hero__forme--dense{ opacity:.12; }
+.cta__forme--dense{ opacity:.09; }
+
+@media (max-width:760px){
+  /* Sur mobile le texte occupe toute la largeur : on efface davantage. */
+  .hero__forme{ opacity:.13; }
+  .hero__forme--dense{ opacity:.07; }
+  .cta__forme{ opacity:.10; }
+}
+@media (prefers-reduced-motion:reduce){ .hero__forme,.cta__forme{ opacity:.10; } }
+
+/* Filigrane beige sur les sections claires : une respiration, rien de plus. */
+.section--filigrane{ position:relative; overflow:hidden; }
+.section--filigrane::before{
+  content:""; position:absolute; top:0; right:0; width:46%; height:100%;
+  background-image:var(--filigrane);
+  background-repeat:no-repeat; background-position:center right; background-size:cover;
+  opacity:.30; mix-blend-mode:multiply; pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg, transparent 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.8) 100%);
+          mask-image:linear-gradient(90deg, transparent 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.8) 100%);
+}
+.section--filigrane > .container{ position:relative; z-index:1; }
+@media (max-width:860px){ .section--filigrane::before{ display:none; } }
