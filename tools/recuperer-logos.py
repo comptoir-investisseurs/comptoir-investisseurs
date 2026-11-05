@@ -59,8 +59,8 @@ def slug(s):
     s = unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode().lower()
     return "-".join(re.findall(r"[a-z0-9]+", s))
 
-PAUSE = 8          # secondes entre deux requêtes
-ESSAIS = 4         # réessais sur 429, avec attente croissante
+PAUSE = 20         # secondes entre deux requêtes
+ESSAIS = 5         # réessais sur 429, avec attente croissante
 
 def _get(url, binaire=False):
     """Requête avec réessais : Wikimedia limite fortement les IP partagées."""
@@ -75,7 +75,7 @@ def _get(url, binaire=False):
                 raise
             print(f"      (saturé, nouvelle tentative dans {attente} s)")
             time.sleep(attente)
-            attente *= 2
+            attente = min(attente * 2, 120)
     raise RuntimeError("inatteignable")
 
 def api(params):
