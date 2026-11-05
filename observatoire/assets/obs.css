@@ -748,3 +748,57 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
 
 /* Les guides reprennent la largeur de lecture de .prose */
 .prose h2[id]{ scroll-margin-top:100px; }
+
+/* =========================================================================
+   Formulaire « Structurer sur mesure » (section bleu nuit)
+   ========================================================================= */
+.sm-form{ margin-top:34px; }
+.sm-grid{ display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); }
+.sm-form .field > label{ color:rgba(255,255,255,.62); }
+.sm-form input[type="text"],.sm-form input[type="email"],.sm-form input[type="tel"],
+.sm-form select,.sm-form textarea{
+  font-family:var(--sans); font-size:.9rem; font-weight:300; color:#fff;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.2);
+  padding:11px 13px; width:100%; border-radius:0; resize:vertical;
+  appearance:none; -webkit-appearance:none;
+  transition:border-color .25s var(--ease), background .25s var(--ease);
+}
+.sm-form select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23C2A062' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 12px center; padding-right:30px;
+}
+.sm-form select option{ background:var(--navy); color:#fff; }
+.sm-form input::placeholder,.sm-form textarea::placeholder{ color:rgba(255,255,255,.34); }
+.sm-form input:focus,.sm-form select:focus,.sm-form textarea:focus{
+  outline:none; border-color:var(--gold-soft); background:rgba(255,255,255,.1);
+}
+/* `:user-invalid` ne se déclenche qu'après interaction : un champ requis
+   encore vierge ne s'affiche donc pas en erreur au chargement. */
+.sm-form input:user-invalid,.sm-form textarea:user-invalid{ border-color:#C97B6B; }
+.sm-hp{ position:absolute!important; left:-9999px!important; width:1px!important; height:1px!important; }
+.sm-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:18px; margin-top:26px; }
+.sm-note{
+  margin:20px 0 0; font-size:.82rem; line-height:1.65; color:rgba(255,255,255,.5);
+  max-width:680px;
+}
+.sm-note strong{ color:rgba(255,255,255,.76); font-weight:400; }
+.sm-note a{ color:var(--gold-soft); border-bottom:1px solid rgba(194,160,98,.4); }
+
+/* =========================================================================
+   Logos émetteurs — fichier réel, ou plaque typographique de repli
+   ========================================================================= */
+.issuer__logo{
+  display:flex; align-items:center; justify-content:flex-start;
+  height:44px; margin-bottom:12px;
+}
+.issuer__logo img{
+  max-height:30px; width:auto; max-width:160px; object-fit:contain; object-position:left center;
+}
+.issuer__plate{
+  display:inline-flex; align-items:center; justify-content:center; height:44px;
+  min-width:132px; max-width:190px; padding:0 16px; margin-bottom:12px;
+  border:1px solid var(--line-strong); background:var(--mist);
+  font-family:var(--serif); font-size:1.08rem; color:var(--ink);
+  letter-spacing:.015em; line-height:1.15; text-align:center;
+}
+.issuer__plate--long{ font-size:.92rem; max-width:210px; }

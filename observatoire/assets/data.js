@@ -3,6 +3,13 @@
 window.OBS_EMAIL = "contact@lfd-rochechouart.com";
 window.OBS_PRODUITS = [
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix Mémoire 10 ans — EURO STOXX 50",
 "famille":"Phoenix à coupon mémoire",
 "emetteur":"BNP Paribas",
@@ -47,6 +54,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Autocall Phoenix 12 ans — EURO STOXX 50",
 "famille":"Autocall Phoenix",
 "emetteur":"Société Générale",
@@ -91,6 +105,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Athéna 8 ans — CAC 40",
 "famille":"Athéna",
 "emetteur":"Crédit Agricole CIB",
@@ -135,6 +156,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix Airbag 10 ans — EURO STOXX 50",
 "famille":"Airbag & Bonus",
 "emetteur":"Natixis",
@@ -179,6 +207,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 6 ans — EURO STOXX Banks",
 "famille":"Autocall Phoenix",
 "emetteur":"J.P. Morgan",
@@ -222,6 +257,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 8 ans — Worst-of EURO STOXX 50 / S&P 500 / Nikkei 225",
 "famille":"Autocall Phoenix",
 "emetteur":"Goldman Sachs",
@@ -265,6 +307,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Reverse Convertible 3 ans — action du CAC 40",
 "famille":"Reverse Convertible",
 "emetteur":"UniCredit",
@@ -308,6 +357,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Capital garanti 6 ans — participation EURO STOXX 50",
 "famille":"Capital protégé ou garanti",
 "emetteur":"Crédit Agricole CIB",
@@ -352,6 +408,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Participation 5 ans — call spread EURO STOXX 50",
 "famille":"Produit de participation",
 "emetteur":"BNP Paribas",
@@ -396,6 +459,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Participation Lock-in 8 ans — MSCI World",
 "famille":"Produit de participation",
 "emetteur":"Morgan Stanley",
@@ -439,6 +509,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 10 ans — STOXX Europe 600 Oil & Gas",
 "famille":"Phoenix à coupon mémoire",
 "emetteur":"Barclays",
@@ -482,6 +559,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Athéna Trigger dégressif 10 ans — CAC 40",
 "famille":"Athéna",
 "emetteur":"Société Générale",
@@ -526,6 +610,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 7 ans — S&P 500",
 "famille":"Autocall Phoenix",
 "emetteur":"Bank of America",
@@ -569,6 +660,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Produit de taux callable 10 ans — taux fixe",
 "famille":"Produits de taux",
 "emetteur":"ING",
@@ -612,6 +710,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Range Accrual 5 ans — Euribor 3 mois",
 "famille":"Produits de taux",
 "emetteur":"Deutsche Bank",
@@ -654,6 +759,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"CLN 5 ans — signature corporate investment grade",
 "famille":"Credit Linked Note (CLN)",
 "emetteur":"Citigroup",
@@ -696,6 +808,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 10 ans — MSCI EMU ESG Leaders",
 "famille":"Phoenix à coupon mémoire",
 "emetteur":"BNP Paribas",
@@ -740,6 +859,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Discount 2 ans — EURO STOXX 50",
 "famille":"Certificat Discount",
 "emetteur":"Vontobel",
@@ -782,6 +908,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Twin Win 4 ans — EURO STOXX 50",
 "famille":"Twin Win",
 "emetteur":"UBS",
@@ -825,6 +958,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 8 ans — Worst-of 4 actions européennes",
 "famille":"Autocall Phoenix",
 "emetteur":"HSBC",
@@ -868,6 +1008,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 6 ans — MSCI Emerging Markets",
 "famille":"Autocall Phoenix",
 "emetteur":"Nomura",
@@ -911,6 +1058,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Capital protégé 8 ans — participation 100 % plafonnée",
 "famille":"Capital protégé ou garanti",
 "emetteur":"BNP Paribas",
@@ -955,6 +1109,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 10 ans — FTSE EPRA Nareit Europe",
 "famille":"Phoenix à coupon mémoire",
 "emetteur":"Crédit Mutuel / CIC",
@@ -999,6 +1160,13 @@ window.OBS_PRODUITS = [
 "format":"EMTN senior non garanti"
 },
 {
+"isin":"",
+"doc_dic":"",
+"doc_termsheet":"",
+"date_strike":"",
+"date_fin":"",
+"nominal_min":"",
+"reel":false,
 "nom":"Phoenix 12 ans — CAC 40, barrière 40 %",
 "famille":"Autocall Phoenix",
 "emetteur":"Banco Santander",

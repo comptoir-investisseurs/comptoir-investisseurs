@@ -161,7 +161,7 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
                  or (href.endswith("/") and filename.startswith(href)))
         cls = ' class="is-active" aria-current="page"' if actif else ""
         nav.append(f'<a href="{pfx}{href}"{cls}>{e(label)}</a>')
-    nav.append(f'<a class="nav__cta" href="{pfx}produits.html#analyse">Faire analyser un produit</a>')
+    nav.append(f'<a class="nav__cta" href="{pfx}produits.html#structurer">Structurer sur mesure</a>')
     nav_html = "\n      ".join(nav)
 
     graph = list(graph or [])
@@ -229,15 +229,15 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
   <div class="container cta__in">
     <div>
       <p class="eyebrow eyebrow--light">Accompagnement</p>
-      <h2 class="title-lg">Un doute sur un produit qu’on vous propose&nbsp;?</h2>
+      <h2 class="title-lg">Une formule définie avec vous,<br>pas choisie dans un catalogue</h2>
       <p style="margin:18px 0 0;max-width:560px">
-        Déposez son document d’informations clés : nous en reprenons le sous-jacent, les
-        barrières et le mode de constatation, nous le comparons aux offres du moment à
-        risque équivalent, et nous vous disons ce que nous en pensons.
+        Nous ne sommes ni émetteur ni structureur : nous n’avons aucune souche à placer.
+        Nous cadrons avec vous l’horizon, le niveau de protection et le sous-jacent, puis
+        nous mettons les émetteurs en concurrence sur cette formule.
       </p>
     </div>
     <div class="cta__actions">
-      <a class="btn btn--ghost-light" href="{pfx}produits.html#analyse">Faire analyser un produit</a>
+      <a class="btn btn--ghost-light" href="{pfx}produits.html#structurer">Structurer sur mesure</a>
       <a class="btn btn--ghost-light" href="{pfx}../contact.html">Nous contacter</a>
     </div>
   </div>
@@ -264,7 +264,7 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
         <h2 class="ftr__h">Le marché</h2>
         <ul>
           <li><a href="{pfx}produits.html">Comparateur de produits structurés</a></li>
-          <li><a href="{pfx}produits.html#analyse">Faire analyser un produit</a></li>
+          <li><a href="{pfx}produits.html#structurer">Structurer sur mesure</a></li>
           <li><a href="{pfx}acteurs.html">Émetteurs et établissements</a></li>
           <li><a href="{pfx}methodologie.html">Méthodologie de comparaison</a></li>
         </ul>
@@ -667,6 +667,8 @@ EMETTEURS = [
 CAT_ETAB = [
  ("structureur", "Structureurs &amp; sociétés de solutions",
   "Ils conçoivent la formule, organisent la mise en concurrence des émetteurs et portent la documentation commerciale. Ils ne sont pas eux-mêmes débiteurs du titre : le risque de crédit reste celui de l’émetteur retenu."),
+ ("broker", "Brokers &amp; intermédiaires de marché",
+  "Maisons de courtage qui interviennent entre le distributeur et les salles de marché des émetteurs : elles sollicitent les prix, négocient les conditions et assurent l’exécution. Elles ne portent pas le risque de crédit, qui reste celui de l’émetteur retenu."),
  ("plateforme", "Plateformes de structuration &amp; de suivi",
   "Outils qui industrialisent la demande de prix auprès de plusieurs émetteurs, la comparaison des formules et le suivi des constatations. Leur apport est technologique, non financier."),
  ("assureur", "Assureurs &amp; enveloppes",
@@ -702,6 +704,26 @@ ETABLISSEMENTS = [
       txt="Groupe financier franco-allemand disposant d’une activité de produits structurés adossée à ses métiers de marché et de gestion privée."),
  dict(cat="structureur", nom="Hedios", pays="France", role="Concepteur &amp; distributeur",
       txt="Maison spécialisée dans la conception et la distribution en direct de gammes de produits de rendement à barrières, avec un historique public de ses millésimes."),
+
+ # --- Brokers & intermédiaires de marché ---
+ dict(cat="broker", nom="Kepler Cheuvreux", pays="France", role="Courtier européen",
+      txt="Courtier indépendant de référence en Europe continentale, dont le pôle de solutions d’investissement intervient sur la conception de formules et la mise en concurrence multi-émetteurs."),
+ dict(cat="broker", nom="Oddo BHF", pays="France / Allemagne", role="Banque &amp; courtier",
+      txt="Groupe financier franco-allemand disposant d’une activité de marché et d’une offre de produits structurés adossée à ses métiers de banque privée et de gestion d’actifs."),
+ dict(cat="broker", nom="Exane", pays="France", role="Courtier actions &amp; dérivés",
+      txt="Maison de courtage actions et dérivés du groupe BNP Paribas, active de longue date sur l’intermédiation de produits dérivés auprès de la clientèle institutionnelle."),
+ dict(cat="broker", nom="Marex", pays="Royaume-Uni", role="Courtier international",
+      txt="Groupe de services financiers britannique dont la division Solutions structure et exécute des produits sur mesure, y compris sur des nominaux réduits."),
+ dict(cat="broker", nom="TP ICAP", pays="Royaume-Uni", role="Courtier interdealer",
+      txt="Premier courtier interdealer mondial. Intervient sur l’intermédiation des dérivés de gré à gré qui constituent la matière première des produits structurés."),
+ dict(cat="broker", nom="Tradition", pays="Suisse", role="Courtier interdealer",
+      txt="Courtier interdealer d’envergure mondiale, présent sur les dérivés de taux, de change et d’actions négociés entre établissements."),
+ dict(cat="broker", nom="Aurel BGC", pays="France", role="Courtier",
+      txt="Maison de courtage française adossée à un groupe international, intervenant sur les marchés de taux, d’actions et de dérivés."),
+ dict(cat="broker", nom="Louis Capital Markets", pays="France", role="Courtier indépendant",
+      txt="Courtier indépendant spécialisé dans l’intermédiation sur actions et dérivés pour une clientèle institutionnelle."),
+ dict(cat="broker", nom="Octo Finances", pays="France", role="Courtier obligataire",
+      txt="Société de courtage française orientée vers l’obligataire et le crédit, segments dont relèvent les produits de taux et les CLN."),
 
  # --- Plateformes ---
  dict(cat="plateforme", nom="Feefty", pays="France", role="Plateforme de structuration",
@@ -787,7 +809,9 @@ def P(nom, famille, emetteur, rating, sj, sj_type, coupon, freq, bc, bk, ac,
       frais="Jusqu’à 1,00 % par an de frais de distribution inclus dans la formule",
       enveloppes=("Assurance-vie", "Compte-titres"), format="EMTN senior non garanti",
       sj_detail=None, tags=()):
-    return dict(nom=nom, famille=famille, emetteur=emetteur, emetteur_rating=rating,
+    return dict(isin="", doc_dic="", doc_termsheet="", date_strike="", date_fin="",
+                nominal_min="", reel=False,
+                nom=nom, famille=famille, emetteur=emetteur, emetteur_rating=rating,
                 sous_jacent=sj, sous_jacent_detail=sj_detail or sj, sj_type=sj_type,
                 devise=devise, coupon=coupon, frequence=freq, b_coupon=bc,
                 b_capital=bk, b_autocall=ac, decrement=decrement, non_call=non_call,
@@ -1545,69 +1569,105 @@ PAYOFF_SVG = """<svg viewBox="0 0 680 330" role="img" aria-label="Profil de remb
 # ==========================================================================
 #  FRAGMENT — zone de dépôt « faire analyser un produit »
 # ==========================================================================
-def bloc_analyse():
-    return """
-<section class="section section--navy" id="analyse" style="scroll-margin-top:90px">
+FORMSUBMIT = "https://formsubmit.co/" + EMAIL
+
+def bloc_structurer():
+    """Formulaire court de demande de structuration sur mesure.
+    Envoi par FormSubmit : le POST part du navigateur du visiteur vers un
+    service tiers qui relaie le message à EMAIL. Aucun code serveur requis,
+    ce qui convient à un hébergement statique.
+    ⚠️ ACTIVATION : la toute première soumission déclenche l'envoi d'un email
+    de confirmation à EMAIL ; tant que le lien n'est pas cliqué, FormSubmit
+    refuse les envois. Voir le LISEZ-MOI."""
+    return f"""
+<section class="section section--navy" id="structurer" style="scroll-margin-top:90px">
   <div class="container container--mid">
-    <p class="eyebrow eyebrow--light">Avis sur votre produit</p>
-    <h2 class="title-lg">Déposez la documentation,<br>nous vous disons ce que nous en pensons</h2>
+    <p class="eyebrow eyebrow--light">Sur mesure</p>
+    <h2 class="title-lg">Structurer un produit<br>à vos conditions</h2>
     <p style="max-width:660px;margin-top:18px">
-      Vous avez reçu une proposition et vous voulez un second regard&nbsp;? Déposez le document
-      d’informations clés (DIC) ou la brochure. Nous en reprenons le sous-jacent, les barrières
-      et leur mode de constatation, nous vérifions la signature de l’émetteur, nous comparons
-      aux offres du moment à risque équivalent — et nous vous répondons sous deux jours ouvrés.
+      Plutôt que de choisir dans un catalogue, définissez la formule qui correspond à votre
+      horizon et à votre tolérance au risque : nous la mettons ensuite en concurrence auprès
+      de plusieurs émetteurs, à signature comparable. Dites-nous l’essentiel, nous revenons
+      vers vous sous deux jours ouvrés.
     </p>
 
-    <form class="dz-form" id="dz-form" novalidate>
-      <div class="dz" id="dz" tabindex="0" role="button"
-           aria-label="Déposer un document : glissez un fichier ici ou appuyez sur Entrée pour parcourir vos fichiers">
-        <input type="file" id="dz-input" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" multiple hidden>
-        <svg class="dz__i" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M24 32V12m0 0l-8 8m8-8l8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M8 30v4a4 4 0 004 4h24a4 4 0 004-4v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <p class="dz__t">Glissez le DIC ou la brochure ici</p>
-        <p class="dz__s">ou <span class="dz__link">parcourez vos fichiers</span> — PDF, PNG ou JPEG, 10 Mo maximum, 3 fichiers au plus</p>
-      </div>
-      <ul class="dz-files" id="dz-files" aria-live="polite"></ul>
+    <form class="sm-form" id="sm-form" method="POST" action="{FORMSUBMIT}">
+      <input type="hidden" name="_subject" value="Demande de structuration sur mesure — Le Comptoir des Structurés">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="true">
+      <input type="hidden" name="_next" value="{url_abs('merci.html')}">
+      <input type="text" name="_honey" class="sm-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
-      <div class="dz-grid">
-        <div class="field"><label for="dz-prenom">Prénom *</label>
-          <input type="text" id="dz-prenom" name="prenom" autocomplete="given-name" required></div>
-        <div class="field"><label for="dz-nom">Nom *</label>
-          <input type="text" id="dz-nom" name="nom" autocomplete="family-name" required></div>
-        <div class="field"><label for="dz-email">Email *</label>
-          <input type="email" id="dz-email" name="email" autocomplete="email" required></div>
-        <div class="field"><label for="dz-tel">Téléphone</label>
-          <input type="text" id="dz-tel" name="telephone" autocomplete="tel"></div>
+      <div class="sm-grid">
+        <div class="field"><label for="sm-prenom">Prénom *</label>
+          <input type="text" id="sm-prenom" name="Prénom" autocomplete="given-name" required></div>
+        <div class="field"><label for="sm-nom">Nom *</label>
+          <input type="text" id="sm-nom" name="Nom" autocomplete="family-name" required></div>
+        <div class="field"><label for="sm-email">Email *</label>
+          <input type="email" id="sm-email" name="Email" autocomplete="email" required></div>
+        <div class="field"><label for="sm-tel">Téléphone</label>
+          <input type="tel" id="sm-tel" name="Téléphone" autocomplete="tel"></div>
       </div>
+
+      <div class="sm-grid" style="margin-top:14px">
+        <div class="field"><label for="sm-montant">Montant envisagé</label>
+          <select id="sm-montant" name="Montant envisagé">
+            <option value="">À préciser</option>
+            <option>Moins de 100 000 €</option>
+            <option>100 000 à 250 000 €</option>
+            <option>250 000 à 500 000 €</option>
+            <option>500 000 à 1 000 000 €</option>
+            <option>Plus de 1 000 000 €</option>
+          </select></div>
+        <div class="field"><label for="sm-horizon">Horizon</label>
+          <select id="sm-horizon" name="Horizon">
+            <option value="">À préciser</option>
+            <option>Moins de 3 ans</option>
+            <option>3 à 5 ans</option>
+            <option>5 à 8 ans</option>
+            <option>Plus de 8 ans</option>
+          </select></div>
+        <div class="field"><label for="sm-objectif">Objectif principal</label>
+          <select id="sm-objectif" name="Objectif principal">
+            <option value="">À préciser</option>
+            <option>Revenu régulier (coupons)</option>
+            <option>Rendement capitalisé</option>
+            <option>Protection du capital</option>
+            <option>Participation à la hausse</option>
+            <option>Placement de trésorerie</option>
+          </select></div>
+        <div class="field"><label for="sm-enveloppe">Enveloppe</label>
+          <select id="sm-enveloppe" name="Enveloppe">
+            <option value="">À préciser</option>
+            <option>Assurance-vie</option>
+            <option>Compte-titres</option>
+            <option>Contrat de capitalisation</option>
+            <option>PER</option>
+            <option>Personne morale / trésorerie</option>
+          </select></div>
+      </div>
+
       <div class="field" style="margin-top:14px">
-        <label for="dz-msg">Votre question</label>
-        <textarea id="dz-msg" name="message" rows="3"
-          placeholder="Montant envisagé, enveloppe (assurance-vie, compte-titres…), ce qui vous fait hésiter."></textarea>
-      </div>
-      <div class="dz-hp" aria-hidden="true">
-        <label for="dz-company">Société</label>
-        <input type="text" id="dz-company" name="company" tabindex="-1" autocomplete="off">
+        <label for="sm-msg">Précisions</label>
+        <textarea id="sm-msg" name="Précisions" rows="3"
+          placeholder="Sous-jacent souhaité, niveau de protection recherché, contraintes particulières — ou simplement vos questions."></textarea>
       </div>
 
-      <div class="dz-foot">
-        <button class="btn btn--gold" type="submit" id="dz-send">Demander une analyse</button>
-        <p class="dz-status" id="dz-status" role="status" aria-live="polite"></p>
+      <div class="sm-foot">
+        <button class="btn btn--gold" type="submit">Envoyer ma demande</button>
+        <p class="sm-note" style="margin:0">Réponse sous deux jours ouvrés.</p>
       </div>
 
-      <p class="dz-note">
-        <strong>Vos fichiers ne quittent pas votre ordinateur à cette étape.</strong> Ce
-        formulaire nous transmet votre demande et la liste des documents ; un brouillon
-        d’email s’ouvre ensuite pour que vous y joigniez les fichiers — un lien de messagerie
-        ne pouvant pas attacher de pièce automatiquement. Si votre messagerie ne s’ouvre pas,
-        écrivez-nous directement à
-        <a href="mailto:""" + EMAIL + """">""" + EMAIL + """</a>.
+      <p class="sm-note">
+        Vos réponses nous parviennent via <strong>FormSubmit</strong>, un service tiers qui
+        relaie le message à {EMAIL} sans le conserver durablement. Aucune donnée n’est stockée
+        par ce site. Vous pouvez aussi écrire directement à
+        <a href="mailto:{EMAIL}">{EMAIL}</a>.
       </p>
-      <p class="dz-note xsmall">
-        Cette analyse est une lecture documentaire à visée pédagogique. Elle ne constitue pas
-        un conseil en investissement personnalisé, lequel suppose un examen préalable de votre
-        situation, de vos objectifs et de vos connaissances.
+      <p class="sm-note xsmall">
+        Cette demande n’engage à rien et ne constitue pas une souscription. Toute
+        recommandation suppose au préalable un examen de votre situation, de vos objectifs,
+        de vos connaissances et de votre capacité à supporter une perte.
       </p>
     </form>
   </div>
@@ -1648,9 +1708,6 @@ def page_index():
           <td class="num-cell">{em["fitch"]}</td>
         </tr>""" for em in EMETTEURS[:8])
 
-    cp = [p["coupon"] for p in PRODUITS if p["coupon"]]
-    cmax = f'{max(cp)*100:.1f}'.replace(".", ",")
-
     body = f"""
 {hero(
   "Produits structurés : comprendre,<br>comparer, investir avec discernement",
@@ -1658,14 +1715,14 @@ def page_index():
   "EURO STOXX 50, S&amp;P 500 — dont la cotation se vérifie chaque jour. Mécanismes, "
   "structures, émetteurs et vocabulaire, expliqués sans raccourci commercial.",
   actions='<a class="btn btn--gold" href="produits.html">Ouvrir le comparateur</a>'
-          '<a class="btn btn--ghost-light" href="produits.html#analyse">Faire analyser mon produit</a>',
+          '<a class="btn btn--ghost-light" href="produits.html#structurer">Structurer sur mesure</a>',
   page=False)}
 
 <section>
   <div class="container">
     <div class="stats">
       <div class="stat"><div class="stat__n">{len(PRODUITS)}</div><div class="stat__l">Structures référencées</div></div>
-      <div class="stat"><div class="stat__n">{cmax}&nbsp;<em>%</em></div><div class="stat__l">Coupon le plus élevé</div></div>
+      <div class="stat"><div class="stat__n">{len(FAMILLES)}</div><div class="stat__l">Familles décryptées</div></div>
       <div class="stat"><div class="stat__n">{len(GUIDES)}</div><div class="stat__l">Guides pédagogiques</div></div>
       <div class="stat"><div class="stat__n">{len(GLOSSAIRE)}</div><div class="stat__l">Définitions au glossaire</div></div>
     </div>
@@ -1688,9 +1745,8 @@ def page_index():
         celui qui l’achète.</p>
         <p>Pour ce comparateur, nous avons retenu des indices publics et des actions cotées.
         Le coupon y est financé par les dividendes que vous ne percevez pas — un mécanisme
-        vérifiable, qui atteint malgré tout {cmax} % par an sur les profils les plus exposés.
-        Ce choix coûte un à deux points de coupon à barrières identiques : c’est un arbitrage
-        de lisibilité, pas un jugement de performance.</p>
+        que chacun peut vérifier. Ce choix coûte un à deux points de coupon à barrières
+        identiques : c’est un arbitrage de lisibilité, pas un jugement de performance.</p>
         <p style="margin-bottom:0"><a class="card__more" href="guides/produit-structure-sans-decrement/">Comparer les deux approches</a></p>
       </div>
     </div>
@@ -1824,7 +1880,7 @@ def page_index():
     auprès des agences.</p>
   </div>
 </section>
-{bloc_analyse()}
+{bloc_structurer()}
 
 <section class="section section--tight">
   <div class="container">
@@ -1871,7 +1927,7 @@ def page_produits():
   "profil de risque. Cliquez sur une ligne pour en déplier le mécanisme, les scénarios et "
   "les points de vigilance.",
   crumb_html=fil([("Accueil", "index.html"), ("Comparateur", "produits.html")], ""),
-  actions='<a class="btn btn--ghost-light" href="#analyse">Faire analyser mon produit</a>')}
+  actions='<a class="btn btn--ghost-light" href="#structurer">Structurer sur mesure</a>')}
 
 <section class="section section--tight">
   <div class="container">
@@ -1886,7 +1942,7 @@ def page_produits():
         <p>Les niveaux de coupon évoluent en permanence avec les taux et la volatilité. Pour
         connaître les offres réellement ouvertes à un instant donné,
         <a class="card__more" href="../contact.html" style="border:0;padding:0">consultez-nous</a>
-        — ou <a class="card__more" href="#analyse" style="border:0;padding:0">déposez la
+        — ou <a class="card__more" href="#structurer" style="border:0;padding:0">déposez la
         documentation d’un produit</a> qu’on vous a proposé.</p>
       </div>
     </div>
@@ -1928,6 +1984,7 @@ def page_produits():
           </select></div>
         <div class="field"><label for="f-env">Enveloppe</label><select id="f-env"></select></div>
         <div class="field"><label for="f-dev">Devise</label><select id="f-dev"></select></div>
+        <div class="field"><label for="f-statut">Nature</label><select id="f-statut"></select></div>
       </div>
       <div class="filters__foot">
         <span class="filters__count" id="f-count" aria-live="polite"></span>
@@ -2027,7 +2084,7 @@ def page_produits():
     </div>
   </div>
 </section>
-{bloc_analyse()}
+{bloc_structurer()}
 """
     write("produits.html", layout("produits.html",
         "Comparateur Produits Structurés : Coupons, Barrières et Risques",
@@ -2291,7 +2348,7 @@ def volet_guide():
       </ul>
       <p style="margin-top:34px">
         <a class="btn" href="produits.html">Voir le comparateur</a>
-        <a class="btn" href="produits.html#analyse" style="margin-left:10px">Faire analyser un produit</a>
+        <a class="btn" href="produits.html#structurer" style="margin-left:10px">Structurer sur mesure</a>
       </p>
     </div>"""
 
@@ -2438,6 +2495,35 @@ def page_comprendre():
         crumb_trail=[("Accueil", "index.html"), ("Comprendre", "comprendre.html")]))
 
 # ==========================================================================
+#  LOGOS DES ÉMETTEURS
+# ==========================================================================
+# Aucun logo n'est livré par défaut : ce sont des marques déposées, dont la
+# reproduction relève d'une décision de l'éditeur (voir assets/logos/
+# LISEZ-MOI.txt). Tant qu'aucun fichier n'est déposé, on affiche une plaque
+# typographique dans la police du site — ce qui conserve la mise en page et
+# évite tout emprunt graphique.
+
+LOGO_EXT = (".svg", ".png", ".webp")
+
+def logo_fichier(slug):
+    for ext in LOGO_EXT:
+        rel = f"assets/logos/{slug}{ext}"
+        if os.path.exists(os.path.join(OUT, rel)):
+            return rel
+    return None
+
+def logo_html(nom, pfx=""):
+    slug = slugify(nom)
+    f = logo_fichier(slug)
+    if f:
+        return (f'<span class="issuer__logo"><img src="{pfx}{f}" alt="{e(html.unescape(nom))}" '
+                f'loading="lazy" decoding="async" width="150" height="44"></span>')
+    # Plaque de repli : le nom composé dans le serif du site.
+    txt = html.unescape(nom)
+    cls = "issuer__plate" + (" issuer__plate--long" if len(txt) > 16 else "")
+    return f'<span class="{cls}" role="img" aria-label="{e(txt)}">{e(txt)}</span>'
+
+# ==========================================================================
 #  PAGE — LES ACTEURS (LFDR en tête + émetteurs + établissements)
 # ==========================================================================
 def bloc_lfdr():
@@ -2472,7 +2558,7 @@ def bloc_lfdr():
           réinvestissement le moment venu.</li>
         </ol>
         <p style="margin:22px 0 0">
-          <a class="btn btn--sm" href="produits.html#analyse">Faire analyser un produit</a>
+          <a class="btn btn--sm" href="produits.html#structurer">Structurer sur mesure</a>
           <a class="btn btn--sm" href="../contact.html" style="margin-left:8px">Nous contacter</a>
         </p>
       </div>
@@ -2492,6 +2578,7 @@ def volet_emetteurs():
         cards.append(f"""      <article class="issuer" data-dir data-cat="{em["zone"]}" data-s="{e(html.unescape(search))}">
         <div class="issuer__h">
           <div>
+            {logo_html(em["nom"])}
             <h3 class="issuer__n">{em["nom"]}</h3>
             <p class="issuer__c">{em["pays"]} · {em["groupe"]}</p>
           </div>
@@ -2612,12 +2699,15 @@ def volet_etablissements():
         <h4 class="card__t" style="font-size:1.02rem">Le structureur</h4>
         <p class="xsmall muted" style="margin:0">Conçoit la formule et met les émetteurs en concurrence. Ne porte aucun risque de crédit.</p></div>
       <div class="cell" style="padding:24px"><div class="num">2</div>
+        <h4 class="card__t" style="font-size:1.02rem">Le broker</h4>
+        <p class="xsmall muted" style="margin:0">Sollicite les prix auprès des salles de marché, négocie les conditions et exécute. Intermédiaire, pas débiteur.</p></div>
+      <div class="cell" style="padding:24px"><div class="num">3</div>
         <h4 class="card__t" style="font-size:1.02rem">L’émetteur</h4>
         <p class="xsmall muted" style="margin:0">Émet le titre de créance et s’engage à payer. C’est lui, et lui seul, qui porte le risque de crédit.</p></div>
-      <div class="cell" style="padding:24px"><div class="num">3</div>
+      <div class="cell" style="padding:24px"><div class="num">4</div>
         <h4 class="card__t" style="font-size:1.02rem">L’assureur</h4>
         <p class="xsmall muted" style="margin:0">Référence le titre en unité de compte, le valorise et porte le cadre juridique de l’enveloppe.</p></div>
-      <div class="cell" style="padding:24px"><div class="num">4</div>
+      <div class="cell" style="padding:24px"><div class="num">5</div>
         <h4 class="card__t" style="font-size:1.02rem">Le distributeur</h4>
         <p class="xsmall muted" style="margin:0">Sélectionne, explique, souscrit et suit les constatations pour le compte de l’investisseur.</p></div>
     </div>
@@ -2789,13 +2879,13 @@ def page_methodologie():
         marché de {MAJ}.</li>
       </ul>
 
-      <h2>L’analyse d’un produit que vous nous soumettez</h2>
-      <p>Lorsque vous déposez un document d’informations clés, nous appliquons la même grille,
-      dans l’ordre : nature du sous-jacent, identité et notation de l’émetteur réel, niveau et
-      mode de constatation des barrières, mécanismes cumulés, coûts, puis comparaison avec ce
-      qui se traite au même moment à risque équivalent. Nous vous indiquons ce qui nous paraît
-      solide et ce qui nous paraît cher — sans préjuger de votre situation personnelle, que
-      nous ne connaissons pas à ce stade.</p>
+      <h2>La structuration sur mesure</h2>
+      <p>Lorsque vous nous confiez une demande, nous appliquons la même grille, dans l’ordre :
+      nature du sous-jacent, identité et notation de l’émetteur, niveau et mode de constatation
+      des barrières, mécanismes cumulés, coûts. Nous cadrons d’abord la formule avec vous —
+      horizon, niveau de protection, besoin de revenu —, puis nous la mettons en concurrence
+      auprès de plusieurs émetteurs à signature comparable, et nous vous indiquons ce qui nous
+      paraît solide et ce qui nous paraît cher.</p>
 
       <h2>Fréquence de revue</h2>
       <p>Les niveaux de coupon évoluent avec les taux et la volatilité ; les notations évoluent
@@ -2812,7 +2902,7 @@ def page_methodologie():
       avec lui, et nous lui communiquons les frais applicables.</p>
 
       <p style="margin-top:34px">
-        <a class="btn" href="produits.html#analyse">Faire analyser un produit</a>
+        <a class="btn" href="produits.html#structurer">Structurer sur mesure</a>
         <a class="btn" href="produits.html" style="margin-left:10px">Voir le comparateur</a>
       </p>
     </div>
@@ -2866,16 +2956,21 @@ def page_mentions():
       émission ne sont arrêtées qu’à sa date de strike. Seuls le prospectus et le document
       d’informations clés de l’émetteur font foi.</p>
 
-      <h2>Service d’analyse de document</h2>
-      <p>Le formulaire « Faire analyser un produit » permet de nous adresser une demande
-      d’examen documentaire. Les fichiers que vous sélectionnez <strong>ne sont pas téléversés
-      par ce site</strong> : ils restent sur votre appareil, et seul le contenu que vous
-      saisissez — identité, coordonnées, question et nom des documents — nous est transmis, afin
-      d’ouvrir ensuite un brouillon d’email auquel vous joignez vous-même les pièces.</p>
-      <p>L’analyse rendue est une lecture documentaire à visée pédagogique. Elle ne constitue pas
-      un conseil en investissement personnalisé, lequel suppose un examen préalable de votre
-      situation patrimoniale, de vos objectifs, de votre horizon, de vos connaissances et de
-      votre expérience. Elle n’engage pas l’éditeur sur le résultat futur du produit examiné.</p>
+      <h2>Formulaire « Structurer sur mesure »</h2>
+      <p>Ce formulaire permet de nous adresser une demande de structuration. Les informations
+      saisies — identité, coordonnées, montant envisagé, horizon, objectif, enveloppe et
+      précisions libres — sont transmises par l’intermédiaire de <strong>FormSubmit</strong>
+      (FormSubmit.co), service tiers de relais de formulaires qui achemine le message vers
+      l’adresse {EMAIL}. Ce site étant statique, il ne stocke lui-même aucune donnée et
+      n’utilise aucune base de données.</p>
+      <p>Les données transitent donc par ce prestataire, dont les conditions et la politique de
+      confidentialité lui sont propres. Si vous préférez l’éviter, écrivez-nous directement à
+      <a class="inline" href="mailto:{EMAIL}">{EMAIL}</a>. Les données communiquées ne servent
+      qu’à traiter votre demande et ne font l’objet d’aucune cession à des tiers à des fins
+      commerciales.</p>
+      <p>L’envoi d’une demande n’engage à rien et ne constitue pas une souscription. Toute
+      recommandation suppose au préalable un examen de votre situation patrimoniale, de vos
+      objectifs, de votre horizon, de vos connaissances et de votre expérience.</p>
 
       <h2>Notations de crédit</h2>
       <p>Les notations citées portent sur la dette senior long terme des entités mentionnées.
@@ -2935,9 +3030,11 @@ def page_mentions():
 
       <h2>Données personnelles</h2>
       <p>Ce site ne dépose aucun cookie de mesure d’audience ni de suivi publicitaire, et
-      n’intègre aucun script tiers. Les polices de caractères sont auto-hébergées. Aucune donnée
-      de navigation n’est collectée par l’éditeur. Les demandes adressées par les formulaires
-      sont traitées selon les modalités décrites dans
+      n’intègre aucun script tiers dans ses pages. Les polices de caractères sont
+      auto-hébergées. Aucune donnée de navigation n’est collectée par l’éditeur. Seul l’envoi
+      volontaire du formulaire « Structurer sur mesure » transmet des données, par
+      l’intermédiaire du prestataire décrit ci-dessus. Les demandes sont ensuite traitées selon
+      les modalités décrites dans
       <a class="inline" href="../mentions-legales.html">les mentions légales de l’éditeur</a>.</p>
 
       <h2>Propriété intellectuelle</h2>
@@ -2978,6 +3075,7 @@ def main():
     page_methodologie()
     page_mentions()
     page_404()
+    page_merci()
     page_guides_index()
     for g in GUIDES:
         page_guide(g)
@@ -2990,6 +3088,12 @@ def main():
           f"{len(GLOSSAIRE)} définitions")
     print(f"  Coupons : {min(cp)*100:.1f} % à {max(cp)*100:.1f} % (conditions {MARCHE_REF}).")
     print(f"  {len(GUIDES)} guides · sitemap de {n_urls} URL · revue éditoriale {MAJ}")
+    manquants = [slugify(em["nom"]) for em in EMETTEURS if not logo_fichier(slugify(em["nom"]))]
+    if manquants:
+        print(f"  logos émetteurs : {len(EMETTEURS) - len(manquants)}/{len(EMETTEURS)} déposés "
+              f"— attendus dans observatoire/assets/logos/ :")
+        for i in range(0, len(manquants), 3):
+            print("      " + "  ".join(f"{m}.svg" for m in manquants[i:i+3]))
     print(f"  Domaine canonique : {BASE_URL}{BASE_PATH}/  ← à vérifier")
     print("  Terminé.\n")
 
@@ -4146,7 +4250,7 @@ def page_guide(g):
       </div>
       <div class="cta__actions">
         <a class="btn btn--sm" href="{pfx}produits.html">Ouvrir le comparateur</a>
-        <a class="btn btn--sm btn--gold" href="{pfx}produits.html#analyse">Faire analyser un produit</a>
+        <a class="btn btn--sm btn--gold" href="{pfx}produits.html#structurer">Structurer sur mesure</a>
       </div>
     </div>
 
@@ -4220,6 +4324,105 @@ def page_guides_index():
         body, crumb_trail=trail))
 
 # ==========================================================================
+#  INGESTION DE VRAIES FICHES PRODUITS
+# ==========================================================================
+# Le catalogue livré ne contient que des gabarits pédagogiques. Pour publier
+# de véritables souches, remplissez observatoire/data/produits-reels.csv :
+# chaque ligne devient une fiche, avec son ISIN, ses documents réglementaires
+# et ses dates de commercialisation. Le fichier est lu à chaque génération ;
+# s'il ne contient que son en-tête, rien ne change.
+#
+# Le format est volontairement plat pour être exporté depuis un tableur ou
+# depuis l'outil de suivi d'un structureur, sans retouche.
+
+CSV_PRODUITS = os.path.join(OUT, "data", "produits-reels.csv")
+
+COLONNES_CSV = [
+    "isin", "nom", "famille", "emetteur", "emetteur_rating", "format",
+    "sous_jacent", "sous_jacent_detail", "sj_type", "devise",
+    "coupon", "frequence", "b_coupon", "b_capital", "b_autocall", "decrement",
+    "non_call", "maturite", "memoire", "sri", "frais", "enveloppes",
+    "statut", "date_strike", "date_fin", "nominal_min",
+    "doc_dic", "doc_termsheet",
+    "mecanisme", "sc_fav", "sc_med", "sc_def", "attention", "tags", "note",
+]
+
+def _num(v):
+    """'' -> None ; '9,5' et '9.5' -> 9.5 ; '60%' -> 0.6."""
+    v = (v or "").strip().replace("\u00a0", "").replace(" ", "")
+    if not v:
+        return None
+    pct = v.endswith("%")
+    v = v.rstrip("%").replace(",", ".")
+    try:
+        x = float(v)
+    except ValueError:
+        return None
+    return x / 100 if pct else x
+
+def charger_produits_reels():
+    """Lit le CSV des souches réelles. Renvoie [] s'il est absent ou vide."""
+    if not os.path.exists(CSV_PRODUITS):
+        return []
+    import csv
+    out, erreurs = [], []
+    with open(CSV_PRODUITS, encoding="utf-8-sig", newline="") as f:
+        for i, r in enumerate(csv.DictReader(f), 2):
+            if not (r.get("nom") or "").strip():
+                continue
+            manque = [c for c in ("nom", "famille", "emetteur", "maturite")
+                      if not (r.get(c) or "").strip()]
+            if manque:
+                erreurs.append(f"ligne {i} : colonnes obligatoires vides — {', '.join(manque)}")
+                continue
+            note = _num(r.get("note")) or 0
+            out.append(dict(
+                reel=True,
+                isin=(r.get("isin") or "").strip().upper(),
+                nom=(r.get("nom") or "").strip(),
+                famille=(r.get("famille") or "").strip(),
+                emetteur=(r.get("emetteur") or "").strip(),
+                emetteur_rating=(r.get("emetteur_rating") or "").strip(),
+                format=(r.get("format") or "EMTN").strip(),
+                sous_jacent=(r.get("sous_jacent") or "").strip(),
+                sous_jacent_detail=(r.get("sous_jacent_detail") or r.get("sous_jacent") or "").strip(),
+                sj_type=(r.get("sj_type") or "Indice actions").strip(),
+                devise=(r.get("devise") or "EUR").strip(),
+                coupon=_num(r.get("coupon")),
+                frequence=(r.get("frequence") or "").strip(),
+                b_coupon=_num(r.get("b_coupon")),
+                b_capital=_num(r.get("b_capital")),
+                b_autocall=_num(r.get("b_autocall")),
+                decrement=_num(r.get("decrement")),
+                non_call=int(_num(r.get("non_call")) or 0),
+                maturite=_num(r.get("maturite")),
+                memoire=(r.get("memoire") or "").strip().lower() in ("1", "oui", "true", "vrai", "x"),
+                sri=int(_num(r.get("sri")) or 6),
+                frais=(r.get("frais") or "").strip(),
+                enveloppes=[x.strip() for x in (r.get("enveloppes") or "").split("|") if x.strip()],
+                statut=(r.get("statut") or "En commercialisation").strip(),
+                date_strike=(r.get("date_strike") or "").strip(),
+                date_fin=(r.get("date_fin") or "").strip(),
+                nominal_min=(r.get("nominal_min") or "").strip(),
+                doc_dic=(r.get("doc_dic") or "").strip(),
+                doc_termsheet=(r.get("doc_termsheet") or "").strip(),
+                mecanisme=(r.get("mecanisme") or "").strip(),
+                sc_fav=(r.get("sc_fav") or "").strip(),
+                sc_med=(r.get("sc_med") or "").strip(),
+                sc_def=(r.get("sc_def") or "").strip(),
+                attention=[x.strip() for x in (r.get("attention") or "").split("|") if x.strip()],
+                tags=[x.strip() for x in (r.get("tags") or "").split("|") if x.strip()],
+                note=int(note) if note else 0,
+            ))
+    for x in erreurs:
+        print(f"  ⚠ CSV ignoré — {x}")
+    return out
+
+PRODUITS_REELS = charger_produits_reels()
+PRODUITS = PRODUITS_REELS + PRODUITS
+NB_REELS = len(PRODUITS_REELS)
+
+# ==========================================================================
 #  PRÉ-RENDU DU COMPARATEUR
 # ==========================================================================
 # Le tableau était rempli par obs.js : sans exécution JavaScript, un robot
@@ -4260,7 +4463,8 @@ def detail_html(p):
           f'<p class="small">{e(html.unescape(p["mecanisme"]))}</p>'
           '<h4 style="margin-top:22px">Caractéristiques</h4>'
           '<dl class="dl">'
-            f'<dt>Émetteur</dt><dd>{e(html.unescape(p["emetteur"]))}</dd>'
+            + (f'<dt>Code ISIN</dt><dd>{e(p["isin"])}</dd>' if p.get("isin") else '')
+            + f'<dt>Émetteur</dt><dd>{e(html.unescape(p["emetteur"]))}</dd>'
             f'<dt>Garant / format</dt><dd>{e(html.unescape(p["format"]))}</dd>'
             f'<dt>Sous-jacent</dt><dd>{e(html.unescape(ul))}</dd>'
             f'<dt>Devise</dt><dd>{e(p["devise"])}</dd>'
@@ -4273,8 +4477,15 @@ def detail_html(p):
             f'<dt>Effet mémoire</dt><dd>{"Oui" if p["memoire"] else "Non"}</dd>'
             f'<dt>Enveloppes</dt><dd>{e(" · ".join(p["enveloppes"]))}</dd>'
             f'<dt>Indicateur de risque</dt><dd>SRI {p["sri"]} / 7</dd>'
-            f'<dt>Frais de distribution</dt><dd>{e(html.unescape(p["frais"]))}</dd>'
-          '</dl>'
+            + f'<dt>Frais de distribution</dt><dd>{e(html.unescape(p["frais"]))}</dd>'
+            + (f'<dt>Date de strike</dt><dd>{e(p["date_strike"])}</dd>' if p.get("date_strike") else '')
+            + (f'<dt>Fin de commercialisation</dt><dd>{e(p["date_fin"])}</dd>' if p.get("date_fin") else '')
+            + (f'<dt>Nominal minimum</dt><dd>{e(p["nominal_min"])}</dd>' if p.get("nominal_min") else '')
+            + (('<dt>Documentation</dt><dd>'
+                + (f'<a class="inline" href="{e(p["doc_dic"])}" rel="noopener" target="_blank">DIC</a> ' if p.get("doc_dic") else '')
+                + (f'<a class="inline" href="{e(p["doc_termsheet"])}" rel="noopener" target="_blank">Termsheet</a>' if p.get("doc_termsheet") else '')
+                + '</dd>') if (p.get("doc_dic") or p.get("doc_termsheet")) else '')
+            + '</dl>'
         '</div>'
         '<div>'
           '<h4>Scénarios à l’échéance</h4>'
@@ -4291,9 +4502,16 @@ def detail_html(p):
         '</div>'
       '</div>')
 
+def tri_initial():
+    """Ordre d'affichage par défaut, à reproduire à l'identique dans obs.js :
+    les souches réellement commercialisées d'abord, puis la note décroissante.
+    Toute divergence provoquerait un saut visuel à l'hydratation."""
+    return sorted(range(len(PRODUITS)),
+                  key=lambda i: (0 if PRODUITS[i].get("reel") else 1, -PRODUITS[i]["note"]))
+
 def rows_prerendered():
     """Lignes du comparateur, triées comme l'état initial d'obs.js."""
-    ordre = sorted(range(len(PRODUITS)), key=lambda i: -PRODUITS[i]["note"])
+    ordre = tri_initial()
     out = []
     for i in ordre:
         p = PRODUITS[i]
@@ -4302,8 +4520,10 @@ def rows_prerendered():
         out.append(
           f'<tr class="row-main" data-i="{i}" tabindex="0" role="button" aria-expanded="false">'
             '<td class="num-cell"><span class="rowtoggle">›</span></td>'
-            f'<td><div class="t-name">{e(html.unescape(p["nom"]))}</div>'
-            f'<div class="t-sub">{e(html.unescape(p["famille"]))} · {e(html.unescape(p["sous_jacent"]))}</div></td>'
+            f'<td><div class="t-name">{e(html.unescape(p["nom"]))}'
+            + (f' <span class="tag tag--pos">Offre réelle</span>' if p.get("reel") else '')
+            + f'</div><div class="t-sub">{e(html.unescape(p["famille"]))} · {e(html.unescape(p["sous_jacent"]))}'
+            + (f' · {e(p["isin"])}' if p.get("isin") else '') + '</div></td>'
             f'<td>{e(html.unescape(p["emetteur"]))}<div class="t-sub">{e(p["emetteur_rating"])}</div></td>'
             f'<td class="num-cell"><span class="coupon">{_pct(p["coupon"])}</span>'
             f'<div class="t-sub">{e(html.unescape(p["frequence"]))}</div></td>'
@@ -4319,7 +4539,7 @@ def rows_prerendered():
 
 def cards_prerendered():
     """Équivalent mobile, pour que le contenu reste lisible sans JS."""
-    ordre = sorted(range(len(PRODUITS)), key=lambda i: -PRODUITS[i]["note"])
+    ordre = tri_initial()
     out = []
     for i in ordre:
         p = PRODUITS[i]
@@ -4343,6 +4563,53 @@ def cards_prerendered():
             f'Voir le détail</summary>{detail_html(p)}</details>'
           '</article>')
     return "\n".join(out)
+
+# ==========================================================================
+#  PAGE — CONFIRMATION D'ENVOI (cible du champ _next de FormSubmit)
+# ==========================================================================
+def page_merci():
+    body = f"""
+{hero("Demande bien reçue",
+  "Merci. Votre demande de structuration nous est parvenue : nous revenons vers vous "
+  "sous deux jours ouvrés, à l’adresse que vous avez indiquée.",
+  crumb_html=fil([("Accueil", "index.html"), ("Demande envoyée", "merci.html")], ""))}
+
+<section class="section">
+  <div class="container container--mid">
+    <h2 class="title-md">En attendant</h2>
+    <hr class="rule">
+    <div class="cards" style="margin-top:26px">
+      <a class="card linkcard" href="produits.html">
+        <p class="card__k">Comparateur</p>
+        <h3 class="card__t">Les structures de référence</h3>
+        <p class="small muted">Coupons, barrières, maturités et émetteurs, avec le détail
+        de chaque mécanisme.</p>
+      </a>
+      <a class="card linkcard" href="guides/">
+        <p class="card__k">Guides</p>
+        <h3 class="card__t">Les {len(GUIDES)} guides</h3>
+        <p class="small muted">Autocall, Phoenix, barrières, fiscalité, risques : un guide
+        par mécanisme.</p>
+      </a>
+      <a class="card linkcard" href="comprendre.html#glossaire">
+        <p class="card__k">Glossaire</p>
+        <h3 class="card__t">{len(GLOSSAIRE)} définitions</h3>
+        <p class="small muted">Tout le vocabulaire d’une fiche produit, expliqué avec des
+        exemples chiffrés.</p>
+      </a>
+    </div>
+    <p class="small muted" style="margin-top:34px">Vous n’avez rien reçu&nbsp;? Écrivez-nous
+    directement à <a class="card__more" href="mailto:{EMAIL}" style="border:0;padding:0">{EMAIL}</a>.</p>
+  </div>
+</section>
+"""
+    html_merci = layout("merci.html", "Demande envoyée | Le Comptoir des Structurés",
+        "Votre demande de structuration sur mesure a bien été transmise. Nous revenons "
+        "vers vous sous deux jours ouvrés.", body)
+    html_merci = html_merci.replace(
+        '<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">',
+        '<meta name="robots" content="noindex, follow">')
+    write("merci.html", html_merci)
 
 # ==========================================================================
 #  SEO TECHNIQUE — sitemap, robots, redirections, page 404

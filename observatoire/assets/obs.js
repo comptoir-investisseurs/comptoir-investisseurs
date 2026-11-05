@@ -97,6 +97,7 @@
     fill(els.sj, uniq('sj_type'), 'Tous les sous-jacents');
     fill(els.dev, uniq('devise'), 'Toutes devises');
     fill(els.env, uniq('enveloppes'), 'Toutes enveloppes');
+    fill(els.statut, uniq('statut'), 'Toutes natures');
 
     function match(p) {
       if (state.fam && p.famille !== state.fam) return false;
@@ -109,7 +110,8 @@
       if (state.cap && !(p.b_capital !== null && p.b_capital <= parseFloat(state.cap))) return false;
       if (state.mat && !(p.maturite <= parseFloat(state.mat))) return false;
       if (state.q) {
-        var hay = norm([p.nom, p.emetteur, p.famille, p.sous_jacent, p.sj_type, (p.tags || []).join(' ')].join(' '));
+        var hay = norm([p.nom, p.emetteur, p.famille, p.sous_jacent, p.sj_type, p.isin,
+                        p.statut, (p.tags || []).join(' ')].join(' '));
         var terms = norm(state.q).split(/\s+/).filter(Boolean);
         for (var i = 0; i < terms.length; i++) if (hay.indexOf(terms[i]) < 0) return false;
       }
@@ -119,6 +121,13 @@
     function sortRows(rows) {
       var k = state.sort, d = state.dir;
       return rows.sort(function (a, b) {
+        /* Sur le tri par défaut, les souches réellement commercialisées
+           passent devant : même règle que tri_initial() côté générateur,
+           sans quoi l'hydratation ferait sauter le tableau. */
+        if (k === 'note') {
+          var ra = a.reel ? 0 : 1, rb = b.reel ? 0 : 1;
+          if (ra !== rb) return ra - rb;
+        }
         var x = a[k], y = b[k];
         if (x === null || x === undefined) x = d === 1 ? Infinity : -Infinity;
         if (y === null || y === undefined) y = d === 1 ? Infinity : -Infinity;
@@ -136,6 +145,7 @@
             '<p class="small">' + esc(p.mecanisme) + '</p>' +
             '<h4 style="margin-top:22px">Caractéristiques</h4>' +
             '<dl class="dl">' +
+              (p.isin ? '<dt>Code ISIN</dt><dd>' + esc(p.isin) + '</dd>' : '') +
               '<dt>Émetteur</dt><dd>' + esc(p.emetteur) + '</dd>' +
               '<dt>Garant / format</dt><dd>' + esc(p.format) + '</dd>' +
               '<dt>Sous-jacent</dt><dd>' + esc(ul) + '</dd>' +
@@ -150,6 +160,13 @@
               '<dt>Enveloppes</dt><dd>' + esc((p.enveloppes || []).join(' · ')) + '</dd>' +
               '<dt>Indicateur de risque</dt><dd>SRI ' + esc(p.sri) + ' / 7</dd>' +
               '<dt>Frais de distribution</dt><dd>' + esc(p.frais) + '</dd>' +
+              (p.date_strike ? '<dt>Date de strike</dt><dd>' + esc(p.date_strike) + '</dd>' : '') +
+              (p.date_fin ? '<dt>Fin de commercialisation</dt><dd>' + esc(p.date_fin) + '</dd>' : '') +
+              (p.nominal_min ? '<dt>Nominal minimum</dt><dd>' + esc(p.nominal_min) + '</dd>' : '') +
+              ((p.doc_dic || p.doc_termsheet) ? '<dt>Documentation</dt><dd>' +
+                 (p.doc_dic ? '<a class="inline" href="' + esc(p.doc_dic) + '" rel="noopener" target="_blank">DIC</a> ' : '') +
+                 (p.doc_termsheet ? '<a class="inline" href="' + esc(p.doc_termsheet) + '" rel="noopener" target="_blank">Termsheet</a>' : '') +
+                 '</dd>' : '') +
             '</dl>' +
           '</div>' +
           '<div>' +
@@ -172,7 +189,10 @@
       return '' +
         '<tr class="row-main" data-i="' + i + '" tabindex="0" role="button" aria-expanded="false">' +
           '<td class="num-cell"><span class="rowtoggle">›</span></td>' +
-          '<td><div class="t-name">' + esc(p.nom) + '</div><div class="t-sub">' + esc(p.famille) + ' · ' + esc(p.sous_jacent) + '</div></td>' +
+          '<td><div class="t-name">' + esc(p.nom) +
+            (p.reel ? ' <span class="tag tag--pos">Offre réelle</span>' : '') +
+            '</div><div class="t-sub">' + esc(p.famille) + ' · ' + esc(p.sous_jacent) +
+            (p.isin ? ' · ' + esc(p.isin) : '') + '</div></td>' +
           '<td>' + esc(p.emetteur) + '<div class="t-sub">' + esc(p.emetteur_rating) + '</div></td>' +
           '<td class="num-cell"><span class="coupon">' + pct(p.coupon) + '</span><div class="t-sub">' + esc(p.frequence) + '</div></td>' +
           '<td class="num-cell">' + (p.b_coupon === null ? '—' : pct0(p.b_coupon)) + '</td>' +
@@ -466,156 +486,6 @@
     var r2 = document.getElementById('dir2-reset');
     if (r2) r2.addEventListener('click', function () { if (d2q) d2q.value = ''; if (d2cat) d2cat.value = ''; dir2Render(); });
     dir2Render();
-  }
-
-  /* =======================================================================
-     DÉPÔT DE DOCUMENT — « faire analyser un produit »
-     Les fichiers ne sont jamais téléversés : seule la demande est transmise
-     à contact.php, puis un brouillon d'email s'ouvre pour les pièces jointes.
-     ======================================================================= */
-  var dz = document.getElementById('dz');
-  if (dz) {
-    var MAX_MO = 10, MAX_N = 3;
-    var OK_EXT = ['pdf', 'png', 'jpg', 'jpeg'];
-    var input = document.getElementById('dz-input');
-    var list = document.getElementById('dz-files');
-    var form = document.getElementById('dz-form');
-    var statusEl = document.getElementById('dz-status');
-    var sendBtn = document.getElementById('dz-send');
-    var files = [];
-
-    function say(kind, msg) {
-      statusEl.className = 'dz-status ' + (kind || '');
-      statusEl.textContent = msg || '';
-    }
-    function ko(msg) {
-      dz.classList.add('is-bad');
-      setTimeout(function () { dz.classList.remove('is-bad'); }, 1600);
-      say('err', msg);
-    }
-    function size(b) {
-      return b < 1024 * 1024 ? Math.max(1, Math.round(b / 1024)) + ' Ko'
-                             : (b / 1048576).toFixed(1).replace('.', ',') + ' Mo';
-    }
-    function ext(name) { return (name.split('.').pop() || '').toLowerCase(); }
-
-    function paint() {
-      list.innerHTML = files.map(function (f, i) {
-        return '<li class="dz-file">' +
-          '<span class="dz-file__i" aria-hidden="true">' + esc(ext(f.name).toUpperCase().slice(0, 4)) + '</span>' +
-          '<span class="dz-file__n" title="' + esc(f.name) + '">' + esc(f.name) + '</span>' +
-          '<span class="dz-file__s">' + size(f.size) + '</span>' +
-          '<button class="dz-file__x" type="button" data-rm="' + i + '" aria-label="Retirer ' + esc(f.name) + '">×</button>' +
-          '</li>';
-      }).join('');
-    }
-
-    function add(fileList) {
-      var rejected = [];
-      Array.prototype.slice.call(fileList).forEach(function (f) {
-        /* Format et taille d'abord : sinon un fichier invalide arrivant sur une
-           liste déjà pleine serait rejeté pour la mauvaise raison. */
-        if (OK_EXT.indexOf(ext(f.name)) < 0) { rejected.push(f.name + ' (format non accepté)'); return; }
-        if (f.size > MAX_MO * 1048576) { rejected.push(f.name + ' (plus de ' + MAX_MO + ' Mo)'); return; }
-        if (files.some(function (x) { return x.name === f.name && x.size === f.size; })) return;
-        if (files.length >= MAX_N) { rejected.push(f.name + ' (maximum ' + MAX_N + ' fichiers)'); return; }
-        files.push(f);
-      });
-      paint();
-      if (rejected.length) ko('Non retenu : ' + rejected.join(', ') + '.');
-      else if (files.length) say('ok', files.length + ' document' + (files.length > 1 ? 's' : '') + ' prêt' + (files.length > 1 ? 's' : '') + ' à être joint' + (files.length > 1 ? 's' : '') + '.');
-      else say('', '');
-    }
-
-    list.addEventListener('click', function (ev) {
-      var b = ev.target.closest('[data-rm]');
-      if (!b) return;
-      files.splice(parseInt(b.getAttribute('data-rm'), 10), 1);
-      paint();
-      say('', '');
-    });
-
-    dz.addEventListener('click', function () { input.click(); });
-    dz.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); input.click(); }
-    });
-    input.addEventListener('change', function () { add(input.files); input.value = ''; });
-
-    ['dragenter', 'dragover'].forEach(function (t) {
-      dz.addEventListener(t, function (ev) { ev.preventDefault(); dz.classList.add('is-over'); });
-    });
-    ['dragleave', 'drop'].forEach(function (t) {
-      dz.addEventListener(t, function (ev) { ev.preventDefault(); dz.classList.remove('is-over'); });
-    });
-    dz.addEventListener('drop', function (ev) {
-      if (ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files.length) add(ev.dataTransfer.files);
-    });
-    /* Un fichier lâché à côté de la zone ne doit pas remplacer la page. */
-    ['dragover', 'drop'].forEach(function (t) {
-      window.addEventListener(t, function (ev) { if (!dz.contains(ev.target)) ev.preventDefault(); });
-    });
-
-    function val(id) { return (document.getElementById(id).value || '').trim(); }
-
-    form.addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      if (val('dz-company')) return;           // pot de miel
-
-      var d = {
-        prenom: val('dz-prenom'), nom: val('dz-nom'), email: val('dz-email'),
-        telephone: val('dz-tel'), objet: 'Analyse d’un produit structuré',
-        message: val('dz-msg')
-      };
-      var bad = [];
-      if (!d.prenom) bad.push('dz-prenom');
-      if (!d.nom) bad.push('dz-nom');
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) bad.push('dz-email');
-      ['dz-prenom', 'dz-nom', 'dz-email'].forEach(function (id) {
-        document.getElementById(id).setAttribute('aria-invalid', bad.indexOf(id) >= 0 ? 'true' : 'false');
-      });
-      if (bad.length) {
-        say('err', 'Renseignez vos nom et prénom ainsi qu’un email valide.');
-        document.getElementById(bad[0]).focus();
-        return;
-      }
-      if (!files.length) { ko('Ajoutez au moins un document à analyser.'); return; }
-
-      var docs = files.map(function (f) { return '— ' + f.name + ' (' + size(f.size) + ')'; }).join('\n');
-      d.message = 'Documents à analyser :\n' + docs +
-                  '\n\n' + (d.message || '(aucune précision)') +
-                  '\n\nLes fichiers suivent par email ; ils ne transitent pas par le site.';
-
-      sendBtn.disabled = true;
-      say('', 'Envoi en cours…');
-
-      var corps = 'Bonjour,\n\nJe souhaite un avis sur le produit structuré dont la documentation est jointe.\n\n' +
-                  'Nom : ' + d.prenom + ' ' + d.nom + '\n' +
-                  'Email : ' + d.email + '\n' +
-                  (d.telephone ? 'Téléphone : ' + d.telephone + '\n' : '') +
-                  '\nDocuments :\n' + docs +
-                  '\n\n' + (val('dz-msg') || '') +
-                  '\n\n--- Pensez à joindre les fichiers à cet email avant de l’envoyer. ---\n';
-      var mailto = 'mailto:' + (window.OBS_EMAIL || 'contact@lfd-rochechouart.com') +
-                   '?subject=' + encodeURIComponent('Analyse d’un produit structuré — ' + d.prenom + ' ' + d.nom) +
-                   '&body=' + encodeURIComponent(corps);
-
-      function finish(kind, msg) {
-        sendBtn.disabled = false;
-        say(kind, msg);
-        window.location.href = mailto;
-      }
-
-      fetch('../contact.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(d)
-      }).then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        finish('ok', 'Demande transmise. Votre messagerie s’ouvre : joignez-y les documents puis envoyez.');
-      }).catch(function () {
-        finish('err', 'Notification automatique indisponible. Votre messagerie s’ouvre : joignez les documents et envoyez le message, nous le recevrons.');
-      });
-    });
   }
 
   /* ----------------------- Année courante ----------------------- */

@@ -84,7 +84,36 @@ Les constantes d’en-tête (`SITE`, `SITE_SHORT`, `MARK`, `EDITEUR`, `EMAIL`, `
 `ANNEE_RATINGS`) pilotent les mentions répétées sur toutes les pages. **`MAJ` et
 `ANNEE_RATINGS` sont à actualiser à chaque revue éditoriale.**
 
-## Zone de dépôt « faire analyser un produit »
+## Formulaire « Structurer sur mesure »
+
+Section `#structurer`, présente sur l'accueil et le comparateur, et cible du bouton
+d'en-tête. Neuf champs seulement : identité, coordonnées, montant, horizon, objectif,
+enveloppe et précisions libres. Pot de miel `_honey` hors écran contre les robots.
+
+L'envoi passe par **FormSubmit** (`https://formsubmit.co/<email>`), service tiers qui
+relaie le message sans code serveur — ce qui convient à un hébergement statique.
+
+### ⚠️ Activation obligatoire, sinon erreur
+
+FormSubmit refuse les envois tant que l'adresse destinataire n'a pas été confirmée.
+**C'est la cause de l'erreur observée.** Procédure, une seule fois :
+
+1. Mettez le site en ligne (le `_next` doit pointer vers une URL réelle).
+2. Envoyez une première fois le formulaire depuis le site publié.
+3. FormSubmit envoie un email de confirmation à `contact@lfd-rochechouart.com`.
+   Cliquez le lien qu'il contient.
+4. Les envois suivants arrivent normalement.
+
+Tant que l'étape 3 n'est pas faite, le visiteur tombe sur une page d'erreur FormSubmit.
+
+### Après activation : masquer l'adresse
+
+L'email du cabinet figure en clair dans le `action` du formulaire, donc exposé aux
+robots collecteurs. Une fois l'activation faite, FormSubmit fournit un **endpoint
+haché** (`https://formsubmit.co/<chaîne>`). Remplacez la constante `FORMSUBMIT` en tête
+de `build-observatoire.py` par cette URL et relancez le script.
+
+### Ancienne zone de dépôt de fichiers
 
 Section `#analyse`, présente sur l’accueil et sur le comparateur, et cible du bouton
 d’en-tête. Glisser-déposer ou sélection de fichiers, PDF / PNG / JPEG, 10 Mo et 3 fichiers au
@@ -109,6 +138,35 @@ n’est jamais perdue. Un pot de miel (`#dz-company`) bloque les robots.
 ajouter côté serveur la validation du type réel, une limite de taille, un stockage hors
 racine web et une purge. À faire valider par la conformité, un DIC pouvant contenir des
 données personnelles.
+
+## Logos des émetteurs
+
+Chaque fiche émetteur comporte un emplacement logo. **Aucun logo n'est livré** : ce sont
+des marques déposées dont la reproduction relève d'une décision de l'éditeur. En
+l'absence de fichier, une plaque typographique affiche le nom dans le serif du site, ce
+qui conserve la mise en page.
+
+Pour les intégrer, déposez un fichier par émetteur dans `observatoire/assets/logos/`,
+nommé d'après son identifiant (`bnp-paribas.svg`, `societe-generale.svg`…), puis
+relancez le script : il détecte les fichiers et remplace les plaques. La liste exacte des
+identifiants attendus s'affiche à chaque génération. Voir
+`observatoire/assets/logos/LISEZ-MOI.txt` pour les recommandations et la question des
+droits.
+
+## Intégrer de vraies fiches produits
+
+`observatoire/data/produits-reels.csv` est lu à chaque génération. Vide (en-tête seul)
+par défaut : le comparateur n'affiche alors que les gabarits pédagogiques.
+
+Chaque ligne ajoutée devient une fiche complète — ISIN, documents réglementaires, dates
+de commercialisation, nominal minimum — placée **en tête du comparateur** et marquée
+« Offre réelle ». Le volume n'est pas limité. Les colonnes obligatoires sont `nom`,
+`famille`, `emetteur` et `maturite` ; une ligne incomplète est ignorée avec un
+avertissement. Format détaillé dans `observatoire/data/LISEZ-MOI.txt`.
+
+L'ordre d'affichage par défaut (offres réelles d'abord, puis note décroissante) est
+défini par `tri_initial()` côté générateur **et reproduit à l'identique dans `obs.js`** :
+toute divergence provoquerait un saut visuel à l'hydratation.
 
 ## ⚠️ Nature du catalogue de produits
 

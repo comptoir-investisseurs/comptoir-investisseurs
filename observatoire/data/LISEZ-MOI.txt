@@ -1,0 +1,68 @@
+INTÉGRER DE VRAIES FICHES PRODUITS
+===================================
+
+produits-reels.csv contient aujourd'hui son seul en-tête : le comparateur
+n'affiche donc que les gabarits pédagogiques livrés avec le site.
+
+Dès qu'une ligne est ajoutée, elle devient une fiche produit complète, placée
+EN TÊTE du comparateur et marquée « Offre réelle ». Relancez ensuite :
+
+    python3 build-observatoire.py
+
+Il n'y a pas de limite de volume : quelques lignes comme plusieurs centaines.
+
+COLONNES
+  Obligatoires : nom, famille, emetteur, maturite
+  Tout le reste est facultatif ; une colonne vide est simplement masquée.
+
+  isin ................ code ISIN, affiché sous le nom et dans le détail
+  nom ................. intitulé commercial de la souche
+  famille ............. doit correspondre à une famille existante
+                        (Autocall Phoenix, Athéna, Reverse Convertible, etc.)
+  emetteur ............ entité émettrice réelle, telle qu'au DIC
+  emetteur_rating ..... ex. « A+ / Aa3 / A+ »
+  format .............. ex. « EMTN senior preferred »
+  sous_jacent ......... ex. « EURO STOXX 50 »
+  sj_type ............. catégorie de filtre (Indice actions, Action, Taux…)
+  devise .............. EUR, USD…
+  coupon .............. 9,5 ou 9.5 ou 9,5%  → interprété comme 9,5 % par an
+  frequence ........... Trimestrielle, Semestrielle, Annuelle…
+  b_coupon ............ barrière de coupon, ex. 60%
+  b_capital ........... barrière de capital, ex. 50%  (vide = capital protégé)
+  b_autocall .......... seuil de rappel, ex. 100%
+  decrement ........... décrément du seuil de rappel par constatation, ex. 5%
+  non_call ............ période de non-rappel, en mois
+  maturite ............ en années
+  memoire ............. oui / non
+  sri ................. 1 à 7
+  frais ............... texte libre
+  enveloppes .......... séparées par | ex. Assurance-vie|Compte-titres|PER
+  statut .............. En commercialisation | Clôturé | …
+  date_strike ......... texte libre, ex. 28/11/2026
+  date_fin ............ fin de commercialisation
+  nominal_min ......... ex. 1 000 €
+  doc_dic ............. URL du document d'informations clés
+  doc_termsheet ....... URL de la fiche technique
+  mecanisme ........... description du fonctionnement (texte)
+  sc_fav / sc_med / sc_def ... les trois scénarios
+  attention ........... points de vigilance, séparés par |
+  tags ................ mots-clés, séparés par |
+  note ................ 1 à 5, issue de votre grille d'analyse
+
+FORMATS ACCEPTÉS
+  Les pourcentages s'écrivent indifféremment 60%, 0,6 ou 0.6 — mais « 60 »
+  sans signe % serait lu comme 6 000 %. En cas de doute, mettez le %.
+  Les listes utilisent la barre verticale |, jamais la virgule.
+  Encodage UTF-8. Un export tableur en « CSV UTF-8 » convient.
+
+CONTRÔLES
+  Une ligne dont une colonne obligatoire est vide est ignorée, avec un
+  avertissement affiché à la génération. Le nombre de fiches réellement
+  chargées est indiqué en fin d'exécution.
+
+⚠️ RESPONSABILITÉ
+  Ces fiches deviennent des informations publiques sur des produits
+  financiers nommément identifiés. N'y reportez que des données issues du
+  DIC et des conditions définitives de l'émetteur, et tenez les dates de
+  commercialisation à jour : une souche clôturée affichée comme ouverte
+  induirait le lecteur en erreur.

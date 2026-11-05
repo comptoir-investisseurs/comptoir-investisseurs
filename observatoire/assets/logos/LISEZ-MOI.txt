@@ -1,0 +1,37 @@
+LOGOS DES ÉMETTEURS
+===================
+
+Déposez ici un fichier par émetteur, nommé d'après son identifiant (slug) :
+
+    bnp-paribas.svg
+    societe-generale.svg
+    credit-agricole-cib.svg
+    natixis.svg
+    ...
+
+Formats acceptés, par ordre de préférence : .svg, puis .png, puis .webp.
+Le générateur détecte automatiquement le fichier et remplace la plaque
+typographique par le logo. Relancez ensuite :
+
+    python3 build-observatoire.py
+
+La liste exacte des identifiants attendus est affichée à chaque exécution
+du script, sous « logos émetteurs ».
+
+RECOMMANDATIONS D'INTÉGRATION
+  - Logo monochrome foncé de préférence, sur fond transparent : il s'affiche
+    sur fond blanc cassé et doit rester lisible.
+  - Hauteur utile d'environ 28 px ; prévoyez une marge interne dans le SVG.
+  - Évitez les logos avec baseline ou slogan : trop petits pour être lus.
+
+⚠️ DROITS
+  Les logos sont des marques déposées appartenant à leurs titulaires. Leur
+  reproduction à des fins d'identification (usage nominatif et descriptif,
+  pour désigner l'émetteur dont il est question) est généralement admise,
+  mais l'œuvre graphique elle-même reste protégée par le droit d'auteur.
+  Avant mise en ligne commerciale, vérifiez les conditions d'utilisation
+  publiées par chaque établissement, qui diffusent souvent une charte de
+  marque précisant les usages autorisés.
+
+  C'est la raison pour laquelle aucun logo n'est livré par défaut : le choix
+  de les intégrer, et la vérification des droits, vous appartiennent.
