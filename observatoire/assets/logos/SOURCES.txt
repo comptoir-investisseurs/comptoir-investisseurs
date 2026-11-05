@@ -9,35 +9,57 @@ libre. L'usage fait ici est nominatif : il désigne l'émetteur dont il
 est question. C'est généralement admis, mais la décision de publier
 relève de l'éditeur.
 
-Goldman Sachs
-  fichier : goldman-sachs.svg
-  source  : File:Goldman Sachs.svg
+Crédit Agricole CIB
+  fichier : credit-agricole-cib.svg
+  source  : File:CréditAgricoleCIB logo.svg
   licence : Public domain
-  auteur  : The original uploader was Weatherman1126 at English Wikipedi
-Barclays
-  fichier : barclays.svg
-  source  : File:Barclays-Logo.svg
-  licence : CC0
-  auteur  : Squy2019
+  auteur  : Crédit Agricole Corporate and Investment Bank
+J.P. Morgan
+  fichier : j-p-morgan.svg
+  source  : File:Bank of America logo.svg
+  licence : Public domain
+  auteur  : Bank of America
+Bank of America
+  fichier : bank-of-america.svg
+  source  : File:Bank of America 1998.svg
+  licence : Public domain
+  auteur  : Bank of America
+Deutsche Bank
+  fichier : deutsche-bank.svg
+  source  : File:Deutsche Bank logo.svg
+  licence : Public domain
+  auteur  : Deutsche Bank AG, entworfen von Anton Stankowski 1973/74
+Banco Santander
+  fichier : banco-santander.svg
+  source  : File:Banco Santander Logotipo.svg
+  licence : Public domain
+  auteur  : Interbrand (Madrid office)[1]
+BBVA
+  fichier : bbva.svg
+  source  : File:BBVA 2019.svg
+  licence : Public domain
+  auteur  : Banco de Bilbao Vizcaya Argentaria (BBVA)
+ING
+  fichier : ing.svg
+  source  : File:ING Group (wordmark).svg
+  licence : Public domain
+  auteur  : ING Group
+Nomura
+  fichier : nomura.svg
+  source  : File:Nomura Holdings logo.svg
+  licence : Public domain
+  auteur  : Unknown authorUnknown author
 
 SANS LOGO (plaque typographique conservée)
   · BNP Paribas
   · Société Générale
-  · Crédit Agricole CIB
   · Natixis
   · Crédit Mutuel / CIC
-  · J.P. Morgan
   · Morgan Stanley
   · Citigroup
-  · Bank of America
   · HSBC
   · UBS
-  · Deutsche Bank
   · UniCredit
   · Intesa Sanpaolo
-  · Banco Santander
-  · BBVA
-  · ING
   · Leonteq
   · Vontobel
-  · Nomura
