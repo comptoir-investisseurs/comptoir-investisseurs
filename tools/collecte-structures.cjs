@@ -51,9 +51,15 @@ const SITES = {
     cible: 'https://keyops.equitim.com/structured-products/all-structured-products',
     user: 'EQUITIM_USER',
     pass: 'EQUITIM_PASS',
-    // Sélecteurs à renseigner après un `discover` sur la page de connexion.
-    selUser: '', selPass: '', selSubmit: '',
-    // Indice que la connexion a réussi (sélecteur présent une fois dedans).
+    // Application Ionic : les champs n'ont ni id ni placeholder, seulement
+    // un name généré (ion-input-0 = identifiant, ion-input-1 = mot de passe).
+    selUser: 'input[name="ion-input-0"]',
+    selPass: 'input[name="ion-input-1"]',
+    selSubmit: 'ion-button:has-text("Se connecter")',
+    // Bandeau cookies à écarter avant de pouvoir cliquer le formulaire.
+    avantLogin: ['a:has-text("Refuser les cookies")'],
+    // La connexion est réussie dès que l'URL quitte le chemin de login.
+    marqueurLogin: '/authentication/login',
     selConnecte: '',
   },
   irbis: {
@@ -62,7 +68,13 @@ const SITES = {
     cible: 'https://irbismap.irbis-finance.com/',
     user: 'IRBIS_USER',
     pass: 'IRBIS_PASS',
-    selUser: '', selPass: '', selSubmit: '',
+    // Formulaire ASP.NET classique, avec jeton anti-CSRF posté par le
+    // navigateur : rien de particulier à gérer.
+    selUser: '#Login',
+    selPass: '#Password',
+    selSubmit: 'button[type=submit]',
+    avantLogin: [],
+    marqueurLogin: '/Authentication/Login',
     selConnecte: '',
   },
 };
@@ -189,15 +201,29 @@ async function login(cle) {
   const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });
   const pg = await ctx.newPage();
   await pg.goto(s.loginUrl, { waitUntil: 'networkidle', timeout: 45000 });
+
+  // Bandeaux de consentement : ils recouvrent parfois le formulaire.
+  for (const sel of s.avantLogin || []) {
+    const el = pg.locator(sel).first();
+    if (await el.count() && await el.isVisible().catch(() => false)) {
+      await el.click().catch(() => {});
+      await pg.waitForTimeout(500);
+    }
+  }
+
   await pg.fill(s.selUser, u);
   await pg.fill(s.selPass, p);
   await Promise.all([
     pg.waitForLoadState('networkidle', { timeout: 45000 }).catch(() => {}),
     pg.click(s.selSubmit),
   ]);
-  await pg.waitForTimeout(2500);
+  await pg.waitForTimeout(3500);
 
-  const ok = s.selConnecte ? await pg.locator(s.selConnecte).count() > 0 : true;
+  let ok;
+  if (s.selConnecte) ok = await pg.locator(s.selConnecte).count() > 0;
+  else if (s.marqueurLogin) ok = !pg.url().toLowerCase().includes(s.marqueurLogin.toLowerCase());
+  else ok = true;
+  console.log(`  URL après envoi : ${pg.url()}`);
   await mkdir(SORTIES, { recursive: true });
   await pg.screenshot({ path: path.join(SORTIES, `login-${cle}.png`), fullPage: true });
 
