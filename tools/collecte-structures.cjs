@@ -146,7 +146,9 @@ async function discover(url) {
   const b = await navigateur();
   const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });
   const pg = await ctx.newPage();
-  await pg.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
+  await pg.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await pg.waitForLoadState('networkidle', { timeout: 12000 }).catch(() => {});
+  await pg.waitForTimeout(1500);
 
   const infos = await pg.evaluate(() => {
     const vis = (el) => {
@@ -197,10 +199,20 @@ async function login(cle) {
     if (!s[champ]) throw new Error(`sélecteur ${champ} non renseigné — lancez d’abord « discover ${s.loginUrl} »`);
   }
 
+  const trace = (m) => console.log(`  → ${m}`);
+
+  trace('lancement du navigateur');
   const b = await navigateur();
   const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });
   const pg = await ctx.newPage();
-  await pg.goto(s.loginUrl, { waitUntil: 'networkidle', timeout: 45000 });
+
+  // `networkidle` ne se produit jamais sur ces applications, qui gardent des
+  // connexions ouvertes : on attend le DOM, puis le champ identifiant.
+  trace(`ouverture de ${s.loginUrl}`);
+  await pg.goto(s.loginUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  trace(`page chargée — ${pg.url()}`);
+  await pg.waitForSelector(s.selUser, { timeout: 25000 });
+  trace('champ identifiant présent');
 
   // Bandeaux de consentement : ils recouvrent parfois le formulaire.
   for (const sel of s.avantLogin || []) {
@@ -208,24 +220,34 @@ async function login(cle) {
     if (await el.count() && await el.isVisible().catch(() => false)) {
       await el.click().catch(() => {});
       await pg.waitForTimeout(500);
+      trace('bandeau de consentement écarté');
     }
   }
 
   await pg.fill(s.selUser, u);
   await pg.fill(s.selPass, p);
-  await Promise.all([
-    pg.waitForLoadState('networkidle', { timeout: 45000 }).catch(() => {}),
-    pg.click(s.selSubmit),
-  ]);
-  await pg.waitForTimeout(3500);
+  trace('identifiants saisis');
+  await pg.click(s.selSubmit, { timeout: 15000 });
+  trace('bouton de connexion cliqué');
+
+  // On attend que l'adresse quitte le chemin de login, avec une borne : un
+  // échec d'identifiants laisse l'URL inchangée et ne doit pas bloquer.
+  const marq = (s.marqueurLogin || '').toLowerCase();
+  if (marq) {
+    await pg.waitForURL((url) => !url.toString().toLowerCase().includes(marq),
+                        { timeout: 25000 }).catch(() => {});
+  }
+  await pg.waitForTimeout(2500);
 
   let ok;
   if (s.selConnecte) ok = await pg.locator(s.selConnecte).count() > 0;
   else if (s.marqueurLogin) ok = !pg.url().toLowerCase().includes(s.marqueurLogin.toLowerCase());
   else ok = true;
   console.log(`  URL après envoi : ${pg.url()}`);
+  trace('capture de l’état final');
   await mkdir(SORTIES, { recursive: true });
-  await pg.screenshot({ path: path.join(SORTIES, `login-${cle}.png`), fullPage: true });
+  await pg.screenshot({ path: path.join(SORTIES, `login-${cle}.png`), fullPage: true })
+    .catch((e) => console.log(`  (capture impossible : ${e.message.slice(0, 60)})`));
 
   if (!ok) {
     console.log(`✗ Connexion non confirmée. Voir ${SORTIES}/login-${cle}.png`);
@@ -258,8 +280,11 @@ async function dump(cle, url, sortie) {
       try { api.push({ url: r.url(), corps: await r.json() }); } catch {}
     }
   });
-  await pg.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
-  await pg.waitForTimeout(2500);
+  await pg.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  // Laisse le temps aux appels de données de revenir, sans exiger le repos
+  // réseau complet, qui n'arrive jamais sur ces applications.
+  await pg.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+  await pg.waitForTimeout(4000);
 
   await mkdir(SORTIES, { recursive: true });
   const base = path.join(SORTIES, sortie || `dump-${cle}`);
