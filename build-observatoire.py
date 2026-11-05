@@ -11,7 +11,7 @@ Un gabarit unique garantit l'homogénéité en-tête / pied de page / SEO.
 
 Les feuilles obs.css / obs.js sont écrites à la main (non régénérées ici).
 """
-import os, html, json, datetime, urllib.parse
+import os, html, json, datetime, urllib.parse, hashlib
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, "observatoire")
@@ -67,6 +67,26 @@ NAV = [
 
 def e(s):
     return html.escape(str(s), quote=True)
+
+# --------------------------------------------------------------------------
+#  Cache-busting
+# --------------------------------------------------------------------------
+# Le .htaccess demande aux navigateurs de garder CSS et JS sept jours. Sans
+# empreinte dans l'URL, une mise à jour du style n'atteint jamais un visiteur
+# déjà venu : il garde l'ancienne feuille et voit une page cassée. On suffixe
+# donc chaque ressource par un condensé de son contenu.
+_EMPREINTES = {}
+
+def v(rel):
+    """`assets/obs.css` -> `assets/obs.css?v=a1b2c3d4` (condensé du fichier)."""
+    if rel not in _EMPREINTES:
+        chemin = os.path.join(OUT, rel)
+        try:
+            with open(chemin, "rb") as f:
+                _EMPREINTES[rel] = hashlib.sha256(f.read()).hexdigest()[:8]
+        except OSError:
+            _EMPREINTES[rel] = "0"
+    return f"{rel}?v={_EMPREINTES[rel]}"
 
 def url_abs(path):
     """URL absolue d'une page, à partir de son chemin dans observatoire/.
@@ -196,7 +216,7 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
 <link rel="apple-touch-icon" href="{pfx}../assets/img/apple-touch-icon.png">
 <link rel="preload" href="{pfx}assets/fonts/CormorantGaramond-500-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{pfx}assets/fonts/Jost-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{pfx}assets/obs.css">
+<link rel="stylesheet" href="{pfx}{v("assets/obs.css")}">
 {jsonld_block(graph)}{extra_head}
 </head>
 <body>
@@ -311,8 +331,8 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
   </div>
 </footer>
 
-<script src="{pfx}assets/data.js"></script>
-<script src="{pfx}assets/obs.js"></script>{extra_js}
+<script src="{pfx}{v("assets/data.js")}"></script>
+<script src="{pfx}{v("assets/obs.js")}"></script>{extra_js}
 </body>
 </html>
 """
@@ -1609,7 +1629,7 @@ def bloc_structurer():
           <input type="tel" id="sm-tel" name="Téléphone" autocomplete="tel"></div>
       </div>
 
-      <div class="sm-grid" style="margin-top:14px">
+      <div class="sm-grid" style="margin-top:12px">
         <div class="field"><label for="sm-montant">Montant envisagé</label>
           <select id="sm-montant" name="Montant envisagé">
             <option value="">À préciser</option>
@@ -1647,10 +1667,10 @@ def bloc_structurer():
           </select></div>
       </div>
 
-      <div class="field" style="margin-top:14px">
+      <div class="field" style="margin-top:12px">
         <label for="sm-msg">Précisions</label>
-        <textarea id="sm-msg" name="Précisions" rows="3"
-          placeholder="Sous-jacent souhaité, niveau de protection recherché, contraintes particulières — ou simplement vos questions."></textarea>
+        <textarea id="sm-msg" name="Précisions" rows="2"
+          placeholder="Sous-jacent, niveau de protection, contraintes — ou vos questions."></textarea>
       </div>
 
       <div class="sm-foot">
@@ -1658,16 +1678,11 @@ def bloc_structurer():
         <p class="sm-note" style="margin:0">Réponse sous deux jours ouvrés.</p>
       </div>
 
-      <p class="sm-note">
-        Vos réponses nous parviennent via <strong>FormSubmit</strong>, un service tiers qui
-        relaie le message à {EMAIL} sans le conserver durablement. Aucune donnée n’est stockée
-        par ce site. Vous pouvez aussi écrire directement à
-        <a href="mailto:{EMAIL}">{EMAIL}</a>.
-      </p>
       <p class="sm-note xsmall">
-        Cette demande n’engage à rien et ne constitue pas une souscription. Toute
-        recommandation suppose au préalable un examen de votre situation, de vos objectifs,
-        de vos connaissances et de votre capacité à supporter une perte.
+        Envoi via <strong>FormSubmit</strong>, service tiers qui relaie le message à
+        <a href="mailto:{EMAIL}">{EMAIL}</a> ; ce site ne stocke aucune donnée. Cette demande
+        n’engage à rien et ne constitue pas une souscription : toute recommandation suppose
+        un examen préalable de votre situation et de vos objectifs.
       </p>
     </form>
   </div>

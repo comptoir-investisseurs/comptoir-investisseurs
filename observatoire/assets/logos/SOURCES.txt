@@ -1,0 +1,43 @@
+LOGOS DES ÉMETTEURS — ORIGINE ET LICENCES
+=========================================
+
+Téléchargés depuis Wikimedia Commons, en ne retenant que les fichiers
+en domaine public ou sous licence Creative Commons.
+
+⚠️ Un logo reste une marque déposée même quand l'œuvre graphique est
+libre. L'usage fait ici est nominatif : il désigne l'émetteur dont il
+est question. C'est généralement admis, mais la décision de publier
+relève de l'éditeur.
+
+Goldman Sachs
+  fichier : goldman-sachs.svg
+  source  : File:Goldman Sachs.svg
+  licence : Public domain
+  auteur  : The original uploader was Weatherman1126 at English Wikipedi
+Barclays
+  fichier : barclays.svg
+  source  : File:Barclays-Logo.svg
+  licence : CC0
+  auteur  : Squy2019
+
+SANS LOGO (plaque typographique conservée)
+  · BNP Paribas
+  · Société Générale
+  · Crédit Agricole CIB
+  · Natixis
+  · Crédit Mutuel / CIC
+  · J.P. Morgan
+  · Morgan Stanley
+  · Citigroup
+  · Bank of America
+  · HSBC
+  · UBS
+  · Deutsche Bank
+  · UniCredit
+  · Intesa Sanpaolo
+  · Banco Santander
+  · BBVA
+  · ING
+  · Leonteq
+  · Vontobel
+  · Nomura
