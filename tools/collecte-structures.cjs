@@ -45,18 +45,21 @@ const SORTIES = 'tools/collecte';
 const SITES = {
   equitim: {
     nom: 'Equitim — KEY-OPS',
-    // À compléter après `discover` : URL de connexion réelle.
-    loginUrl: process.env.EQUITIM_LOGIN_URL || '',
+    // L'application redirige vers sa page de connexion si la session manque.
+    loginUrl: process.env.EQUITIM_LOGIN_URL || 'https://keyops.equitim.com/',
+    // Page qui porte la liste des produits, une fois connecté.
+    cible: 'https://keyops.equitim.com/structured-products/all-structured-products',
     user: 'EQUITIM_USER',
     pass: 'EQUITIM_PASS',
-    // Sélecteurs à renseigner après inspection de la page.
+    // Sélecteurs à renseigner après un `discover` sur la page de connexion.
     selUser: '', selPass: '', selSubmit: '',
-    // Indice que la connexion a réussi (sélecteur présent après login).
+    // Indice que la connexion a réussi (sélecteur présent une fois dedans).
     selConnecte: '',
   },
   irbis: {
     nom: 'Irbis Finance — IRBIS MAP',
-    loginUrl: process.env.IRBIS_LOGIN_URL || '',
+    loginUrl: process.env.IRBIS_LOGIN_URL || 'https://irbismap.irbis-finance.com/',
+    cible: 'https://irbismap.irbis-finance.com/',
     user: 'IRBIS_USER',
     pass: 'IRBIS_PASS',
     selUser: '', selPass: '', selSubmit: '',
@@ -100,7 +103,13 @@ async function doctor() {
 
   console.log('\n— Réseau —');
   const hotes = [];
-  for (const s of Object.values(SITES)) if (s.loginUrl) hotes.push(new URL(s.loginUrl).host);
+  for (const s of Object.values(SITES)) {
+    for (const u of [s.loginUrl, s.cible]) {
+      if (!u) continue;
+      const h = new URL(u).host;
+      if (!hotes.includes(h)) hotes.push(h);
+    }
+  }
   if (!hotes.length) console.log('  (aucune URL de connexion renseignée : rien à tester)');
   const b = await navigateur();
   for (const h of hotes) {
@@ -210,6 +219,7 @@ async function dump(cle, url, sortie) {
   if (!s) throw new Error(`site inconnu : ${cle}`);
   const etat = path.join(SESSIONS, `${cle}.json`);
   if (!(await existe(etat))) throw new Error(`pas de session : lancez d’abord « login ${cle} »`);
+  url = url || s.cible;
   if (!url) throw new Error('usage : dump <site> <url> [fichier]');
 
   const b = await navigateur();
