@@ -72,7 +72,9 @@ const SITES = {
     // navigateur : rien de particulier à gérer.
     selUser: '#Login',
     selPass: '#Password',
-    selSubmit: 'button[type=submit]',
+    // Le bouton ne porte PAS d'attribut type : `button[type=submit]` ne le
+    // trouve pas, même si la propriété DOM vaut « submit » par défaut.
+    selSubmit: 'button.irbis-auth-primary-btn, button:has-text("JE ME CONNECTE")',
     avantLogin: [],
     marqueurLogin: '/Authentication/Login',
     selConnecte: '',
@@ -156,8 +158,14 @@ async function discover(url) {
       return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
     };
     const decrire = (el) => ({
-      tag: el.tagName.toLowerCase(), type: el.type || '', name: el.name || '',
-      id: el.id || '', placeholder: el.placeholder || '',
+      tag: el.tagName.toLowerCase(),
+      // ATTRIBUT, pas propriété : un <button> sans attribut type expose
+      // quand même type === 'submit', ce qui ferait écrire un sélecteur
+      // `button[type=submit]` qui ne correspond à rien.
+      typeAttr: el.getAttribute('type'),
+      cls: (el.className || '').toString().slice(0, 60),
+      name: el.getAttribute('name') || '',
+      id: el.id || '', placeholder: el.getAttribute('placeholder') || '',
       aria: el.getAttribute('aria-label') || '',
       texte: (el.innerText || el.value || '').trim().slice(0, 60),
       visible: vis(el),
@@ -171,8 +179,15 @@ async function discover(url) {
       })),
       champsHorsForm: [...document.querySelectorAll('input,select')]
         .filter((e) => !e.closest('form')).map(decrire),
-      boutons: [...document.querySelectorAll('button,[role=button],input[type=submit]')]
-        .map(decrire).filter((x) => x.visible).slice(0, 15),
+      boutons: [...document.querySelectorAll(
+        'button,[role=button],input[type=submit],a[class*=btn],*[class*=submit]')]
+        .map(decrire).filter((x) => x.visible).slice(0, 20),
+      // Composants personnalisés (Ionic, Vue, Web Components) : invisibles
+      // aux sélecteurs HTML classiques.
+      composants: [...document.querySelectorAll('*')]
+        .filter((e) => e.tagName.includes('-'))
+        .filter((e) => /button|submit|btn/i.test(e.tagName))
+        .map(decrire).filter((x) => x.visible).slice(0, 10),
       cadres: [...document.querySelectorAll('iframe')].map((f) => f.src).slice(0, 5),
     };
   });

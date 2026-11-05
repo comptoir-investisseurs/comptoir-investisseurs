@@ -459,13 +459,13 @@ FAMILLES = [
          "Documentation plus technique, donc plus difficile à comparer"],
  ),
  dict(
-  slug="indice-decrement", nom="Indice décrément", profil="Ce que nous ne retenons pas",
-  exclu=True,
-  resume="Le sous-jacent n’est pas un indice de marché mais un indice construit par l’émetteur, auquel on retranche un dividende forfaitaire chaque année. C’est le socle de la majorité des structures distribuées en France — et la raison pour laquelle nous n’en référençons aucune.",
+  slug="indice-decrement", nom="Indice décrément", profil="À repérer et à mesurer",
+  filtre=("statut", "Indice décrément"),
+  resume="Le sous-jacent n’est pas un indice de marché mais un indice construit par l’émetteur, auquel on retranche un dividende forfaitaire chaque année. C’est le socle de la majorité des structures distribuées en France : le comparateur en recense, et signale chacune d’elles comme telle.",
   mecanisme=[
     "Un indice décrément reproduit un panier d’actions en réinvestissant les dividendes réels, puis en déduisant un prélèvement fixe : soit un pourcentage annuel (par exemple 5 % par an), soit un montant en points d’indice (par exemple 50 points par an).",
     "L’émetteur connaît ainsi à l’avance le flux de dividendes, ce qui lui permet d’afficher des coupons et des barrières plus généreux. La contrepartie est mécanique : si les dividendes réels du panier sont inférieurs au décrément, l’indice progresse structurellement moins vite que l’indice de référence classique. Le décrément en points est particulièrement pénalisant lorsque l’indice baisse, puisque le prélèvement reste constant en valeur absolue au moment même où l’investisseur a besoin que l’indice se maintienne au-dessus de ses barrières.",
-    "<strong>Notre position.</strong> Un décrément n’est pas défavorable en soi : correctement calibré — c’est-à-dire proche du rendement du dividende réel du panier — et suffisamment rémunéré en coupon, c’est un arbitrage défendable. Nous avons néanmoins retenu, pour ce comparateur, de ne référencer que des indices publics : leur méthodologie est consultable et leur cotation vérifiable chaque jour, ce qui permet au souscripteur de suivre son placement sans dépendre de son distributeur. Ce choix a un coût, de l’ordre d’un à deux points de coupon à barrières identiques, que nous assumons.",
+    "<strong>Notre position.</strong> Un décrément n’est pas défavorable en soi : correctement calibré — c’est-à-dire proche du rendement du dividende réel du panier — et suffisamment rémunéré en coupon, c’est un arbitrage défendable. Nous les signalons donc plutôt que de les écarter : la nature du sous-jacent figure sur chaque fiche du comparateur et sert de filtre. À vous de décider si le surcroît de coupon obtenu compense le prélèvement — les trois vérifications ci-dessous suffisent à trancher.",
   ],
   pour="Un investisseur capable de rapporter le prélèvement au rendement du dividende réel du panier, et d’en vérifier la contrepartie en coupon. Cette fiche sert à reconnaître un décrément dans une documentation et à en mesurer le coût.",
   plus=["Permet d’afficher des coupons et des barrières plus attractifs",
@@ -816,7 +816,7 @@ def P(nom, famille, emetteur, rating, sj, sj_type, coupon, freq, bc, bk, ac,
                 devise=devise, coupon=coupon, frequence=freq, b_coupon=bc,
                 b_capital=bk, b_autocall=ac, decrement=decrement, non_call=non_call,
                 maturite=maturite, memoire=memoire, sri=sri, frais=frais,
-                enveloppes=list(enveloppes), statut="Gabarit de référence", note=note,
+                enveloppes=list(enveloppes), statut="Indice public", note=note,
                 mecanisme=mecanisme, sc_fav=sc_fav, sc_med=sc_med, sc_def=sc_def,
                 attention=list(attention), tags=list(tags), format=format)
 
@@ -1984,7 +1984,7 @@ def page_produits():
           </select></div>
         <div class="field"><label for="f-env">Enveloppe</label><select id="f-env"></select></div>
         <div class="field"><label for="f-dev">Devise</label><select id="f-dev"></select></div>
-        <div class="field"><label for="f-statut">Nature</label><select id="f-statut"></select></div>
+        <div class="field"><label for="f-statut">Sous-jacent</label><select id="f-statut"></select></div>
       </div>
       <div class="filters__foot">
         <span class="filters__count" id="f-count" aria-live="polite"></span>
@@ -2358,9 +2358,11 @@ def volet_familles():
         mec = "\n          ".join(f"<p>{m}</p>" for m in f["mecanisme"])
         plus = "\n            ".join(f"<li>{x}</li>" for x in f["plus"])
         moins = "\n            ".join(f"<li>{x}</li>" for x in f["moins"])
-        if f.get("exclu"):
-            cta = ('<span class="tag" style="border-color:var(--neg);color:var(--neg)">'
-                   'Aucune structure de ce type au comparateur</span>')
+        if f.get("filtre"):
+            # Certaines fiches décrivent un type de sous-jacent, pas une
+            # famille : le lien porte alors sur le bon critère.
+            q = urllib.parse.urlencode(dict([f["filtre"]]))
+            cta = f'<a class="btn btn--sm" href="produits.html?{q}">Voir les structures concernées</a>'
         else:
             q = urllib.parse.urlencode({"famille": html.unescape(f["nom"])})
             cta = f'<a class="btn btn--sm" href="produits.html?{q}">Voir les structures de cette famille</a>'
@@ -2788,7 +2790,7 @@ def page_acteurs():
 def page_methodologie():
     crit = [
         ("Nature du sous-jacent", 25,
-         "Nous retenons des indices publics, calculés par un fournisseur indépendant et cotés quotidiennement, ou des actions cotées. Les structures sur indice décrément sont hors du périmètre de ce comparateur — par choix de lisibilité, et non parce qu’elles seraient par nature moins performantes : un décrément proche du rendement du dividende réel et correctement rémunéré reste un arbitrage défendable."),
+         "Indice public coté quotidiennement, action cotée, ou indice décrément : la nature du sous-jacent est affichée sur chaque fiche et filtrable. Un décrément n’est pas disqualifiant en soi ; nous examinons son niveau au regard du rendement du dividende réel du panier et du surcroît de coupon obtenu en échange."),
         ("Qualité de la signature", 20,
          "Notation des trois agences sur la dette senior de l’entité émettrice réelle, perspective associée, et identité du garant. Une notation inférieure à la catégorie investissement disqualifie le produit."),
         ("Profondeur de la protection", 20,
@@ -2820,11 +2822,12 @@ def page_methodologie():
       année. Le procédé est documenté et parfaitement légal. Il a deux conséquences : le
       souscripteur suit plus difficilement son sous-jacent, et l’écart avec l’indice de référence
       se creuse si le prélèvement excède le dividende réel du panier.</p>
-      <p><strong>Nous n’en référençons aucun dans ce comparateur.</strong> Toutes les structures
-      reposent sur des indices publics ou sur des actions cotées. Le coupon y est financé par les
-      dividendes non réinvestis de l’indice — un mécanisme que n’importe qui peut vérifier. Cela
-      coûte environ un à deux points de coupon à barrières identiques, et permet malgré tout
-      d’atteindre {cmax} % par an sur les profils les plus exposés.</p>
+      <p><strong>Nous les référençons, et nous les signalons.</strong> Chaque structure du
+      comparateur porte la nature de son sous-jacent, et un filtre dédié permet de n’afficher que
+      les indices publics. Nous préférons ce traitement à l’exclusion : un décrément proche du
+      rendement du dividende réel du panier, et correctement rémunéré en coupon, reste un
+      arbitrage défendable. C’est son niveau rapporté à cette contrepartie qui décide, pas le
+      procédé en lui-même.</p>
 
       <h2>La règle seconde : la signature et la protection avant le coupon</h2>
       <p>La plupart des classements de produits structurés ordonnent les offres par niveau de
@@ -2847,9 +2850,9 @@ def page_methodologie():
 
       <h2>Ce que nous écartons par principe</h2>
       <ul>
-        <li><strong>Les indices décrément</strong>, hors périmètre de ce comparateur. Ce n’est
-        pas un verdict sur leur performance : c’est un choix de lisibilité, dont nous mesurons
-        le coût à un ou deux points de coupon. Nous les analysons volontiers sur demande.</li>
+        <li><strong>Les décréments manifestement surdimensionnés</strong>, nettement supérieurs
+        au rendement du dividende historique du panier sans contrepartie de coupon correspondante.
+        Le procédé en lui-même n’est pas écarté : il est signalé et filtrable.</li>
         <li><strong>Les émetteurs en catégorie spéculative.</strong> Aucun supplément de coupon
         ne compense une signature fragile sur un horizon de huit à douze ans.</li>
         <li><strong>Les barrières de capital constatées en continu.</strong> Sur une maturité
@@ -3813,10 +3816,10 @@ comparable.</p>
 Si un décrément de 5 % par an sur un panier dont les dividendes réels valent 3,2 % ne rapporte
 que 0,5 point de coupon supplémentaire, l’arbitrage est défavorable. S’il en rapporte deux,
 il se discute sérieusement.</p>
-<p>Le <a class="inline" href="../../produits.html">comparateur</a> ne référence que des
-structures sur indices publics ; la
-<a class="inline" href="../../methodologie.html">méthodologie</a> explique ce choix et ses
-limites.</p>"""),
+<p>Le <a class="inline" href="../../produits.html">comparateur</a> indique la nature du
+sous-jacent de chaque structure et permet de filtrer sur les seuls indices publics ; la
+<a class="inline" href="../../methodologie.html">méthodologie</a> explique comment nous
+apprécions un décrément.</p>"""),
    ],
    ["indice-decrement", "produit-structure-euro-stoxx-50", "produit-structure"],
    faq=[
@@ -4376,9 +4379,13 @@ def charger_produits_reels():
                 erreurs.append(f"ligne {i} : colonnes obligatoires vides — {', '.join(manque)}")
                 continue
             note = _num(r.get("note")) or 0
+            isin = (r.get("isin") or "").strip().upper()
             out.append(dict(
-                reel=True,
-                isin=(r.get("isin") or "").strip().upper(),
+                # Une fiche n'est une offre réelle que si elle est traçable.
+                # Sans ISIN, elle reste un gabarit pédagogique, quelle que
+                # soit son origine.
+                reel=bool(isin),
+                isin=isin,
                 nom=(r.get("nom") or "").strip(),
                 famille=(r.get("famille") or "").strip(),
                 emetteur=(r.get("emetteur") or "").strip(),
@@ -4400,7 +4407,7 @@ def charger_produits_reels():
                 sri=int(_num(r.get("sri")) or 6),
                 frais=(r.get("frais") or "").strip(),
                 enveloppes=[x.strip() for x in (r.get("enveloppes") or "").split("|") if x.strip()],
-                statut=(r.get("statut") or "En commercialisation").strip(),
+                statut=(r.get("statut") or "Indice public").strip(),
                 date_strike=(r.get("date_strike") or "").strip(),
                 date_fin=(r.get("date_fin") or "").strip(),
                 nominal_min=(r.get("nominal_min") or "").strip(),

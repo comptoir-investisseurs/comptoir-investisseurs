@@ -97,7 +97,7 @@
     fill(els.sj, uniq('sj_type'), 'Tous les sous-jacents');
     fill(els.dev, uniq('devise'), 'Toutes devises');
     fill(els.env, uniq('enveloppes'), 'Toutes enveloppes');
-    fill(els.statut, uniq('statut'), 'Toutes natures');
+    fill(els.statut, uniq('statut'), 'Tous sous-jacents');
 
     function match(p) {
       if (state.fam && p.famille !== state.fam) return false;
@@ -292,7 +292,8 @@
     /* Pré-filtrage par l'URL : produits.html?famille=Phoenix */
     var qs = new URLSearchParams(location.search);
     var ALIAS = { famille: 'fam', emetteur: 'emet', 'sous-jacent': 'sj', enveloppe: 'env' };
-    ['fam', 'emet', 'sj', 'dev', 'env', 'famille', 'emetteur', 'sous-jacent', 'enveloppe'].forEach(function (k) {
+    ['fam', 'emet', 'sj', 'dev', 'env', 'statut',
+     'famille', 'emetteur', 'sous-jacent', 'enveloppe'].forEach(function (k) {
       var v = qs.get(k);
       if (!v) return;
       var key = ALIAS[k] || k;
