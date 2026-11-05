@@ -860,3 +860,56 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
 }
 .section--filigrane > .container{ position:relative; z-index:1; }
 @media (max-width:860px){ .section--filigrane::before{ display:none; } }
+
+/* =========================================================================
+   Identité — monogramme, ondes du bandeau, trait d'or
+   ========================================================================= */
+.brand__mark{
+  width:38px; height:38px; border:0; background:none;
+  display:grid; place-items:center; color:var(--gold); flex:0 0 auto;
+}
+.brand__mark svg{ width:100%; height:100%; display:block; }
+.ftr__brand .brand__mark{ color:var(--gold-soft); }
+.brand__sub{
+  font-size:.70rem; letter-spacing:.12em; text-transform:none;
+  font-family:var(--serif); color:var(--muted);
+}
+.ftr__brand .brand__sub{ color:rgba(255,255,255,.52); }
+
+/* =========================================================================
+   Justification des textes de lecture
+   =========================================================================
+   Uniquement les paragraphes de lecture suivie. Les libellés, cellules de
+   tableau et textes courts restent au fer à gauche : les justifier y
+   creuserait des lézardes. La césure automatique est indispensable en
+   français, où les mots longs sont fréquents.
+   ========================================================================= */
+.prose p,
+.prose li,
+.gl__d,
+.cell p,
+.fam__l p,
+.lead-actor p,
+.issuer > p,
+.notice p,
+.bref li{
+  text-align:justify;
+  text-justify:inter-word;
+  -webkit-hyphens:auto; hyphens:auto;
+  hyphenate-limit-chars:6 3 3;
+}
+/* Jamais de justification là où elle nuit. */
+.prose p.small.muted,
+.hero__lede,
+.center p,
+.card p,
+.scen__row span,
+.sm-note,
+.maj,
+.xsmall,
+.t-sub{ text-align:left; hyphens:manual; }
+@media (max-width:620px){
+  /* Sur colonne étroite la justification crée trop d'espaces : on renonce. */
+  .prose p,.prose li,.gl__d,.cell p,.fam__l p,.lead-actor p,.issuer > p,
+  .notice p,.bref li{ text-align:left; }
+}

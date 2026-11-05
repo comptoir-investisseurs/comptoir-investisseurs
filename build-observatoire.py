@@ -68,6 +68,14 @@ NAV = [
 def e(s):
     return html.escape(str(s), quote=True)
 
+def monogramme():
+    """Le S est inséré en ligne plutôt qu'en <img> : il hérite ainsi de la
+    couleur courante et change de teinte selon le fond, sans second fichier."""
+    with open(os.path.join(OUT, "assets", "img", "monogramme.svg"), encoding="utf-8") as f:
+        return f.read().strip()
+
+
+
 # --------------------------------------------------------------------------
 #  Formes architecturales en filigrane
 # --------------------------------------------------------------------------
@@ -257,10 +265,10 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
 <header class="hdr">
   <div class="container hdr__in">
     <a class="brand" href="{pfx}index.html" aria-label="{e(SITE)} — accueil">
-      <span class="brand__mark" aria-hidden="true">{MARK}</span>
+      <span class="brand__mark" aria-hidden="true">{monogramme()}</span>
       <span class="brand__txt">
         <span class="brand__name">{e(SITE_SHORT)}</span>
-        <span class="brand__sub">des structurés</span>
+        <span class="brand__sub">des Structurés</span>
       </span>
     </a>
     <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
@@ -300,10 +308,10 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
     <div class="ftr__top">
       <div class="ftr__brand">
         <span class="brand">
-          <span class="brand__mark" aria-hidden="true">{MARK}</span>
+          <span class="brand__mark" aria-hidden="true">{monogramme()}</span>
           <span class="brand__txt">
             <span class="brand__name">{e(SITE_SHORT)}</span>
-            <span class="brand__sub">des structurés</span>
+            <span class="brand__sub">des Structurés</span>
           </span>
         </span>
         <p>Un répertoire pédagogique du marché des produits structurés : mécanismes,

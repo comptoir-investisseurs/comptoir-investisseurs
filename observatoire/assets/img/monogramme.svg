@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Le Comptoir des Structurés">
+  <title>Le Comptoir des Structurés</title>
+  <!-- Monogramme « S » : un trait franc, doublé d'un seul écho parallèle.
+       La courbe évoque le profil d'un rendement ; l'écho, la seconde
+       lecture qu'appelle toute formule. Rien de plus, pour rester net
+       en petite taille. -->
+  <g fill="none" stroke="currentColor" stroke-linecap="round">
+    <path d="M45 18.8c-3.6-3.6-8.3-5.5-13.3-5.5-7.9 0-13.6 4.4-13.6 10.6 0 5.6 4.3 8.7 12.4 10.7l3.6 1c6.6 1.7 9.7 3.8 9.7 7.7 0 4.6-4.6 7.6-11.3 7.6-5.4 0-10.1-2-13.5-5.7"
+          stroke-width="3.6"/>
+    <path d="M40.6 26.1c-2.6-2.3-6-3.5-9.6-3.5-4.6 0-7.7 2-7.7 4.9 0 2.7 2.3 4.2 7.3 5.4"
+          stroke-width="1.2" opacity=".45"/>
+  </g>
+</svg>
