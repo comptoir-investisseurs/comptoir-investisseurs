@@ -1294,11 +1294,23 @@
     state.crm = state.crm || {};
     var rec = clientRecord(R), btns = [$('bp-crm-save'), $('bp-crm-save-2')];
     btns.forEach(function (b) { b.disabled = true; b.textContent = 'Enregistrement…'; });
-    ensureLogin().then(function () {
-      // 1. fiche client : mise à jour si déjà rattachée, sinon recherche par email / nom, sinon création
-      var find = state.crm.clientId ? Promise.resolve([{ id: state.crm.clientId }]) :
-        CRM.rest('clients?select=id,stage,type&or=(' + (rec.email ? 'email.eq.' + encodeURIComponent(rec.email) + ',' : '') + 'and(nom.ilike.' + encodeURIComponent(rec.nom) + ',prenom.ilike.' + encodeURIComponent(rec.prenom || '') + '))&limit=1');
-      return find.then(function (rows) {
+    // Trouve/crée la fiche client. L'id mis en cache (state.crm.clientId) peut être
+    // obsolète (fiche supprimée depuis le CRM entretemps) : un PATCH sur un id qui
+    // n'existe plus répond 200 sans toucher aucune ligne — il faut donc vérifier
+    // qu'une ligne est réellement revenue avant de faire confiance au cache, sinon
+    // on « enregistre » dans le vide à chaque clic sans jamais recréer la fiche.
+    function resolveClient() {
+      if (state.crm.clientId) {
+        return CRM.rest('clients?id=eq.' + state.crm.clientId + '&select=id,stage,type', { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(Object.assign({}, rec, { type: undefined })) }).then(function (rows) {
+          if (rows && rows.length) return rows[0].id;
+          state.crm.clientId = null; state.crm.bilanId = null; // fiche + bilan disparus : on repart de zéro
+          return findOrCreateClient();
+        });
+      }
+      return findOrCreateClient();
+    }
+    function findOrCreateClient() {
+      return CRM.rest('clients?select=id,stage,type&or=(' + (rec.email ? 'email.eq.' + encodeURIComponent(rec.email) + ',' : '') + 'and(nom.ilike.' + encodeURIComponent(rec.nom) + ',prenom.ilike.' + encodeURIComponent(rec.prenom || '') + '))&limit=1').then(function (rows) {
         if (rows && rows.length) {
           var existing = rows[0], patch = Object.assign({}, rec);
           delete patch.type; // un client reste client
@@ -1309,7 +1321,8 @@
         rec.stage = CRM.stageR0;
         return CRM.rest('clients', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(rec) }).then(function (rows2) { return rows2[0].id; });
       });
-    }).then(function (clientId) {
+    }
+    ensureLogin().then(resolveClient).then(function (clientId) {
       state.crm.clientId = clientId;
       // 2. le bilan lui-même : données brutes + synthèse chiffrée + points d'attention + fiche sales
       var L = insights(R);
@@ -1320,8 +1333,13 @@
         resume: { rni: R.fisc.rni, tmi: R.fisc.tmi, impot: R.fisc.impotRetenu, actif_brut: R.actifBrut, passif: R.crdTotal, actif_net: R.actifNet, epargne_financiere: R.finTotal, liquidites: R.cats.liquid, rendement_moyen: R.rendMoyen, revenus_mensuels: R.revTotalM, charges_mensuelles: R.chTotalM, endettement_brut: R.endBrut, endettement_diff: R.endDiff, capacite_epargne: R.capaciteEpargne, epargne_reelle: R.epargneActuelle, capital_retraite: R.retraite.capital, capital_projete: R.retraite.epargneProjetee || null, taux_projection: R.profil.taux, profil: state.obj.profil || null, objectifs: state.obj.liste || [] },
         points: L, fiche: salesBrief(R), updated_at: new Date().toISOString()
       };
-      var req = state.crm.bilanId ? CRM.rest('bilans?id=eq.' + state.crm.bilanId, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) }) : CRM.rest('bilans', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) });
-      return req.then(function (rows) { if (rows && rows[0]) state.crm.bilanId = rows[0].id; });
+      // Même logique côté bilan : un bilanId caché qui ne correspond plus à rien
+      // (PATCH à 0 ligne) doit retomber sur une création, pas rester silencieux.
+      var req = state.crm.bilanId ? CRM.rest('bilans?id=eq.' + state.crm.bilanId, { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) }) : Promise.resolve([]);
+      return req.then(function (rows) {
+        if (rows && rows.length) { state.crm.bilanId = rows[0].id; return; }
+        return CRM.rest('bilans', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) }).then(function (rows2) { if (rows2 && rows2[0]) state.crm.bilanId = rows2[0].id; });
+      });
     }).then(function () { save(); toast('Enregistré dans le CRM : prospect en R0 avec son bilan.'); })
       .catch(function (e) { if (e.message !== 'cancel') { console.error(e); toast(e.message === 'auth' ? 'Session expirée : reconnectez-vous.' : 'Erreur d\'enregistrement : ' + e.message, 6000); } })
       .then(function () { btns.forEach(function (b) { b.disabled = false; b.textContent = 'Enregistrer au CRM'; }); });
