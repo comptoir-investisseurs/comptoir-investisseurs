@@ -8,6 +8,21 @@
     'Authorization': 'Bearer ' + (sessionStorage.getItem('sb_access_token') || SUPABASE_ANON_KEY),
     'Content-Type': 'application/json'
   }, extra || {});
+  // Toute requête vers Supabase passe par ici : un token expiré (401) renvoyait
+  // sinon un tableau vide en silence (loadAll) ou échouait sans rien dire
+  // (actions du CRM), laissant croire que des fiches avaient disparu alors que
+  // la session avait simplement expiré. On force la reconnexion à la place.
+  function sbFetch(url, opts){
+    return fetch(url, opts).then(function(r){
+      if(r.status === 401){
+        sessionStorage.removeItem('sb_access_token'); sessionStorage.removeItem('sb_user_email');
+        showLogin();
+        if(loginError){ loginError.textContent = 'Session expirée : reconnectez-vous.'; loginError.style.display = 'block'; }
+        throw new Error('Session Supabase expirée');
+      }
+      return r;
+    });
+  }
 
   // Pipeline commercial, réservé aux prospects : R0 (bilan patrimonial réalisé) → R1 (objectifs et
   // difficultés) → R2 (solutions proposées) → R3 (décision finale). Gagné bascule la fiche en client
@@ -171,13 +186,13 @@
 
   function loadAll(){
     Promise.all([
-      fetch(API + '/clients?select=*&order=created_at.desc', {headers: headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/activities?select=*&order=date_activite.desc', {headers: headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/poles?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/enveloppes?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/supports?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/sp_positions?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
-      fetch(API + '/sp_products?select=isin,lib,fam', {headers: headers()}).then(r => r.ok ? r.json() : [])
+      sbFetch(API + '/clients?select=*&order=created_at.desc', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      sbFetch(API + '/activities?select=*&order=date_activite.desc', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      sbFetch(API + '/poles?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      sbFetch(API + '/enveloppes?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      sbFetch(API + '/supports?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      sbFetch(API + '/sp_positions?select=*', {headers: headers()}).then(r => r.ok ? r.json() : []),
+      sbFetch(API + '/sp_products?select=isin,lib,fam', {headers: headers()}).then(r => r.ok ? r.json() : [])
     ]).then(([c, a, p, e, s, sp, pr]) => {
       contacts = c || []; activities = a || []; poles = p || [];
       enveloppes = e || []; supports = s || []; spPositions = sp || [];
@@ -206,7 +221,7 @@
     if(!name) return Promise.resolve(null);
     const existing = poles.find(p => (p.nom||'').trim().toLowerCase() === name.toLowerCase());
     if(existing) return Promise.resolve(existing.id);
-    return fetch(API + '/poles', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify({nom:name})})
+    return sbFetch(API + '/poles', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify({nom:name})})
       .then(r => r.ok ? r.json() : Promise.reject(r.status)).then(rows => { const p=(rows&&rows[0]); if(p){ poles.push(p); return p.id; } return null; })
       .catch(() => null);
   }
@@ -352,7 +367,7 @@
   function updateStage(id, stage){
     const c = contacts.find(x => x.id === id); if(!c) return;
     Object.assign(c, {stage});
-    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage})})
+    sbFetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage})})
       .catch(err => console.error(err));
     updateStats(); renderPipeline();
   }
@@ -360,7 +375,7 @@
     const c = contacts.find(x => x.id === id); if(!c) return;
     const patch = {stage:'Gagné', type:'client'};
     Object.assign(c, patch);
-    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+    sbFetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
       .catch(err => console.error(err));
     celebrate(fullName(c));
     modal.classList.remove('is-open');
@@ -369,7 +384,7 @@
   function markLost(id){
     const c = contacts.find(x => x.id === id); if(!c) return;
     Object.assign(c, {stage:'Perdu'});
-    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'Perdu'})})
+    sbFetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'Perdu'})})
       .catch(err => console.error(err));
     modal.classList.remove('is-open');
     updateStats(); renderActiveTab();
@@ -377,7 +392,7 @@
   function addToPipeline(id){
     const c = contacts.find(x => x.id === id); if(!c) return;
     Object.assign(c, {stage:'R0'});
-    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'R0'})})
+    sbFetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'R0'})})
       .catch(err => console.error(err));
     modal.classList.remove('is-open');
     updateStats(); renderActiveTab();
@@ -387,7 +402,7 @@
     if(!confirm('Remettre ' + fullName(c) + ' en prospect (étape R3) ?')) return;
     const patch = {type:'prospect', stage:'R3'};
     Object.assign(c, patch);
-    fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+    sbFetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
       .catch(err => console.error(err));
     modal.classList.remove('is-open');
     updateStats(); renderActiveTab();
@@ -453,7 +468,7 @@
       e.stopPropagation();
       const c = contacts.find(x => x.id === btn.dataset.id); if(!c) return;
       Object.assign(c, {stage:'R0'});
-      fetch(API + '/clients?id=eq.' + c.id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'R0'})}).catch(err => console.error(err));
+      sbFetch(API + '/clients?id=eq.' + c.id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({stage:'R0'})}).catch(err => console.error(err));
       updateStats(); renderActiveTab();
     }));
   }
@@ -703,7 +718,7 @@
     const poleRole = ((document.getElementById('f_pole_role')||{}).value || '').trim() || null;
     resolvePole(poleNom).then(pid => {
       patch.pole_id = pid; patch.pole_role = poleRole;
-      return fetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
+      return sbFetch(API + '/clients?id=eq.' + id, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify(patch)})
         .then(r => {
           if(!r.ok) throw new Error(r.status);
           Object.assign(contacts.find(x => x.id===id), patch);
@@ -716,7 +731,7 @@
 
   function deleteContact(id){
     if(!confirm('Supprimer définitivement cette fiche et toutes ses activités ?')) return;
-    fetch(API + '/clients?id=eq.' + id, {method:'DELETE', headers: headers({'Prefer':'return=minimal'})})
+    sbFetch(API + '/clients?id=eq.' + id, {method:'DELETE', headers: headers({'Prefer':'return=minimal'})})
       .then(r => { if(!r.ok) throw new Error(r.status);
         contacts = contacts.filter(x => x.id !== id);
         activities = activities.filter(a => a.client_id !== id);
@@ -1392,7 +1407,7 @@
       refreshDocAvailability();
     }
 
-    fetch(API + '/bilans?client_id=eq.' + id + '&select=id,created_at,updated_at,date_entretien,conseiller,etape,resume&order=created_at.desc', {headers: headers()})
+    sbFetch(API + '/bilans?client_id=eq.' + id + '&select=id,created_at,updated_at,date_entretien,conseiller,etape,resume&order=created_at.desc', {headers: headers()})
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(rows => {
         currentBilanResume = rows.length ? (rows[0].resume || null) : null;
@@ -1458,7 +1473,7 @@
     const done = document.getElementById('act-done').checked;
     const payload = {client_id:id, type:selectedActType, titre:titre||null, notes:notes||null,
       date_activite: dateVal ? new Date(dateVal).toISOString() : new Date().toISOString(), done};
-    fetch(API + '/activities', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify(payload)})
+    sbFetch(API + '/activities', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify(payload)})
       .then(r => r.json()).then(rows => {
         if(rows && rows[0]) activities.unshift(rows[0]);
         refreshActivitiesPane(id); updateStats();
@@ -1467,12 +1482,12 @@
   }
   function toggleActivity(actId, done){
     const a = activities.find(x => x.id === actId); if(a) a.done = done;
-    fetch(API + '/activities?id=eq.' + actId, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({done})})
+    sbFetch(API + '/activities?id=eq.' + actId, {method:'PATCH', headers: headers({'Prefer':'return=minimal'}), body: JSON.stringify({done})})
       .then(() => { updateStats(); if(activeTab==='activites') renderActivities(); else if(activeTab==='pipeline') renderPipeline(); }).catch(err => console.error(err));
   }
   function deleteActivity(actId){
     activities = activities.filter(x => x.id !== actId);
-    fetch(API + '/activities?id=eq.' + actId, {method:'DELETE', headers: headers({'Prefer':'return=minimal'})})
+    sbFetch(API + '/activities?id=eq.' + actId, {method:'DELETE', headers: headers({'Prefer':'return=minimal'})})
       .then(() => { refreshActivitiesPane(currentId); updateStats(); if(activeTab==='activites') renderActivities(); else if(activeTab==='pipeline') renderPipeline(); })
       .catch(err => console.error(err));
   }
@@ -1832,7 +1847,7 @@ ${contractsHTML}
     const nom=document.getElementById('inv-nom').value.trim(), prenom=document.getElementById('inv-prenom').value.trim(), email=document.getElementById('inv-email').value.trim();
     const btn=document.getElementById('invite-submit');
     btn.disabled=true; inviteStatus.style.color='var(--muted)'; inviteStatus.textContent='Envoi en cours…';
-    fetch(API + '/rpc/invite_client', {method:'POST', headers: headers(), body: JSON.stringify({p_nom:nom,p_prenom:prenom,p_email:email})})
+    sbFetch(API + '/rpc/invite_client', {method:'POST', headers: headers(), body: JSON.stringify({p_nom:nom,p_prenom:prenom,p_email:email})})
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(() => { inviteStatus.style.color='#2e7d32'; inviteStatus.textContent='✓ Invitation envoyée à '+email; btn.disabled=false; inviteForm.reset(); })
       .catch(err => { console.error(err); inviteStatus.style.color='#c0392b'; inviteStatus.textContent='Erreur lors de l\'envoi.'; btn.disabled=false; });
@@ -1887,7 +1902,7 @@ ${contractsHTML}
     };
     const btn = document.getElementById('prospect-submit');
     btn.disabled=true; prospectStatus.style.color='var(--muted)'; prospectStatus.textContent='Création…';
-    fetch(API + '/clients', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify(payload)})
+    sbFetch(API + '/clients', {method:'POST', headers: headers({'Prefer':'return=representation'}), body: JSON.stringify(payload)})
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(rows => {
         if(rows && rows[0]) contacts.unshift(rows[0]);
