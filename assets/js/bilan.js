@@ -89,7 +89,7 @@
     return {
       meta: {},
       dec: {},                              // découverte (verbatims)
-      foyer: { situation: '', regime: '', enfants: 0, ages: '', parts: '' },
+      foyer: { situation: '', regime: '', enfants: 0, enfantsCharge: '', ages: '', parts: '' },
       lui: {}, elle: {},
       societes: [],                         // sociétés détenues par le foyer (SAS, SCI, holding…)
       fisc: {},                             // impôt, réductions, charges déductibles
@@ -146,9 +146,17 @@
     }
     return a || b || 'Client';
   }
+  // Le nombre d'enfants (total, utile pour la transmission) et le nombre d'enfants
+  // à charge (seul pertinent pour les parts fiscales et les crédits d'impôt liés
+  // aux enfants) peuvent différer — un enfant majeur non rattaché par exemple.
+  // Vide = on part du principe qu'ils sont tous à charge.
+  function nbEnfantsCharge() {
+    var s = state.foyer;
+    return (s.enfantsCharge === '' || s.enfantsCharge == null) ? num(s.enfants) : num(s.enfantsCharge);
+  }
   function suggestedParts() {
     var p = isCouple() && state.foyer.situation !== 'Concubinage' ? 2 : 1;
-    var n = num(state.foyer.enfants);
+    var n = nbEnfantsCharge();
     p += Math.min(n, 2) * 0.5 + Math.max(n - 2, 0);
     return p;
   }
@@ -402,7 +410,7 @@
     var seuil = couple && S.foyer.situation !== 'Concubinage' ? dec.seuilCouple : dec.seuilSeul;
     var forf = couple && S.foyer.situation !== 'Concubinage' ? dec.forfaitCouple : dec.forfaitSeul;
     if (imp < seuil) imp = Math.max(0, imp - (forf - dec.taux * imp));
-    var creditsImpot = num(S.fisc.reductions) + 0.5 * Math.min(num(S.fisc.gardeDomicile) + num(S.fisc.menage), 12000) + 0.5 * Math.min(num(S.fisc.gardeExt), 3500 * Math.max(1, num(S.foyer.enfants)));
+    var creditsImpot = num(S.fisc.reductions) + 0.5 * Math.min(num(S.fisc.gardeDomicile) + num(S.fisc.menage), 12000) + 0.5 * Math.min(num(S.fisc.gardeExt), 3500 * Math.max(1, nbEnfantsCharge()));
     var tmiCalc = tmi(rni / parts), tmiSaisie = num(S.fisc.tmi);
     R.fisc = { rni: rni, parts: parts, tmiCalc: tmiCalc, tmi: tmiSaisie ? pct(S.fisc.tmi) : tmiCalc, tmiDeclare: !!tmiSaisie, impotBrut: imp, creditsImpot: creditsImpot, impot: Math.max(0, imp - creditsImpot), fonciersAn: fonciersAn, declare: num(S.fisc.impotPaye) };
     R.fisc.impotRetenu = R.fisc.declare || R.fisc.impot;
@@ -577,8 +585,10 @@
     ].concat(ownerFields('Détenue par', false), [
       { k: 'part', l: 'Quote-part détenue', t: 'number', u: '%, vide = 100 %', opt: true }
     ]), calcItem: function (s, i) { return socLabel(s, i) + (socRole(s) ? ' · ' + socRole(s) : '') + ' · détenue par ' + ownerLabel(ownerCode(s), s) + (num(s.part) ? ' à ' + pc(pct(s.part)) : ''); } },
-    { ch: 0, type: 'fields', title: 'Enfants et foyer', hint: 'Le nombre de parts est proposé automatiquement.', path: 'foyer', calc: function () { return [['Parts suggérées', String(suggestedParts()).replace('.', ',')]]; }, fields: [
-      { k: 'enfants', l: 'Nombre d\'enfants à charge', t: 'number' }, { k: 'ages', l: 'Âges des enfants', u: 'ex. 4, 7 et 12 ans', opt: true }, { k: 'parts', l: 'Nombre de parts fiscales', t: 'number', u: 'vide = valeur suggérée', opt: true }
+    { ch: 0, type: 'fields', title: 'Enfants et foyer', hint: 'Le nombre de parts est proposé automatiquement à partir des enfants à charge.', path: 'foyer', calc: function () { return [['Parts suggérées', String(suggestedParts()).replace('.', ',')]]; }, fields: [
+      { k: 'enfants', l: 'Nombre d\'enfants', t: 'number' },
+      { k: 'enfantsCharge', l: 'Nombre d\'enfants à charge', t: 'number', u: 'pour les parts et les crédits d\'impôt ; vide = identique au nombre d\'enfants', opt: true },
+      { k: 'ages', l: 'Âges des enfants', u: 'ex. 4, 7 et 12 ans', opt: true }, { k: 'parts', l: 'Nombre de parts fiscales', t: 'number', u: 'vide = valeur suggérée', opt: true }
     ] },
     { ch: 0, type: 'fields', title: 'Retraite', hint: 'Les projections sont reprises dans la synthèse.', path: 'obj', fields: [
       { k: 'ageRetraite', l: 'Âge de départ souhaité', t: 'number', u: 'ans (défaut 64)', opt: true }, { k: 'renteRetraite', l: 'Revenu souhaité à la retraite', t: 'number', u: '€ / mois nets', opt: true }, { k: 'pensionEstimee', l: 'Pension estimée', t: 'number', u: '€ / mois', opt: true }
@@ -1034,7 +1044,7 @@
         ['Profession', dash(p.profession) + (p.entreprise ? ' · ' + esc(p.entreprise) : '')], ['Statut', dash(p.statut)], ['Changement professionnel', dash(p.depart)], ['Téléphone / email', dash(p.tel) + (p.email ? ' · ' + esc(p.email) : '')]
       ]) + '</div>';
     }
-    H += slide(head('Situation familiale et professionnelle', 'Qui vous êtes, ce que vous faites') + '<div class="g2">' + personCard('lui', 'Conjoint(e) 1') + (R.couple ? personCard('elle', 'Conjoint(e) 2') : '<div class="card card--sand"><div class="card__t">Foyer</div>' + kv([['Situation', dash(S.foyer.situation)], ['Régime', dash(S.foyer.regime)], ['Enfants à charge', num(S.foyer.enfants) + (S.foyer.ages ? ' (' + esc(S.foyer.ages) + ')' : '')], ['Parts fiscales', String(R.fisc.parts).replace('.', ',')], ['Adresse', dash(S.foyer.adresse)]]) + '</div>') + '</div>' + (R.couple ? '<div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--g"><div class="kpi__l">Situation</div><div class="kpi__v" style="font-size:1.3em">' + esc(S.foyer.situation) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Régime</div><div class="kpi__v" style="font-size:1.1em">' + dash(S.foyer.regime) + '</div></div><div class="kpi"><div class="kpi__l">Enfants à charge</div><div class="kpi__v">' + num(S.foyer.enfants) + ' <small>' + esc(S.foyer.ages || '') + '</small></div></div><div class="kpi"><div class="kpi__l">Parts fiscales</div><div class="kpi__v">' + String(R.fisc.parts).replace('.', ',') + '</div></div></div>' : ''));
+    H += slide(head('Situation familiale et professionnelle', 'Qui vous êtes, ce que vous faites') + '<div class="g2">' + personCard('lui', 'Conjoint(e) 1') + (R.couple ? personCard('elle', 'Conjoint(e) 2') : '<div class="card card--sand"><div class="card__t">Foyer</div>' + kv([['Situation', dash(S.foyer.situation)], ['Régime', dash(S.foyer.regime)], ['Enfants', num(S.foyer.enfants) + (S.foyer.ages ? ' (' + esc(S.foyer.ages) + ')' : '')], ['Dont à charge', nbEnfantsCharge()], ['Parts fiscales', String(R.fisc.parts).replace('.', ',')], ['Adresse', dash(S.foyer.adresse)]]) + '</div>') + '</div>' + (R.couple ? '<div class="kpis" style="margin-top:1.4em"><div class="kpi kpi--g"><div class="kpi__l">Situation</div><div class="kpi__v" style="font-size:1.3em">' + esc(S.foyer.situation) + '</div></div><div class="kpi kpi--s"><div class="kpi__l">Régime</div><div class="kpi__v" style="font-size:1.1em">' + dash(S.foyer.regime) + '</div></div><div class="kpi"><div class="kpi__l">Enfants</div><div class="kpi__v">' + num(S.foyer.enfants) + ' <small>' + esc(S.foyer.ages || '') + '</small></div></div><div class="kpi"><div class="kpi__l">Parts fiscales</div><div class="kpi__v">' + String(R.fisc.parts).replace('.', ',') + '</div></div></div>' : ''));
 
     // 3 bis. Sociétés détenues
     if (R.societes.length) {
@@ -1277,7 +1287,7 @@
       civilite: p.civilite || null, nom: p.nom || '', prenom: p.prenom || '', email: p.email || '', telephone: p.tel || null,
       date_naissance: p.naissance || null,
       situation_matrimoniale: S.foyer.situation || null, regime_matrimonial: S.foyer.regime || null,
-      nb_enfants: num(S.foyer.enfants), ages_enfants: S.foyer.ages || null, testament_donation: S.dec.dons || null,
+      nb_enfants: nbEnfantsCharge(), ages_enfants: S.foyer.ages || null, testament_donation: S.dec.dons || null,
       profession: p.profession || null, employeur: p.entreprise || null,
       revenus: Math.round(R.persons.reduce(function (a, k) { return a + R.pers[k].net; }, 0)), capacite_epargne: Math.round(R.capaciteEpargne),
       patrimoine_financier: Math.round(R.finTotal), patrimoine_immobilier: Math.round(immo), credits: R.crdTotal ? Math.round(R.crdTotal) : null,
@@ -1368,7 +1378,7 @@
         if (!rows.length) throw new Error('Fiche introuvable');
         var c = rows[0]; state = blank(); state.crm = { clientId: c.id };
         state.lui = { civilite: c.civilite || '', nom: c.nom || '', prenom: c.prenom || '', email: c.email || '', tel: c.telephone || '', naissance: c.date_naissance || '', profession: c.profession || '', entreprise: c.employeur || '' };
-        state.foyer.situation = c.situation_matrimoniale || ''; state.foyer.regime = c.regime_matrimonial || ''; state.foyer.enfants = c.nb_enfants || 0; state.foyer.ages = c.ages_enfants || '';
+        state.foyer.situation = c.situation_matrimoniale || ''; state.foyer.regime = c.regime_matrimonial || ''; state.foyer.enfants = c.nb_enfants || 0; state.foyer.enfantsCharge = c.nb_enfants || ''; state.foyer.ages = c.ages_enfants || '';
         current = 0; goto(elWiz); renderScreen();
       });
     }).catch(function (e) { if (e.message !== 'cancel') { toast('CRM : ' + e.message, 6000); notifyEmbedParent({type: 'error', message: e.message}); } });
