@@ -43,6 +43,17 @@
   var total = steps.length;
   var current = 0;
 
+  // Remonte jusqu'au haut du bloc de pré-valorisation (barre de progression
+  // comprise), pas jusqu'au tout début de la page : sur l'accueil, le
+  // formulaire arrive après le hero vidéo et la bande « Nos services ».
+  function scrollToForm(anchorEl) {
+    var anchor = anchorEl || document.getElementById('q-progress') || document.getElementById('estimer');
+    if (!anchor) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    var headerH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'), 10) || 88;
+    var top = anchor.getBoundingClientRect().top + window.scrollY - headerH - 16;
+    window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+  }
+
   function showStep(idx) {
     steps.forEach(function (s, i) { s.classList.toggle('is-visible', i === idx); });
     dots.forEach(function (d, i) {
@@ -51,7 +62,7 @@
     });
     if (fill) fill.style.width = (idx / (total - 1) * 100) + '%';
     current = idx;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToForm();
   }
 
   function validateStep(idx) {
@@ -360,12 +371,13 @@
     document.querySelector('.q-body').style.display = 'none';
     var hero = document.querySelector('.val-hero'); if (hero) hero.style.display = 'none';
     var prog = document.getElementById('q-progress'); if (prog) prog.style.display = 'none';
-    document.getElementById('val-result').style.display = 'block';
+    var result = document.getElementById('val-result');
+    result.style.display = 'block';
     var note = document.getElementById('val-email-note');
     if (note) {
       note.textContent = 'Cette fourchette est indicative et reflète les prix de cession récemment observés sur le marché. Pour l’affiner après remise des pièces comptables, contactez-nous.';
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToForm(result);
   }
 
   /* ----------------------------------------------------------------------
