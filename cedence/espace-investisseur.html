@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espace investisseur — Cédence</title>
+<meta name="description" content="Créez un compte gratuit pour accéder au détail complet des annonces de cabinets de conseil en gestion de patrimoine à céder.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/cedence-mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/cession.css">
+<link rel="canonical" href="https://cedence.fr/espace-investisseur.html">
+</head>
+<body>
+<header class="site-header"><div class="container"><a class="brand brand--word" href="index.html" aria-label="Cédence — accueil"><img class="brand__mk" src="assets/img/cedence-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédence</span></a><nav class="nav" aria-label="Navigation principale"><ul style="display:contents;list-style:none;margin:0;padding:0"><li class="nav__item"><a class="nav__link" href="index.html">Estimer mon cabinet</a></li><li class="nav__item"><a class="nav__link" href="vendre.html">Vendre</a></li><li class="nav__item"><a class="nav__link" href="acheter.html">Acheter</a></li><li class="nav__item"><a class="nav__link" href="annonces.html">Annonces</a></li><li class="nav__item"><a class="nav__link" href="contact.html">Nous contacter</a></li></ul><div class="nav__cta"><a class="btn btn--ghost-light" href="espace-investisseur.html" aria-current="page">Espace investisseur</a></div></nav><button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false"><span></span><span></span><span></span></button></div></header>
+
+<main>
+<section class="page-hero"><div class="container"><div class="page-hero__inner"><nav class="breadcrumb" aria-label="Fil d’Ariane"><a href="index.html">Accueil</a><span>/</span><span style="color:#fff;opacity:.95">Espace investisseur</span></nav><h1 data-reveal>Espace investisseur</h1><p class="lede" data-reveal data-delay="1" style="margin-top:18px">Créez un compte gratuit pour accéder au détail complet des annonces : chiffres précis, localisation et descriptif de chaque cabinet.</p></div></div></section>
+
+<section class="section">
+  <div class="container">
+    <div class="auth-wrap" data-reveal>
+
+      <div id="already-in" style="display:none;text-align:center;margin-bottom:30px">
+        <p class="account-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Connecté en tant que <strong id="already-in-email"></strong></p>
+        <p style="margin-top:18px"><a class="btn btn--solid" href="annonces.html">Voir les annonces <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        <p style="margin-top:14px"><button type="button" id="btn-logout" class="cp-trigger" style="color:var(--muted)">Se déconnecter</button></p>
+      </div>
+
+      <div id="auth-forms">
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="auth-tab is-active" data-auth-tab="connexion" role="tab">Se connecter</button>
+          <button type="button" class="auth-tab" data-auth-tab="inscription" role="tab">Créer un compte</button>
+        </div>
+
+        <div class="auth-panel is-active" data-auth-panel="connexion">
+          <div class="auth-card">
+            <form id="form-login" class="form" novalidate>
+              <div class="field"><label for="li-email">E-mail</label><input id="li-email" name="email" type="email" autocomplete="email" required></div>
+              <div class="field"><label for="li-password">Mot de passe</label><input id="li-password" name="password" type="password" autocomplete="current-password" required></div>
+              <div class="form__status" role="status" aria-live="polite"></div>
+              <button class="btn btn--solid" type="submit">Se connecter <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            </form>
+            <p class="auth-foot">Mot de passe oublié ? Écrivez-nous à <a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a>.</p>
+          </div>
+        </div>
+
+        <div class="auth-panel" data-auth-panel="inscription">
+          <div class="auth-card">
+            <form id="form-signup" class="form" novalidate>
+              <div class="field"><label for="su-nom">Nom &amp; prénom</label><input id="su-nom" name="nom" type="text" autocomplete="name" required></div>
+              <div class="field"><label for="su-profil">Vous êtes</label><select id="su-profil" name="profil">
+                <option>Repreneur / dirigeant de CGP</option>
+                <option>Cabinet consolidateur</option>
+                <option>Investisseur / partenaire financier</option>
+                <option>Autre</option>
+              </select></div>
+              <div class="field"><label for="su-email">E-mail professionnel</label><input id="su-email" name="email" type="email" autocomplete="email" required></div>
+              <div class="field"><label for="su-telephone">Téléphone</label><input id="su-telephone" name="telephone" type="tel" autocomplete="tel"></div>
+              <div class="field"><label for="su-password">Mot de passe</label><input id="su-password" name="password" type="password" autocomplete="new-password" minlength="8" required></div>
+              <label class="q-option" style="border-color:var(--gold-soft)">
+                <input type="checkbox" name="consentement" required>
+                <span>J’accepte que mes informations soient traitées par Cédence pour la gestion de mon compte et la mise en relation éventuelle avec un cabinet à céder, conformément à la <a href="mentions-legales.html#rgpd" style="color:var(--gold);text-decoration:underline">politique de confidentialité</a>.</span>
+              </label>
+              <div class="form__status" role="status" aria-live="polite"></div>
+              <button class="btn btn--solid btn--gold" type="submit">Créer mon compte <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></button>
+            </form>
+            <p class="auth-foot">Un compte gratuit, réservé aux professionnels et particuliers sérieusement intéressés par une acquisition.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="cta-band section--tight"><div class="container"><div data-reveal><p class="eyebrow eyebrow--light">Confidentialité</p><h2>Vos échanges restent strictement confidentiels</h2><p>Créer un compte ne vous engage à rien. L’identité des cédants n’est jamais communiquée automatiquement : toute mise en relation passe par notre équipe.</p></div><div class="cta-band__actions" data-reveal data-delay="1"><a class="btn btn--light" href="annonces.html">Voir les annonces <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div></section>
+
+</main>
+
+<footer class="site-footer"><div class="container"><div class="footer-grid"><div><a class="brand brand--word" href="index.html" aria-label="Cédence — accueil"><img class="brand__mk" src="assets/img/cedence-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédence</span></a><p style="max-width:34ch;font-size:.95rem;margin-top:6px">Cession &amp; rapprochement de cabinets de conseil en gestion de patrimoine. Confidentialité, justesse de la valeur, continuité pour vos clients.</p></div><div><h5>Vendre</h5><ul class="footer-links"><li><a href="vendre.html#pourquoi">Pourquoi vendre</a></li><li><a href="fiscalite-cession-cabinet-cgp.html">Fiscalité de la cession</a></li><li><a href="vendre.html#transactions">Transactions récentes</a></li></ul></div><div><h5>Acheter</h5><ul class="footer-links"><li><a href="acheter.html#acquerir">Acquérir un cabinet</a></li><li><a href="acheter.html#synergies">Points d’attention &amp; synergies</a></li><li><a href="financer-reprise-cabinet-cgp.html">Financement</a></li></ul></div><div><h5>Annonces</h5><ul class="footer-links"><li><a href="annonces.html">Voir les annonces</a></li><li><a href="espace-investisseur.html">Créer un compte</a></li></ul></div><div class="footer-contact"><h5>Nous contacter</h5><p><a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a></p><p style="margin-top:16px"><a class="link-arrow" href="contact.html">Prendre contact <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p></div></div><p class="disclaimer">L’estimation proposée sur ce site est strictement indicative et ne constitue ni un conseil, ni une offre, ni un engagement. Les exemples de transactions présentés sont anonymisés. La fiscalité dépend de la situation individuelle de chaque dirigeant et est susceptible d’évoluer.</p><div class="footer-bottom"><span>© <span id="year">2026</span> Cédence — Tous droits réservés.</span><span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="mentions-legales.html#cookies">Cookies</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a></span></div></div></footer>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/cookies.js"></script>
+<script>
+(function(){
+  'use strict';
+  // Onglets connexion / inscription
+  document.querySelectorAll('[data-auth-tab]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-auth-tab');
+      document.querySelectorAll('[data-auth-tab]').forEach(function(b){ b.classList.toggle('is-active', b===btn); });
+      document.querySelectorAll('[data-auth-panel]').forEach(function(p){ p.classList.toggle('is-active', p.getAttribute('data-auth-panel')===id); });
+    });
+  });
+
+  if (!window.CedenceAuth) return;
+
+  function showLoggedIn(session){
+    document.getElementById('auth-forms').style.display = 'none';
+    document.getElementById('already-in').style.display = 'block';
+    document.getElementById('already-in-email').textContent = session.email || '';
+  }
+
+  window.CedenceAuth.ensureSession().then(function(session){
+    if (session) showLoggedIn(session);
+  });
+
+  document.getElementById('btn-logout').addEventListener('click', function(){
+    window.CedenceAuth.signOut();
+    window.location.reload();
+  });
+
+  function setStatus(form, ok, msg){
+    var el = form.querySelector('.form__status');
+    el.className = 'form__status ' + (ok ? 'is-ok' : 'is-err');
+    el.textContent = msg;
+  }
+
+  var loginForm = document.getElementById('form-login');
+  loginForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!loginForm.email.value.trim() || !loginForm.password.value) { setStatus(loginForm, false, 'Merci de renseigner votre e-mail et votre mot de passe.'); return; }
+    var btn = loginForm.querySelector('[type=submit]'); btn.disabled = true;
+    window.CedenceAuth.signIn({
+      email: loginForm.email.value.trim(),
+      password: loginForm.password.value
+    }).then(function(res){
+      btn.disabled = false;
+      if (res.ok) { window.location.href = 'annonces.html'; return; }
+      setStatus(loginForm, false, (res.data && res.data.error_description) || 'Identifiants incorrects.');
+    });
+  });
+
+  var signupForm = document.getElementById('form-signup');
+  signupForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((signupForm.email.value || '').trim());
+    if (!signupForm.nom.value.trim() || !emailOk) { setStatus(signupForm, false, 'Merci de renseigner votre nom et un e-mail valide.'); return; }
+    if (signupForm.password.value.length < 8) { setStatus(signupForm, false, 'Le mot de passe doit comporter au moins 8 caractères.'); return; }
+    if (!signupForm.consentement.checked) { setStatus(signupForm, false, 'Merci d’accepter le traitement de vos informations pour créer un compte.'); return; }
+    var btn = signupForm.querySelector('[type=submit]'); btn.disabled = true;
+    window.CedenceAuth.signUp({
+      email: signupForm.email.value.trim(),
+      password: signupForm.password.value,
+      nom: signupForm.nom.value.trim(),
+      telephone: signupForm.telephone.value.trim(),
+      profil: signupForm.profil.value
+    }).then(function(res){
+      btn.disabled = false;
+      if (res.ok) {
+        if (res.data && res.data.access_token) { window.location.href = 'annonces.html'; return; }
+        setStatus(signupForm, true, 'Compte créé. Si la confirmation par e-mail est activée, vérifiez votre boîte de réception avant de vous connecter.');
+        return;
+      }
+      setStatus(signupForm, false, (res.data && (res.data.msg || res.data.error_description || res.data.message)) || 'Impossible de créer le compte.');
+    });
+  });
+})();
+</script>
+</body>
+</html>

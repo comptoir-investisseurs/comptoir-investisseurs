@@ -1,0 +1,155 @@
+/* Questionnaire — LFDR branded multi-step form */
+
+.q-hero{
+  background:var(--green);color:#fff;padding:calc(var(--header-h) + 48px) 0 56px;text-align:center;
+}
+.q-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:500;margin-bottom:10px}
+.q-hero p{opacity:.75;font-size:.95rem;max-width:520px;margin-inline:auto}
+
+/* Progress bar */
+.progress{display:flex;align-items:center;gap:0;max-width:700px;margin:36px auto 0;position:relative}
+.progress__step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.progress__dot{
+  width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;font-family:var(--sans);
+  font-size:.75rem;font-weight:500;color:rgba(255,255,255,.5);background:transparent;
+  transition:all .4s var(--ease);
+}
+.progress__dot svg{display:none;width:16px;height:16px}
+.progress__step.is-active .progress__dot{border-color:var(--gold);color:#fff;background:var(--gold)}
+.progress__step.is-done .progress__dot{border-color:var(--gold);background:var(--gold);color:#fff}
+.progress__step.is-done .progress__dot span{display:none}
+.progress__step.is-done .progress__dot svg{display:block}
+.progress__label{
+  font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-top:8px;
+  opacity:.4;transition:opacity .3s;white-space:nowrap;font-family:var(--sans);
+}
+.progress__step.is-active .progress__label,.progress__step.is-done .progress__label{opacity:.9}
+.progress__line{
+  position:absolute;top:16px;left:0;right:0;height:2px;background:rgba(255,255,255,.15);z-index:0;
+}
+.progress__fill{
+  height:100%;background:var(--gold);transition:width .5s var(--ease);width:0;
+}
+
+/* Form container */
+.q-body{padding:56px 0 80px;min-height:60vh}
+.q-container{max-width:740px;margin-inline:auto;padding:0 var(--gutter)}
+
+/* Step panels */
+.q-step{display:none;animation:fadeUp .4s var(--ease)}
+.q-step.is-visible{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+.q-step__title{
+  font-family:var(--serif);font-size:clamp(1.3rem,3vw,1.8rem);font-weight:500;
+  color:var(--green);margin-bottom:6px;
+}
+.q-step__subtitle{color:var(--muted);font-size:.92rem;margin-bottom:32px}
+
+/* Fields */
+.q-field{margin-bottom:24px}
+.q-field label,.q-label{
+  display:block;font-family:var(--sans);font-size:.82rem;font-weight:500;
+  color:var(--green);margin-bottom:6px;letter-spacing:.02em;
+}
+.q-field label .req{color:var(--gold);margin-left:2px}
+.q-field input[type="text"],
+.q-field input[type="email"],
+.q-field input[type="tel"],
+.q-field input[type="number"],
+.q-field input[type="date"],
+.q-field select,
+.q-field textarea{
+  width:100%;padding:12px 16px;border:1px solid var(--line);border-radius:6px;
+  font-family:var(--sans);font-size:.92rem;color:var(--ink);background:#fff;
+  transition:border-color .25s,box-shadow .25s;outline:none;
+}
+.q-field input:focus,.q-field select:focus,.q-field textarea:focus{
+  border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,133,63,.12);
+}
+.q-field textarea{min-height:80px;resize:vertical}
+.q-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%235B6058' stroke-width='1.6'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+
+.q-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.q-row{grid-template-columns:1fr}}
+
+/* Radio / Checkbox groups */
+.q-options{display:flex;flex-direction:column;gap:8px}
+.q-options.q-options--grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:600px){.q-options.q-options--grid{grid-template-columns:1fr}}
+
+.q-option{
+  display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border:1px solid var(--line);
+  border-radius:6px;cursor:pointer;transition:border-color .2s,background .2s;
+}
+.q-option:hover{border-color:var(--gold-soft);background:rgba(169,133,63,.04)}
+.q-option input{
+  flex-shrink:0;width:18px;height:18px;margin-top:1px;accent-color:var(--gold);
+}
+.q-option span{font-size:.9rem;line-height:1.4}
+
+.q-option.is-selected{border-color:var(--gold);background:rgba(169,133,63,.06)}
+
+/* Scale (1-10) */
+.q-scale{display:flex;gap:6px;flex-wrap:wrap}
+.q-scale label{
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:.9rem;
+  font-weight:500;color:var(--muted);transition:all .2s;
+}
+.q-scale input{display:none}
+.q-scale input:checked+span{
+  background:var(--gold);color:#fff;border-color:var(--gold);
+}
+.q-scale label:has(input:checked){background:var(--gold);color:#fff;border-color:var(--gold)}
+
+/* Section divider inside a step */
+.q-divider{
+  border:0;border-top:1px solid var(--line);margin:32px 0 28px;
+}
+
+/* Navigation */
+.q-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:40px;padding-top:24px;border-top:1px solid var(--line);
+}
+.q-nav .btn{min-width:160px;justify-content:center}
+.q-nav__back{
+  display:inline-flex;align-items:center;gap:6px;background:none;border:0;
+  font-family:var(--sans);font-size:.85rem;font-weight:500;color:var(--muted);
+  cursor:pointer;padding:8px 0;transition:color .2s;
+}
+.q-nav__back:hover{color:var(--green)}
+.q-nav__back svg{width:18px;height:18px}
+
+/* Success screen */
+.q-success{text-align:center;padding:80px 0}
+.q-success__icon{
+  width:72px;height:72px;border-radius:50%;background:var(--gold);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;margin-bottom:24px;
+}
+.q-success__icon svg{width:36px;height:36px}
+.q-success h2{font-family:var(--serif);font-size:clamp(1.4rem,3vw,2rem);color:var(--green);margin-bottom:12px}
+.q-success p{color:var(--muted);max-width:480px;margin-inline:auto;font-size:.95rem}
+
+/* Field validation */
+.q-field.has-error input,.q-field.has-error select,.q-field.has-error textarea{
+  border-color:#c0392b;
+}
+.q-field .q-error{color:#c0392b;font-size:.78rem;margin-top:4px;display:none}
+.q-field.has-error .q-error{display:block}
+
+/* RGPD banner */
+.q-rgpd{
+  background:var(--parchment);border:1px solid var(--line);border-radius:8px;
+  padding:20px 24px;margin-top:8px;font-size:.85rem;color:var(--muted);line-height:1.6;
+}
+.q-rgpd a{color:var(--gold);text-decoration:underline}
+
+/* Secure badge */
+.q-secure{
+  display:inline-flex;align-items:center;gap:6px;font-size:.75rem;color:var(--muted);
+  margin-top:16px;
+}
+.q-secure svg{width:14px;height:14px;color:var(--gold)}
