@@ -9,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=20261124a">
-<link rel="stylesheet" href="assets/css/questionnaire.css?v=20261124a">
-<link rel="stylesheet" href="assets/css/cession.css?v=20261124a">
+<link rel="stylesheet" href="assets/css/styles.css?v=20261124b">
+<link rel="stylesheet" href="assets/css/questionnaire.css?v=20261124b">
+<link rel="stylesheet" href="assets/css/cession.css?v=20261124b">
 <link rel="canonical" href="https://cedence.fr/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Valoriser votre cabinet de gestion de patrimoine — Cédence">
@@ -26,9 +26,9 @@
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"Comment valoriser un cabinet de gestion de patrimoine ?","acceptedAnswer":{"@type":"Answer","text":"On croise trois méthodes de marché : un multiple du chiffre d’affaires récurrent (environ 2,2× à 3,6×), un pourcentage des encours conseillés (environ 0,9 % à 2,2 %), et un multiple de l’EBE retraité (environ 4,5× à 8×). La récurrence des revenus et la qualité de la clientèle ajustent la fourchette."}},
-{"@type":"Question","name":"Combien vaut un cabinet de CGP ?","acceptedAnswer":{"@type":"Answer","text":"Le plus souvent entre 2,2 et 3,6 fois le chiffre d’affaires récurrent, ou de l’ordre de 0,9 % à 2,2 % des encours conseillés, selon la récurrence des revenus, la collecte et la concentration de la clientèle."}},
-{"@type":"Question","name":"Quel multiple pour valoriser un cabinet CGP ?","acceptedAnswer":{"@type":"Answer","text":"En pratique, 2,2× à 3,6× le CA récurrent et 4,5× à 8× l’EBE retraité (après retraitement de la rémunération du dirigeant au salaire de marché)."}},
+{"@type":"Question","name":"Comment valoriser un cabinet de gestion de patrimoine ?","acceptedAnswer":{"@type":"Answer","text":"On croise trois méthodes de marché : un multiple du chiffre d’affaires récurrent (environ 4,4× à 7,2×), un pourcentage des encours conseillés (environ 1,8 % à 4,4 %), et un multiple d’EBITDA (environ 11× à 15×). La récurrence des revenus et la qualité de la clientèle ajustent la fourchette."}},
+{"@type":"Question","name":"Combien vaut un cabinet de CGP ?","acceptedAnswer":{"@type":"Answer","text":"Le plus souvent entre 4,4 et 7,2 fois le chiffre d’affaires récurrent, ou de l’ordre de 1,8 % à 4,4 % des encours conseillés, selon la récurrence des revenus, la collecte et la concentration de la clientèle."}},
+{"@type":"Question","name":"Quel multiple pour valoriser un cabinet CGP ?","acceptedAnswer":{"@type":"Answer","text":"En pratique, 4,4× à 7,2× le CA récurrent et 11× à 15× l’EBITDA (après retraitement de la rémunération du dirigeant au salaire de marché)."}},
 {"@type":"Question","name":"Comment se passe le rachat d’un portefeuille ou d’un cabinet CGP ?","acceptedAnswer":{"@type":"Answer","text":"En quatre temps : définition de la cible, valorisation contradictoire, due diligence (encours, conformité, dépendance au dirigeant), puis structuration et financement de l’opération."}},
 {"@type":"Question","name":"Quelle fiscalité pour la cession d’un cabinet CGP ?","acceptedAnswer":{"@type":"Answer","text":"La cession de titres relève en principe du prélèvement forfaitaire unique de 30 %. Le dispositif d’apport-cession (article 150-0 B ter) permet de placer la plus-value en report d’imposition en apportant les titres à une holding avant la vente."}}
 ]}
@@ -104,7 +104,7 @@
       <p class="eyebrow">Pré-valorisation de cabinet</p>
       <h1>Quelle est la valeur de votre cabinet&nbsp;?</h1>
       <hr class="rule">
-      <p class="lede">En quelques questions, obtenez une <strong>estimation au plus proche du prix de cession réel</strong> de votre cabinet de conseil en gestion de patrimoine. Nos fourchettes recoupent les trois méthodes de référence : multiple du chiffre d’affaires récurrent, pourcentage des encours, multiple d’EBE.</p>
+      <p class="lede">En quelques questions, obtenez une <strong>estimation au plus proche du prix de cession réel</strong> de votre cabinet de conseil en gestion de patrimoine. Nos fourchettes recoupent les trois méthodes de référence : multiple du chiffre d’affaires récurrent, pourcentage des encours, multiple d’EBITDA.</p>
       <div class="val-hero__meta">
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg> Au plus près des prix de cession réels</span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg> 5 minutes</span>
@@ -261,11 +261,11 @@
     <div class="q-field"><label for="ca_recurrent_pct">dont part récurrente <span class="muted" style="text-transform:none;letter-spacing:0">— le non-récurrent en est déduit automatiquement</span></label><div class="q-suffix"><input type="number" id="ca_recurrent_pct" name="ca_recurrent_pct" min="0" max="100" placeholder="ex : 70"><span class="q-suffix__u">%</span></div></div>
 
     <div class="q-row">
-      <div class="q-field"><label for="ebe">EBE estimé <span class="muted" style="text-transform:none;letter-spacing:0">— excédent brut d’exploitation</span></label><div class="q-suffix"><input type="number" id="ebe" name="ebe" step="1000" placeholder="ex : 280 000"><span class="q-suffix__u">€</span></div></div>
+      <div class="q-field"><label for="ebe">EBITDA estimé <span class="muted" style="text-transform:none;letter-spacing:0">— excédent brut d’exploitation</span></label><div class="q-suffix"><input type="number" id="ebe" name="ebe" step="1000" placeholder="ex : 280 000"><span class="q-suffix__u">€</span></div></div>
       <div class="q-field"><label for="resultat_net">Résultat net</label><div class="q-suffix"><input type="number" id="resultat_net" name="resultat_net" step="1000" placeholder="ex : 180 000"><span class="q-suffix__u">€</span></div></div>
     </div>
 
-    <div class="q-field"><label for="remuneration_dirigeant">Rémunération brute annuelle du / des dirigeant(s) <span class="muted" style="text-transform:none;letter-spacing:0">— pour retraiter l’EBE au salaire de marché</span></label><div class="q-suffix"><input type="number" id="remuneration_dirigeant" name="remuneration_dirigeant" step="1000" placeholder="ex : 150 000"><span class="q-suffix__u">€</span></div></div>
+    <div class="q-field"><label for="remuneration_dirigeant">Rémunération brute annuelle du / des dirigeant(s) <span class="muted" style="text-transform:none;letter-spacing:0">— pour retraiter l’EBITDA au salaire de marché</span></label><div class="q-suffix"><input type="number" id="remuneration_dirigeant" name="remuneration_dirigeant" step="1000" placeholder="ex : 150 000"><span class="q-suffix__u">€</span></div></div>
 
     <hr class="q-divider">
 
@@ -344,9 +344,9 @@
       <p class="lede">Nous recoupons systématiquement les trois approches de référence du marché de la cession de cabinets.</p>
     </div>
     <div class="grid grid-3" style="margin-top:50px">
-      <div class="card" data-reveal data-delay="1"><div class="card__num">01</div><h3>Multiple du CA récurrent</h3><p>Le chiffre d’affaires récurrent (rétrocessions, honoraires de suivi) capitalisé sur un multiple, généralement compris entre 2,2× et 3,6× selon la qualité du fonds.</p></div>
-      <div class="card" data-reveal data-delay="2"><div class="card__num">02</div><h3>Pourcentage des encours</h3><p>Une fraction des encours conseillés (AUM), pondérée par leur récurrence et leur nature — typiquement de l’ordre de 0,9 % à 2,2 %.</p></div>
-      <div class="card" data-reveal data-delay="3"><div class="card__num">03</div><h3>Multiple de l’EBE retraité</h3><p>L’excédent brut d’exploitation, retraité de la rémunération du dirigeant au salaire de marché, capitalisé entre 4,5× et 8×.</p></div>
+      <div class="card" data-reveal data-delay="1"><div class="card__num">01</div><h3>Multiple du CA récurrent</h3><p>Le chiffre d’affaires récurrent (rétrocessions, honoraires de suivi) capitalisé sur un multiple, généralement compris entre 4,4× et 7,2× selon la qualité du fonds.</p></div>
+      <div class="card" data-reveal data-delay="2"><div class="card__num">02</div><h3>Pourcentage des encours</h3><p>Une fraction des encours conseillés (AUM), pondérée par leur récurrence et leur nature — typiquement de l’ordre de 1,8 % à 4,4 %.</p></div>
+      <div class="card" data-reveal data-delay="3"><div class="card__num">03</div><h3>Multiple d’EBITDA</h3><p>L’excédent brut d’exploitation, retraité de la rémunération du dirigeant au salaire de marché, capitalisé entre 11× et 15×.</p></div>
     </div>
     <p class="center muted" style="margin-top:34px;font-size:.86rem;max-width:760px;margin-inline:auto">L’estimation produite est strictement indicative et ne constitue ni une offre, ni un engagement. Seule une analyse des pièces comptables permet d’établir une valorisation ferme.</p>
   </div>
@@ -423,7 +423,7 @@
         <div class="deal__stats">
           <div class="deal__stat"><div class="k">Encours</div><div class="val">95 M€</div></div>
           <div class="deal__stat"><div class="k">CA récurrent</div><div class="val">71 %</div></div>
-          <div class="deal__stat"><div class="k">Valorisation</div><div class="val">2,9× CA</div></div>
+          <div class="deal__stat"><div class="k">Valorisation</div><div class="val">5,8× CA</div></div>
           <div class="deal__stat"><div class="k">Clients</div><div class="val">~ 340</div></div>
         </div>
         <p class="deal__note">Cession à 100 % avec accompagnement du dirigeant sur 18 mois pour assurer la transmission des relations clients.</p>
@@ -435,7 +435,7 @@
         <div class="deal__stats">
           <div class="deal__stat"><div class="k">Encours</div><div class="val">210 M€</div></div>
           <div class="deal__stat"><div class="k">CA récurrent</div><div class="val">83 %</div></div>
-          <div class="deal__stat"><div class="k">Valorisation</div><div class="val">1,7 % AUM</div></div>
+          <div class="deal__stat"><div class="k">Valorisation</div><div class="val">3,4 % AUM</div></div>
           <div class="deal__stat"><div class="k">Clients</div><div class="val">~ 480</div></div>
         </div>
         <p class="deal__note">Rapprochement partiel : les deux associés conservent une participation et poursuivent le conseil sous une marque commune.</p>
@@ -469,9 +469,9 @@
       <hr class="rule" style="margin-inline:auto">
     </div>
     <div class="faq" data-reveal>
-      <div class="faq__item"><h3>Comment valoriser un cabinet de gestion de patrimoine ?</h3><p>On croise trois <strong>méthodes de marché</strong> : un <strong>multiple du chiffre d’affaires récurrent</strong> (≈ 2,2× à 3,6×), un <strong>pourcentage des encours</strong> conseillés (≈ 0,9 % à 2,2 %) et un <strong>multiple de l’EBE retraité</strong> (≈ 4,5× à 8×). La récurrence des revenus et la qualité de la clientèle ajustent la fourchette. Notre <a href="#estimer">estimateur</a> applique ces trois méthodes en quelques minutes.</p></div>
-      <div class="faq__item"><h3>Combien vaut un cabinet de CGP ?</h3><p>Le plus souvent entre <strong>2,2 et 3,6 fois le CA récurrent</strong>, ou de l’ordre de <strong>0,9 % à 2,2 % des encours</strong> conseillés, selon la récurrence des revenus, la collecte nette et la concentration de la clientèle.</p></div>
-      <div class="faq__item"><h3>Quel multiple pour valoriser un cabinet CGP ?</h3><p>En pratique, <strong>2,2× à 3,6× le CA récurrent</strong> et <strong>4,5× à 8× l’EBE retraité</strong> (après retraitement de la rémunération du dirigeant au salaire de marché).</p></div>
+      <div class="faq__item"><h3>Comment valoriser un cabinet de gestion de patrimoine ?</h3><p>On croise trois <strong>méthodes de marché</strong> : un <strong>multiple du chiffre d’affaires récurrent</strong> (≈ 4,4× à 7,2×), un <strong>pourcentage des encours</strong> conseillés (≈ 1,8 % à 4,4 %) et un <strong>multiple d’EBITDA</strong> (≈ 11× à 15×). La récurrence des revenus et la qualité de la clientèle ajustent la fourchette. Notre <a href="#estimer">estimateur</a> applique ces trois méthodes en quelques minutes.</p></div>
+      <div class="faq__item"><h3>Combien vaut un cabinet de CGP ?</h3><p>Le plus souvent entre <strong>4,4 et 7,2 fois le CA récurrent</strong>, ou de l’ordre de <strong>1,8 % à 4,4 % des encours</strong> conseillés, selon la récurrence des revenus, la collecte nette et la concentration de la clientèle.</p></div>
+      <div class="faq__item"><h3>Quel multiple pour valoriser un cabinet CGP ?</h3><p>En pratique, <strong>4,4× à 7,2× le CA récurrent</strong> et <strong>11× à 15× l’EBITDA</strong> (après retraitement de la rémunération du dirigeant au salaire de marché).</p></div>
       <div class="faq__item"><h3>Comment se passe le rachat d’un portefeuille ou d’un cabinet CGP ?</h3><p>En quatre temps : définition de la cible, valorisation contradictoire, <strong>due diligence</strong> (encours, conformité, dépendance au dirigeant), puis structuration et financement. Voir notre page <a href="acheter.html">Acquérir un cabinet</a>.</p></div>
       <div class="faq__item"><h3>Quelle fiscalité pour la cession d’un cabinet CGP ?</h3><p>La cession de titres relève en principe du <strong>prélèvement forfaitaire unique de 30 %</strong>. Le dispositif d’<strong>apport-cession</strong> (article 150-0 B ter) permet de placer la plus-value en report d’imposition. Détails sur la page <a href="fiscalite-cession-cabinet-cgp.html">Fiscalité de la cession</a>.</p></div>
     </div>
@@ -510,9 +510,9 @@
   </div>
 </div>
 
-<script src="assets/js/main.js?v=20261124a"></script>
-<script src="assets/js/supabase-config.js?v=20261124a"></script>
-<script src="assets/js/cession.js?v=20261124a"></script>
-<script src="assets/js/cookies.js?v=20261124a"></script>
+<script src="assets/js/main.js?v=20261124b"></script>
+<script src="assets/js/supabase-config.js?v=20261124b"></script>
+<script src="assets/js/cession.js?v=20261124b"></script>
+<script src="assets/js/cookies.js?v=20261124b"></script>
 </body>
 </html>

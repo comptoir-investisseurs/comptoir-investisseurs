@@ -244,7 +244,7 @@
     var salaireMarche = 90000; // salaire de marché d'un dirigeant remplaçant
     var caRec = caht * recPct / 100;
 
-    // EBE retraité : on neutralise l'excédent de rémunération du dirigeant
+    // EBITDA retraité : on neutralise l'excédent de rémunération du dirigeant
     var ebeRetraite = ebe + Math.max(0, rem - salaireMarche);
     if (ebeRetraite <= 0 && caht > 0) ebeRetraite = caht * 0.30; // estimation prudente
 
@@ -266,9 +266,9 @@
 
     var methods = [];
 
-    // Méthode 1 — multiple du CA récurrent (≈ 2,2× à 3,6×)
+    // Méthode 1 — multiple du CA récurrent (≈ 4,4× à 7,2×)
     if (caRec > 0) {
-      var m1lo = 2.2 + 0.5 * q, m1hi = 2.8 + 0.8 * q;
+      var m1lo = 4.4 + 1.0 * q, m1hi = 5.6 + 1.6 * q;
       methods.push({ key: 'ca', label: 'Multiple du CA récurrent',
         lo: caRec * m1lo, hi: caRec * m1hi,
         detail: m1lo.toFixed(1).replace('.', ',') + '× – ' + m1hi.toFixed(1).replace('.', ',') + '× CA récurrent' });
@@ -277,19 +277,19 @@
     // Méthode 2 — pourcentage des encours (pondéré par la récurrence)
     if (aum > 0) {
       var recAumFactor = 0.6 + 0.4 * (recPct / 100);
-      var p2lo = (0.009 + 0.005 * q) * recAumFactor;
-      var p2hi = (0.013 + 0.009 * q) * recAumFactor;
+      var p2lo = (0.018 + 0.010 * q) * recAumFactor;
+      var p2hi = (0.026 + 0.018 * q) * recAumFactor;
       methods.push({ key: 'aum', label: 'Pourcentage des encours',
         lo: aum * p2lo, hi: aum * p2hi,
         detail: (p2lo * 100).toFixed(2).replace('.', ',') + ' % – ' + (p2hi * 100).toFixed(2).replace('.', ',') + ' % des encours' });
     }
 
-    // Méthode 3 — multiple de l'EBE retraité (≈ 4,5× à 8×)
+    // Méthode 3 — multiple d'EBITDA (≈ 11× à 15×)
     if (ebeRetraite > 0) {
-      var m3lo = 4.5 + 1.5 * q, m3hi = 6 + 2 * q;
-      methods.push({ key: 'ebe', label: "Multiple de l'EBE retraité",
+      var m3lo = 11 + 1 * q, m3hi = 13 + 2 * q;
+      methods.push({ key: 'ebe', label: "Multiple d'EBITDA",
         lo: ebeRetraite * m3lo, hi: ebeRetraite * m3hi,
-        detail: m3lo.toFixed(1).replace('.', ',') + '× – ' + m3hi.toFixed(1).replace('.', ',') + '× EBE retraité' });
+        detail: m3lo.toFixed(1).replace('.', ',') + '× – ' + m3hi.toFixed(1).replace('.', ',') + '× EBITDA' });
     }
 
     // Synthèse — moyenne des méthodes disponibles
@@ -307,7 +307,7 @@
   var METHOD_TEMPLATE = [
     { key: 'ca', label: 'CA récurrent' },
     { key: 'aum', label: 'Encours (AUM)' },
-    { key: 'ebe', label: 'EBE retraité' }
+    { key: 'ebe', label: 'EBITDA' }
   ];
 
   function renderResult(v) {
@@ -397,7 +397,7 @@
       'Nombre de clients actifs': radio('nb_clients'),
       'CA HT dernier exercice': eurField('ca_ht'),
       'Part recurrente du CA': field('ca_recurrent_pct') ? field('ca_recurrent_pct') + ' %' : '',
-      'EBE estime': eurField('ebe'),
+      'EBITDA estime': eurField('ebe'),
       'Resultat net': eurField('resultat_net'),
       'Remuneration dirigeant': eurField('remuneration_dirigeant'),
       'E-mail dirigeant': field('email'),
