@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Gestion des annonces — Cédence</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/cedence-mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/cession.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+
+<!-- ========== Login ========== -->
+<div class="admin-login" id="admin-login">
+  <div class="admin-login__card">
+    <a class="brand brand--word" href="index.html" aria-label="Cédence — accueil" style="color:var(--green);margin-bottom:22px;display:inline-flex"><img class="brand__mk" src="assets/img/cedence-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédence</span></a>
+    <h1>Espace propriétaire</h1>
+    <p class="muted">Connectez-vous pour gérer les annonces de cabinets à céder.</p>
+    <form id="admin-login-form" class="form" novalidate>
+      <div class="field"><label for="al-email">E-mail</label><input id="al-email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="al-password">Mot de passe</label><input id="al-password" type="password" autocomplete="current-password" required></div>
+      <div class="form__status" role="status" aria-live="polite"></div>
+      <button class="btn btn--solid" type="submit">Se connecter</button>
+    </form>
+    <p class="admin-login__note">Pas encore de compte ? Créez-en un depuis <a href="espace-investisseur.html">l’Espace membre</a>, puis demandez les droits administrateur (voir <code>supabase-cgp-admins.sql</code>).</p>
+  </div>
+</div>
+
+<!-- ========== Forbidden (connecté mais pas admin) ========== -->
+<div class="admin-login" id="admin-forbidden" hidden>
+  <div class="admin-login__card">
+    <h1>Accès non autorisé</h1>
+    <p class="muted">Ce compte (<strong id="forbidden-email"></strong>) n’a pas les droits administrateur sur les annonces.</p>
+    <p class="muted" style="font-size:.88rem">Pour l’autoriser, exécutez la requête donnée dans <code>supabase-cgp-admins.sql</code> depuis le SQL Editor de Supabase, avec cet e-mail.</p>
+    <button class="btn btn--outline" id="forbidden-logout" type="button" style="margin-top:10px">Se déconnecter</button>
+  </div>
+</div>
+
+<!-- ========== Dashboard ========== -->
+<div class="admin-dash" id="admin-dash" hidden>
+  <div class="admin-bar">
+    <div class="admin-bar__inner container">
+      <a class="brand brand--word" href="index.html" aria-label="Cédence — accueil"><img class="brand__mk" src="assets/img/cedence-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédence</span></a>
+      <span class="admin-bar__title">Gestion des annonces</span>
+      <span class="admin-bar__user" id="admin-user-email"></span>
+      <button class="cp-trigger" id="admin-logout" type="button">Se déconnecter</button>
+    </div>
+  </div>
+
+  <main class="container" style="padding-block:40px 90px">
+
+    <div class="admin-toolbar">
+      <h2 class="title-md" style="margin:0">Annonces</h2>
+      <button class="btn btn--solid" id="btn-new" type="button">+ Nouvelle annonce</button>
+    </div>
+
+    <!-- ----- Formulaire (création / édition) ----- -->
+    <section class="admin-form" id="admin-form" hidden>
+      <div class="admin-form__head">
+        <h3 id="form-title">Nouvelle annonce</h3>
+        <button class="cp-trigger" id="form-close" type="button">Fermer ✕</button>
+      </div>
+      <form id="annonce-form" class="form" novalidate>
+        <input type="hidden" id="f-id">
+
+        <p class="admin-section-label">Identification (usage interne — jamais publié)</p>
+        <div class="row">
+          <div class="field"><label for="f-reference">Référence</label><input id="f-reference" required></div>
+          <div class="field"><label for="f-statut">Statut</label><select id="f-statut">
+            <option value="publiee">Publiée</option>
+            <option value="sous_offre">Sous offre</option>
+            <option value="retiree">Retirée</option>
+          </select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-nom_cabinet">Nom du cabinet</label><input id="f-nom_cabinet"></div>
+          <div class="field"><label for="f-siren">SIREN</label><input id="f-siren"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-contact_cedant_nom">Contact cédant — nom</label><input id="f-contact_cedant_nom"></div>
+          <div class="field"><label for="f-contact_cedant_tel">Contact cédant — téléphone</label><input id="f-contact_cedant_tel"></div>
+        </div>
+        <div class="field"><label for="f-contact_cedant_email">Contact cédant — e-mail</label><input id="f-contact_cedant_email" type="email"></div>
+        <div class="field"><label for="f-notes_internes">Notes internes</label><textarea id="f-notes_internes" style="min-height:70px"></textarea></div>
+
+        <hr class="q-divider">
+        <p class="admin-section-label">Visible publiquement (sans compte)</p>
+        <div class="row">
+          <div class="field"><label for="f-region">Région</label><input id="f-region" placeholder="ex : Île-de-France"></div>
+          <div class="field"><label for="f-type_clientele">Type de clientèle</label><input id="f-type_clientele" placeholder="ex : Clientèle patrimoniale haut de gamme"></div>
+        </div>
+        <div class="field"><label for="f-statuts_reglementaires">Statuts réglementaires</label><input id="f-statuts_reglementaires" placeholder="ex : CIF, IAS"></div>
+        <div class="row">
+          <div class="field"><label for="f-aum_tranche">Encours (fourchette)</label><input id="f-aum_tranche" placeholder="ex : 100 – 150 M€"></div>
+          <div class="field"><label for="f-ca_tranche">CA annuel (fourchette)</label><input id="f-ca_tranche" placeholder="ex : 600 k€ – 900 k€"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-prix_tranche">Prix souhaité (fourchette)</label><input id="f-prix_tranche" placeholder="ex : 0,8 – 1,3 M€"></div>
+          <div class="field"><label for="f-nb_clients_tranche">Clients actifs (fourchette)</label><input id="f-nb_clients_tranche" placeholder="ex : 250 – 350"></div>
+        </div>
+
+        <hr class="q-divider">
+        <p class="admin-section-label">Visible pour les comptes Espace membre uniquement</p>
+        <div class="row">
+          <div class="field"><label for="f-departement">Département</label><input id="f-departement" placeholder="ex : 75"></div>
+          <div class="field"><label for="f-localisation_precise">Localisation précise</label><input id="f-localisation_precise" placeholder="ex : Paris 8e"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-aum_precis">Encours précis (€)</label><input id="f-aum_precis" type="number" step="1"></div>
+          <div class="field"><label for="f-ca_ht">CA HT précis (€)</label><input id="f-ca_ht" type="number" step="1"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-ebe">EBE (€)</label><input id="f-ebe" type="number" step="1"></div>
+          <div class="field"><label for="f-part_recurrente">Part récurrente (%)</label><input id="f-part_recurrente" type="number" step="1" min="0" max="100"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-prix_souhaite">Prix souhaité précis (€)</label><input id="f-prix_souhaite" type="number" step="1"></div>
+          <div class="field"><label for="f-horizon_reprise">Horizon de reprise</label><input id="f-horizon_reprise" placeholder="ex : Immédiat, 3-6 mois…"></div>
+        </div>
+        <div class="field"><label for="f-motif_cession">Motif de cession</label><input id="f-motif_cession" placeholder="ex : Départ en retraite"></div>
+        <div class="field"><label for="f-descriptif_detaille">Descriptif détaillé</label><textarea id="f-descriptif_detaille" style="min-height:110px"></textarea></div>
+
+        <div class="form__status" role="status" aria-live="polite"></div>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn--solid" type="submit">Enregistrer</button>
+          <button class="btn btn--outline" type="button" id="btn-delete" hidden>Supprimer cette annonce</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ----- Liste ----- -->
+    <section>
+      <div class="table-wrap">
+        <table class="ptable" id="admin-table">
+          <thead><tr><th>Référence</th><th>Cabinet</th><th>Région</th><th>Statut</th><th>Publiée le</th><th></th></tr></thead>
+          <tbody id="admin-table-body"><tr><td colspan="6" class="muted">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/admin-annonces.js"></script>
+</body>
+</html>
