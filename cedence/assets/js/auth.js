@@ -137,17 +137,23 @@
     window.location.href = SUPABASE_URL + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(redirectTo);
   }
 
-  // À appeler au chargement de la page : traite le retour de Google s'il y
-  // en a un (fragment #access_token=…), sinon ne fait rien.
-  function handleOAuthRedirect() {
-    var hash = window.location.hash || '';
-    if (hash.indexOf('access_token=') === -1) return Promise.resolve(null);
+  function parseHash(hash) {
     var params = {};
-    hash.replace(/^#/, '').split('&').forEach(function (p) {
+    (hash || '').replace(/^#/, '').split('&').forEach(function (p) {
       var i = p.indexOf('=');
       if (i > 0) params[decodeURIComponent(p.slice(0, i))] = decodeURIComponent(p.slice(i + 1).replace(/\+/g, ' '));
     });
-    if (!params.access_token) return Promise.resolve(null);
+    return params;
+  }
+
+  // À appeler au chargement de la page : traite le retour de Google s'il y
+  // en a un (fragment #access_token=…), sinon ne fait rien. Un lien de
+  // réinitialisation de mot de passe a la même forme mais avec
+  // type=recovery : on le laisse à getRecoveryParams()/setNewPassword()
+  // plutôt que de l'ouvrir ici comme une simple connexion.
+  function handleOAuthRedirect() {
+    var params = parseHash(window.location.hash);
+    if (!params.access_token || params.type === 'recovery') return Promise.resolve(null);
     return fetch(SUPABASE_URL + '/auth/v1/user', { headers: authHeaders({ Authorization: 'Bearer ' + params.access_token }) })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (user) {
@@ -159,6 +165,48 @@
         try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) { /* noop */ }
         return getSession();
       });
+  }
+
+  /* ---------------- Mot de passe oublié (self-service) ----------------
+     1) recoverPassword(email) envoie un e-mail Supabase contenant un lien
+        vers cette page avec #access_token=…&type=recovery.
+     2) getRecoveryParams() détecte ce lien au chargement de la page.
+     3) setNewPassword(token, password) définit le nouveau mot de passe et
+        ouvre la session dans la foulée (plus besoin de se reconnecter). */
+  function recoverPassword(email) {
+    return fetch(SUPABASE_URL + '/auth/v1/recover', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ email: email })
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, data: j }; });
+    });
+  }
+
+  function getRecoveryParams() {
+    var params = parseHash(window.location.hash);
+    if (params.type === 'recovery' && params.access_token) return params;
+    return null;
+  }
+
+  function setNewPassword(recoveryParams, newPassword) {
+    return fetch(SUPABASE_URL + '/auth/v1/user', {
+      method: 'PUT',
+      headers: authHeaders({ Authorization: 'Bearer ' + recoveryParams.access_token }),
+      body: JSON.stringify({ password: newPassword })
+    }).then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok, data: j }; });
+    }).then(function (res) {
+      if (res.ok) {
+        try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) { /* noop */ }
+        save({
+          access_token: recoveryParams.access_token,
+          refresh_token: recoveryParams.refresh_token,
+          expires_in: parseInt(recoveryParams.expires_in, 10) || 3600
+        }, (res.data && res.data.email) || '');
+      }
+      return res;
+    });
   }
 
   // Détails complets de l'utilisateur connecté (dont user_metadata), pour
@@ -193,6 +241,9 @@
     signInWithGoogle: signInWithGoogle,
     handleOAuthRedirect: handleOAuthRedirect,
     getUser: getUser,
-    updateProfile: updateProfile
+    updateProfile: updateProfile,
+    recoverPassword: recoverPassword,
+    getRecoveryParams: getRecoveryParams,
+    setNewPassword: setNewPassword
   };
 })();

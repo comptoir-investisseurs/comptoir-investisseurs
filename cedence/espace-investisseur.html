@@ -10,8 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=20261124g">
-<link rel="stylesheet" href="assets/css/cession.css?v=20261124g">
+<link rel="stylesheet" href="assets/css/styles.css?v=20261124h">
+<link rel="stylesheet" href="assets/css/cession.css?v=20261124h">
 <link rel="canonical" href="https://cedence.fr/espace-investisseur.html">
 </head>
 <body>
@@ -31,11 +31,15 @@
       </div>
 
       <div id="auth-forms">
+        <!-- Connexion Google en pause (fournisseur pas encore activé côté Supabase).
+             Pour la réactiver : décommenter ce bloc et la ligne "ou avec e-mail",
+             et voir assets/js/auth.js (signInWithGoogle / handleOAuthRedirect).
         <button type="button" id="btn-google" class="btn btn--outline" style="width:100%;justify-content:center;gap:12px;margin-bottom:20px">
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.7 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.7 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.5-2.1 14.3-5.6l-6.6-5.6C29.6 34.7 27 35.5 24 35.5c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.7l6.6 5.6C39.8 37.2 44 31.1 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
           Continuer avec Google
         </button>
         <p class="center muted" style="font-size:.82rem;margin:0 0 24px">ou avec e-mail</p>
+        -->
         <div class="auth-tabs" role="tablist">
           <button type="button" class="auth-tab is-active" data-auth-tab="connexion" role="tab">Se connecter</button>
           <button type="button" class="auth-tab" data-auth-tab="inscription" role="tab">Créer un compte</button>
@@ -49,7 +53,15 @@
               <div class="form__status" role="status" aria-live="polite"></div>
               <button class="btn btn--solid" type="submit">Se connecter <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
             </form>
-            <p class="auth-foot">Mot de passe oublié ? Écrivez-nous à <a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a>.</p>
+            <p class="auth-foot"><button type="button" id="btn-forgot-toggle" class="cp-trigger">Mot de passe oublié ?</button></p>
+          </div>
+
+          <div class="auth-card" id="forgot-panel" style="display:none;margin-top:16px">
+            <form id="form-forgot" class="form" novalidate>
+              <div class="field"><label for="fg-email">E-mail</label><input id="fg-email" type="email" autocomplete="email" required></div>
+              <div class="form__status" role="status" aria-live="polite"></div>
+              <button class="btn btn--outline" type="submit">Envoyer le lien de réinitialisation</button>
+            </form>
           </div>
         </div>
 
@@ -129,6 +141,19 @@
         </div>
       </div>
 
+      <div id="reset-password" style="display:none">
+        <div class="auth-card">
+          <h3 style="font-family:var(--serif);font-size:1.3rem;color:var(--green);margin-bottom:6px">Nouveau mot de passe</h3>
+          <p class="muted" style="margin-bottom:20px">Choisissez un nouveau mot de passe pour votre compte.</p>
+          <form id="form-reset" class="form" novalidate>
+            <div class="field"><label for="rp-password">Nouveau mot de passe</label><input id="rp-password" type="password" autocomplete="new-password" minlength="8" required></div>
+            <div class="field"><label for="rp-password2">Confirmer le mot de passe</label><input id="rp-password2" type="password" autocomplete="new-password" minlength="8" required></div>
+            <div class="form__status" role="status" aria-live="polite"></div>
+            <button class="btn btn--solid" type="submit">Mettre à jour mon mot de passe</button>
+          </form>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -139,10 +164,10 @@
 
 <footer class="site-footer"><div class="container"><div class="footer-grid"><div><a class="brand brand--word" href="index.html" aria-label="Cédence — accueil"><img class="brand__mk" src="assets/img/cedence-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédence</span></a><p style="max-width:34ch;font-size:.95rem;margin-top:6px">Cession &amp; rapprochement de cabinets de conseil en gestion de patrimoine. Confidentialité, justesse de la valeur, continuité pour vos clients.</p></div><div><h5>Vendre</h5><ul class="footer-links"><li><a href="vendre.html#pourquoi">Pourquoi vendre</a></li><li><a href="fiscalite-cession-cabinet-cgp.html">Fiscalité de la cession</a></li><li><a href="vendre.html#transactions">Transactions récentes</a></li></ul></div><div><h5>Acheter</h5><ul class="footer-links"><li><a href="acheter.html#acquerir">Acquérir un cabinet</a></li><li><a href="acheter.html#synergies">Points d’attention &amp; synergies</a></li><li><a href="financer-reprise-cabinet-cgp.html">Financement</a></li></ul></div><div><h5>Annonces</h5><ul class="footer-links"><li><a href="annonces.html">Voir les annonces</a></li><li><a href="espace-investisseur.html">Créer un compte</a></li></ul></div><div class="footer-contact"><h5>Nous contacter</h5><p><a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a></p><p style="margin-top:16px"><a class="link-arrow" href="contact.html">Prendre contact <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p></div></div><p class="disclaimer">L’estimation proposée sur ce site est strictement indicative et ne constitue ni un conseil, ni une offre, ni un engagement. Les exemples de transactions présentés sont anonymisés. La fiscalité dépend de la situation individuelle de chaque dirigeant et est susceptible d’évoluer.</p><div class="footer-bottom"><span>© <span id="year">2026</span> Cédence — Tous droits réservés.</span><span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="mentions-legales.html#cookies">Cookies</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a></span></div></div></footer>
 
-<script src="assets/js/main.js?v=20261124g"></script>
-<script src="assets/js/supabase-config.js?v=20261124g"></script>
-<script src="assets/js/auth.js?v=20261124g"></script>
-<script src="assets/js/cookies.js?v=20261124g"></script>
+<script src="assets/js/main.js?v=20261124h"></script>
+<script src="assets/js/supabase-config.js?v=20261124h"></script>
+<script src="assets/js/auth.js?v=20261124h"></script>
+<script src="assets/js/cookies.js?v=20261124h"></script>
 <script>
 (function(){
   'use strict';
@@ -157,17 +182,27 @@
 
   if (!window.CedenceAuth) return;
 
-  function showLoggedIn(session){
+  function hideAllPanels(){
     document.getElementById('auth-forms').style.display = 'none';
     document.getElementById('complete-profile').style.display = 'none';
+    document.getElementById('reset-password').style.display = 'none';
+    document.getElementById('already-in').style.display = 'none';
+  }
+
+  function showLoggedIn(session){
+    hideAllPanels();
     document.getElementById('already-in').style.display = 'block';
     document.getElementById('already-in-email').textContent = session.email || '';
   }
 
   function showCompleteProfile(){
-    document.getElementById('auth-forms').style.display = 'none';
-    document.getElementById('already-in').style.display = 'none';
+    hideAllPanels();
     document.getElementById('complete-profile').style.display = 'block';
+  }
+
+  function showResetPassword(){
+    hideAllPanels();
+    document.getElementById('reset-password').style.display = 'block';
   }
 
   // Un compte Google arrive sans "profil" renseigné : on lui demande les
@@ -182,18 +217,71 @@
     });
   }
 
-  document.getElementById('btn-google').addEventListener('click', function(){
-    window.CedenceAuth.signInWithGoogle('espace-investisseur.html');
-  });
+  var btnGoogle = document.getElementById('btn-google');
+  if (btnGoogle) {
+    btnGoogle.addEventListener('click', function(){
+      window.CedenceAuth.signInWithGoogle('espace-investisseur.html');
+    });
+  }
 
-  window.CedenceAuth.handleOAuthRedirect().then(function(oauthSession){
-    if (oauthSession) { afterAuth(oauthSession); return; }
-    window.CedenceAuth.ensureSession().then(function(session){ afterAuth(session); });
-  });
+  // Un lien de réinitialisation de mot de passe arrive en priorité : on
+  // n'essaie pas de l'ouvrir comme une session normale.
+  var recovery = window.CedenceAuth.getRecoveryParams();
+  if (recovery) {
+    showResetPassword();
+  } else {
+    window.CedenceAuth.handleOAuthRedirect().then(function(oauthSession){
+      if (oauthSession) { afterAuth(oauthSession); return; }
+      window.CedenceAuth.ensureSession().then(function(session){ afterAuth(session); });
+    });
+  }
 
   document.getElementById('btn-logout').addEventListener('click', function(){
     window.CedenceAuth.signOut();
     window.location.reload();
+  });
+
+  var btnForgotToggle = document.getElementById('btn-forgot-toggle');
+  var forgotPanel = document.getElementById('forgot-panel');
+  btnForgotToggle.addEventListener('click', function(){
+    forgotPanel.style.display = forgotPanel.style.display === 'none' ? 'block' : 'none';
+  });
+
+  var forgotForm = document.getElementById('form-forgot');
+  forgotForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var status = forgotForm.querySelector('.form__status');
+    status.className = 'form__status';
+    var email = forgotForm.querySelector('#fg-email').value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      status.classList.add('is-err');
+      status.textContent = 'Merci de renseigner un e-mail valide.';
+      return;
+    }
+    var btn = forgotForm.querySelector('[type=submit]'); btn.disabled = true;
+    window.CedenceAuth.recoverPassword(email).then(function(){
+      btn.disabled = false;
+      status.classList.add('is-ok');
+      status.textContent = 'Si un compte existe avec cet e-mail, un lien de réinitialisation vient de lui être envoyé.';
+    });
+  });
+
+  var resetForm = document.getElementById('form-reset');
+  resetForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var status = resetForm.querySelector('.form__status');
+    status.className = 'form__status';
+    var p1 = resetForm.querySelector('#rp-password').value;
+    var p2 = resetForm.querySelector('#rp-password2').value;
+    if (p1.length < 8) { status.classList.add('is-err'); status.textContent = 'Le mot de passe doit comporter au moins 8 caractères.'; return; }
+    if (p1 !== p2) { status.classList.add('is-err'); status.textContent = 'Les deux mots de passe ne correspondent pas.'; return; }
+    var btn = resetForm.querySelector('[type=submit]'); btn.disabled = true;
+    window.CedenceAuth.setNewPassword(recovery, p1).then(function(res){
+      btn.disabled = false;
+      if (res.ok) { window.location.href = 'annonces.html'; return; }
+      status.classList.add('is-err');
+      status.textContent = (res.data && (res.data.msg || res.data.error_description)) || 'Impossible de mettre à jour le mot de passe. Demandez un nouveau lien.';
+    });
   });
 
   var completeForm = document.getElementById('form-complete-profile');
