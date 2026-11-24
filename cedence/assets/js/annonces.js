@@ -2,7 +2,7 @@
    Page Annonces — liste des cabinets à céder
    - Sans compte : lecture de la vue publique (cgp_annonces_public), champs
      restreints (fourchettes, pas de chiffres précis).
-   - Avec compte (Espace investisseur) : lecture de la vue
+   - Avec compte (Espace membre) : lecture de la vue
      cgp_annonces_investisseur, qui ajoute les chiffres précis et le
      descriptif détaillé. L'identité du cédant n'est jamais exposée par
      l'API : la mise en relation passe toujours par le formulaire de
@@ -89,7 +89,7 @@
     if (!gateBanner) return;
     if (session) {
       gateBanner.className = 'gate-banner is-ok';
-      gateBanner.innerHTML = '<div><h3>Espace investisseur — connecté</h3><p>Vous consultez le détail complet des annonces (' + esc(session.email) + ').</p></div>' +
+      gateBanner.innerHTML = '<div><h3>Espace membre — connecté</h3><p>Vous consultez le détail complet des annonces (' + esc(session.email) + ').</p></div>' +
         '<div class="gate-banner__actions"><button type="button" class="btn btn--ghost-light" id="gate-logout">Se déconnecter</button></div>';
       var out = document.getElementById('gate-logout');
       if (out) out.addEventListener('click', function () { window.CedenceAuth.signOut(); window.location.reload(); });

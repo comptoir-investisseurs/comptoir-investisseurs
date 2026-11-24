@@ -1,5 +1,5 @@
 /* =========================================================================
-   Espace investisseur — authentification Supabase (email + mot de passe)
+   Espace membre — authentification Supabase (email + mot de passe)
    Expose window.CedenceAuth, utilisé par assets/js/annonces.js et par la
    page espace-investisseur.html. Indépendant de l'auth du CRM (admin.js),
    qui utilise sessionStorage ; ici on utilise localStorage pour que les
