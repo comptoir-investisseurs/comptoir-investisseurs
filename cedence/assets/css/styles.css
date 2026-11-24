@@ -433,12 +433,12 @@ p{ margin:0 0 1.1em; }
 /* =========================================================================
    Scroll reveal + page transitions
    ========================================================================= */
-[data-reveal]{ opacity:0; transform:translateY(26px); transition:opacity .9s var(--ease), transform .9s var(--ease); }
-[data-reveal].is-in{ opacity:1; transform:none; }
-[data-reveal][data-delay="1"]{ transition-delay:.1s; }
-[data-reveal][data-delay="2"]{ transition-delay:.2s; }
-[data-reveal][data-delay="3"]{ transition-delay:.3s; }
-@media (prefers-reduced-motion:reduce){ [data-reveal]{ opacity:1!important; transform:none!important; } }
+/* L'apparition au scroll a été retirée : le contenu des sous-onglets
+   (Financement, Fiscalité, Transactions…) pouvait rester invisible après un
+   clic, tant que le scroll ne retombait pas exactement sur le bon seuil —
+   d'où les « trous » signalés. Les attributs data-reveal restent dans le
+   HTML (inoffensifs) mais ne cachent plus rien. */
+[data-reveal]{ opacity:1; transform:none; }
 
 .page-fade{ position:fixed; inset:0; z-index:2000; background:var(--green); pointer-events:none; opacity:0; transition:opacity .5s var(--ease); }
 .page-fade.is-active{ opacity:1; pointer-events:all; }
