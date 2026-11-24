@@ -25,8 +25,7 @@
 
   var DEMO_CARD =
     '<div class="listing listing--demo" data-reveal>' +
-      '<span class="listing__demo-tag">Exemple</span>' +
-      '<div class="listing__top"><span class="listing__ref">CG-DEMO-001</span><span class="listing__date">À titre d’illustration</span></div>' +
+      '<div class="listing__top"><span class="listing__ref">CG-DEMO-001 · <span class="listing__demo-tag">exemple</span></span><span class="listing__date">À titre d’illustration</span></div>' +
       '<h3>Cabinet CIF / IAS — clientèle patrimoniale</h3>' +
       '<p class="listing__loc">Région Auvergne-Rhône-Alpes</p>' +
       '<div class="listing__stats">' +
