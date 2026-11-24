@@ -364,6 +364,27 @@
 }
 .account-pill svg{ width:16px; height:16px; color:var(--green); }
 
+/* ----- Portefeuille confidentiel (cabinets non publiés) ----- */
+.skel-line{ height:12px; background:var(--line); border-radius:2px; }
+.listing--locked .skel-line{ margin-bottom:10px; }
+.listing--locked .listing__top .skel-line{ height:11px; width:90px; margin:0; }
+.listing--locked h3.skel-line{ height:19px; margin:0 0 12px; }
+.listing--locked .listing__stat .skel-line{ margin-top:6px; }
+
+.portfolio-intro{
+  display:flex; align-items:center; gap:22px; flex-wrap:wrap; justify-content:space-between;
+  background:var(--green); color:#fff; padding:30px 32px; margin-bottom:36px;
+}
+.portfolio-intro h3{ color:#fff; font-size:1.3rem; margin-bottom:6px; font-weight:500; }
+.portfolio-intro p{ color:rgba(255,255,255,.75); margin:0; font-size:.92rem; max-width:56ch; }
+.portfolio-count{ font-family:var(--serif); font-size:2.6rem; line-height:1; color:#fff; flex:none; text-align:center; }
+.portfolio-count span{ display:block; font-family:var(--sans); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.6); margin-top:6px; }
+
+.contact-highlight{
+  background:var(--sand); padding:clamp(28px,4vw,44px); margin-top:40px;
+}
+.contact-highlight__head{ max-width:640px; margin:0 auto 30px; text-align:center; }
+
 /* ----- Article / long-form SEO content ----- */
 .article{ max-width:820px; margin-inline:auto; }
 .article h2{ font-family:var(--serif); font-weight:500; color:var(--green); font-size:clamp(1.5rem,3vw,2rem); margin:48px 0 6px; }

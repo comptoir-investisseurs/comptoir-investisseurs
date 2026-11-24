@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=20261124h">
-<link rel="stylesheet" href="assets/css/cession.css?v=20261124h">
+<link rel="stylesheet" href="assets/css/styles.css?v=20261124i">
+<link rel="stylesheet" href="assets/css/cession.css?v=20261124i">
 <link rel="canonical" href="https://cedence.fr/acheter.html">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ProfessionalService","name":"Cédence","url":"https://cedence.fr/","email":"contact@lfd-rochechouart.com","description":"Valorisation, cession et rapprochement de cabinets de conseil en gestion de patrimoine (CGP).","areaServed":"FR"}
@@ -35,6 +35,72 @@
 
 <!-- ============ PANEL : ACQUÉRIR ============ -->
 <div class="subpanel is-active" data-panel="acquerir">
+
+  <section class="section" style="padding-bottom:0">
+    <div class="container">
+      <div class="portfolio-intro" data-reveal>
+        <div>
+          <h3>Un portefeuille de cabinets non publiés</h3>
+          <p>Par discrétion envers les cédants, la majorité de nos dossiers ne sont jamais mis en ligne, même en annonce anonymisée. Parlez-nous de votre projet : nous vous présentons les opportunités qui correspondent à vos critères.</p>
+        </div>
+        <div class="portfolio-count">46<span>Cabinets en portefeuille</span></div>
+      </div>
+
+      <div class="listing-grid">
+        <div class="listing listing--locked" data-reveal>
+          <div class="listing__top"><div class="skel-line"></div><span class="listing__date">Confidentiel</span></div>
+          <h3 class="skel-line" style="width:72%"></h3>
+          <div class="skel-line" style="width:45%;margin-bottom:16px"></div>
+          <div class="listing__stats">
+            <div class="listing__stat"><div class="k">Encours (AUM)</div><div class="skel-line" style="width:60%"></div></div>
+            <div class="listing__stat"><div class="k">CA annuel</div><div class="skel-line" style="width:55%"></div></div>
+            <div class="listing__stat"><div class="k">Prix souhaité</div><div class="skel-line" style="width:50%"></div></div>
+            <div class="listing__stat"><div class="k">Clients actifs</div><div class="skel-line" style="width:40%"></div></div>
+          </div>
+        </div>
+        <div class="listing listing--locked" data-reveal data-delay="1">
+          <div class="listing__top"><div class="skel-line"></div><span class="listing__date">Confidentiel</span></div>
+          <h3 class="skel-line" style="width:64%"></h3>
+          <div class="skel-line" style="width:50%;margin-bottom:16px"></div>
+          <div class="listing__stats">
+            <div class="listing__stat"><div class="k">Encours (AUM)</div><div class="skel-line" style="width:48%"></div></div>
+            <div class="listing__stat"><div class="k">CA annuel</div><div class="skel-line" style="width:62%"></div></div>
+            <div class="listing__stat"><div class="k">Prix souhaité</div><div class="skel-line" style="width:56%"></div></div>
+            <div class="listing__stat"><div class="k">Clients actifs</div><div class="skel-line" style="width:35%"></div></div>
+          </div>
+        </div>
+      </div>
+      <p class="center muted" style="margin-top:18px;font-size:.86rem">… et 44 autres dossiers, présentés uniquement sur rendez-vous.</p>
+
+      <div class="contact-highlight" data-reveal>
+        <div class="contact-highlight__head">
+          <p class="eyebrow">Accès sur demande</p>
+          <h2 class="title-md">Décrivez votre projet de reprise</h2>
+          <hr class="rule" style="margin-inline:auto">
+          <p class="lede">Zone, taille de cabinet, budget : quelques précisions nous suffisent pour vous orienter vers les dossiers pertinents de notre portefeuille, en toute confidentialité.</p>
+        </div>
+        <form id="contact-form" class="form" style="max-width:720px;margin-inline:auto" novalidate>
+          <div class="row">
+            <div class="field"><label for="ac-name">Nom &amp; prénom</label><input id="ac-name" name="name" type="text" autocomplete="name" required></div>
+            <div class="field"><label for="ac-email">Email</label><input id="ac-email" name="email" type="email" autocomplete="email" required></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="ac-phone">Téléphone</label><input id="ac-phone" name="phone" type="tel" autocomplete="tel"></div>
+            <div class="field"><label for="ac-subject">Votre projet</label><select id="ac-subject" name="subject">
+              <option>Acquérir un cabinet</option>
+              <option>Étudier un rapprochement</option>
+              <option>Financer une reprise</option>
+              <option>Autre demande</option>
+            </select></div>
+          </div>
+          <div class="field"><label for="ac-message">Votre message</label><textarea id="ac-message" name="message" required placeholder="Zone géographique, taille de cabinet, budget d’acquisition, horizon…"></textarea></div>
+          <div class="form__status" role="status" aria-live="polite"></div>
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap"><button class="btn btn--solid" type="submit">Envoyer ma demande <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><span class="form__note">Réponse sous 48 heures ouvrées, en toute discrétion.</span></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container split">
       <div data-reveal>
@@ -153,8 +219,8 @@
 
 <footer class="site-footer"><div class="container"><div class="footer-grid"><div><a class="brand brand--word" href="index.html" aria-label="Cédence — accueil"><img class="brand__mk" src="assets/img/cedence-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédence</span></a><p style="max-width:34ch;font-size:.95rem;margin-top:6px">Cession &amp; rapprochement de cabinets de conseil en gestion de patrimoine. Confidentialité, justesse de la valeur, continuité pour vos clients.</p><p style="margin-top:14px"><a class="link-arrow" href="guide-valorisation-cession-cabinet-cgp.html">Le guide complet de la valorisation <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p></div><div><h5>Vendre</h5><ul class="footer-links"><li><a href="vendre.html#pourquoi">Pourquoi vendre</a></li><li><a href="fiscalite-cession-cabinet-cgp.html">Fiscalité de la cession</a></li><li><a href="vendre.html#transactions">Transactions récentes</a></li></ul></div><div><h5>Acheter</h5><ul class="footer-links"><li><a href="acheter.html#acquerir">Acquérir un cabinet</a></li><li><a href="acheter.html#synergies">Points d’attention &amp; synergies</a></li><li><a href="financer-reprise-cabinet-cgp.html">Financement</a></li></ul></div><div><h5>Annonces</h5><ul class="footer-links"><li><a href="annonces.html">Voir les annonces</a></li><li><a href="espace-investisseur.html">Espace membre</a></li></ul></div><div class="footer-contact"><h5>Nous contacter</h5><p><a href="mailto:contact@lfd-rochechouart.com">contact@lfd-rochechouart.com</a></p><p style="margin-top:16px"><a class="link-arrow" href="contact.html">Prendre contact <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p></div></div><p class="disclaimer">L’estimation proposée sur ce site est strictement indicative et ne constitue ni un conseil, ni une offre, ni un engagement. Les exemples de transactions présentés sont anonymisés et fournis à titre purement illustratif. La fiscalité dépend de la situation individuelle de chaque dirigeant et est susceptible d’évoluer.</p><div class="footer-bottom"><span>© <span id="year">2026</span> Cédence — Tous droits réservés.</span><span><a href="mentions-legales.html">Mentions légales</a> &nbsp;·&nbsp; <a href="mentions-legales.html#cookies">Cookies</a> &nbsp;·&nbsp; <a href="contact.html">Contact</a></span></div></div></footer>
 
-<script src="assets/js/main.js?v=20261124h"></script>
-<script src="assets/js/cession.js?v=20261124h"></script>
-<script src="assets/js/cookies.js?v=20261124h"></script>
+<script src="assets/js/main.js?v=20261124i"></script>
+<script src="assets/js/cession.js?v=20261124i"></script>
+<script src="assets/js/cookies.js?v=20261124i"></script>
 </body>
 </html>
