@@ -77,12 +77,27 @@
     '</div>';
   }
 
+  // Reprend la présentation du portefeuille confidentiel utilisée sur
+  // acheter.html : la majorité de nos dossiers ne sont pas publiés ici
+  // (même en annonce anonymisée), donc "pas d'annonce en ligne" ne veut
+  // pas dire "pas de dossier disponible".
   function emptyState() {
-    return '<div class="listing-empty" data-reveal>' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>' +
-      '<h3>Aucune annonce publiée pour le moment</h3>' +
-      '<p>De nouvelles opportunités de cession sont étudiées en continu. Laissez-nous vos critères via le formulaire de contact pour être informé en priorité, ou créez un compte pour être alerté dès publication.</p>' +
-    '</div>';
+    return '<div class="listing listing--locked" data-reveal>' +
+        '<div class="listing__top"><div class="skel-line"></div><span class="listing__date">Confidentiel</span></div>' +
+        '<h3 class="skel-line" style="width:72%"></h3>' +
+        '<div class="skel-line" style="width:45%;margin-bottom:16px"></div>' +
+        '<div class="listing__stats">' +
+          '<div class="listing__stat"><div class="k">Encours (AUM)</div><div class="skel-line" style="width:60%"></div></div>' +
+          '<div class="listing__stat"><div class="k">CA annuel</div><div class="skel-line" style="width:55%"></div></div>' +
+          '<div class="listing__stat"><div class="k">Prix souhaité</div><div class="skel-line" style="width:50%"></div></div>' +
+          '<div class="listing__stat"><div class="k">Clients actifs</div><div class="skel-line" style="width:40%"></div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="listing-empty" data-reveal style="grid-column:1/-1;max-width:none">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>' +
+        '<h3>Et bien d’autres</h3>' +
+        '<p>Par discrétion envers les cédants, la majorité de nos dossiers ne sont jamais mis en ligne. <a href="acheter.html#acquerir">Consultez notre portefeuille</a> ou laissez-nous vos critères via le formulaire de contact pour être mis en relation directement.</p>' +
+      '</div>';
   }
 
   function renderGate(session) {
