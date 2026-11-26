@@ -76,6 +76,17 @@ grep -q 'name="robots" content="noindex' "$OUT/observatoire/admin.html" \
   || { echo "ERREUR : observatoire/admin.html sans noindex"; exit 1; }
 grep -q 'name="robots" content="noindex' "$OUT/observatoire/analyses/lire.html" \
   || { echo "ERREUR : observatoire/analyses/lire.html sans noindex"; exit 1; }
+# Les sous-jacents ne doivent apparaître ni dans la page du comparateur, ni
+# dans le catalogue servi : ils vivent dans le seul assets/sous-jacents.js,
+# chargé après le formulaire d'accès.
+for nom in "EURO STOXX" "CAC 40" "MSCI" "Nikkei" "Euribor" "EPRA"; do
+  if grep -qF "$nom" "$OUT/observatoire/produits.html" "$OUT/observatoire/assets/data.js"; then
+    echo "ERREUR : le sous-jacent « $nom » apparaît dans le comparateur publié"; exit 1
+  fi
+done
+test -f "$OUT/observatoire/assets/sous-jacents.js" \
+  || { echo "ERREUR : observatoire/assets/sous-jacents.js absent"; exit 1; }
+
 for f in admin.js admin.css articles.js supabase-obs.js; do
   test -f "$OUT/observatoire/assets/$f" || { echo "ERREUR : observatoire/assets/$f absent"; exit 1; }
 done

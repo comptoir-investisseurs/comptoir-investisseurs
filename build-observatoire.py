@@ -1560,10 +1560,22 @@ def unesc(o):
     return o
 
 def build_data_js():
-    payload = json.dumps(unesc(PRODUITS), ensure_ascii=False, indent=0, separators=(",", ":"))
+    """Catalogue servi à tous les visiteurs. Il ne contient AUCUN nom de
+    sous-jacent : ceux-ci vivent dans assets/sous-jacents.js, chargé seulement
+    après le formulaire d'accès."""
+    masques = produits_masques()
+    fuites = controler_fuites(masques)
+    if fuites:
+        raise SystemExit(
+            "Masquage des sous-jacents incomplet — publication interrompue :\n"
+            + "\n".join(f"    {nom} : {', '.join(r)}" for nom, r in fuites[:10]))
+    payload = json.dumps(unesc(masques), ensure_ascii=False, indent=0, separators=(",", ":"))
     js = ("/* Généré par build-observatoire.py — ne pas modifier à la main. */\n"
           "/* Gabarits de structures sur sous-jacents de marché, à titre pédagogique. */\n"
+          "/* Les sous-jacents sont masqués : voir assets/sous-jacents.js. */\n"
           "window.OBS_EMAIL = " + json.dumps(EMAIL) + ";\n"
+          "window.OBS_SENT = " + json.dumps([SENTINELLE, SENTINELLE_D, SENTINELLE_N]) + ";\n"
+          "window.OBS_SJ_SRC = " + json.dumps(v("assets/sous-jacents.js")) + ";\n"
           "window.OBS_PRODUITS = " + payload + ";\n")
     write("assets/data.js", js)
 
@@ -1734,6 +1746,81 @@ def bloc_structurer():
 # ==========================================================================
 #  PAGE — ACCUEIL
 # ==========================================================================
+def bloc_acces_sj():
+    """Formulaire court donnant accès aux sous-jacents du comparateur.
+
+    Il est volontairement bref : quatre champs, dont un facultatif. Son seul
+    objet est d'identifier le visiteur avant de lui ouvrir le détail des
+    sous-jacents, pas de qualifier un projet — c'est le rôle du formulaire
+    « Structurer sur mesure ».
+
+    ⚠️ La levée du masque se joue dans le navigateur. Elle impose le passage
+    par le formulaire au visiteur ordinaire, mais ne protège pas le fichier
+    assets/sous-jacents.js, qui reste accessible à qui connaît son adresse.
+    """
+    return f"""
+<section class="section section--ivory" id="acces-sous-jacents" style="scroll-margin-top:90px">
+  <div class="container container--mid">
+    <div class="acces" data-acces-sj>
+      <div class="acces__txt">
+        <p class="eyebrow">Accès aux sous-jacents</p>
+        <h2 class="title-md" style="margin-top:8px">Voir le sous-jacent de chaque structure</h2>
+        <p class="small" style="margin-top:14px;max-width:560px">
+          Le comparateur affiche librement la famille, l’émetteur, le coupon, les barrières
+          et la maturité. Le <strong>sous-jacent précis</strong> de chaque structure est
+          réservé : laissez-nous vos coordonnées, il s’affiche aussitôt sur l’ensemble du
+          tableau et des fiches.
+        </p>
+        <p class="xsmall muted" style="margin-top:12px;max-width:560px">
+          Information à caractère pédagogique. Les conditions indiquées sont des hypothèses
+          de marché de {e(MARCHE_REF)}, et ne constituent ni une offre, ni une
+          recommandation personnalisée.
+        </p>
+      </div>
+
+      <form class="acces__form" id="acces-form" method="POST" action="{FORMSUBMIT}">
+        <input type="hidden" name="_subject" value="Accès aux sous-jacents du comparateur — {e(SITE)}">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="{url_abs('produits.html')}?acces=1#comparateur">
+        <input type="text" name="_honey" class="sm-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <div class="acces__grid">
+          <div class="field"><label for="ac-prenom">Prénom *</label>
+            <input type="text" id="ac-prenom" name="Prénom" autocomplete="given-name" required></div>
+          <div class="field"><label for="ac-nom">Nom *</label>
+            <input type="text" id="ac-nom" name="Nom" autocomplete="family-name" required></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label for="ac-email">Email *</label>
+          <input type="email" id="ac-email" name="Email" autocomplete="email" required></div>
+        <div class="field" style="margin-top:12px"><label for="ac-tel">Téléphone</label>
+          <input type="tel" id="ac-tel" name="Téléphone" autocomplete="tel"></div>
+
+        <label class="acces__ok">
+          <input type="checkbox" id="ac-ok" name="Consentement" value="Accepte d’être recontacté" required>
+          <span>J’accepte d’être recontacté par {e(EDITEUR)} au sujet des produits structurés.</span>
+        </label>
+
+        <button class="btn btn--gold" type="submit" style="width:100%;justify-content:center;margin-top:16px">
+          Afficher les sous-jacents
+        </button>
+        <p class="xsmall muted" style="margin:12px 0 0">
+          Vos coordonnées servent uniquement à vous recontacter. Elles ne sont ni cédées,
+          ni revendues. Vous pouvez demander leur suppression à
+          <a class="inline" href="mailto:{EMAIL}">{EMAIL}</a>.
+        </p>
+      </form>
+    </div>
+
+    <div class="acces__ouvert" id="acces-ouvert" hidden>
+      <span class="acces__coche" aria-hidden="true">✓</span>
+      <p style="margin:0">Les sous-jacents sont affichés sur l’ensemble du comparateur.
+      <button class="btn-link" type="button" id="acces-fermer" style="margin-left:10px">Les masquer à nouveau</button></p>
+    </div>
+  </div>
+</section>
+"""
+
 def page_index():
     best, seen = [], set()
     for p in sorted(PRODUITS, key=lambda x: -x["note"]):
@@ -1981,10 +2068,11 @@ def page_produits():
 
     body = f"""
 {hero("Comparateur de produits structurés :<br>coupons, barrières et risques",
-  f"{len(PRODUITS)} gabarits de structures, indice public ou décrément — la nature du "
-  "sous-jacent est indiquée sur chaque ligne et sert de filtre. Triables selon les "
-  "paramètres qui déterminent réellement le profil de risque ; cliquez sur une ligne pour "
-  "en déplier le mécanisme, les scénarios et les points de vigilance.",
+  f"{len(PRODUITS)} gabarits de structures, triables selon les paramètres qui déterminent "
+  "réellement le profil de risque : coupon, barrières, maturité, signature de l’émetteur. "
+  "Cliquez sur une ligne pour en déplier le mécanisme, les scénarios et les points de "
+  "vigilance. Le sous-jacent précis de chaque structure s’affiche après le formulaire "
+  "d’accès, en bas de cette page.",
   crumb_html=fil([("Accueil", "index.html"), ("Comparateur", "produits.html")], ""),
   actions='<a class="btn btn--ghost-light" href="#structurer">Structurer sur mesure</a>', forme_nom=forme("produits.html"))}
 
@@ -2010,7 +2098,7 @@ def page_produits():
       <div class="filters__row">
         <div class="field" style="grid-column:span 2">
           <label for="f-q">Recherche libre</label>
-          <input type="search" id="f-q" placeholder="Phoenix, worst-of, CAC 40, dollar…" autocomplete="off">
+          <input type="search" id="f-q" placeholder="Phoenix, autocall, worst-of, dollar…" autocomplete="off">
         </div>
         <div class="field"><label for="f-fam">Famille</label><select id="f-fam"></select></div>
         <div class="field"><label for="f-emet">Émetteur</label><select id="f-emet"></select></div>
@@ -2051,7 +2139,11 @@ def page_produits():
         <span class="xsmall muted" style="margin-left:auto">Cliquez sur l’en-tête d’une colonne pour trier.</span>
       </div>
     </form>
-
+  </div>
+</section>
+{bloc_acces_sj()}
+<section class="section" style="padding-top:0">
+  <div class="container">
     <div class="tablewrap">
       <table class="tbl">
         <thead>
@@ -3129,6 +3221,7 @@ def main():
         if os.path.exists(path):
             os.remove(path)
             print(f"  − {f} (fusionné dans un autre onglet)")
+    build_sous_jacents_js()
     build_data_js()
     build_supabase_js()
     page_index()
@@ -4583,11 +4676,15 @@ def tri_initial():
                   key=lambda i: (0 if PRODUITS[i].get("reel") else 1, -PRODUITS[i]["note"]))
 
 def rows_prerendered():
-    """Lignes du comparateur, triées comme l'état initial d'obs.js."""
+    """Lignes du comparateur, triées comme l'état initial d'obs.js.
+    Le pré-rendu porte le catalogue MASQUÉ : ce que voit un moteur de
+    recherche ou un visiteur sans JavaScript est exactement ce que voit un
+    visiteur ordinaire — rien n'est servi différemment aux uns et aux autres."""
     ordre = tri_initial()
+    masques = produits_masques()
     out = []
     for i in ordre:
-        p = PRODUITS[i]
+        p = masques[i]
         bk = ('<span class="tag tag--pos">Protégé</span>' if p["b_capital"] is None
               else _pct0(p["b_capital"]))
         out.append(
@@ -4608,14 +4705,15 @@ def rows_prerendered():
           '</tr>'
           f'<tr class="row-detail is-hidden" data-d="{i}" hidden><td colspan="9">'
           f'{detail_html(p)}</td></tr>')
-    return "\n".join(out)
+    return rendu_sj("\n".join(out))
 
 def cards_prerendered():
     """Équivalent mobile, pour que le contenu reste lisible sans JS."""
     ordre = tri_initial()
+    masques = produits_masques()
     out = []
     for i in ordre:
-        p = PRODUITS[i]
+        p = masques[i]
         out.append(
           '<article class="pcard">'
             '<div class="pcard__top">'
@@ -4635,7 +4733,7 @@ def cards_prerendered():
             '<details style="margin-top:12px"><summary class="btn-link" style="cursor:pointer">'
             f'Voir le détail</summary>{detail_html(p)}</details>'
           '</article>')
-    return "\n".join(out)
+    return rendu_sj("\n".join(out))
 
 # ==========================================================================
 #  PAGE — CONFIRMATION D'ENVOI (cible du champ _next de FormSubmit)
@@ -5323,6 +5421,175 @@ def config_supabase():
             return m.group(1)
         _CONFIG_SUPABASE = (lire("SUPABASE_URL"), lire("SUPABASE_ANON_KEY"))
     return _CONFIG_SUPABASE
+
+# ==========================================================================
+#  SOUS-JACENTS SOUS CONDITION
+#  Le nom précis du sous-jacent n'est pas publié avec le catalogue : il est
+#  remplacé par une sentinelle dans toutes les données servies, et les vraies
+#  valeurs vivent dans un second fichier, chargé seulement après que le
+#  visiteur a rempli le formulaire d'accès.
+#
+#  ⚠️ Portée exacte de cette protection : elle oblige à passer par le
+#  formulaire, mais ne chiffre rien. assets/sous-jacents.js reste une adresse
+#  publique, que quiconque la devine peut ouvrir. C'est un dispositif de
+#  captation de contact, pas un secret.
+# ==========================================================================
+SENTINELLE = "⟦SJ⟧"
+SENTINELLE_D = "⟦SJD⟧"
+SENTINELLE_N = "⟦SJN⟧"
+
+_PREFIXES_SJ = ("worst-of ", "panier ", "indice ", "action ", "actions ")
+
+# Noms propres d'instruments de marché. Un produit peut nommer dans son
+# intitulé un indice qui est le sous-jacent d'un AUTRE produit : masquer
+# seulement le sous-jacent de chaque fiche laisserait donc passer ces
+# mentions croisées. Ce vocabulaire est appliqué à tout le catalogue.
+# Les entrées de moins de cinq signes sont comparées en respectant la casse,
+# pour que « Or » soit masqué sans emporter la conjonction « or ».
+VOCABULAIRE_SJ = (
+    "FTSE EPRA Nareit Developed Europe",
+    "FTSE EPRA Nareit Europe",
+    "STOXX Europe 600 Oil & Gas",
+    "MSCI Emerging Markets",
+    "MSCI EMU ESG Leaders",
+    "EURO STOXX Banks",
+    "EURO STOXX 50",
+    "Euribor 3 mois",
+    "Euribor",
+    "MSCI World",
+    "Nikkei 225",
+    "S&P 500",
+    "CAC 40",
+    "Or",
+)
+
+def _variantes_sj(sj):
+    """Toutes les écritures sous lesquelles un sous-jacent peut apparaître
+    dans les textes : forme brute, forme échappée, composantes d'un panier."""
+    brut = html.unescape(sj).strip()
+    v = {brut, sj.strip()}
+
+    noyau = brut
+    for p in _PREFIXES_SJ:
+        if noyau.lower().startswith(p):
+            noyau = noyau[len(p):].strip()
+            v.add(noyau)
+            break
+
+    # Un panier nomme plusieurs indices : chacun doit disparaître séparément.
+    for sep in ("/", " et ", ","):
+        if sep in noyau:
+            for part in noyau.split(sep):
+                part = part.strip()
+                if len(part) >= 4:
+                    v.add(part)
+
+    v = {x for x in v if len(x) >= 4}
+    # Les plus longues d'abord, sinon « S&P 500 » serait masqué avant
+    # « Worst-of … S&P 500 … » et laisserait des fragments.
+    return sorted(v, key=len, reverse=True)
+
+def _motif(terme):
+    """Expression de recherche d'un terme : bornes de mot, et casse
+    respectée pour les termes courts."""
+    drapeaux = 0 if len(terme) < 5 else re.IGNORECASE
+    return re.compile(r"(?<![\w])" + re.escape(terme) + r"(?![\w])", drapeaux)
+
+def _masquer(texte, variantes):
+    if not texte:
+        return texte
+    for var in variantes:
+        texte = _motif(var).sub(SENTINELLE, texte)
+    # Un panier laisse autant de sentinelles que de composantes : on réduit
+    # toute la série, séparateurs compris, à une seule.
+    sent = re.escape(SENTINELLE)
+    sep = r"(?:\s*[/,]\s*|\s+et\s+)"
+    texte = re.sub(r"(?:" + sent + sep + r")+" + sent, SENTINELLE, texte)
+    return texte
+
+CHAMPS_A_MASQUER = ("nom", "mecanisme", "sc_fav", "sc_med", "sc_def")
+
+def _termes(p):
+    """Vocabulaire applicable à une fiche : les noms propres du marché, plus
+    les écritures propres à son sous-jacent. Les textes du catalogue sont
+    stockés échappés (« S&amp;P 500 ») : la forme échappée de chaque terme
+    doit donc être cherchée elle aussi, faute de quoi le masquage glisse
+    dessus sans rien voir."""
+    t = set(VOCABULAIRE_SJ) | set(_variantes_sj(p["sous_jacent"]))
+    if p.get("sous_jacent_detail"):
+        t |= set(_variantes_sj(p["sous_jacent_detail"]))
+    t |= {html.escape(x, quote=False) for x in list(t)}
+    t |= {html.unescape(x) for x in list(t)}
+    return sorted(t, key=len, reverse=True)
+
+def produits_masques():
+    """Catalogue tel qu'il est publié : sans aucun nom de sous-jacent."""
+    sortie = []
+    for p in PRODUITS:
+        var = _termes(p)
+        q = dict(p)
+        for c in CHAMPS_A_MASQUER:
+            q[c] = _masquer(q.get(c), var)
+        q["nom"] = q["nom"].replace(SENTINELLE, SENTINELLE_N)
+        q["attention"] = [_masquer(a, var) for a in p.get("attention", [])]
+        # Les deux champs de sous-jacent disparaissent en entier : même un
+        # libellé générique est une information que le formulaire conditionne.
+        q["sous_jacent"] = SENTINELLE
+        q["sous_jacent_detail"] = SENTINELLE_D
+        sortie.append(q)
+    return sortie
+
+def table_sous_jacents():
+    """Les vraies valeurs, dans l'ordre de PRODUITS : second fichier, chargé
+    uniquement une fois le formulaire d'accès rempli."""
+    return [{"s": html.unescape(p["sous_jacent"]),
+             "d": html.unescape(p.get("sous_jacent_detail") or p["sous_jacent"])}
+            for p in PRODUITS]
+
+def controler_fuites(masques):
+    """Signale toute structure dont un nom d'instrument transparaît encore
+    dans les données publiées. Un échec ici vaut fuite en production."""
+    fuites = []
+    for p, q in zip(PRODUITS, masques):
+        bruts = ([str(q.get(c) or "") for c in CHAMPS_A_MASQUER]
+                 + [str(q["sous_jacent"]), str(q["sous_jacent_detail"])]
+                 + list(q.get("attention", [])))
+        # On contrôle le texte tel qu'il est stocké ET tel qu'il s'affiche.
+        textes = bruts + [html.unescape(t) for t in bruts]
+        reste = sorted({v for v in _termes(p)
+                        for t in textes if _motif(v).search(t)})
+        if reste:
+            fuites.append((html.unescape(p["nom"]), reste))
+    return fuites
+
+def _chip(nu):
+    """Pastille de sous-jacent masqué. `nu` : sans le libellé « Réservé »,
+    pour l'intitulé de la structure — une seule pastille complète par ligne
+    suffit à signaler le masquage, et l'intitulé reste lisible."""
+    return ('<button type="button" class="sj-lock' + (" sj-lock--nu" if nu else "") + '" '
+            'data-sj-lock title="Sous-jacent réservé — cliquez pour y accéder" '
+            'aria-label="Sous-jacent masqué. Ouvrir le formulaire d’accès.">'
+            '<span class="sj-lock__f" aria-hidden="true">Indice réservé</span>'
+            + ('' if nu else '<span class="sj-lock__t">Réservé</span>')
+            + '</button>')
+
+CHIP_SJ = _chip(False)
+CHIP_SJ_NU = _chip(True)
+
+def rendu_sj(bloc):
+    """Remplace les sentinelles d'un fragment HTML déjà échappé par la
+    pastille de sous-jacent masqué. Un seul passage en fin de rendu, plutôt
+    qu'un traitement champ par champ : aucun point de fuite oublié."""
+    return (bloc.replace(SENTINELLE_N, CHIP_SJ_NU)
+                .replace(SENTINELLE_D, CHIP_SJ)
+                .replace(SENTINELLE, CHIP_SJ))
+
+def build_sous_jacents_js():
+    write("assets/sous-jacents.js",
+          "/* Généré par build-observatoire.py — ne pas modifier à la main. */\n"
+          "/* Chargé à la demande, après le formulaire d'accès du comparateur. */\n"
+          "window.OBS_SJ = " + json.dumps(table_sous_jacents(), ensure_ascii=False,
+                                          separators=(",", ":")) + ";\n")
 
 if __name__ == "__main__":
     main()

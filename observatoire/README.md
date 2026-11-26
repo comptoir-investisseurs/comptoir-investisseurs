@@ -142,6 +142,57 @@ ajouter côté serveur la validation du type réel, une limite de taille, un sto
 racine web et une purge. À faire valider par la conformité, un DIC pouvant contenir des
 données personnelles.
 
+## Sous-jacents réservés
+
+Le comparateur affiche librement la famille, l'émetteur et sa notation, le coupon, les
+barrières, la maturité, la devise, le mécanisme, les scénarios et les points de vigilance.
+**Le nom précis du sous-jacent est, lui, conditionné à un formulaire court** (prénom, nom,
+email, téléphone facultatif, consentement), placé juste au-dessus du tableau.
+
+### Comment c'est construit
+
+Le catalogue publié — `observatoire/assets/data.js` et le tableau pré-rendu dans
+`produits.html` — **ne contient aucun nom de sous-jacent**. Chacun y est remplacé par une
+sentinelle (`⟦SJ⟧`, `⟦SJD⟧`, `⟦SJN⟧`). Les vraies valeurs vivent seules dans
+`observatoire/assets/sous-jacents.js`, qui n'est téléchargé qu'une fois le formulaire rempli.
+
+Le masquage ne se limite pas au champ « sous-jacent » : il balaie aussi l'intitulé des
+structures, le mécanisme, les scénarios et les points d'attention, à partir d'un vocabulaire
+explicite de noms propres de marché (`VOCABULAIRE_SJ`, en tête du module). Un produit peut en
+effet nommer dans son titre un indice qui est le sous-jacent d'un *autre* produit.
+
+`controler_fuites()` vérifie après coup qu'aucun nom ne subsiste, sous ses formes brute et
+échappée (`S&amp;P 500`). **Une fuite interrompt la génération**, et `render-build.sh` refait
+le contrôle sur les fichiers publiés.
+
+### ⚠️ Ce que cette protection vaut, et ce qu'elle ne vaut pas
+
+Elle **oblige le visiteur ordinaire à passer par le formulaire**. C'est son objet : capter un
+contact.
+
+Elle **ne protège pas la donnée**. La levée du masque se joue dans le navigateur, et
+`assets/sous-jacents.js` reste une adresse publique : qui la devine ou lit le code de la page
+obtient les sous-jacents sans rien remplir. Pour une protection réelle, il faudrait servir ces
+valeurs depuis un serveur après authentification — ce qu'un hébergement statique ne permet pas.
+
+### Conséquence sur le référencement
+
+Rien n'est servi différemment aux moteurs : le pré-rendu sans JavaScript porte le même
+catalogue masqué que la page vue par un visiteur. C'est délibéré — servir aux robots un texte
+que l'internaute ne voit pas est du *cloaking*, et c'est sanctionné.
+
+Les noms d'indices disparaissent donc des pages du comparateur. **Ils restent présents dans
+les 14 guides**, dont `guides/produit-structure-euro-stoxx-50/`, qui portent l'essentiel du
+référencement sur ces requêtes. La perte est réelle mais circonscrite.
+
+### Lever ou rétablir le masque
+
+| | |
+|---|---|
+| Désactiver complètement | remplacer `produits_masques()` par `PRODUITS` dans `build_data_js()` et les deux pré-rendus |
+| Ajouter un nom à masquer | une ligne dans `VOCABULAIRE_SJ` |
+| Paramètre de retour du formulaire | `?acces=1` — surtout pas `?sj=`, déjà pris par le filtre de type |
+
 ## Espace de rédaction des analyses
 
 `observatoire/admin.html` — **lié depuis aucune page**, `noindex, nofollow`. On y accède en

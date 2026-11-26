@@ -110,8 +110,10 @@
       if (state.cap && !(p.b_capital !== null && p.b_capital <= parseFloat(state.cap))) return false;
       if (state.mat && !(p.maturite <= parseFloat(state.mat))) return false;
       if (state.q) {
-        var hay = norm([p.nom, p.emetteur, p.famille, p.sous_jacent, p.sj_type, p.isin,
-                        p.statut, (p.tags || []).join(' ')].join(' '));
+        var reel = ouvert && window.OBS_SJ && window.OBS_SJ[ALL.indexOf(p)];
+        var hay = norm([p.nom, p.emetteur, p.famille, p.sj_type, p.isin,
+                        p.statut, (p.tags || []).join(' '),
+                        reel ? reel.s + ' ' + reel.d : ''].join(' '));
         var terms = norm(state.q).split(/\s+/).filter(Boolean);
         for (var i = 0; i < terms.length; i++) if (hay.indexOf(terms[i]) < 0) return false;
       }
@@ -185,6 +187,124 @@
         '</div>';
     }
 
+    /* ------------------------------------------------------------------
+       SOUS-JACENTS SOUS CONDITION
+
+       Le catalogue servi ne contient aucun nom de sous-jacent : chacun y est
+       remplacé par une sentinelle. Tant que le formulaire d'accès n'a pas
+       été rempli, la sentinelle devient une pastille « Réservé » ; une fois
+       rempli, assets/sous-jacents.js est chargé et la vraie valeur prend sa
+       place.
+
+       La pastille doit être le calque exact de CHIP_SJ dans
+       build-observatoire.py : le tableau est pré-rendu côté serveur, et
+       toute divergence provoquerait un saut visuel à l'hydratation.
+       ------------------------------------------------------------------ */
+    var SENT = (window.OBS_SENT ||
+                ['\u27e6SJ\u27e7', '\u27e6SJD\u27e7', '\u27e6SJN\u27e7']);
+
+    function chip(nu) {
+      return '<button type="button" class="sj-lock' + (nu ? ' sj-lock--nu' : '') + '" ' +
+        'data-sj-lock title="Sous-jacent réservé — cliquez pour y accéder" ' +
+        'aria-label="Sous-jacent masqué. Ouvrir le formulaire d\u2019accès.">' +
+        '<span class="sj-lock__f" aria-hidden="true">Indice réservé</span>' +
+        (nu ? '' : '<span class="sj-lock__t">Réservé</span>') + '</button>';
+    }
+    var CHIP = chip(false), CHIP_NU = chip(true);
+
+    var CLE_ACCES = 'obs_sj_acces';
+    var ouvert = false;
+
+    function aAcces() {
+      try { return localStorage.getItem(CLE_ACCES) === '1'; } catch (e) { return false; }
+    }
+    function poserAcces(v) {
+      try {
+        if (v) { localStorage.setItem(CLE_ACCES, '1'); }
+        else { localStorage.removeItem(CLE_ACCES); }
+      } catch (e) { /* navigation privée : l'accès vaut pour la page en cours */ }
+    }
+
+    function sjSub(frag, i) {
+      var t = window.OBS_SJ && window.OBS_SJ[i];
+      if (!ouvert || !t) {
+        return frag.split(SENT[2]).join(CHIP_NU)
+                   .split(SENT[1]).join(CHIP)
+                   .split(SENT[0]).join(CHIP);
+      }
+      return frag.split(SENT[2]).join(esc(t.s))
+                 .split(SENT[1]).join(esc(t.d))
+                 .split(SENT[0]).join(esc(t.s));
+    }
+
+    /* Le fichier des sous-jacents n'est demandé qu'une fois l'accès ouvert :
+       il ne pèse donc jamais sur la visite ordinaire. */
+    var enCours = null;
+    function chargerSJ() {
+      if (window.OBS_SJ) return Promise.resolve(true);
+      if (enCours) return enCours;
+      enCours = new Promise(function (resolve) {
+        var sc = document.createElement('script');
+        sc.src = (window.OBS_SJ_SRC || 'assets/sous-jacents.js');
+        sc.onload = function () { resolve(!!window.OBS_SJ); };
+        sc.onerror = function () { enCours = null; resolve(false); };
+        document.head.appendChild(sc);
+      });
+      return enCours;
+    }
+
+    function majBandeau() {
+      var bloc = document.querySelector('[data-acces-sj]');
+      var ok = document.getElementById('acces-ouvert');
+      if (bloc) bloc.hidden = ouvert;
+      if (ok) ok.hidden = !ouvert;
+    }
+
+    function ouvrirAcces(memoriser) {
+      return chargerSJ().then(function (bon) {
+        if (!bon) return false;
+        ouvert = true;
+        if (memoriser) poserAcces(true);
+        majBandeau();
+        render();
+        return true;
+      });
+    }
+
+    function fermerAcces() {
+      ouvert = false;
+      poserAcces(false);
+      majBandeau();
+      render();
+    }
+
+    function allerAuFormulaire() {
+      var cible = document.getElementById('acces-sous-jacents');
+      if (!cible) return;
+      cible.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var champ = document.getElementById('ac-prenom');
+      if (champ) setTimeout(function () { champ.focus({ preventScroll: true }); }, 420);
+    }
+
+    // Une seule écoute, posée sur le conteneur : les pastilles sont
+    // reconstruites à chaque rendu, les lier une à une les perdrait.
+    document.addEventListener('click', function (ev) {
+      var b = ev.target.closest && ev.target.closest('[data-sj-lock]');
+      if (!b) return;
+      ev.preventDefault();
+      allerAuFormulaire();
+    });
+
+    var btnFermer = document.getElementById('acces-fermer');
+    if (btnFermer) btnFermer.addEventListener('click', fermerAcces);
+
+    // FormSubmit quitte la page : l'accès est noté avant le départ, et le
+    // retour porte ?sj=1. Sans cela, un relais lent ferait perdre l'accès.
+    var formAcces = document.getElementById('acces-form');
+    if (formAcces) {
+      formAcces.addEventListener('submit', function () { poserAcces(true); });
+    }
+
     function rowHTML(p, i) {
       return '' +
         '<tr class="row-main" data-i="' + i + '" tabindex="0" role="button" aria-expanded="false">' +
@@ -226,8 +346,8 @@
 
     function render() {
       var rows = sortRows(ALL.filter(match));
-      tbody.innerHTML = rows.map(function (p) { return rowHTML(p, ALL.indexOf(p)); }).join('');
-      if (els.list) els.list.innerHTML = rows.map(function (p) { return cardHTML(p, ALL.indexOf(p)); }).join('');
+      tbody.innerHTML = rows.map(function (p) { return sjSub(rowHTML(p, ALL.indexOf(p)), ALL.indexOf(p)); }).join('');
+      if (els.list) els.list.innerHTML = rows.map(function (p) { return sjSub(cardHTML(p, ALL.indexOf(p)), ALL.indexOf(p)); }).join('');
       if (els.count) els.count.innerHTML = '<b>' + rows.length + '</b> produit' + (rows.length > 1 ? 's' : '') + ' sur ' + ALL.length;
       if (els.none) els.none.style.display = rows.length ? 'none' : 'block';
       document.querySelectorAll('thead th.sortable').forEach(function (th) {
@@ -301,7 +421,18 @@
       if (els[key]) els[key].value = v;
     });
 
+    /* Accès aux sous-jacents : retour de formulaire (?acces=1) ou accès
+       déjà accordé lors d'une visite précédente. Le paramètre ne peut pas
+       s'appeler `sj` : ce nom désigne déjà le filtre par type de
+       sous-jacent, et le tableau se vidait. Le premier rendu a lieu dans
+       tous les cas, pour que le tableau ne reste pas figé si le fichier des
+       sous-jacents ne répond pas. */
     render();
+    majBandeau();
+    var retourFormulaire = (qs.get('acces') === '1');
+    if (retourFormulaire || aAcces()) {
+      ouvrirAcces(retourFormulaire);
+    }
   }
 
   /* =======================================================================
