@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Générateur statique — « Le Comptoir des Structurés ».
+Générateur statique — « La Française des Produits Structurés ».
 
     python3 build-observatoire.py
 
@@ -16,10 +16,10 @@ import os, html, json, datetime, urllib.parse, hashlib
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, "observatoire")
 
-SITE = "Le Comptoir des Structurés"
-SITE_SHORT = "Le Comptoir"
-MARK = "C"
-TAGLINE = "Comprendre, comparer et analyser les produits structurés"
+SITE = "La Française des Produits Structurés"
+SITE_SHORT = "La Française"
+MARK = "F"
+TAGLINE = "Comprendre, comparer et structurer en connaissance de cause"
 EDITEUR = "La Financière de Rochechouart"
 EMAIL = "contact@lfd-rochechouart.com"
 ADDRESS = "58 rue de Monceau, 75008 Paris"
@@ -33,7 +33,7 @@ VILLE, CP, PAYS = "Paris", "75008", "FR"
 #  relancez le script : canonical, Open Graph, sitemap et JSON-LD suivent.
 # --------------------------------------------------------------------------
 BASE_URL = "https://www.lafinancierederochechouart.com"
-BASE_PATH = "/observatoire"          # "" si le Comptoir passe à la racine
+BASE_PATH = "/observatoire"          # "" si le site passe à la racine du domaine
 
 # --------------------------------------------------------------------------
 #  Dates — deux notions distinctes, à ne pas confondre
@@ -268,7 +268,7 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
       <span class="brand__mark" aria-hidden="true">{monogramme()}</span>
       <span class="brand__txt">
         <span class="brand__name">{e(SITE_SHORT)}</span>
-        <span class="brand__sub">des Structurés</span>
+        <span class="brand__sub">des Produits Structurés</span>
       </span>
     </a>
     <button class="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
@@ -311,7 +311,7 @@ def layout(filename, title, description, body, graph=None, crumb_trail=None,
           <span class="brand__mark" aria-hidden="true">{monogramme()}</span>
           <span class="brand__txt">
             <span class="brand__name">{e(SITE_SHORT)}</span>
-            <span class="brand__sub">des Structurés</span>
+            <span class="brand__sub">des Produits Structurés</span>
           </span>
         </span>
         <p>Un répertoire pédagogique du marché des produits structurés : mécanismes,
@@ -1654,7 +1654,7 @@ def bloc_structurer():
     </p>
 
     <form class="sm-form" id="sm-form" method="POST" action="{FORMSUBMIT}">
-      <input type="hidden" name="_subject" value="Demande de structuration sur mesure — Le Comptoir des Structurés">
+      <input type="hidden" name="_subject" value="Demande de structuration sur mesure — La Française des Produits Structurés">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="true">
       <input type="hidden" name="_next" value="{url_abs('merci.html')}">
@@ -1959,7 +1959,7 @@ def page_index():
 </section>
 """
     write("index.html", layout("index.html",
-        "Produits Structurés : Comparateur et Analyse | Le Comptoir",
+        "Produits Structurés : Comparateur et Guides | La Française",
         "Comparez les mécanismes des produits structurés, analysez les coupons, barrières "
         "et risques. Guides Autocall, Phoenix et analyse de vos documents.",
         body, crumb_trail=[("Accueil", "index.html")]))
@@ -2591,7 +2591,7 @@ def bloc_lfdr():
 <section class="section section--tight" style="padding-bottom:0">
   <div class="container">
     <article class="lead-actor">
-      <div class="lead-actor__badge">Éditeur du Comptoir</div>
+      <div class="lead-actor__badge">Éditeur du site</div>
       <div class="lead-actor__l">
         <p class="eyebrow">Conseil en gestion privée — architecture ouverte</p>
         <h2 class="title-lg">{EDITEUR}</h2>
@@ -3109,7 +3109,7 @@ def page_mentions():
 </section>
 """
     write("mentions-legales.html", layout("mentions-legales.html",
-        "Mentions Légales | Le Comptoir des Structurés",
+        "Mentions Légales | La Française des Produits Structurés",
         "Éditeur, nature des informations publiées, service d'analyse de document, notations "
         "de crédit et avertissement sur les risques des produits structurés.",
         body, crumb_trail=[("Accueil", "index.html"),
@@ -4668,7 +4668,7 @@ def page_merci():
   </div>
 </section>
 """
-    html_merci = layout("merci.html", "Demande envoyée | Le Comptoir des Structurés",
+    html_merci = layout("merci.html", "Demande envoyée | La Française des Produits Structurés",
         "Votre demande de structuration sur mesure a bien été transmise. Nous revenons "
         "vers vous sous deux jours ouvrés.", body)
     html_merci = html_merci.replace(
@@ -4707,12 +4707,12 @@ def build_sitemap():
     return len(urls)
 
 def build_robots():
-    """robots.txt du sous-dossier, utile si le Comptoir devient autonome.
+    """robots.txt du sous-dossier, utile si le site devient autonome.
     ⚠️ Sur un hébergement partagé avec le site principal, seul le robots.txt
     placé À LA RACINE du domaine fait foi : voir le README pour la ligne
     Sitemap à y ajouter."""
     write("robots.txt",
-          "# Le Comptoir des Structurés\n"
+          "# La Française des Produits Structurés\n"
           "User-agent: *\n"
           "Allow: /\n\n"
           f"Sitemap: {url_abs('')}sitemap.xml\n")
@@ -4731,7 +4731,7 @@ def build_htaccess():
         + ("#" + b.split("#")[1] if "#" in b else "")
         for a, b in anciennes)
     write(".htaccess", f"""# =========================================================================
-#  Le Comptoir des Structurés — configuration Apache (Hostinger)
+#  La Française des Produits Structurés — configuration Apache (Hostinger)
 #  Ce fichier ne concerne que le dossier {BASE_PATH}/ et n'affecte pas
 #  le reste du site.
 # =========================================================================
@@ -4780,7 +4780,7 @@ def page_404():
     pfx = ""
     body = f"""
 {hero("Page introuvable",
-  "Cette adresse ne correspond à aucune page du Comptoir des Structurés. "
+  "Cette adresse ne correspond à aucune page de La Française des Produits Structurés. "
   "Le contenu a peut-être été réorganisé.",
   crumb_html=fil([("Accueil", "index.html"), ("Page introuvable", "404.html")], pfx), forme_nom=forme("404.html"))}
 
@@ -4811,7 +4811,7 @@ def page_404():
   </div>
 </section>
 """
-    html_404 = layout("404.html", "Page introuvable | Le Comptoir des Structurés",
+    html_404 = layout("404.html", "Page introuvable | La Française des Produits Structurés",
                       "Cette page n’existe pas ou a été déplacée. Accédez au comparateur, "
                       "aux guides ou au glossaire des produits structurés.", body)
     # Une page d'erreur ne doit pas être indexée.

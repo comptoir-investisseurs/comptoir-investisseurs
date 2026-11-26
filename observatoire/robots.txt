@@ -1,4 +1,4 @@
-# Le Comptoir des Structurés
+# La Française des Produits Structurés
 User-agent: *
 Allow: /
 
