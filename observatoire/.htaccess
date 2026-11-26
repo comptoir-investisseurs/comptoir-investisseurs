@@ -9,10 +9,10 @@ ErrorDocument 404 /observatoire/404.html
 
 # --- Redirections 301 : pages fusionnées en onglets ---------------------
 <IfModule mod_alias.c>
-  Redirect 301 /observatoire/familles.html https://www.lafinancierederochechouart.com/observatoire/comprendre.html#familles
-  Redirect 301 /observatoire/glossaire.html https://www.lafinancierederochechouart.com/observatoire/comprendre.html#glossaire
-  Redirect 301 /observatoire/emetteurs.html https://www.lafinancierederochechouart.com/observatoire/acteurs.html#emetteurs
-  Redirect 301 /observatoire/etablissements.html https://www.lafinancierederochechouart.com/observatoire/acteurs.html#etablissements
+  Redirect 301 /observatoire/familles.html https://lesproduitsstructures.fr/observatoire/comprendre.html#familles
+  Redirect 301 /observatoire/glossaire.html https://lesproduitsstructures.fr/observatoire/comprendre.html#glossaire
+  Redirect 301 /observatoire/emetteurs.html https://lesproduitsstructures.fr/observatoire/acteurs.html#emetteurs
+  Redirect 301 /observatoire/etablissements.html https://lesproduitsstructures.fr/observatoire/acteurs.html#etablissements
 </IfModule>
 
 # --- Compression --------------------------------------------------------

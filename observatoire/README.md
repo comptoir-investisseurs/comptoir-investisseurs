@@ -30,14 +30,40 @@ Le script supprime aussi les pages d’une ancienne arborescence (`familles.html
 `glossaire.html`, `emetteurs.html`, `etablissements.html`), désormais fusionnées en onglets —
 voir la liste `OBSOLETES`.
 
-## ⚠️ Domaine canonique — à vérifier avant mise en ligne
+## Domaine et emplacement
 
-`BASE_URL` et `BASE_PATH`, en tête de `build-observatoire.py`, pilotent les balises
-`canonical`, l'Open Graph, le sitemap et les données structurées. La valeur actuelle
-(`https://www.lafinancierederochechouart.com` + `/observatoire`) est **déduite de
-`contact.php`**, pas confirmée. Si le domaine réel diffère, ou si le site répond sans
-`www`, corrigez ces deux lignes et relancez le script. Un canonical erroné nuit davantage
-que son absence.
+Le site est servi sous **`https://lesproduitsstructures.fr/observatoire/`** — un domaine qui
+lui est propre, distinct de celui du site principal. Deux constantes en tête de
+`build-observatoire.py` le disent, et elles pilotent les URL canoniques, le sitemap, les
+données structurées et le robots.txt :
+
+```python
+BASE_URL  = "https://lesproduitsstructures.fr"
+BASE_PATH = "/observatoire"
+```
+
+### Le passer à la racine du domaine
+
+Le domaine étant dédié à ce site, le servir à la racine donnerait des adresses plus courtes et
+mieux alignées sur les requêtes visées (`lesproduitsstructures.fr/produits.html` plutôt que
+`.../observatoire/produits.html`). Il suffit de mettre `BASE_PATH = ""`, de régénérer et de
+téléverser le contenu à la racine.
+
+**À ne faire qu'en posant des redirections 301** depuis les anciennes adresses, sinon tout lien
+déjà diffusé casse et le référencement acquis est perdu. Le `.htaccess` généré sait les porter.
+
+### Le formulaire et PHP
+
+Le sous-site vit sur son propre domaine : il ne peut pas appeler le `contact.php` du site
+principal, qui est sur une autre origine. `build_contact_php()` en dépose donc une copie dans
+`observatoire/contact.php`, adaptée au domaine du sous-site (expéditeur `no-reply@` sur
+`lesproduitsstructures.fr`, pour que le SPF du domaine couvre l'envoi). Le destinataire reste
+`contact@lfd-rochechouart.com`.
+
+**Ce fichier doit être téléversé avec le reste du sous-site**, et le domaine doit exécuter PHP.
+Sur un hébergement statique il est retiré par `render-build.sh`, qui vérifie son absence : servi
+en clair, il exposerait sa configuration.
+
 
 ## ⚠️ Fraîcheur des données financières
 

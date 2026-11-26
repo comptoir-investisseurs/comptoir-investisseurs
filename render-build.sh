@@ -33,6 +33,7 @@ for p in \
   render.yaml \
   SECURITY-AUDIT.md \
   contact.php \
+  observatoire/contact.php \
   contact-secrets.php \
   bilan-patrimonial.html \
   Demarrer-bilan-patrimonial.bat \
@@ -67,6 +68,7 @@ test "$n" -ge 20 || { echo "ERREUR : polices du Comptoir absentes ($n trouvée(s
 test ! -f "$OUT/SECURITY-AUDIT.md" || { echo "ERREUR : audit de sécurité présent dans la publication"; exit 1; }
 test -z "$(ls "$OUT"/*.sql 2>/dev/null)" || { echo "ERREUR : fichiers SQL présents dans la publication"; exit 1; }
 test ! -f "$OUT/contact.php" || { echo "ERREUR : contact.php présent (non exécutable sur un hôte statique)"; exit 1; }
+test ! -f "$OUT/observatoire/contact.php" || { echo "ERREUR : observatoire/contact.php présent (non exécutable sur un hôte statique)"; exit 1; }
 test ! -d "$OUT/tools" || { echo "ERREUR : outils internes présents dans la publication"; exit 1; }
 test ! -d "$OUT/.sessions" || { echo "ERREUR : sessions authentifiées présentes dans la publication"; exit 1; }
 

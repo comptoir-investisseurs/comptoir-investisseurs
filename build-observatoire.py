@@ -32,7 +32,7 @@ VILLE, CP, PAYS = "Paris", "75008", "FR"
 #  la préférence www/sans-www diffèrent, corrigez CES DEUX LIGNES et
 #  relancez le script : canonical, Open Graph, sitemap et JSON-LD suivent.
 # --------------------------------------------------------------------------
-BASE_URL = "https://www.lafinancierederochechouart.com"
+BASE_URL = "https://lesproduitsstructures.fr"
 BASE_PATH = "/observatoire"          # "" si le site passe à la racine du domaine
 
 # --------------------------------------------------------------------------
@@ -1667,7 +1667,7 @@ def bloc_structurer():
     </p>
 
     <form class="sm-form" id="sm-form" method="POST" action="{FORMSUBMIT}"
-          data-envoi="../contact.php" data-objet="Structuration sur mesure">
+          data-envoi="contact.php" data-objet="Structuration sur mesure">
       <input type="hidden" name="_subject" value="Demande de structuration sur mesure — La Française des Produits Structurés">
       <input type="hidden" name="_template" value="table">
       <!-- Le piège à robots (_honey) suffit : la page de captcha de FormSubmit
@@ -1782,7 +1782,7 @@ def bloc_acces_sj():
       </div>
 
       <form class="acces__form" id="acces-form" method="POST" action="{FORMSUBMIT}"
-              data-envoi="../contact.php" data-objet="Accès aux sous-jacents">
+              data-envoi="contact.php" data-objet="Accès aux sous-jacents">
         <input type="hidden" name="_subject" value="Accès aux sous-jacents du comparateur — {e(SITE)}">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
@@ -3239,6 +3239,7 @@ def main():
             print(f"  − {f} (fusionné dans un autre onglet)")
     build_sous_jacents_js()
     build_data_js()
+    build_contact_php()
     build_supabase_js()
     page_index()
     page_produits()
@@ -5437,6 +5438,36 @@ def page_admin():
 </html>
 """
     write("admin.html", page)
+
+def build_contact_php():
+    """Copie adaptée du script d'envoi du site principal.
+
+    Le sous-site est servi depuis son propre domaine : il ne peut pas appeler
+    le contact.php de l'autre site, qui est sur une autre origine. Il emporte
+    donc le sien, à côté de ses pages. Une seule source de vérité : le fichier
+    de la racine du dépôt, dont seules les deux lignes d'expéditeur sont
+    réécrites pour porter le domaine du sous-site.
+
+    ⚠️ PHP n'étant pas exécuté sur un hébergement statique, render-build.sh
+    retire ce fichier de la publication Render et vérifie qu'il en est bien
+    absent : servi en clair, il exposerait sa configuration."""
+    source = os.path.join(ROOT, "contact.php")
+    if not os.path.exists(source):
+        print("  ⚠ contact.php introuvable à la racine : formulaires sans envoi direct")
+        return
+    with open(source, encoding="utf-8") as f:
+        php = f.read()
+
+    domaine = urllib.parse.urlparse(BASE_URL).netloc.replace("www.", "")
+    avant = php
+    php = re.sub(r"\$CONTACT_FROM = '[^']*';",
+                 "$CONTACT_FROM = 'no-reply@" + domaine + "';", php, count=1)
+    php = re.sub(r"\$CONTACT_FROM_NAME = '[^']*';",
+                 "$CONTACT_FROM_NAME = 'Site " + SITE + "';", php, count=1)
+    if php == avant:
+        raise SystemExit("contact.php : lignes d'expéditeur introuvables, "
+                         "la copie du sous-site n'a pas été adaptée.")
+    write("contact.php", php)
 
 def build_supabase_js():
     """Reprend la configuration Supabase du site principal : une seule source
