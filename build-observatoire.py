@@ -33,7 +33,8 @@ VILLE, CP, PAYS = "Paris", "75008", "FR"
 #  relancez le script : canonical, Open Graph, sitemap et JSON-LD suivent.
 # --------------------------------------------------------------------------
 BASE_URL = "https://lesproduitsstructures.fr"
-BASE_PATH = "/observatoire"          # "" si le site passe à la racine du domaine
+BASE_PATH = ""                       # le site occupe la racine du domaine ;
+                                     # mettre "/observatoire" s'il repasse en sous-dossier
 
 # --------------------------------------------------------------------------
 #  Dates — deux notions distinctes, à ne pas confondre

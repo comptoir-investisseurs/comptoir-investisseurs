@@ -1,18 +1,18 @@
 # =========================================================================
 #  La Française des Produits Structurés — configuration Apache (Hostinger)
-#  Ce fichier ne concerne que le dossier /observatoire/ et n'affecte pas
+#  Ce fichier ne concerne que le dossier / et n'affecte pas
 #  le reste du site.
 # =========================================================================
 
 # --- Page d'erreur ------------------------------------------------------
-ErrorDocument 404 /observatoire/404.html
+ErrorDocument 404 /404.html
 
 # --- Redirections 301 : pages fusionnées en onglets ---------------------
 <IfModule mod_alias.c>
-  Redirect 301 /observatoire/familles.html https://lesproduitsstructures.fr/observatoire/comprendre.html#familles
-  Redirect 301 /observatoire/glossaire.html https://lesproduitsstructures.fr/observatoire/comprendre.html#glossaire
-  Redirect 301 /observatoire/emetteurs.html https://lesproduitsstructures.fr/observatoire/acteurs.html#emetteurs
-  Redirect 301 /observatoire/etablissements.html https://lesproduitsstructures.fr/observatoire/acteurs.html#etablissements
+  Redirect 301 /familles.html https://lesproduitsstructures.fr/comprendre.html#familles
+  Redirect 301 /glossaire.html https://lesproduitsstructures.fr/comprendre.html#glossaire
+  Redirect 301 /emetteurs.html https://lesproduitsstructures.fr/acteurs.html#emetteurs
+  Redirect 301 /etablissements.html https://lesproduitsstructures.fr/acteurs.html#etablissements
 </IfModule>
 
 # --- Compression --------------------------------------------------------

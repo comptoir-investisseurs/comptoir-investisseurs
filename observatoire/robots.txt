@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lesproduitsstructures.fr/observatoire/sitemap.xml
+Sitemap: https://lesproduitsstructures.fr/sitemap.xml
