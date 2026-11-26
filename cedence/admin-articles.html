@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Gestion des articles — Cédence</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/cedence-mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css?v=20261124n">
+<link rel="stylesheet" href="assets/css/cession.css?v=20261124n">
+<link rel="stylesheet" href="assets/css/admin.css?v=20261124n">
+</head>
+<body>
+
+<!-- ========== Login ========== -->
+<div class="admin-login" id="admin-login">
+  <div class="admin-login__card">
+    <a class="brand brand--word" href="index.html" aria-label="Cédence — accueil" style="color:var(--green);margin-bottom:22px;display:inline-flex"><img class="brand__mk" src="assets/img/cedence-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédence</span></a>
+    <h1>Espace propriétaire</h1>
+    <p class="muted">Connectez-vous pour rédiger et publier des articles.</p>
+    <form id="admin-login-form" class="form" novalidate>
+      <div class="field"><label for="al-email">E-mail</label><input id="al-email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="al-password">Mot de passe</label><input id="al-password" type="password" autocomplete="current-password" required></div>
+      <div class="form__status" role="status" aria-live="polite"></div>
+      <button class="btn btn--solid" type="submit">Se connecter</button>
+    </form>
+    <p class="admin-login__note">Même compte que la gestion des annonces. Pas encore de compte ? Créez-en un depuis <a href="espace-investisseur.html">l’Espace membre</a>, puis demandez les droits administrateur (voir <code>supabase-cgp-admins.sql</code>).</p>
+  </div>
+</div>
+
+<!-- ========== Forbidden (connecté mais pas admin) ========== -->
+<div class="admin-login" id="admin-forbidden" hidden>
+  <div class="admin-login__card">
+    <h1>Accès non autorisé</h1>
+    <p class="muted">Ce compte (<strong id="forbidden-email"></strong>) n’a pas les droits administrateur.</p>
+    <p class="muted" style="font-size:.88rem">Pour l’autoriser, exécutez la requête donnée dans <code>supabase-cgp-admins.sql</code> depuis le SQL Editor de Supabase, avec cet e-mail.</p>
+    <button class="btn btn--outline" id="forbidden-logout" type="button" style="margin-top:10px">Se déconnecter</button>
+  </div>
+</div>
+
+<!-- ========== Dashboard ========== -->
+<div class="admin-dash" id="admin-dash" hidden>
+  <div class="admin-bar">
+    <div class="admin-bar__inner container">
+      <a class="brand brand--word" href="index.html" aria-label="Cédence — accueil"><img class="brand__mk" src="assets/img/cedence-mark.svg" alt="" aria-hidden="true"><span class="brand__wm">Cédence</span></a>
+      <span class="admin-bar__title">Gestion des articles</span>
+      <a class="cp-trigger" href="admin-annonces.html">Gérer les annonces</a>
+      <span class="admin-bar__user" id="admin-user-email"></span>
+      <button class="cp-trigger" id="admin-logout" type="button">Se déconnecter</button>
+    </div>
+  </div>
+
+  <main class="container" style="padding-block:40px 90px">
+
+    <div class="admin-toolbar">
+      <h2 class="title-md" style="margin:0">Articles</h2>
+      <button class="btn btn--solid" id="btn-new" type="button">+ Nouvel article</button>
+    </div>
+
+    <!-- ----- Formulaire (création / édition) ----- -->
+    <section class="admin-form" id="admin-form" hidden>
+      <div class="admin-form__head">
+        <h3 id="form-title">Nouvel article</h3>
+        <button class="cp-trigger" id="form-close" type="button">Fermer ✕</button>
+      </div>
+      <form id="article-form" class="form" novalidate>
+        <input type="hidden" id="f-id">
+
+        <div class="row">
+          <div class="field"><label for="f-titre">Titre</label><input id="f-titre" required></div>
+          <div class="field"><label for="f-statut">Statut</label><select id="f-statut">
+            <option value="brouillon">Brouillon (non visible)</option>
+            <option value="publie">Publié</option>
+          </select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-slug">Adresse (slug)</label><input id="f-slug" placeholder="ex : valorisation-cabinet-cgp-2026" required></div>
+          <div class="field"><label for="f-auteur">Auteur</label><input id="f-auteur" placeholder="Cédence"></div>
+        </div>
+        <div class="field"><label for="f-image_url">Image de couverture (URL)</label><input id="f-image_url" placeholder="https://…"></div>
+        <div class="field"><label for="f-chapo">Chapô (résumé affiché dans la liste)</label><textarea id="f-chapo" style="min-height:60px"></textarea></div>
+        <div class="field">
+          <label for="f-contenu">Contenu</label>
+          <textarea id="f-contenu" style="min-height:280px;font-family:var(--sans)"></textarea>
+          <p class="muted" style="font-size:.8rem;margin-top:8px">Une ligne vide sépare les paragraphes. <code>## Titre</code> pour un intertitre, <code>- élément</code> pour une liste, <code>**gras**</code>, <code>*italique*</code>, <code>[texte](url)</code> pour un lien.</p>
+        </div>
+
+        <div class="form__status" role="status" aria-live="polite"></div>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn--solid" type="submit">Enregistrer</button>
+          <a class="btn btn--outline" id="btn-preview" href="#" target="_blank" rel="noopener" hidden>Voir la page</a>
+          <button class="btn btn--outline" type="button" id="btn-delete" hidden>Supprimer cet article</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ----- Liste ----- -->
+    <section>
+      <div class="table-wrap">
+        <table class="ptable" id="admin-table">
+          <thead><tr><th>Titre</th><th>Statut</th><th>Publié le</th><th></th></tr></thead>
+          <tbody id="admin-table-body"><tr><td colspan="4" class="muted">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="assets/js/supabase-config.js?v=20261124n"></script>
+<script src="assets/js/admin-articles.js?v=20261124n"></script>
+</body>
+</html>
