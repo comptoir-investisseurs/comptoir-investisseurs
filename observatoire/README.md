@@ -87,6 +87,37 @@ Les constantes d’en-tête (`SITE`, `SITE_SHORT`, `MARK`, `EDITEUR`, `EMAIL`, `
 `ANNEE_RATINGS`) pilotent les mentions répétées sur toutes les pages. **`MAJ` et
 `ANNEE_RATINGS` sont à actualiser à chaque revue éditoriale.**
 
+## Où partent les formulaires
+
+Les deux formulaires du sous-site — « Structurer sur mesure » et l'accès aux sous-jacents —
+envoient vers `contact@lfd-rochechouart.com` en essayant **deux destinations dans l'ordre** :
+
+1. **`../contact.php`** — le script d'envoi du site principal, déjà en service pour son propre
+   formulaire de contact. Même origine, pas de service tiers, pas d'étape d'activation,
+   garde-fou anti-abus et pot de miel inclus. C'est la voie normale sur Hostinger ;
+2. **FormSubmit** — utilisé seulement si le script PHP ne répond pas, par exemple sur un
+   hébergement statique où le `.php` n'est pas exécuté.
+
+L'envoi se fait en arrière-plan : la page ne bouge pas et la réponse s'affiche sous le
+formulaire. **Un échec est donc visible**, avec sa raison, au lieu d'une redirection muette.
+
+### Si rien n'arrive
+
+Vérifier dans cet ordre :
+
+- `contact.php` est-il bien présent **à la racine du domaine**, à côté de `index.html` ? Le
+  sous-site l'appelle en `../contact.php`. Il est livré avec le site principal, pas avec
+  l'archive du sous-site ;
+- le formulaire de contact du site principal fonctionne-t-il ? S'il échoue aussi, le problème
+  est dans `contact.php` ou chez l'hébergeur, pas dans le sous-site ;
+- si le repli FormSubmit est utilisé, **le service exige une activation** : la première
+  soumission envoie un courriel de confirmation à l'adresse destinataire, et tant que son lien
+  n'est pas cliqué, tout envoi est refusé. Le message affiché sous le formulaire le dit.
+
+Le courriel est volontairement sur un autre domaine que le site (`lfd-rochechouart.com` contre
+`lafinancierederochechouart.com`) : c'est le choix déjà fait par le site principal, pas une
+coquille.
+
 ## Formulaire « Structurer sur mesure »
 
 Section `#structurer`, présente sur l'accueil et le comparateur, et cible du bouton

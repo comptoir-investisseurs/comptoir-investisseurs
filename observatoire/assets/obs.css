@@ -1009,3 +1009,12 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
 /* Structure simulée : ni offre, ni engagement d'un émetteur. Le marqueur
    reste discret mais doit être lisible sans dépliage de la fiche. */
 .tag--sim{ color:var(--muted); border-color:var(--line-strong); background:var(--mist); }
+/* Réponse du relais de formulaire, affichée sur place. */
+.form-reponse{ margin:16px 0 0; padding:12px 15px; font-size:.84rem; line-height:1.6;
+  border:1px solid rgba(47,107,78,.35); background:rgba(47,107,78,.07); color:var(--ink-soft); }
+.form-reponse.est-erreur{ border-color:rgba(153,64,47,.4); background:rgba(153,64,47,.05);
+  color:var(--neg); }
+.sm-form .form-reponse{ border-color:var(--gold-soft); background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.88); }
+.sm-form .form-reponse.est-erreur{ border-color:rgba(255,170,150,.5);
+  background:rgba(153,64,47,.18); color:#FFD9CF; }

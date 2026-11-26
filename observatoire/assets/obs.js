@@ -474,6 +474,7 @@
     if (retourFormulaire || aAcces()) {
       ouvrirAcces(retourFormulaire);
     }
+    window.OBS_OUVRIR_ACCES = function () { return ouvrirAcces(true); };
   }
 
   /* =======================================================================
@@ -665,4 +666,138 @@
   document.querySelectorAll('[data-year]').forEach(function (el) {
     el.textContent = new Date().getFullYear();
   });
+
+  /* =======================================================================
+     FORMULAIRES — envoi sans quitter la page
+
+     Deux destinations, dans cet ordre :
+
+       1. `data-envoi` — le script PHP du site principal (contact.php). Même
+          origine, pas de service tiers, pas d'étape d'activation, et c'est
+          déjà lui qui traite les demandes du site principal. Il attend du
+          JSON : prenom, nom, email, telephone, objet, message.
+       2. L'attribut `action` — FormSubmit, utilisé si le script PHP n'est
+          pas servi (hébergement statique) ou s'il répond en erreur.
+
+     L'envoi classique du formulaire reste la solution de repli sans
+     JavaScript. Dans tous les cas, la réponse est affichée sur place : un
+     échec ne doit pas se traduire par une page blanche ou une redirection
+     vers une adresse qui n'existe pas.
+     ======================================================================= */
+  (function () {
+    var CONFIG = {
+      'acces-form': {
+        // Pas de message de succès ici : l'envoi réussi fait place au
+        // bandeau « les sous-jacents sont affichés », qui remplace tout le
+        // bloc du formulaire. Un message écrit dedans serait masqué avec lui.
+        ok: '',
+        apres: function () { if (window.OBS_OUVRIR_ACCES) window.OBS_OUVRIR_ACCES(); }
+      },
+      'sm-form': {
+        ok: 'Votre demande est transmise. Nous revenons vers vous sous deux jours ouvrés.'
+      }
+    };
+
+    function message(form, texte, erreur) {
+      var el = form.querySelector('.form-reponse');
+      if (!el) {
+        el = document.createElement('p');
+        el.className = 'form-reponse';
+        el.setAttribute('role', 'status');
+        form.appendChild(el);
+      }
+      el.textContent = texte || '';
+      el.classList.toggle('est-erreur', !!erreur);
+      el.hidden = !texte;
+    }
+
+    /* Le script PHP attend des champs nommés ; le formulaire porte des
+       libellés lisibles. Ce qui n'a pas d'équivalent est replié dans le
+       corps du message, pour qu'aucune réponse ne se perde. */
+    function charge(form) {
+      var CLES = { prenom: 'prenom', nom: 'nom', email: 'email', telephone: 'telephone' };
+      var d = new FormData(form), p = {}, reste = [];
+      d.forEach(function (v, k) {
+        v = String(v).trim();
+        if (!v || k.charAt(0) === '_') return;
+        // Correspondance exacte sur le libellé sans accent : un rapprochement
+        // par préfixe prendrait « Précisions » pour « Prénom ».
+        var n = k.normalize ? k.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : k;
+        n = n.toLowerCase().trim();
+        if (CLES[n]) { p[CLES[n]] = v; } else { reste.push(k + ' : ' + v); }
+      });
+      p.objet = form.getAttribute('data-objet') || 'Demande via le comparateur';
+      p.message = (reste.length ? reste.join('\n') : p.objet)
+                + '\n\nEnvoyé depuis ' + window.location.href;
+      return p;
+    }
+
+    function parPhp(form) {
+      var url = form.getAttribute('data-envoi');
+      if (!url) return Promise.reject(new Error('sans point d’envoi'));
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(charge(form))
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          if (r.ok && d && d.ok) return true;
+          throw new Error((d && d.error) || ('HTTP ' + r.status));
+        });
+      });
+    }
+
+    function parFormsubmit(form) {
+      var cible = form.getAttribute('action').replace('formsubmit.co/', 'formsubmit.co/ajax/');
+      return fetch(cible, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; });
+      }).then(function (d) {
+        if (String(d && d.success) === 'true') return true;
+        var m = (d && d.message) || 'Envoi impossible.';
+        if (/activat/i.test(m)) {
+          m = 'Le relais de formulaire n’est pas activé pour l’adresse de la ' +
+              'rédaction, et le script d’envoi du site n’a pas répondu. Un ' +
+              'courriel de confirmation vient d’être envoyé à cette adresse : ' +
+              'une fois son lien cliqué, les demandes arriveront.';
+        }
+        throw new Error(m);
+      });
+    }
+
+    Object.keys(CONFIG).forEach(function (id) {
+      var form = document.getElementById(id);
+      if (!form || !window.fetch || !window.FormData) return;
+      var def = CONFIG[id];
+
+      form.addEventListener('submit', function (ev) {
+        if (!form.checkValidity()) return;   // le navigateur signale lui-même
+        ev.preventDefault();
+
+        var bouton = form.querySelector('button[type=submit], button:not([type])');
+        var libelle = bouton ? bouton.textContent : '';
+        if (bouton) { bouton.disabled = true; bouton.textContent = 'Envoi…'; }
+        message(form, '');
+
+        parPhp(form)
+          .catch(function () { return parFormsubmit(form); })
+          .then(function () {
+            message(form, def.ok);
+            form.reset();
+            if (def.apres) def.apres();
+          })
+          .catch(function (err) {
+            message(form, err && err.message ? err.message
+                          : 'Envoi impossible : écrivez-nous directement par courriel.', true);
+          })
+          .then(function () {
+            if (bouton) { bouton.disabled = false; bouton.textContent = libelle; }
+          });
+      });
+    });
+  })();
+
 })();

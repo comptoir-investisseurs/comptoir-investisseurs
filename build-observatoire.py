@@ -1666,10 +1666,13 @@ def bloc_structurer():
       vers vous sous deux jours ouvrés.
     </p>
 
-    <form class="sm-form" id="sm-form" method="POST" action="{FORMSUBMIT}">
+    <form class="sm-form" id="sm-form" method="POST" action="{FORMSUBMIT}"
+          data-envoi="../contact.php" data-objet="Structuration sur mesure">
       <input type="hidden" name="_subject" value="Demande de structuration sur mesure — La Française des Produits Structurés">
       <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="true">
+      <!-- Le piège à robots (_honey) suffit : la page de captcha de FormSubmit
+           interrompait le parcours sans que le visiteur comprenne pourquoi. -->
+      <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_next" value="{url_abs('merci.html')}">
       <input type="text" name="_honey" class="sm-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
@@ -1778,7 +1781,8 @@ def bloc_acces_sj():
         </p>
       </div>
 
-      <form class="acces__form" id="acces-form" method="POST" action="{FORMSUBMIT}">
+      <form class="acces__form" id="acces-form" method="POST" action="{FORMSUBMIT}"
+              data-envoi="../contact.php" data-objet="Accès aux sous-jacents">
         <input type="hidden" name="_subject" value="Accès aux sous-jacents du comparateur — {e(SITE)}">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
