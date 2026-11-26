@@ -5183,6 +5183,7 @@ def page_analyses():
   <div class="container">
     {intro}
     <h2 class="title-lg">Nos publications</h2>
+    <hr class="rule">
     <div class="cards cards--art" id="analyses-liste">
 {cartes}
     </div>
@@ -5217,6 +5218,7 @@ def page_article(a):
   <div class="container">
     <p class="eyebrow">À lire aussi</p>
     <h2 class="title-lg">Autres analyses</h2>
+    <hr class="rule">
     <div class="cards cards--art">
 {chr(10).join(carte_article(x, pfx) for x in autres)}
     </div>

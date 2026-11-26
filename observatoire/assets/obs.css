@@ -920,12 +920,14 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
 /* ------------------------------------------------------------------ */
 /*  ANALYSES                                                          */
 /* ------------------------------------------------------------------ */
-.cards--art{ grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); }
+.cards--art{ display:flex; flex-wrap:wrap; gap:20px; margin-top:30px; }
+.cards--art > .art-card{ flex:1 1 300px; max-width:420px; }
 .art-card{ display:flex; flex-direction:column; }
 .art-card h3{ font-size:1.22rem; margin:0 0 12px; }
 .art-card h3 a{ color:var(--ink); }
 .art-card h3 a:hover{ color:var(--gold); }
-.art-card > p{ margin:0; font-size:.88rem; line-height:1.68; color:var(--ink-soft); text-align:justify; }
+.art-card > p{ margin:0; font-size:.88rem; line-height:1.68; color:var(--ink-soft);
+  text-align:left; hyphens:none; }
 .art-card .eyebrow{ margin:0 0 10px; }
 .art-card__meta{ margin:16px 0 0 !important; padding-top:14px; border-top:1px solid var(--line);
   font-family:var(--sans); font-size:.74rem; letter-spacing:.05em; color:var(--muted);
@@ -1019,13 +1021,18 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
 .sm-form .form-reponse.est-erreur{ border-color:rgba(255,170,150,.5);
   background:rgba(153,64,47,.18); color:#FFD9CF; }
 /* Illustration d'analyse */
-.art__illu{ margin:0 0 34px; }
-.art__illu img{ width:100%; height:auto; border:1px solid var(--line); }
+.art__illu{ margin:0 0 40px; }
+/* `height:auto` est indispensable : l'attribut height="720" du balisage
+   fixerait sinon la hauteur, et `aspect-ratio` serait sans effet. */
+.art__illu img{ display:block; width:100%; height:auto; aspect-ratio:16/9;
+  object-fit:cover; object-position:center; border:1px solid var(--line); }
+@media (max-width:620px){ .art__illu img{ aspect-ratio:4/3; } }
 /* L'image vient affleurer les bords de la carte : on la sort du rembourrage
    par une marge négative de même valeur. */
 .art-card--img{ padding-top:0; overflow:hidden; }
 .art-card__img{ display:block; margin:0 calc(-1 * clamp(24px,2.6vw,34px)) 20px; }
-.art-card__img img{ width:100%; height:188px; object-fit:cover;
+.art-card__img img{ display:block; width:100%; height:200px; object-fit:cover;
+  object-position:center;
   transition:transform .5s var(--ease); }
 .art-card--img:hover .art-card__img img{ transform:scale(1.03); }
 @media (prefers-reduced-motion:reduce){ .art-card__img img{ transition:none; } }

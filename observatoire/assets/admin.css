@@ -139,3 +139,6 @@
   text-transform:uppercase; padding:3px 8px; border:1px solid; border-radius:var(--radius); }
 .adm__pastille--brouillon{ color:var(--muted); border-color:var(--line-strong); background:var(--mist); }
 .adm__pastille--publie{ color:var(--pos); border-color:rgba(47,107,78,.35); background:rgba(47,107,78,.07); }
+/* L'aperçu montre l'illustration telle qu'elle paraîtra : recadrée. */
+#adm-apercu-corps img{ display:block; width:100%; height:auto; aspect-ratio:16/9;
+  object-fit:cover; object-position:center; border:1px solid var(--line); }
