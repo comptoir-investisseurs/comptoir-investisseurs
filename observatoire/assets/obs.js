@@ -310,7 +310,9 @@
         '<tr class="row-main" data-i="' + i + '" tabindex="0" role="button" aria-expanded="false">' +
           '<td class="num-cell"><span class="rowtoggle">›</span></td>' +
           '<td><div class="t-name">' + esc(p.nom) +
-            (p.reel ? ' <span class="tag tag--pos">Offre réelle</span>' : '') +
+            (p.reel ? ' <span class="tag tag--pos">Offre réelle</span>'
+              : (p.tags || []).indexOf('Simulation') >= 0
+                ? ' <span class="tag tag--sim">Simulation</span>' : '') +
             '</div><div class="t-sub">' + esc(p.famille) + ' · ' + esc(p.sous_jacent) +
             (p.isin ? ' · ' + esc(p.isin) : '') + '</div></td>' +
           '<td>' + esc(p.emetteur) + '<div class="t-sub">' + esc(p.emetteur_rating) + '</div></td>' +
@@ -321,7 +323,7 @@
           '<td class="num-cell">' + esc(p.devise) + '</td>' +
           '<td><span class="stars" title="' + esc(p.note) + ' / 5">' + stars(p.note) + '</span></td>' +
         '</tr>' +
-        '<tr class="row-detail is-hidden" data-d="' + i + '" hidden><td colspan="9">' + detailHTML(p) + '</td></tr>';
+        '<tr class="row-detail is-hidden" data-d="' + i + '" hidden><td colspan="9"></td></tr>';
     }
 
     function cardHTML(p, i) {
@@ -344,11 +346,30 @@
         '</article>';
     }
 
+    /* Le catalogue compte plus d'un millier de structures : les monter
+       toutes d'un coup immobiliserait le navigateur pour un tableau que
+       personne ne parcourt en entier. On en affiche une tranche, que le
+       visiteur étend à la demande. */
+    var PAR_PAGE = 50;
+    var affiches = PAR_PAGE;
+
     function render() {
       var rows = sortRows(ALL.filter(match));
-      tbody.innerHTML = rows.map(function (p) { return sjSub(rowHTML(p, ALL.indexOf(p)), ALL.indexOf(p)); }).join('');
-      if (els.list) els.list.innerHTML = rows.map(function (p) { return sjSub(cardHTML(p, ALL.indexOf(p)), ALL.indexOf(p)); }).join('');
-      if (els.count) els.count.innerHTML = '<b>' + rows.length + '</b> produit' + (rows.length > 1 ? 's' : '') + ' sur ' + ALL.length;
+      var vus = rows.slice(0, affiches);
+      tbody.innerHTML = vus.map(function (p) { return sjSub(rowHTML(p, ALL.indexOf(p)), ALL.indexOf(p)); }).join('');
+      if (els.list) els.list.innerHTML = vus.map(function (p) { return sjSub(cardHTML(p, ALL.indexOf(p)), ALL.indexOf(p)); }).join('');
+      if (els.count) {
+        els.count.innerHTML = vus.length < rows.length
+          ? '<b>' + vus.length + '</b> sur ' + rows.length + ' produits affichés'
+          : '<b>' + rows.length + '</b> produit' + (rows.length > 1 ? 's' : '') + ' sur ' + ALL.length;
+      }
+      var plus = document.getElementById('f-plus');
+      if (plus) {
+        var reste = rows.length - vus.length;
+        plus.hidden = reste <= 0;
+        plus.textContent = 'Afficher ' + Math.min(PAR_PAGE, reste) + ' structures de plus'
+                         + ' (' + reste + ' restantes)';
+      }
       if (els.none) els.none.style.display = rows.length ? 'none' : 'block';
       document.querySelectorAll('thead th.sortable').forEach(function (th) {
         var on = th.getAttribute('data-k') === state.sort;
@@ -372,12 +393,29 @@
       toggleRow(tr);
     });
     function toggleRow(tr) {
-      var d = tbody.querySelector('tr.row-detail[data-d="' + tr.getAttribute('data-i') + '"]');
+      var i = tr.getAttribute('data-i');
+      var d = tbody.querySelector('tr.row-detail[data-d="' + i + '"]');
       if (!d) return;
+      var cell = d.firstElementChild;
+      // Le contenu du détail est composé au premier dépliage, puis conservé.
+      if (cell && !cell.firstChild) {
+        cell.innerHTML = sjSub(detailHTML(ALL[parseInt(i, 10)]), parseInt(i, 10));
+      }
       var open = !tr.classList.contains('is-open');
       tr.classList.toggle('is-open', open);
       tr.setAttribute('aria-expanded', open ? 'true' : 'false');
       d.hidden = !open;
+    }
+
+    /* Afficher la tranche suivante */
+    var btnPlus = document.getElementById('f-plus');
+    if (btnPlus) {
+      btnPlus.addEventListener('click', function () {
+        affiches += PAR_PAGE;
+        render();
+        // Le focus reste sur le bouton, qui a bougé : on le ramène en vue.
+        btnPlus.scrollIntoView({ block: 'nearest' });
+      });
     }
 
     /* Tri */
@@ -386,6 +424,7 @@
         var k = th.getAttribute('data-k');
         if (state.sort === k) state.dir = -state.dir;
         else { state.sort = k; state.dir = (k === 'nom' || k === 'emetteur') ? 1 : -1; }
+        affiches = PAR_PAGE;
         render();
       });
     });
@@ -396,6 +435,7 @@
       if (!el) return;
       el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', function () {
         state[k] = el.value;
+        affiches = PAR_PAGE;
         render();
       });
     });
@@ -405,6 +445,7 @@
           state[k] = '';
           if (els[k]) els[k].value = '';
         });
+        affiches = PAR_PAGE;
         render();
       });
     }

@@ -1003,3 +1003,9 @@ tr.row-detail > td{ background:var(--ivory); padding:0; border-bottom:1px solid 
    « Réservé » n'apparaît qu'une fois par ligne, sur le sous-titre. */
 .sj-lock--nu{ border-bottom:1px dashed var(--gold-pale); }
 .sj-lock--nu:hover, .sj-lock--nu:focus-visible{ border-bottom-color:var(--gold); }
+.tbl-plus{ margin:26px 0 0; text-align:center; }
+.tbl-plus .btn{ cursor:pointer; }
+.tbl-plus .btn[hidden]{ display:none !important; }
+/* Structure simulée : ni offre, ni engagement d'un émetteur. Le marqueur
+   reste discret mais doit être lisible sans dépliage de la fiche. */
+.tag--sim{ color:var(--muted); border-color:var(--line-strong); background:var(--mist); }

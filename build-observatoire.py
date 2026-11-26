@@ -2159,6 +2159,18 @@ def page_produits():
     <div class="plist" id="plist">
 {cards_prerendered()}
     </div>
+    <p class="tbl-plus">
+      <button class="btn btn--sm" type="button" id="f-plus" hidden></button>
+    </p>
+    <noscript>
+      <div class="notice notice--grey" style="margin-top:22px">
+        <span class="notice__i" aria-hidden="true">!</span>
+        <p>Les {PRERENDU_MAX} premières structures sont listées ci-dessus, triées par
+        note décroissante. Le comparateur en référence {len(PRODUITS)} au total&nbsp;:
+        les filtres, le tri et l’affichage de la suite demandent JavaScript.</p>
+      </div>
+    </noscript>
+
     <div class="noresult" id="no-result" style="display:none">
       Aucune structure ne correspond à ces critères.<br>
       <button class="btn-link" type="button" onclick="document.getElementById('f-reset').click()" style="margin-top:12px">Réinitialiser les filtres</button>
@@ -4498,6 +4510,10 @@ def page_guides_index():
 # depuis l'outil de suivi d'un structureur, sans retouche.
 
 CSV_PRODUITS = os.path.join(OUT, "data", "produits-reels.csv")
+# Structures simulées, importées par tools/importer-structures.py. Elles ne
+# portent pas d'ISIN : le chargeur en fait donc des gabarits pédagogiques,
+# jamais des offres réelles.
+CSV_SIMULEES = os.path.join(OUT, "data", "structures-simulees.csv")
 
 COLONNES_CSV = [
     "isin", "nom", "famille", "emetteur", "emetteur_rating", "format",
@@ -4522,13 +4538,29 @@ def _num(v):
         return None
     return x / 100 if pct else x
 
-def charger_produits_reels():
-    """Lit le CSV des souches réelles. Renvoie [] s'il est absent ou vide."""
-    if not os.path.exists(CSV_PRODUITS):
+_RATINGS = None
+
+def rating_emetteur(nom):
+    """Notation senior telle qu'elle est publiée dans l'onglet « Les acteurs ».
+    Un CSV n'a pas à la répéter : la source unique est la fiche émetteur."""
+    global _RATINGS
+    if _RATINGS is None:
+        # La fiche émetteur porte les trois agences séparément ; le
+        # comparateur les affiche sur une ligne, comme les gabarits rédigés.
+        _RATINGS = {html.unescape(e["nom"]):
+                    " / ".join(x for x in (e.get("sp"), e.get("moodys"), e.get("fitch")) if x)
+                    for e in EMETTEURS}
+    return _RATINGS.get(html.unescape(nom or ""), "")
+
+def charger_produits_reels(chemin=None):
+    """Lit un CSV de structures au format plat. Renvoie [] s'il est absent
+    ou vide. Une ligne sans ISIN reste un gabarit pédagogique."""
+    chemin = chemin or CSV_PRODUITS
+    if not os.path.exists(chemin):
         return []
     import csv
     out, erreurs = [], []
-    with open(CSV_PRODUITS, encoding="utf-8-sig", newline="") as f:
+    with open(chemin, encoding="utf-8-sig", newline="") as f:
         for i, r in enumerate(csv.DictReader(f), 2):
             if not (r.get("nom") or "").strip():
                 continue
@@ -4548,7 +4580,8 @@ def charger_produits_reels():
                 nom=(r.get("nom") or "").strip(),
                 famille=(r.get("famille") or "").strip(),
                 emetteur=(r.get("emetteur") or "").strip(),
-                emetteur_rating=(r.get("emetteur_rating") or "").strip(),
+                emetteur_rating=((r.get("emetteur_rating") or "").strip()
+                                 or rating_emetteur(r.get("emetteur"))),
                 format=(r.get("format") or "EMTN").strip(),
                 sous_jacent=(r.get("sous_jacent") or "").strip(),
                 sous_jacent_detail=(r.get("sous_jacent_detail") or r.get("sous_jacent") or "").strip(),
@@ -4581,11 +4614,15 @@ def charger_produits_reels():
                 note=int(note) if note else 0,
             ))
     for x in erreurs:
-        print(f"  ⚠ CSV ignoré — {x}")
+        print(f"  ⚠ {os.path.basename(chemin)} — {x}")
     return out
 
-PRODUITS_REELS = charger_produits_reels()
-PRODUITS = PRODUITS_REELS + PRODUITS
+PRODUITS_REELS = charger_produits_reels(CSV_PRODUITS)
+PRODUITS_SIMULEES = charger_produits_reels(CSV_SIMULEES)
+# Ordre : les souches réelles d'abord, puis les gabarits rédigés à la main,
+# puis les structures simulées importées. Le tri d'affichage reprend ensuite
+# la main (offres réelles, puis note décroissante).
+PRODUITS = PRODUITS_REELS + PRODUITS + PRODUITS_SIMULEES
 NB_REELS = len(PRODUITS_REELS)
 
 # ==========================================================================
@@ -4675,12 +4712,18 @@ def tri_initial():
     return sorted(range(len(PRODUITS)),
                   key=lambda i: (0 if PRODUITS[i].get("reel") else 1, -PRODUITS[i]["note"]))
 
+# Nombre de lignes écrites dans la page. Au-delà, le navigateur monterait
+# des milliers de cellules pour un tableau que personne ne parcourt en
+# entier, et le fichier HTML dépasserait les dix mégaoctets. obs.js prend le
+# relais et étend la liste à la demande. Doit valoir PAR_PAGE dans obs.js.
+PRERENDU_MAX = 50
+
 def rows_prerendered():
     """Lignes du comparateur, triées comme l'état initial d'obs.js.
     Le pré-rendu porte le catalogue MASQUÉ : ce que voit un moteur de
     recherche ou un visiteur sans JavaScript est exactement ce que voit un
     visiteur ordinaire — rien n'est servi différemment aux uns et aux autres."""
-    ordre = tri_initial()
+    ordre = tri_initial()[:PRERENDU_MAX]
     masques = produits_masques()
     out = []
     for i in ordre:
@@ -4691,7 +4734,9 @@ def rows_prerendered():
           f'<tr class="row-main" data-i="{i}" tabindex="0" role="button" aria-expanded="false">'
             '<td class="num-cell"><span class="rowtoggle">›</span></td>'
             f'<td><div class="t-name">{e(html.unescape(p["nom"]))}'
-            + (f' <span class="tag tag--pos">Offre réelle</span>' if p.get("reel") else '')
+            + (f' <span class="tag tag--pos">Offre réelle</span>' if p.get("reel")
+               else ' <span class="tag tag--sim">Simulation</span>'
+                    if "Simulation" in (p.get("tags") or []) else '')
             + f'</div><div class="t-sub">{e(html.unescape(p["famille"]))} · {e(html.unescape(p["sous_jacent"]))}'
             + (f' · {e(p["isin"])}' if p.get("isin") else '') + '</div></td>'
             f'<td>{e(html.unescape(p["emetteur"]))}<div class="t-sub">{e(p["emetteur_rating"])}</div></td>'
@@ -4709,7 +4754,7 @@ def rows_prerendered():
 
 def cards_prerendered():
     """Équivalent mobile, pour que le contenu reste lisible sans JS."""
-    ordre = tri_initial()
+    ordre = tri_initial()[:PRERENDU_MAX]
     masques = produits_masques()
     out = []
     for i in ordre:
@@ -5488,10 +5533,15 @@ def _variantes_sj(sj):
         if sep in noyau:
             for part in noyau.split(sep):
                 part = part.strip()
-                if len(part) >= 4:
+                if len(part) >= 2:
                     v.add(part)
 
-    v = {x for x in v if len(x) >= 4}
+    # Le seuil descend à deux signes : beaucoup de sous-jacents s'écrivent en
+    # sigle court — AMD, DAX, UBS, SAP, BMW, IBM, Or. Un seuil plus haut les
+    # laissait tous passer en clair. Les termes de moins de cinq signes sont
+    # comparés en respectant la casse (voir _motif), ce qui évite d'emporter
+    # un mot courant qui s'écrirait pareil en minuscules.
+    v = {x for x in v if len(x) >= 2}
     # Les plus longues d'abord, sinon « S&P 500 » serait masqué avant
     # « Worst-of … S&P 500 … » et laisserait des fragments.
     return sorted(v, key=len, reverse=True)
@@ -5553,10 +5603,29 @@ def table_sous_jacents():
              "d": html.unescape(p.get("sous_jacent_detail") or p["sous_jacent"])}
             for p in PRODUITS]
 
+_MOTIF_GLOBAL = None
+
+def motif_global():
+    """Un seul motif couvrant TOUS les sous-jacents du catalogue. Le contrôle
+    par fiche ne voit que le sous-jacent de la fiche : il laisserait passer
+    une mention croisée, par exemple un intitulé nommant l'indice d'une autre
+    structure. Avec plus de six cents sous-jacents, une alternance compilée
+    une fois est la seule forme tenable."""
+    global _MOTIF_GLOBAL
+    if _MOTIF_GLOBAL is None:
+        vocab = {html.unescape(p["sous_jacent"]).strip() for p in PRODUITS}
+        vocab |= set(VOCABULAIRE_SJ)
+        vocab = {v for v in vocab if len(v) >= 2 and SENTINELLE[0] not in v}
+        alternance = "|".join(sorted((re.escape(v) for v in vocab),
+                                     key=len, reverse=True))
+        _MOTIF_GLOBAL = re.compile(r"(?<![\w])(?:" + alternance + r")(?![\w])")
+    return _MOTIF_GLOBAL
+
 def controler_fuites(masques):
     """Signale toute structure dont un nom d'instrument transparaît encore
     dans les données publiées. Un échec ici vaut fuite en production."""
     fuites = []
+    global_ = motif_global()
     for p, q in zip(PRODUITS, masques):
         bruts = ([str(q.get(c) or "") for c in CHAMPS_A_MASQUER]
                  + [str(q["sous_jacent"]), str(q["sous_jacent_detail"])]
@@ -5565,6 +5634,11 @@ def controler_fuites(masques):
         textes = bruts + [html.unescape(t) for t in bruts]
         reste = sorted({v for v in _termes(p)
                         for t in textes if _motif(v).search(t)})
+        for t in textes:
+            d = global_.search(t)
+            if d:
+                reste = sorted(set(reste) | {d.group(0)})
+                break
         if reste:
             fuites.append((html.unescape(p["nom"]), reste))
     return fuites

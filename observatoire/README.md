@@ -3,12 +3,12 @@
 Site public dédié au marché des produits structurés : comparateur de structures, guide,
 familles, glossaire, émetteurs, établissements de place et analyses de marché.
 
-**Parti pris éditorial : aucun indice décrément.** Toutes les structures référencées reposent
-sur des indices publics (CAC 40, EURO STOXX 50, S&P 500, MSCI World…) ou sur des actions
-cotées. Le coupon y est financé par les dividendes non réinvestis de l’indice, mécanisme
-vérifiable par le souscripteur. Les indices décrément restent documentés — fiche famille
-« Indice décrément » et entrée de glossaire — mais uniquement pour savoir les reconnaître et
-les écarter.
+**Parti pris éditorial : les indices décrément sont référencés, et signalés.** C'est la
+position exposée sur la page Méthodologie : un décrément proche du dividende réel du panier,
+et correctement rémunéré en coupon, reste un arbitrage défendable ; c'est son niveau rapporté
+à cette contrepartie qui décide, pas le procédé. Chaque structure porte donc la nature de son
+sous-jacent — indice public ou indice décrément — et un filtre dédié permet de n'afficher que
+les indices publics.
 
 Statique, sans dépendance externe, sans cookie ni script tiers. Palette **blanche et or**
 rehaussée d’un bleu nuit (`#101C2B`), distincte de la charte vert sombre du site principal,
@@ -141,6 +141,57 @@ n’est jamais perdue. Un pot de miel (`#dz-company`) bloque les robots.
 ajouter côté serveur la validation du type réel, une limite de taille, un stockage hors
 racine web et une purge. À faire valider par la conformité, un DIC pouvant contenir des
 données personnelles.
+
+## D'où viennent les structures du comparateur
+
+Le catalogue mélange trois origines, distinguées dans le tableau :
+
+| Origine | Nombre | Marqueur | Fichier |
+|---|---|---|---|
+| Souches réellement commercialisées | 0 | « Offre réelle » (vert) | `data/produits-reels.csv`, une ligne par ISIN |
+| Offres anonymisées d'un extranet partenaire | 122 | aucun | `data/produits-reels.csv`, sans ISIN |
+| Structures simulées importées | 1 109 | « Simulation » (gris) | `data/structures-simulees.csv` |
+| Gabarits rédigés à la main | 24 | aucun | constantes `PRODUITS` du générateur |
+
+Une ligne n'obtient le marqueur « Offre réelle » **que si elle porte un ISIN**. C'est le seul
+critère : sans code valeur, une fiche n'est pas traçable, et reste un gabarit pédagogique
+quelle que soit son origine.
+
+### Importer un jeu de structures simulées
+
+```bash
+python3 tools/importer-structures.py <export.csv>
+python3 build-observatoire.py
+```
+
+L'importateur attend l'export de l'outil de simulation (séparateur point-virgule, colonnes
+`ID`, `Nom du produit`, `Type de produit`, `Émetteur (simulation)`, `Sous-jacent(s)`…). Il
+écrit `observatoire/data/structures-simulees.csv` au format plat du comparateur, et marque
+chaque ligne du tag `Simulation`. Aucun ISIN n'est fabriqué.
+
+**La note sur cinq n'est pas inventée** : elle est calculée par la grille publiée sur la page
+Méthodologie — nature du sous-jacent 25 %, signature 20 %, protection 20 %, lisibilité 15 %,
+rendement/risque 15 %. Le sixième critère, la transparence des coûts (5 %), n'est pas
+calculable faute de données de frais ; les cinq autres sont renormalisés. Le critère
+rendement/risque compare chaque coupon à ceux des structures de même famille, même maturité
+et même barrière de capital, exactement comme l'annonce la méthodologie.
+
+La notation de l'émetteur n'a pas à figurer dans l'export : elle est reprise de la fiche
+émetteur de l'onglet « Les acteurs », source unique.
+
+### Volume et tenue de la page
+
+À plus d'un millier de structures, écrire tout le tableau dans la page produisait un fichier
+de onze mégaoctets. Deux mesures :
+
+- `PRERENDU_MAX` (50) limite les lignes écrites dans `produits.html`. Sans JavaScript, le
+  visiteur voit ces 50 premières, triées par note, et un encart lui dit combien compte le
+  catalogue complet ;
+- `obs.js` affiche la même tranche de 50, extensible par le bouton « Afficher … de plus », et
+  **ne compose le détail d'une fiche qu'au premier dépliage**.
+
+Les deux valeurs doivent rester égales (`PRERENDU_MAX` et `PAR_PAGE`), sinon l'hydratation
+provoque un saut visuel.
 
 ## Sous-jacents réservés
 
