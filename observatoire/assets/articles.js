@@ -143,15 +143,19 @@
     });
   }
 
-  var CHAMPS = 'slug,titre,chapo,corps,categorie,auteur,temps_lecture,publie_le';
+  var CHAMPS = 'slug,titre,chapo,corps,categorie,auteur,temps_lecture,image_url,publie_le';
 
   /* ---------- 1. Index : compléter la liste écrite dans la page ---------- */
   var liste = document.getElementById('analyses-liste');
 
   function carte(a) {
     var art = document.createElement('article');
-    art.className = 'card art-card';
+    art.className = 'card art-card' + (a.image_url ? ' art-card--img' : '');
+    var lien = 'analyses/lire.html?slug=' + encodeURIComponent(a.slug);
     art.innerHTML =
+      (a.image_url ? '<a class="art-card__img" href="' + lien + '" tabindex="-1" ' +
+        'aria-hidden="true"><img src="' + echappe(a.image_url) + '" alt="" loading="lazy" ' +
+        'width="640" height="400"></a>' : '') +
       (a.categorie ? '<p class="eyebrow">' + echappe(a.categorie) + '</p>' : '') +
       '<h3><a href="analyses/lire.html?slug=' + encodeURIComponent(a.slug) + '">' +
         echappe(a.titre) + '</a></h3>' +
@@ -220,7 +224,9 @@
             ' min de lecture' +
             (a.auteur ? ' <span aria-hidden="true">·</span> ' + echappe(a.auteur) : '');
 
-          corpsLecture.innerHTML = rendu(a.corps);
+          corpsLecture.innerHTML =
+            (a.image_url ? '<figure class="art__illu"><img src="' + echappe(a.image_url) +
+              '" alt="" width="1280" height="720"></figure>' : '') + rendu(a.corps);
         })
         .catch(function () {
           absente('Cette analyse n’a pu être chargée.');

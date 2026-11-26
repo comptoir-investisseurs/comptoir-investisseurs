@@ -22,7 +22,7 @@ CONFIG = os.path.join(RACINE, "assets", "js", "supabase-config.js")
 SORTIE = os.path.join(RACINE, "observatoire", "data", "articles.json")
 
 CHAMPS = ("slug,titre,chapo,corps,meta_title,meta_description,categorie,"
-          "auteur,temps_lecture,publie_le,updated_at")
+          "auteur,temps_lecture,image_url,publie_le,updated_at")
 
 
 def config():

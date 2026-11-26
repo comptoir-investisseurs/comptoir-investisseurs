@@ -81,3 +81,41 @@ create policy "suppression reservee aux comptes authentifies"
   on public.lfps_articles for delete
   to authenticated
   using (true);
+
+-- =========================================================================
+--  Complément : image d'illustration
+--  À exécuter après le bloc ci-dessus. Idempotent, comme lui.
+-- =========================================================================
+
+alter table public.lfps_articles
+  add column if not exists image_url text;
+
+-- Dépôt des images d'articles. Lecture publique (elles s'affichent sur le
+-- site), dépôt réservé aux comptes authentifiés.
+insert into storage.buckets (id, name, public)
+values ('articles', 'articles', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "images d articles lisibles par tous" on storage.objects;
+create policy "images d articles lisibles par tous"
+  on storage.objects for select
+  to anon, authenticated
+  using (bucket_id = 'articles');
+
+drop policy if exists "depot d images reserve aux redacteurs" on storage.objects;
+create policy "depot d images reserve aux redacteurs"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'articles');
+
+drop policy if exists "remplacement d images reserve aux redacteurs" on storage.objects;
+create policy "remplacement d images reserve aux redacteurs"
+  on storage.objects for update
+  to authenticated
+  using (bucket_id = 'articles') with check (bucket_id = 'articles');
+
+drop policy if exists "suppression d images reservee aux redacteurs" on storage.objects;
+create policy "suppression d images reservee aux redacteurs"
+  on storage.objects for delete
+  to authenticated
+  using (bucket_id = 'articles');

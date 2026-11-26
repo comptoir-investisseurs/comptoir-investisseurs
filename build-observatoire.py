@@ -5018,6 +5018,7 @@ def charger_articles():
             "categorie": (a.get("categorie") or "").strip(),
             "auteur": (a.get("auteur") or EDITEUR).strip(),
             "lecture": a.get("temps_lecture") or 0,
+            "image": (a.get("image_url") or "").strip(),
             "publie_le": (a.get("publie_le") or MAJ_ISO)[:10],
             "maj": (a.get("updated_at") or a.get("publie_le") or MAJ_ISO)[:10],
         })
@@ -5130,11 +5131,16 @@ def ld_analyse(a):
         "publisher": {"@id": f"{BASE_URL}/#organization"},
         "mainEntityOfPage": url_abs(f'analyses/{a["slug"]}/index.html'),
         "isAccessibleForFree": True,
+        **({"image": a["image"]} if a["image"] else {}),
     }
 
 def carte_article(a, pfx=""):
     cat = f'<p class="eyebrow">{e(a["categorie"])}</p>' if a["categorie"] else ""
-    return f"""      <article class="card art-card">
+    vignette = (f'<a class="art-card__img" href="{pfx}analyses/{e(a["slug"])}/" tabindex="-1" '
+                f'aria-hidden="true"><img src="{e(a["image"])}" alt="" loading="lazy" '
+                f'width="640" height="400"></a>' if a["image"] else "")
+    return f"""      <article class="card art-card{' art-card--img' if a["image"] else ''}">
+        {vignette}
         {cat}
         <h3><a href="{pfx}analyses/{e(a["slug"])}/">{a["titre"]}</a></h3>
         <p>{e(extrait(a))}</p>
@@ -5233,6 +5239,7 @@ def page_article(a):
 
 <section class="section">
   <div class="container container--narrow">
+    {f'<figure class="art__illu"><img src="{e(a["image"])}" alt="" width="1280" height="720"></figure>' if a["image"] else ""}
     <div class="prose art__corps">
 {rendu_corps(a["corps"])}
     </div>
@@ -5298,9 +5305,22 @@ def page_admin():
     # `frame-ancestors` est ignoré dans un <meta> : la protection contre
     # l'inclusion en cadre est posée par le .htaccess (X-Frame-Options).
     csp = ("default-src 'self'; base-uri 'self'; object-src 'none'; "
-           "form-action 'self'; img-src 'self' data:; "
+           "form-action 'self'; img-src 'self' data: blob: " + supa_url + "; "
            "font-src 'self' data:; style-src 'self' 'unsafe-inline'; "
            f"script-src 'self'; connect-src 'self' {supa_url}")
+
+    outils = [
+        ("gras", "G", "Mettre en gras"),
+        ("italique", "I", "Mettre en italique"),
+        ("titre", "Titre", "Titre de section"),
+        ("sous-titre", "Sous-titre", "Sous-titre"),
+        ("liste", "Liste", "Point de liste"),
+        ("citation", "Citation", "Citation en retrait"),
+        ("lien", "Lien", "Insérer un lien"),
+    ]
+    barre = "\n        ".join(
+        f'<button type="button" data-outil="{c}" title="{e(t)}">{e(l)}</button>'
+        for c, l, t in outils)
 
     page = f"""<!doctype html>
 <html lang="fr">
@@ -5308,7 +5328,7 @@ def page_admin():
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="{e(csp)}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rédaction des analyses — {e(SITE)}</title>
+<title>Rédaction — {e(SITE)}</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
 <link rel="stylesheet" href="{v("assets/obs.css")}">
@@ -5331,116 +5351,83 @@ def page_admin():
   </form>
 </div>
 
-<!-- ========== CONSOLE ========== -->
+<!-- ========== RÉDACTION ========== -->
 <div class="adm" id="adm">
   <header class="adm__hdr">
-    <span class="brand">
-      <span class="brand__mark" aria-hidden="true">{monogramme()}</span>
-      <span class="brand__txt">
-        <span class="brand__name">{e(SITE_SHORT)}</span>
-        <span class="brand__sub">Rédaction des analyses</span>
-      </span>
+    <span class="adm__marque">{e(SITE)} — Rédaction</span>
+    <span class="adm__hdr-actions">
+      <a class="adm__lien" href="analyses.html" target="_blank" rel="noopener">Voir les analyses</a>
+      <button class="adm__lien" type="button" id="adm-quitter">Se déconnecter</button>
     </span>
-    <div class="adm__hdr-actions">
-      <span class="adm__user" id="adm-user"></span>
-      <a class="adm__lien" href="analyses.html" target="_blank" rel="noopener">Voir les analyses ↗</a>
-      <a class="adm__lien" href="../admin.html">CRM</a>
-      <button class="adm__lien" type="button" id="adm-quitter">Déconnexion</button>
-    </div>
   </header>
 
-  <div class="adm__corps">
-    <aside class="adm__liste">
+  <main class="adm__page">
+    <h1 class="adm__h1" id="adm-h1">Nouvel article</h1>
+    <p class="adm__sous" id="adm-sous">Rédigez votre article puis cliquez sur Publier.</p>
+
+    <form class="adm__carte" id="adm-form">
+      <label for="adm-titre">Titre</label>
+      <input type="text" id="adm-titre" maxlength="140" required>
+
+      <div class="adm__duo">
+        <div>
+          <label for="adm-date">Date</label>
+          <input type="date" id="adm-date">
+        </div>
+        <div>
+          <label for="adm-auteur">Auteur</label>
+          <input type="text" id="adm-auteur" maxlength="80" value="{e(EDITEUR)}">
+        </div>
+      </div>
+
+      <label for="adm-chapo">Chapô (phrase de résumé — sert au référencement Google)</label>
+      <input type="text" id="adm-chapo" maxlength="320">
+
+      <label for="adm-image">Image (facultatif — JPG, PNG, WEBP)</label>
+      <input type="file" id="adm-image" accept="image/jpeg,image/png,image/webp">
+      <div class="adm__vignette" id="adm-vignette" hidden>
+        <img alt="" id="adm-vignette-img">
+        <button type="button" class="adm__lien adm__lien--sombre" id="adm-image-retirer">Retirer l’image</button>
+      </div>
+
+      <label for="adm-corps">Texte de l’article</label>
+      <div class="adm__outils" role="group" aria-label="Mise en forme">
+        {barre}
+      </div>
+      <textarea id="adm-corps" rows="18" spellcheck="true"></textarea>
+      <p class="adm__astuce">Astuce : laissez une ligne vide entre deux paragraphes.
+        <code>**gras**</code>, <code>*italique*</code>, <code>## titre</code>,
+        <code>### sous-titre</code>, <code>- liste</code>, <code>&gt; citation</code>,
+        <code>[texte](lien)</code>.
+        <span class="adm__compte" id="adm-compte-corps"></span></p>
+
+      <p class="adm__msg" id="adm-msg" role="status" hidden></p>
+
+      <div class="adm__actions">
+        <button class="adm__publier" type="submit" id="adm-publier">Publier l’article</button>
+        <button class="adm__lien" type="button" id="adm-brouillon">Enregistrer comme brouillon</button>
+        <button class="adm__lien" type="button" id="adm-apercu">Aperçu</button>
+        <button class="adm__lien adm__lien--danger" type="button" id="adm-supprimer" hidden>Supprimer</button>
+      </div>
+    </form>
+
+    <div class="adm__carte adm__apercu" id="adm-apercu-vol" hidden>
+      <div class="adm__apercu-barre">
+        <strong>Aperçu</strong>
+        <button class="adm__lien" type="button" id="adm-apercu-fermer">Fermer</button>
+      </div>
+      <article class="prose art__corps" id="adm-apercu-corps"></article>
+    </div>
+
+    <section class="adm__carte adm__liste">
       <div class="adm__liste-hdr">
-        <button class="btn btn--gold btn--sm" type="button" id="adm-nouveau">Nouvelle analyse</button>
-        <input type="search" id="adm-filtre" placeholder="Filtrer…" aria-label="Filtrer les analyses">
+        <h2>Vos articles</h2>
+        <button class="adm__lien" type="button" id="adm-nouveau">Nouvel article</button>
       </div>
       <ul id="adm-items"></ul>
-      <p class="adm__vide" id="adm-liste-vide">Aucune analyse pour le moment.</p>
-    </aside>
-
-    <main class="adm__editeur">
-      <p class="adm__accueil" id="adm-accueil">
-        Choisissez une analyse à gauche, ou créez-en une nouvelle.
-      </p>
-
-      <form class="adm__form" id="adm-form" hidden>
-        <div class="adm__form-hdr">
-          <span class="adm__statut" id="adm-statut-pastille"></span>
-          <div class="adm__form-actions">
-            <button class="btn btn--sm" type="button" id="adm-apercu">Aperçu</button>
-            <button class="btn btn--sm" type="submit" id="adm-enregistrer">Enregistrer</button>
-            <button class="btn btn--gold btn--sm" type="button" id="adm-publier">Publier</button>
-            <button class="btn btn--sm adm__danger" type="button" id="adm-supprimer">Supprimer</button>
-          </div>
-        </div>
-
-        <label for="adm-titre">Titre <span class="adm__req">obligatoire</span></label>
-        <input type="text" id="adm-titre" maxlength="140" required>
-        <p class="adm__aide">Apparaît en titre de page et en &lt;h1&gt;. 60 à 70 signes se lisent le mieux dans Google.
-          <span class="adm__compte" id="adm-compte-titre"></span></p>
-
-        <label for="adm-slug">Adresse de la page <span class="adm__req">obligatoire</span></label>
-        <div class="adm__slug">
-          <span class="adm__slug-base">{e(BASE_PATH)}/analyses/</span>
-          <input type="text" id="adm-slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" minlength="3" maxlength="90" required>
-          <span>/</span>
-        </div>
-        <p class="adm__aide">Minuscules, chiffres et traits d’union. Proposée d’après le titre ;
-          <strong>à ne plus modifier une fois l’analyse publiée</strong>, sous peine de casser le lien.</p>
-
-        <div class="adm__duo">
-          <div>
-            <label for="adm-categorie">Rubrique</label>
-            <input type="text" id="adm-categorie" list="adm-rubriques" maxlength="40" placeholder="Note de marché">
-            <datalist id="adm-rubriques">
-              <option value="Note de marché"></option>
-              <option value="Mécanismes"></option>
-              <option value="Points de vigilance"></option>
-              <option value="Réglementation"></option>
-              <option value="Émetteurs"></option>
-            </datalist>
-          </div>
-          <div>
-            <label for="adm-date">Date de publication</label>
-            <input type="date" id="adm-date">
-          </div>
-        </div>
-
-        <label for="adm-chapo">Chapô</label>
-        <textarea id="adm-chapo" rows="3" maxlength="320"></textarea>
-        <p class="adm__aide">Deux ou trois lignes d’introduction, reprises sur la page d’index.
-          <span class="adm__compte" id="adm-compte-chapo"></span></p>
-
-        <label for="adm-corps">Corps de l’analyse</label>
-        <textarea id="adm-corps" rows="22" spellcheck="true"></textarea>
-        <p class="adm__aide">Mise en forme&nbsp;: <code>## Titre</code> et <code>### Sous-titre</code>,
-          <code>- liste</code>, <code>**gras**</code>, <code>*italique*</code>,
-          <code>[texte](adresse)</code>, <code>&gt; citation</code>, <code>---</code> pour un filet.
-          <span class="adm__compte" id="adm-compte-corps"></span></p>
-
-        <fieldset class="adm__seo">
-          <legend>Référencement</legend>
-          <label for="adm-meta-titre">Titre pour les moteurs</label>
-          <input type="text" id="adm-meta-titre" maxlength="70" placeholder="Laisser vide : le titre sera reprise">
-          <p class="adm__aide"><span class="adm__compte" id="adm-compte-meta-titre"></span></p>
-          <label for="adm-meta-desc">Description pour les moteurs</label>
-          <textarea id="adm-meta-desc" rows="2" maxlength="165" placeholder="Laisser vide : le chapô sera repris"></textarea>
-          <p class="adm__aide">150 à 160 signes. <span class="adm__compte" id="adm-compte-meta-desc"></span></p>
-        </fieldset>
-
-        <p class="adm__msg" id="adm-msg" role="status" hidden></p>
-      </form>
-
-      <div class="adm__apercu" id="adm-apercu-vol" hidden>
-        <div class="adm__apercu-barre">
-          <strong>Aperçu</strong>
-          <button class="btn btn--sm" type="button" id="adm-apercu-fermer">Fermer l’aperçu</button>
-        </div>
-        <article class="prose art__corps" id="adm-apercu-corps"></article>
-      </div>
-    </main>
-  </div>
+      <p class="adm__vide" id="adm-liste-vide">Aucun article pour le moment.</p>
+    </section>
+  </main>
 </div>
 
 <script src="{v("assets/supabase-obs.js")}"></script>
