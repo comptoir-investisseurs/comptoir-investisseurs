@@ -70,4 +70,14 @@ test ! -f "$OUT/contact.php" || { echo "ERREUR : contact.php présent (non exéc
 test ! -d "$OUT/tools" || { echo "ERREUR : outils internes présents dans la publication"; exit 1; }
 test ! -d "$OUT/.sessions" || { echo "ERREUR : sessions authentifiées présentes dans la publication"; exit 1; }
 
+# Espace de rédaction : il part bien avec le site, mais jamais indexable.
+test -f "$OUT/observatoire/admin.html" || { echo "ERREUR : observatoire/admin.html absent"; exit 1; }
+grep -q 'name="robots" content="noindex' "$OUT/observatoire/admin.html" \
+  || { echo "ERREUR : observatoire/admin.html sans noindex"; exit 1; }
+grep -q 'name="robots" content="noindex' "$OUT/observatoire/analyses/lire.html" \
+  || { echo "ERREUR : observatoire/analyses/lire.html sans noindex"; exit 1; }
+for f in admin.js admin.css articles.js supabase-obs.js; do
+  test -f "$OUT/observatoire/assets/$f" || { echo "ERREUR : observatoire/assets/$f absent"; exit 1; }
+done
+
 echo "→ Publication prête : $(du -sh "$OUT" | cut -f1)"

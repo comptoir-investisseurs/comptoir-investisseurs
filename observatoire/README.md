@@ -1,7 +1,7 @@
-# Le Comptoir des Structurés
+# La Française des Produits Structurés
 
 Site public dédié au marché des produits structurés : comparateur de structures, guide,
-familles, glossaire, émetteurs et établissements de place.
+familles, glossaire, émetteurs, établissements de place et analyses de marché.
 
 **Parti pris éditorial : aucun indice décrément.** Toutes les structures référencées reposent
 sur des indices publics (CAC 40, EURO STOXX 50, S&P 500, MSCI World…) ou sur des actions
@@ -52,7 +52,7 @@ restent cohérents entre eux et sont explicitement datés sur le site, mais doiv
 recalés avant toute exploitation commerciale : les coupons suivent les taux et la
 volatilité, les notations sont révisées sans préavis.
 
-## Les quatre onglets
+## Les cinq onglets
 
 | Fichier | Onglet | Contenu |
 |---|---|---|
@@ -60,6 +60,9 @@ volatilité, les notations sont révisées sans préavis.
 | `produits.html` | Le comparateur | Tableau filtrable et triable + zone de dépôt « faire analyser un produit » |
 | `comprendre.html` | Comprendre | **3 volets** : le guide (10 chapitres), les 12 familles, le glossaire (73 définitions) |
 | `acteurs.html` | Les acteurs | Bloc éditeur (LFDR) en tête, puis **2 volets** : 22 émetteurs, 39 établissements |
+| `analyses.html` | Analyses | Les articles rédigés depuis l’espace de rédaction (voir plus bas) |
+| `analyses/<slug>/` | *(une page par analyse)* | L’article, avec son `Article` JSON-LD et son fil d’Ariane |
+| `admin.html` | *(non lié, `noindex`)* | Espace de rédaction des analyses |
 | `methodologie.html` | *(pied de page)* | Grille d’analyse en 6 critères et limites assumées |
 | `mentions-legales.html` | *(pied de page)* | Éditeur, nature des informations, avertissement sur les risques |
 
@@ -139,6 +142,56 @@ ajouter côté serveur la validation du type réel, une limite de taille, un sto
 racine web et une purge. À faire valider par la conformité, un DIC pouvant contenir des
 données personnelles.
 
+## Espace de rédaction des analyses
+
+`observatoire/admin.html` — **lié depuis aucune page**, `noindex, nofollow`. On y accède en
+tapant l’adresse. La connexion utilise les comptes Supabase du CRM de La Financière de
+Rochechouart : une session déjà ouverte dans le CRM vaut ici aussi (même jeton
+`sb_access_token`).
+
+### Mise en service, une seule fois
+
+1. Ouvrir Supabase → **SQL Editor** → **New query** ;
+2. y coller le contenu de `supabase-articles.sql` (à la racine du dépôt) et lancer **Run**.
+
+Le fichier crée la table `lfps_articles` et ses règles d’accès : lecture publique des seules
+analyses **publiées**, écriture réservée aux comptes authentifiés. Le relancer ne détruit
+aucune analyse existante.
+
+### Rédiger
+
+Titre, adresse de la page, rubrique, chapô, corps, et deux champs de référencement. Le corps
+accepte une mise en forme réduite : `## Titre`, `### Sous-titre`, `- liste`, `**gras**`,
+`*italique*`, `[texte](adresse)`, `> citation`, `---`. Le bouton **Aperçu** affiche le rendu
+exact de la page publiée.
+
+**Enregistrer** garde l’analyse en brouillon ; **Publier** la met en ligne.
+
+### Les deux chemins d’une analyse publiée
+
+| | Visible | Adresse | Indexable |
+|---|---|---|---|
+| Dès la publication | oui, en tête de `analyses.html` | `analyses/lire.html?slug=…` | non (`noindex`) |
+| Après régénération du site | oui | `analyses/<slug>/` | oui, avec `Article` JSON-LD et entrée de sitemap |
+
+Autrement dit : une analyse publiée est lisible **immédiatement**, sans rien régénérer ni
+ré-téléverser. Elle prend son adresse définitive, celle que les moteurs indexent, au prochain
+passage de :
+
+```bash
+python3 tools/articles-sync.py      # récupère les analyses publiées
+python3 build-observatoire.py       # en fait des pages statiques
+```
+
+`tools/articles-sync.py` dépose les analyses dans `observatoire/data/articles.json`, que le
+générateur lit. Ce fichier est versionné : si la synchronisation n’est pas rejouée, le site se
+construit avec les analyses qu’il contient déjà.
+
+### Ce qui n’est pas du ressort de cet espace
+
+Dépublier ou supprimer une analyse la retire **de la liste immédiatement**, mais sa page
+statique `analyses/<slug>/` reste en ligne jusqu’à la régénération suivante.
+
 ## Logos des émetteurs
 
 Chaque fiche émetteur comporte un emplacement logo. **Aucun logo n'est livré** : ce sont
@@ -192,12 +245,25 @@ datées par la constante `ANNEE_RATINGS`. Elles sont révisées sans préavis pa
 **Elles doivent être revérifiées auprès des trois agences avant toute mise en ligne
 commerciale**, et à chaque revue éditoriale ensuite.
 
-## ⚠️ Disponibilité du nom
+## ⚠️ Disponibilité du nom — risque à lever avant mise en ligne
 
-« Le Comptoir des Structurés » a été retenu après une recherche web qui n’a fait apparaître
-aucun site ni service portant ce nom. Cette vérification ne vaut pas recherche d’antériorité :
-**avant tout usage commercial, faire une recherche de marque à l’INPI et vérifier la
-disponibilité des noms de domaine.**
+Le site s’intitule « La Française des Produits Structurés » et s’abrège, dans l’en-tête et le
+pied de page, en **« La Française »**.
+
+**Or « La Française » est la dénomination d’une société de gestion française existante**
+(groupe La Française, filiale de gestion d’actifs d’un grand réseau mutualiste), active sur
+le même secteur — la gestion d’actifs et la distribution de produits financiers. Un nom
+voisin sur un marché voisin est exactement la situation que le droit des marques sanctionne,
+d’autant que l’abréviation retenue est le nom de l’autre acteur à l’identique.
+
+Avant toute mise en ligne commerciale :
+
+- faire une **recherche d’antériorité à l’INPI** sur les classes 35 et 36 ;
+- faire valider le nom par un conseil en propriété industrielle ;
+- vérifier la disponibilité des noms de domaine correspondants.
+
+Le nom est centralisé dans les constantes `SITE`, `SITE_SHORT` et `MARK`, en tête de
+`build-observatoire.py` : en changer est l’affaire d’une régénération.
 
 ## Pré-filtrage du comparateur par l’URL
 

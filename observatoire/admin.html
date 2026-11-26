@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src &#x27;self&#x27;; base-uri &#x27;self&#x27;; object-src &#x27;none&#x27;; form-action &#x27;self&#x27;; img-src &#x27;self&#x27; data:; font-src &#x27;self&#x27; data:; style-src &#x27;self&#x27; &#x27;unsafe-inline&#x27;; script-src &#x27;self&#x27;; connect-src &#x27;self&#x27; https://qtrjussasvwmiohhblhh.supabase.co">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rédaction des analyses — La Française des Produits Structurés</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+<link rel="stylesheet" href="assets/obs.css?v=403963d3">
+<link rel="stylesheet" href="assets/admin.css?v=48e6fcbd">
+</head>
+<body class="adm-body">
+
+<!-- ========== CONNEXION ========== -->
+<div class="adm-login" id="adm-login">
+  <form class="adm-login__card" id="adm-login-form" autocomplete="on">
+    <span class="brand__mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="La Française des Produits Structurés">
+  <title>La Française des Produits Structurés</title>
+  <!-- Monogramme « F » : montant vertical, deux barres légèrement courbes
+       dont la longueur décroît — le profil d'un rendement qui s'amortit.
+       Un seul écho parallèle, comme pour garder la lettre nette en petit. -->
+  <g fill="none" stroke="currentColor" stroke-linecap="round">
+    <path d="M22 13.5v37" stroke-width="3.6"/>
+    <path d="M22 13.5c7.5 0 15.3-.4 22.5-1.2" stroke-width="3.6"/>
+    <path d="M22 31.2c5.6 0 11.4-.3 16.8-.9" stroke-width="3.6"/>
+    <path d="M26.8 20.6c5.3-.2 10.6-.6 15.8-1.2" stroke-width="1.2" opacity=".45"/>
+  </g>
+</svg></span>
+    <h1>Rédaction des analyses</h1>
+    <p>Connectez-vous avec vos identifiants La Financière de Rochechouart.</p>
+    <label for="adm-email">Adresse électronique</label>
+    <input type="email" id="adm-email" autocomplete="username" required>
+    <label for="adm-mdp">Mot de passe</label>
+    <input type="password" id="adm-mdp" autocomplete="current-password" required>
+    <button class="btn btn--gold" type="submit" id="adm-login-btn">Se connecter</button>
+    <p class="adm-erreur" id="adm-login-erreur" role="alert" hidden></p>
+  </form>
+</div>
+
+<!-- ========== CONSOLE ========== -->
+<div class="adm" id="adm">
+  <header class="adm__hdr">
+    <span class="brand">
+      <span class="brand__mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="La Française des Produits Structurés">
+  <title>La Française des Produits Structurés</title>
+  <!-- Monogramme « F » : montant vertical, deux barres légèrement courbes
+       dont la longueur décroît — le profil d'un rendement qui s'amortit.
+       Un seul écho parallèle, comme pour garder la lettre nette en petit. -->
+  <g fill="none" stroke="currentColor" stroke-linecap="round">
+    <path d="M22 13.5v37" stroke-width="3.6"/>
+    <path d="M22 13.5c7.5 0 15.3-.4 22.5-1.2" stroke-width="3.6"/>
+    <path d="M22 31.2c5.6 0 11.4-.3 16.8-.9" stroke-width="3.6"/>
+    <path d="M26.8 20.6c5.3-.2 10.6-.6 15.8-1.2" stroke-width="1.2" opacity=".45"/>
+  </g>
+</svg></span>
+      <span class="brand__txt">
+        <span class="brand__name">La Française</span>
+        <span class="brand__sub">Rédaction des analyses</span>
+      </span>
+    </span>
+    <div class="adm__hdr-actions">
+      <span class="adm__user" id="adm-user"></span>
+      <a class="adm__lien" href="analyses.html" target="_blank" rel="noopener">Voir les analyses ↗</a>
+      <a class="adm__lien" href="../admin.html">CRM</a>
+      <button class="adm__lien" type="button" id="adm-quitter">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="adm__corps">
+    <aside class="adm__liste">
+      <div class="adm__liste-hdr">
+        <button class="btn btn--gold btn--sm" type="button" id="adm-nouveau">Nouvelle analyse</button>
+        <input type="search" id="adm-filtre" placeholder="Filtrer…" aria-label="Filtrer les analyses">
+      </div>
+      <ul id="adm-items"></ul>
+      <p class="adm__vide" id="adm-liste-vide">Aucune analyse pour le moment.</p>
+    </aside>
+
+    <main class="adm__editeur">
+      <p class="adm__accueil" id="adm-accueil">
+        Choisissez une analyse à gauche, ou créez-en une nouvelle.
+      </p>
+
+      <form class="adm__form" id="adm-form" hidden>
+        <div class="adm__form-hdr">
+          <span class="adm__statut" id="adm-statut-pastille"></span>
+          <div class="adm__form-actions">
+            <button class="btn btn--sm" type="button" id="adm-apercu">Aperçu</button>
+            <button class="btn btn--sm" type="submit" id="adm-enregistrer">Enregistrer</button>
+            <button class="btn btn--gold btn--sm" type="button" id="adm-publier">Publier</button>
+            <button class="btn btn--sm adm__danger" type="button" id="adm-supprimer">Supprimer</button>
+          </div>
+        </div>
+
+        <label for="adm-titre">Titre <span class="adm__req">obligatoire</span></label>
+        <input type="text" id="adm-titre" maxlength="140" required>
+        <p class="adm__aide">Apparaît en titre de page et en &lt;h1&gt;. 60 à 70 signes se lisent le mieux dans Google.
+          <span class="adm__compte" id="adm-compte-titre"></span></p>
+
+        <label for="adm-slug">Adresse de la page <span class="adm__req">obligatoire</span></label>
+        <div class="adm__slug">
+          <span class="adm__slug-base">/observatoire/analyses/</span>
+          <input type="text" id="adm-slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" minlength="3" maxlength="90" required>
+          <span>/</span>
+        </div>
+        <p class="adm__aide">Minuscules, chiffres et traits d’union. Proposée d’après le titre ;
+          <strong>à ne plus modifier une fois l’analyse publiée</strong>, sous peine de casser le lien.</p>
+
+        <div class="adm__duo">
+          <div>
+            <label for="adm-categorie">Rubrique</label>
+            <input type="text" id="adm-categorie" list="adm-rubriques" maxlength="40" placeholder="Note de marché">
+            <datalist id="adm-rubriques">
+              <option value="Note de marché"></option>
+              <option value="Mécanismes"></option>
+              <option value="Points de vigilance"></option>
+              <option value="Réglementation"></option>
+              <option value="Émetteurs"></option>
+            </datalist>
+          </div>
+          <div>
+            <label for="adm-date">Date de publication</label>
+            <input type="date" id="adm-date">
+          </div>
+        </div>
+
+        <label for="adm-chapo">Chapô</label>
+        <textarea id="adm-chapo" rows="3" maxlength="320"></textarea>
+        <p class="adm__aide">Deux ou trois lignes d’introduction, reprises sur la page d’index.
+          <span class="adm__compte" id="adm-compte-chapo"></span></p>
+
+        <label for="adm-corps">Corps de l’analyse</label>
+        <textarea id="adm-corps" rows="22" spellcheck="true"></textarea>
+        <p class="adm__aide">Mise en forme&nbsp;: <code>## Titre</code> et <code>### Sous-titre</code>,
+          <code>- liste</code>, <code>**gras**</code>, <code>*italique*</code>,
+          <code>[texte](adresse)</code>, <code>&gt; citation</code>, <code>---</code> pour un filet.
+          <span class="adm__compte" id="adm-compte-corps"></span></p>
+
+        <fieldset class="adm__seo">
+          <legend>Référencement</legend>
+          <label for="adm-meta-titre">Titre pour les moteurs</label>
+          <input type="text" id="adm-meta-titre" maxlength="70" placeholder="Laisser vide : le titre sera reprise">
+          <p class="adm__aide"><span class="adm__compte" id="adm-compte-meta-titre"></span></p>
+          <label for="adm-meta-desc">Description pour les moteurs</label>
+          <textarea id="adm-meta-desc" rows="2" maxlength="165" placeholder="Laisser vide : le chapô sera repris"></textarea>
+          <p class="adm__aide">150 à 160 signes. <span class="adm__compte" id="adm-compte-meta-desc"></span></p>
+        </fieldset>
+
+        <p class="adm__msg" id="adm-msg" role="status" hidden></p>
+      </form>
+
+      <div class="adm__apercu" id="adm-apercu-vol" hidden>
+        <div class="adm__apercu-barre">
+          <strong>Aperçu</strong>
+          <button class="btn btn--sm" type="button" id="adm-apercu-fermer">Fermer l’aperçu</button>
+        </div>
+        <article class="prose art__corps" id="adm-apercu-corps"></article>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="assets/supabase-obs.js?v=a02eba93"></script>
+<script src="assets/articles.js?v=3b4666c0"></script>
+<script src="assets/admin.js?v=19d53889"></script>
+</body>
+</html>

@@ -17,3 +17,4 @@ _site
 
 # Captures et extractions brutes produites par tools/collecte-structures.cjs
 tools/collecte/
+__pycache__/

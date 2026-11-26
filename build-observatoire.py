@@ -11,7 +11,7 @@ Un gabarit unique garantit l'homogénéité en-tête / pied de page / SEO.
 
 Les feuilles obs.css / obs.js sont écrites à la main (non régénérées ici).
 """
-import os, html, json, datetime, urllib.parse, hashlib
+import os, re, html, json, datetime, urllib.parse, hashlib
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, "observatoire")
@@ -63,6 +63,7 @@ NAV = [
     ("comprendre.html", "Comprendre"),
     ("guides/",         "Guides"),
     ("acteurs.html",    "Les acteurs"),
+    ("analyses.html",   "Analyses"),
 ]
 
 def e(s):
@@ -3129,6 +3130,7 @@ def main():
             os.remove(path)
             print(f"  − {f} (fusionné dans un autre onglet)")
     build_data_js()
+    build_supabase_js()
     page_index()
     page_produits()
     page_comprendre()
@@ -3140,6 +3142,11 @@ def main():
     page_guides_index()
     for g in GUIDES:
         page_guide(g)
+    page_analyses()
+    for a in ARTICLES:
+        page_article(a)
+    page_lire()
+    page_admin()
     n_urls = build_sitemap()
     build_robots()
     build_htaccess()
@@ -3148,7 +3155,8 @@ def main():
           f"{len(ETABLISSEMENTS)} établissements · {len(PRODUITS)} structures · "
           f"{len(GLOSSAIRE)} définitions")
     print(f"  Coupons : {min(cp)*100:.1f} % à {max(cp)*100:.1f} % (conditions {MARCHE_REF}).")
-    print(f"  {len(GUIDES)} guides · sitemap de {n_urls} URL · revue éditoriale {MAJ}")
+    print(f"  {len(GUIDES)} guides · {len(ARTICLES)} analyse(s) · "
+          f"sitemap de {n_urls} URL · revue éditoriale {MAJ}")
     manquants = [slugify(em["nom"]) for em in EMETTEURS if not logo_fichier(slugify(em["nom"]))]
     if manquants:
         print(f"  logos émetteurs : {len(EMETTEURS) - len(manquants)}/{len(EMETTEURS)} déposés "
@@ -4686,6 +4694,7 @@ PAGES_INDEXABLES = [
     ("guides/index.html",     "0.8", "monthly"),
     ("comprendre.html",       "0.8", "monthly"),
     ("acteurs.html",          "0.7", "monthly"),
+    ("analyses.html",         "0.6", "weekly"),
     ("methodologie.html",     "0.5", "yearly"),
     ("mentions-legales.html", "0.2", "yearly"),
 ]
@@ -4696,6 +4705,8 @@ def build_sitemap():
         urls.append((url_abs(path), MAJ_ISO, freq, prio))
     for g in GUIDES:
         urls.append((url_abs(f'guides/{g["slug"]}/index.html'), g["maj"], "monthly", "0.7"))
+    for a in ARTICLES:
+        urls.append((url_abs(f'analyses/{a["slug"]}/index.html'), a["maj"], "yearly", "0.6"))
     body = "\n".join(
         f"  <url>\n    <loc>{e(u)}</loc>\n    <lastmod>{d}</lastmod>\n"
         f"    <changefreq>{f}</changefreq>\n    <priority>{p}</priority>\n  </url>"
@@ -4766,6 +4777,7 @@ ErrorDocument 404 {BASE_PATH}/404.html
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
   Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "DENY"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
@@ -4819,6 +4831,498 @@ def page_404():
         '<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">',
         '<meta name="robots" content="noindex, follow">')
     write("404.html", html_404)
+
+# ==========================================================================
+#  ANALYSES — articles rédigés depuis l'espace Admin
+#  Les articles vivent dans Supabase (table lfps_articles). `tools/articles-sync.py`
+#  les dépose dans observatoire/data/articles.json ; ce générateur en fait des
+#  pages statiques, donc indexables et lisibles sans JavaScript.
+# ==========================================================================
+FICHIER_ARTICLES = os.path.join(OUT, "data", "articles.json")
+
+def charger_articles():
+    """Articles publiés, les plus récents d'abord. Absence de fichier =
+    aucun article : le site se construit normalement, avec un index vide."""
+    try:
+        with open(FICHIER_ARTICLES, encoding="utf-8") as f:
+            brut = json.load(f)
+    except (OSError, ValueError):
+        return []
+    arts = []
+    for a in brut:
+        slug = (a.get("slug") or "").strip()
+        titre = (a.get("titre") or "").strip()
+        if not slug or not titre:
+            continue
+        arts.append({
+            "slug": slug,
+            "titre": titre,
+            "chapo": (a.get("chapo") or "").strip(),
+            "corps": a.get("corps") or "",
+            "meta_title": (a.get("meta_title") or "").strip(),
+            "meta_description": (a.get("meta_description") or "").strip(),
+            "categorie": (a.get("categorie") or "").strip(),
+            "auteur": (a.get("auteur") or EDITEUR).strip(),
+            "lecture": a.get("temps_lecture") or 0,
+            "publie_le": (a.get("publie_le") or MAJ_ISO)[:10],
+            "maj": (a.get("updated_at") or a.get("publie_le") or MAJ_ISO)[:10],
+        })
+    arts.sort(key=lambda a: a["publie_le"], reverse=True)
+    return arts
+
+ARTICLES = charger_articles()
+
+# --------------------------------------------------------------------------
+#  Rendu du corps des articles
+#  Sous-ensemble volontairement réduit de Markdown. Le même sous-ensemble est
+#  implémenté dans observatoire/assets/admin.js (fonction `rendu`) : toute
+#  évolution ici doit y être reportée, sinon l'aperçu de l'Admin et la page
+#  publiée divergent.
+# --------------------------------------------------------------------------
+def _enligne(txt):
+    """Gras, italique et liens, appliqués à du texte DÉJÀ échappé."""
+    txt = re.sub(r"\*\*(?=\S)(.+?)(?<=\S)\*\*", r"<strong>\1</strong>", txt)
+    txt = re.sub(r"(?<![\w*])\*(?=\S)([^*]+?)(?<=\S)\*(?![\w*])", r"<em>\1</em>", txt)
+
+    def lien(m):
+        libelle, cible = m.group(1), m.group(2)
+        # Seuls les liens http(s), les ancres et les chemins relatifs sont
+        # conservés : on écarte javascript:, data: et autres schémas actifs,
+        # ainsi que les adresses sans protocole (//site-tiers/…), qui sortent
+        # du site tout en ayant l'allure d'un chemin interne.
+        if not re.match(r"^(https?://|/(?!/)|\#|\.\./|[\w\-]+[/.])", cible):
+            return libelle
+        ext = ' target="_blank" rel="noopener"' if cible.startswith("http") else ""
+        return f'<a href="{cible}"{ext}>{libelle}</a>'
+
+    return re.sub(r"\[([^\]\[]+)\]\(([^()\s]+)\)", lien, txt)
+
+def rendu_corps(corps):
+    """Markdown restreint -> HTML. Le texte est échappé avant toute mise en
+    forme : un article ne peut donc pas injecter de balise dans la page."""
+    lignes = e(corps or "").replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    out, liste, para, cite = [], [], [], []
+
+    def vider_liste():
+        if liste:
+            out.append("<ul>" + "".join(f"<li>{_enligne(x)}</li>" for x in liste) + "</ul>")
+            liste.clear()
+
+    def vider_para():
+        if para:
+            out.append("<p>" + _enligne(" ".join(para)) + "</p>")
+            para.clear()
+
+    def vider_cite():
+        if cite:
+            out.append("<blockquote><p>" + _enligne(" ".join(cite)) + "</p></blockquote>")
+            cite.clear()
+
+    def vider_tout():
+        vider_para(); vider_liste(); vider_cite()
+
+    for ligne in lignes:
+        nu = ligne.strip()
+        if not nu:
+            vider_tout()
+            continue
+        if nu in ("---", "***", "___"):
+            vider_tout()
+            out.append('<hr class="art__sep">')
+            continue
+        m = re.match(r"^(#{2,4})\s+(.*)$", nu)
+        if m:
+            vider_tout()
+            n = len(m.group(1))
+            out.append(f"<h{n}>{_enligne(m.group(2).strip())}</h{n}>")
+            continue
+        if nu.startswith("&gt; "):
+            vider_para(); vider_liste()
+            cite.append(nu[5:].strip())
+            continue
+        m = re.match(r"^[-*•]\s+(.*)$", nu)
+        if m:
+            vider_para(); vider_cite()
+            liste.append(m.group(1).strip())
+            continue
+        vider_liste(); vider_cite()
+        para.append(nu)
+
+    vider_tout()
+    return "\n".join(out)
+
+def minutes_lecture(a):
+    if a["lecture"]:
+        return a["lecture"]
+    mots = len(re.findall(r"\w+", (a["chapo"] + " " + a["corps"])))
+    return max(1, round(mots / 220))
+
+def extrait(a, n=190):
+    """Chapô si présent, sinon début du corps débarrassé de sa syntaxe."""
+    txt = a["chapo"] or re.sub(r"[#*>\-\[\]()]|\(https?://[^)]*\)", " ", a["corps"])
+    txt = re.sub(r"\s+", " ", txt).strip()
+    return txt if len(txt) <= n else txt[:n].rsplit(" ", 1)[0] + "…"
+
+def ld_analyse(a):
+    return {
+        "@type": "Article",
+        "@id": url_abs(f'analyses/{a["slug"]}/index.html') + "#article",
+        "headline": html.unescape(a["titre"])[:110],
+        "description": html.unescape(a["meta_description"] or extrait(a)),
+        "inLanguage": "fr-FR",
+        "datePublished": a["publie_le"],
+        "dateModified": a["maj"],
+        "author": {"@id": f"{BASE_URL}/#organization"},
+        "publisher": {"@id": f"{BASE_URL}/#organization"},
+        "mainEntityOfPage": url_abs(f'analyses/{a["slug"]}/index.html'),
+        "isAccessibleForFree": True,
+    }
+
+def carte_article(a, pfx=""):
+    cat = f'<p class="eyebrow">{e(a["categorie"])}</p>' if a["categorie"] else ""
+    return f"""      <article class="card art-card">
+        {cat}
+        <h3><a href="{pfx}analyses/{e(a["slug"])}/">{a["titre"]}</a></h3>
+        <p>{e(extrait(a))}</p>
+        <p class="art-card__meta"><time datetime="{a["publie_le"]}">{e(date_fr(a["publie_le"]))}</time>
+        <span aria-hidden="true">·</span> {minutes_lecture(a)} min de lecture</p>
+      </article>"""
+
+def page_analyses():
+    """Index des analyses. La liste est écrite dans le HTML (donc indexable et
+    lisible sans JavaScript) ; obs.js y ajoute, le cas échéant, les articles
+    publiés depuis la dernière génération du site."""
+    pfx = ""
+    crumb = fil([("Accueil", "index.html"), ("Analyses", "analyses.html")], pfx)
+    body = hero(
+        "Analyses et commentaires de marché",
+        "Nos notes sur les conditions de marché, les mécanismes et les points "
+        "de vigilance des produits structurés. Un regard de conseil, distinct "
+        "des fiches techniques du comparateur.",
+        crumb, forme_nom=forme("analyses.html"), pfx=pfx)
+
+    if ARTICLES:
+        cartes = "\n".join(carte_article(a, pfx) for a in ARTICLES)
+        intro = (f'<p class="eyebrow">{len(ARTICLES)} '
+                 f'{"analyse publiée" if len(ARTICLES) == 1 else "analyses publiées"}</p>')
+        vide = ""
+    else:
+        cartes = ""
+        intro = '<p class="eyebrow">Publications</p>'
+        vide = """      <div class="notice" id="analyses-vide" style="margin-top:28px">
+        <span class="notice__i" aria-hidden="true">!</span>
+        <p>Les premières analyses sont en cours de rédaction. En attendant, le
+        <a href="comprendre.html">guide complet</a> et les
+        <a href="guides/">guides thématiques</a> couvrent l’essentiel des mécanismes.</p>
+      </div>"""
+
+    body += f"""
+<section class="section">
+  <div class="container">
+    {intro}
+    <h2 class="title-lg">Nos publications</h2>
+    <div class="cards cards--art" id="analyses-liste">
+{cartes}
+    </div>
+{vide}
+  </div>
+</section>
+"""
+    write("analyses.html", layout(
+        "analyses.html",
+        "Analyses produits structurés : notes de marché | La Française",
+        "Analyses et notes de marché sur les produits structurés : mécanismes, "
+        "conditions de marché, points de vigilance. Publications de "
+        f"{EDITEUR}.",
+        body,
+        graph=[ld_analyse(a) for a in ARTICLES[:10]],
+        crumb_trail=[("Accueil", "index.html"), ("Analyses", "analyses.html")],
+        extra_js=(f'\n<script src="{v("assets/supabase-obs.js")}"></script>'
+                  f'\n<script src="{v("assets/articles.js")}"></script>')))
+
+def page_article(a):
+    chemin = f'analyses/{a["slug"]}/index.html'
+    pfx = prefix_for(chemin)
+    trail = [("Accueil", "index.html"), ("Analyses", "analyses.html"),
+             (a["titre"], f'analyses/{a["slug"]}/')]
+    crumb = fil(trail, pfx)
+
+    autres = [x for x in ARTICLES if x["slug"] != a["slug"]][:3]
+    suite = ""
+    if autres:
+        suite = f"""
+<section class="section section--ivory">
+  <div class="container">
+    <p class="eyebrow">À lire aussi</p>
+    <h2 class="title-lg">Autres analyses</h2>
+    <div class="cards cards--art">
+{chr(10).join(carte_article(x, pfx) for x in autres)}
+    </div>
+  </div>
+</section>
+"""
+
+    cat = f'<p class="eyebrow eyebrow--light">{e(a["categorie"])}</p>' if a["categorie"] else ""
+    body = f"""<section class="hero hero--page">
+  <div class="hero__forme{" hero__forme--dense" if forme(chemin, a["slug"]) in FORMES_DENSES else ""}" aria-hidden="true" style="{forme_bg(forme(chemin, a["slug"]), pfx)}"></div>
+  <div class="hero__grid" aria-hidden="true"></div>
+  <div class="container hero__in">
+    {crumb}
+    {cat}
+    <h1 class="title-xl">{a["titre"]}</h1>
+    {f'<p class="hero__lede">{e(a["chapo"])}</p>' if a["chapo"] else ""}
+    <p class="art__meta">Publié le <time datetime="{a["publie_le"]}">{e(date_fr(a["publie_le"]))}</time>
+    <span aria-hidden="true">·</span> {minutes_lecture(a)} min de lecture
+    <span aria-hidden="true">·</span> {e(a["auteur"])}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container container--narrow">
+    <div class="prose art__corps">
+{rendu_corps(a["corps"])}
+    </div>
+    <p class="art__retour"><a class="card__more" href="{pfx}analyses.html">Toutes les analyses</a></p>
+  </div>
+</section>
+{suite}"""
+
+    write(chemin, layout(
+        chemin,
+        a["meta_title"] or f'{html.unescape(a["titre"])} | La Française',
+        a["meta_description"] or extrait(a, 155),
+        body, graph=[ld_analyse(a)], crumb_trail=trail))
+
+def page_lire():
+    """Lecteur des analyses mises en ligne depuis la dernière génération du
+    site. Volontairement `noindex` : l'article dispose de sa propre URL
+    statique dès la génération suivante, et c'est celle-là qui est indexée."""
+    body = """<section class="hero hero--page">
+  <div class="hero__grid" aria-hidden="true"></div>
+  <div class="container hero__in">
+    <nav class="crumb" aria-label="Fil d’Ariane"><a href="../index.html">Accueil</a><span aria-hidden="true">/</span><a href="../analyses.html">Analyses</a><span aria-hidden="true">/</span><span aria-current="page">Lecture</span></nav>
+    <h1 class="title-xl" id="lire-titre">Analyse</h1>
+    <p class="hero__lede" id="lire-chapo">Chargement de l’analyse…</p>
+    <p class="art__meta" id="lire-meta"></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container container--narrow">
+    <div class="prose art__corps" id="lire-corps">
+      <div class="notice">
+        <span class="notice__i" aria-hidden="true">!</span>
+        <p>Cette analyse vient d’être publiée&nbsp;: elle se charge depuis notre
+        espace de rédaction.<noscript> Activez JavaScript, ou revenez après la
+        prochaine mise à jour du site pour la consulter sous son adresse
+        définitive.</noscript></p>
+      </div>
+    </div>
+    <p class="art__retour"><a class="card__more" href="../analyses.html">Toutes les analyses</a></p>
+  </div>
+</section>
+"""
+    page = layout("analyses/lire.html", "Analyse | La Française",
+                  "Lecture d’une analyse récemment publiée.", body)
+    page = page.replace(
+        '<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">',
+        '<meta name="robots" content="noindex, follow">')
+    page = page.replace("</body>",
+                        f'<script src="../{v("assets/supabase-obs.js")}"></script>\n'
+                        f'<script src="../{v("assets/articles.js")}"></script>\n</body>')
+    write("analyses/lire.html", page)
+
+# ==========================================================================
+#  ESPACE ADMIN — rédaction des analyses
+#  Page autonome : ni navigation publique, ni appel à l'action, ni pied de
+#  page. Elle n'est liée depuis aucune page du site et porte un `noindex`.
+#  L'authentification est celle du CRM de La Financière de Rochechouart
+#  (mêmes comptes Supabase).
+# ==========================================================================
+def page_admin():
+    supa_url, supa_key = config_supabase()
+    # `frame-ancestors` est ignoré dans un <meta> : la protection contre
+    # l'inclusion en cadre est posée par le .htaccess (X-Frame-Options).
+    csp = ("default-src 'self'; base-uri 'self'; object-src 'none'; "
+           "form-action 'self'; img-src 'self' data:; "
+           "font-src 'self' data:; style-src 'self' 'unsafe-inline'; "
+           f"script-src 'self'; connect-src 'self' {supa_url}")
+
+    page = f"""<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="{e(csp)}">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rédaction des analyses — {e(SITE)}</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32.png">
+<link rel="stylesheet" href="{v("assets/obs.css")}">
+<link rel="stylesheet" href="{v("assets/admin.css")}">
+</head>
+<body class="adm-body">
+
+<!-- ========== CONNEXION ========== -->
+<div class="adm-login" id="adm-login">
+  <form class="adm-login__card" id="adm-login-form" autocomplete="on">
+    <span class="brand__mark" aria-hidden="true">{monogramme()}</span>
+    <h1>Rédaction des analyses</h1>
+    <p>Connectez-vous avec vos identifiants {e(EDITEUR)}.</p>
+    <label for="adm-email">Adresse électronique</label>
+    <input type="email" id="adm-email" autocomplete="username" required>
+    <label for="adm-mdp">Mot de passe</label>
+    <input type="password" id="adm-mdp" autocomplete="current-password" required>
+    <button class="btn btn--gold" type="submit" id="adm-login-btn">Se connecter</button>
+    <p class="adm-erreur" id="adm-login-erreur" role="alert" hidden></p>
+  </form>
+</div>
+
+<!-- ========== CONSOLE ========== -->
+<div class="adm" id="adm">
+  <header class="adm__hdr">
+    <span class="brand">
+      <span class="brand__mark" aria-hidden="true">{monogramme()}</span>
+      <span class="brand__txt">
+        <span class="brand__name">{e(SITE_SHORT)}</span>
+        <span class="brand__sub">Rédaction des analyses</span>
+      </span>
+    </span>
+    <div class="adm__hdr-actions">
+      <span class="adm__user" id="adm-user"></span>
+      <a class="adm__lien" href="analyses.html" target="_blank" rel="noopener">Voir les analyses ↗</a>
+      <a class="adm__lien" href="../admin.html">CRM</a>
+      <button class="adm__lien" type="button" id="adm-quitter">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="adm__corps">
+    <aside class="adm__liste">
+      <div class="adm__liste-hdr">
+        <button class="btn btn--gold btn--sm" type="button" id="adm-nouveau">Nouvelle analyse</button>
+        <input type="search" id="adm-filtre" placeholder="Filtrer…" aria-label="Filtrer les analyses">
+      </div>
+      <ul id="adm-items"></ul>
+      <p class="adm__vide" id="adm-liste-vide">Aucune analyse pour le moment.</p>
+    </aside>
+
+    <main class="adm__editeur">
+      <p class="adm__accueil" id="adm-accueil">
+        Choisissez une analyse à gauche, ou créez-en une nouvelle.
+      </p>
+
+      <form class="adm__form" id="adm-form" hidden>
+        <div class="adm__form-hdr">
+          <span class="adm__statut" id="adm-statut-pastille"></span>
+          <div class="adm__form-actions">
+            <button class="btn btn--sm" type="button" id="adm-apercu">Aperçu</button>
+            <button class="btn btn--sm" type="submit" id="adm-enregistrer">Enregistrer</button>
+            <button class="btn btn--gold btn--sm" type="button" id="adm-publier">Publier</button>
+            <button class="btn btn--sm adm__danger" type="button" id="adm-supprimer">Supprimer</button>
+          </div>
+        </div>
+
+        <label for="adm-titre">Titre <span class="adm__req">obligatoire</span></label>
+        <input type="text" id="adm-titre" maxlength="140" required>
+        <p class="adm__aide">Apparaît en titre de page et en &lt;h1&gt;. 60 à 70 signes se lisent le mieux dans Google.
+          <span class="adm__compte" id="adm-compte-titre"></span></p>
+
+        <label for="adm-slug">Adresse de la page <span class="adm__req">obligatoire</span></label>
+        <div class="adm__slug">
+          <span class="adm__slug-base">{e(BASE_PATH)}/analyses/</span>
+          <input type="text" id="adm-slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" minlength="3" maxlength="90" required>
+          <span>/</span>
+        </div>
+        <p class="adm__aide">Minuscules, chiffres et traits d’union. Proposée d’après le titre ;
+          <strong>à ne plus modifier une fois l’analyse publiée</strong>, sous peine de casser le lien.</p>
+
+        <div class="adm__duo">
+          <div>
+            <label for="adm-categorie">Rubrique</label>
+            <input type="text" id="adm-categorie" list="adm-rubriques" maxlength="40" placeholder="Note de marché">
+            <datalist id="adm-rubriques">
+              <option value="Note de marché"></option>
+              <option value="Mécanismes"></option>
+              <option value="Points de vigilance"></option>
+              <option value="Réglementation"></option>
+              <option value="Émetteurs"></option>
+            </datalist>
+          </div>
+          <div>
+            <label for="adm-date">Date de publication</label>
+            <input type="date" id="adm-date">
+          </div>
+        </div>
+
+        <label for="adm-chapo">Chapô</label>
+        <textarea id="adm-chapo" rows="3" maxlength="320"></textarea>
+        <p class="adm__aide">Deux ou trois lignes d’introduction, reprises sur la page d’index.
+          <span class="adm__compte" id="adm-compte-chapo"></span></p>
+
+        <label for="adm-corps">Corps de l’analyse</label>
+        <textarea id="adm-corps" rows="22" spellcheck="true"></textarea>
+        <p class="adm__aide">Mise en forme&nbsp;: <code>## Titre</code> et <code>### Sous-titre</code>,
+          <code>- liste</code>, <code>**gras**</code>, <code>*italique*</code>,
+          <code>[texte](adresse)</code>, <code>&gt; citation</code>, <code>---</code> pour un filet.
+          <span class="adm__compte" id="adm-compte-corps"></span></p>
+
+        <fieldset class="adm__seo">
+          <legend>Référencement</legend>
+          <label for="adm-meta-titre">Titre pour les moteurs</label>
+          <input type="text" id="adm-meta-titre" maxlength="70" placeholder="Laisser vide : le titre sera reprise">
+          <p class="adm__aide"><span class="adm__compte" id="adm-compte-meta-titre"></span></p>
+          <label for="adm-meta-desc">Description pour les moteurs</label>
+          <textarea id="adm-meta-desc" rows="2" maxlength="165" placeholder="Laisser vide : le chapô sera repris"></textarea>
+          <p class="adm__aide">150 à 160 signes. <span class="adm__compte" id="adm-compte-meta-desc"></span></p>
+        </fieldset>
+
+        <p class="adm__msg" id="adm-msg" role="status" hidden></p>
+      </form>
+
+      <div class="adm__apercu" id="adm-apercu-vol" hidden>
+        <div class="adm__apercu-barre">
+          <strong>Aperçu</strong>
+          <button class="btn btn--sm" type="button" id="adm-apercu-fermer">Fermer l’aperçu</button>
+        </div>
+        <article class="prose art__corps" id="adm-apercu-corps"></article>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="{v("assets/supabase-obs.js")}"></script>
+<script src="{v("assets/articles.js")}"></script>
+<script src="{v("assets/admin.js")}"></script>
+</body>
+</html>
+"""
+    write("admin.html", page)
+
+def build_supabase_js():
+    """Reprend la configuration Supabase du site principal : une seule source
+    de vérité, pour que le sous-site suive si le projet change. La clé anonyme
+    est publique par conception — elle ne donne accès qu'à ce que les
+    politiques RLS autorisent."""
+    url, cle = config_supabase()
+    write("assets/supabase-obs.js",
+          "/* Généré par build-observatoire.py depuis assets/js/supabase-config.js. */\n"
+          f"window.OBS_SUPABASE_URL = {json.dumps(url)};\n"
+          f"window.OBS_SUPABASE_KEY = {json.dumps(cle)};\n")
+
+_CONFIG_SUPABASE = None
+
+def config_supabase():
+    global _CONFIG_SUPABASE
+    if _CONFIG_SUPABASE is None:
+        chemin = os.path.join(ROOT, "assets", "js", "supabase-config.js")
+        with open(chemin, encoding="utf-8") as f:
+            texte = f.read()
+        def lire(nom):
+            m = re.search(nom + r"\s*=\s*'([^']+)'", texte)
+            if not m:
+                raise SystemExit(f"{nom} introuvable dans {chemin}")
+            return m.group(1)
+        _CONFIG_SUPABASE = (lire("SUPABASE_URL"), lire("SUPABASE_ANON_KEY"))
+    return _CONFIG_SUPABASE
 
 if __name__ == "__main__":
     main()
