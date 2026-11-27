@@ -23,16 +23,55 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
   }
 
+  /* Adresses écrites telles quelles dans le texte. Le rédacteur colle une
+     URL ou une adresse électronique sans syntaxe particulière : elles
+     doivent devenir cliquables. Les motifs s'appliquent à du texte DÉJÀ
+     échappé, d'où l'acceptation de « & » et « ; ». */
+  var URL_NUE = /(?:https?:\/\/|www\.)[^\s<>()\[\]\u00ab\u00bb]+[^\s<>()\[\]\u00ab\u00bb.,;:!?\u2019']/gi;
+  var MAIL_NU = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+
+  function autoliens(txt) {
+    txt = txt.replace(URL_NUE, function (u, pos, tout) {
+      // Équivalent de (?<![\w@/.]) : la rétro-assertion n'est pas sûre sur
+      // tous les navigateurs, on regarde le caractère précédent à la main.
+      var av = pos ? tout.charAt(pos - 1) : '';
+      if (av && /[\w@/.]/.test(av)) return u;
+      var cible = /^https?:\/\//i.test(u) ? u : 'https://' + u;
+      return '<a href="' + cible + '" target="_blank" rel="noopener">' + u + '</a>';
+    });
+    return txt.replace(MAIL_NU, function (a, pos, tout) {
+      var av = pos ? tout.charAt(pos - 1) : '';
+      if (av && /[\w.@-]/.test(av)) return a;
+      var ap = tout.charAt(pos + a.length);
+      if (ap && /[\w-]/.test(ap)) return a;
+      return '<a href="mailto:' + a + '">' + a + '</a>';
+    });
+  }
+
+  /* Applique une transformation au seul texte visible, jamais à l'intérieur
+     d'une balise : sans quoi l'adresse d'un href fraîchement écrit serait
+     reconvertie en lien, à l'intérieur d'elle-même. */
+  function horsBalises(frag, f) {
+    var morceaux = frag.split(/(<a\b[^>]*>[\s\S]*?<\/a>|<[^>]+>)/i);
+    for (var i = 0; i < morceaux.length; i += 2) morceaux[i] = f(morceaux[i]);
+    return morceaux.join('');
+  }
+
   function enligne(txt) {
     txt = txt.replace(/\*\*(\S(?:.*?\S)?)\*\*/g, '<strong>$1</strong>');
     txt = txt.replace(/(^|[^\w*])\*(\S(?:[^*]*?\S)?)\*(?![\w*])/g, '$1<em>$2</em>');
-    return txt.replace(/\[([^\]\[]+)\]\(([^()\s]+)\)/g, function (_, libelle, cible) {
-      // Pas de schéma actif (javascript:, data:…) ni d'adresse sans
-      // protocole (//site-tiers/…), qui a l'allure d'un chemin interne.
-      if (!/^(https?:\/\/|\/(?!\/)|#|\.\.\/|[\w-]+[/.])/.test(cible)) return libelle;
-      var ext = cible.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '';
-      return '<a href="' + cible + '"' + ext + '>' + libelle + '</a>';
-    });
+    // La cible accepte un niveau de parenthèses et les espaces : une adresse
+    // de document en comporte souvent, et le lien était alors perdu.
+    txt = txt.replace(/\[([^\]\[]+)\]\(([^()]*(?:\([^()]*\)[^()]*)*)\)/g,
+      function (_, libelle, cible) {
+        cible = cible.trim();
+        // Pas de schéma actif (javascript:, data:…) ni d'adresse sans
+        // protocole (//site-tiers/…), qui a l'allure d'un chemin interne.
+        if (!/^(https?:\/\/|\/(?!\/)|#|\.\.\/|[\w-]+[/.])/.test(cible)) return libelle;
+        var ext = cible.indexOf('http') === 0 ? ' target="_blank" rel="noopener"' : '';
+        return '<a href="' + cible.split(' ').join('%20') + '"' + ext + '>' + libelle + '</a>';
+      });
+    return horsBalises(txt, autoliens);
   }
 
   function rendu(corps) {

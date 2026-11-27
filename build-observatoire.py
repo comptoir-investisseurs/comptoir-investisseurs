@@ -5036,13 +5036,43 @@ ARTICLES = charger_articles()
 #  évolution ici doit y être reportée, sinon l'aperçu de l'Admin et la page
 #  publiée divergent.
 # --------------------------------------------------------------------------
+# Adresses écrites telles quelles dans le texte. Le rédacteur colle une URL
+# ou une adresse électronique sans syntaxe particulière : elles doivent
+# devenir cliquables. Les motifs s'appliquent à du texte DÉJÀ échappé, d'où
+# l'acceptation de « & » et « ; » (une esperluette y est devenue « &amp; »).
+_URL_NUE = re.compile(
+    r"(?<![\w@/.])((?:https?://|www\.)[^\s<>()\[\]\u00ab\u00bb]+"
+    r"[^\s<>()\[\]\u00ab\u00bb.,;:!?\u2019'])", re.I)
+# Le point final d'une phrase ne doit pas empêcher la reconnaissance :
+# le groupe de domaine exige déjà un caractère après chaque point.
+_MAIL_NU = re.compile(r"(?<![\w.@-])([\w.+-]+@[\w-]+(?:\.[\w-]+)+)(?![\w-])")
+
+def _autoliens(txt):
+    def url(m):
+        u = m.group(1)
+        cible = u if u.lower().startswith(("http://", "https://")) else "https://" + u
+        return f'<a href="{cible}" target="_blank" rel="noopener">{u}</a>'
+
+    def mail(m):
+        a = m.group(1)
+        return f'<a href="mailto:{a}">{a}</a>'
+
+    return _MAIL_NU.sub(mail, _URL_NUE.sub(url, txt))
+
+def _hors_balises(frag, f):
+    """Applique f au seul texte visible, jamais à l'intérieur d'une balise :
+    sans quoi l'adresse contenue dans un href fraîchement écrit serait
+    reconvertie en lien, à l'intérieur d'elle-même."""
+    morceaux = re.split(r"(<a\b[^>]*>.*?</a>|<[^>]+>)", frag, flags=re.S | re.I)
+    return "".join(x if i % 2 else f(x) for i, x in enumerate(morceaux))
+
 def _enligne(txt):
     """Gras, italique et liens, appliqués à du texte DÉJÀ échappé."""
     txt = re.sub(r"\*\*(?=\S)(.+?)(?<=\S)\*\*", r"<strong>\1</strong>", txt)
     txt = re.sub(r"(?<![\w*])\*(?=\S)([^*]+?)(?<=\S)\*(?![\w*])", r"<em>\1</em>", txt)
 
     def lien(m):
-        libelle, cible = m.group(1), m.group(2)
+        libelle, cible = m.group(1), m.group(2).strip()
         # Seuls les liens http(s), les ancres et les chemins relatifs sont
         # conservés : on écarte javascript:, data: et autres schémas actifs,
         # ainsi que les adresses sans protocole (//site-tiers/…), qui sortent
@@ -5050,9 +5080,12 @@ def _enligne(txt):
         if not re.match(r"^(https?://|/(?!/)|\#|\.\./|[\w\-]+[/.])", cible):
             return libelle
         ext = ' target="_blank" rel="noopener"' if cible.startswith("http") else ""
-        return f'<a href="{cible}"{ext}>{libelle}</a>'
+        return f'<a href="{cible.replace(" ", "%20")}"{ext}>{libelle}</a>'
 
-    return re.sub(r"\[([^\]\[]+)\]\(([^()\s]+)\)", lien, txt)
+    # La cible accepte un niveau de parenthèses et les espaces : une adresse
+    # de document en comporte souvent, et le lien était alors perdu.
+    txt = re.sub(r"\[([^\]\[]+)\]\(([^()]*(?:\([^()]*\)[^()]*)*)\)", lien, txt)
+    return _hors_balises(txt, _autoliens)
 
 def rendu_corps(corps):
     """Markdown restreint -> HTML. Le texte est échappé avant toute mise en
@@ -5401,8 +5434,10 @@ def page_admin():
       <textarea id="adm-corps" rows="18" spellcheck="true"></textarea>
       <p class="adm__astuce">Astuce : laissez une ligne vide entre deux paragraphes.
         <code>**gras**</code>, <code>*italique*</code>, <code>## titre</code>,
-        <code>### sous-titre</code>, <code>- liste</code>, <code>&gt; citation</code>,
-        <code>[texte](lien)</code>.
+        <code>### sous-titre</code>, <code>- liste</code>, <code>&gt; citation</code>.
+        Une adresse collée telle quelle — <code>https://…</code>, <code>www.…</code>
+        ou une adresse électronique — devient un lien automatiquement ; le bouton
+        <strong>Lien</strong> sert à poser un libellé à la place de l’adresse.
         <span class="adm__compte" id="adm-compte-corps"></span></p>
 
       <p class="adm__msg" id="adm-msg" role="status" hidden></p>
