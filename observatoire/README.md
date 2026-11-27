@@ -324,6 +324,16 @@ accepte une mise en forme réduite : `## Titre`, `### Sous-titre`, `- liste`, `*
 `*italique*`, `[texte](adresse)`, `> citation`, `---`. Le bouton **Aperçu** affiche le rendu
 exact de la page publiée.
 
+**Les adresses collées telles quelles deviennent des liens** : `https://…`, `www.…` et les
+adresses électroniques, ces dernières en `mailto:`. La syntaxe `[texte](adresse)` ne sert donc
+qu'à poser un libellé à la place de l'adresse. Les liens externes reçoivent `target="_blank"`
+et `rel="noopener"` ; les schémas actifs (`javascript:`, `data:`) et les adresses sans
+protocole (`//site-tiers/…`) sont écartés.
+
+La conversion ne s'applique qu'au texte visible, jamais à l'intérieur d'une balise : sans cette
+précaution, l'adresse d'un `href` fraîchement écrit serait reconvertie en lien à l'intérieur
+d'elle-même.
+
 **Enregistrer** garde l’analyse en brouillon ; **Publier** la met en ligne.
 
 ### Les deux chemins d’une analyse publiée
